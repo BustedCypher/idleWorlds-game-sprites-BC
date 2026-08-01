@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 4,
   "cell_size": 128,
   "display_cell_size": 64,
   "pixel_ratio": 2,
@@ -11186,5 +11186,6 @@
       "width": 128,
       "height": 128
     }
-  ]
+  ],
+  "asset_version": "2x-2026-08-01-indexfix1"
 }
