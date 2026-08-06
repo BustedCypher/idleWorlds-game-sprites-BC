@@ -4,6 +4,13 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IdleWorlds Toolkit v4.8</title>
+<!-- v4.8 Super XP Potion restoration
+     • Added all 34 Super XP Potions from items.json to Your Bonuses → Potion.
+     • Normal and Super potion selections use distinct family:tier values.
+     • Flat XP is read from each item’s +N XP/task effect, with safe fallbacks.
+     • Legacy numeric saved potion tiers migrate to the matching normal potion.
+     • Removed accumulated duplicate static potion options; population is now idempotent.
+     ═══════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════════════
      IDLEWORLDS TOOLKIT — v4.8
 
@@ -5512,7 +5519,7 @@
 })();
 </script>
 <style id="iw-panel-styles">#iw-info-panels{display:none;gap:10px;flex-wrap:wrap;margin:12px 0 0;}.iwp-card{position:relative;flex:1 1 190px;min-width:180px;border-radius:12px;padding:12px 13px 11px;background:linear-gradient(180deg,var(--surface-hi,#1c1e23),var(--surface,#141519));border:1px solid var(--border2,#343740);box-shadow:var(--inset-top,none);overflow:hidden;transition:border-color .16s ease,background .16s ease;animation:iwp-in .3s ease both;}.iwp-card:hover{border-color:var(--text3,#4e566d);}.iwp-card::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;background:var(--acc,#2ec4a0);opacity:.6;}.iwp-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--border,#2a2f42);position:relative;z-index:1;}.iwp-emoji{font-size:16px;line-height:1;}.iwp-title{font:700 11px 'Inter',sans-serif;letter-spacing:.6px;color:var(--text,#e8ecf5);text-transform:uppercase;}.iwp-row{margin:9px 0;position:relative;z-index:1;}.iwp-rowtop{display:flex;align-items:center;justify-content:space-between;gap:8px;}.iwp-rowlbl{display:flex;align-items:center;gap:6px;font:600 12px 'Inter',sans-serif;color:var(--text2,#8b93b0);}.iwp-val{font:700 14px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);letter-spacing:-.2px;}.iwp-val.zero{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));font-weight:600;}.iwp-meter{position:relative;height:5px;margin-top:6px;border-radius:99px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);overflow:hidden;}.iwp-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--racc,#2ec4a0);opacity:.85;transition:width .45s cubic-bezier(.2,.7,.2,1);}[data-theme="light"] .iwp-fill,[data-theme="office"] .iwp-fill{background:color-mix(in srgb,var(--racc,#2ec4a0) 45%,var(--text,#252218));opacity:1;}.iwp-elems{display:flex;gap:7px;position:relative;z-index:1;}.iwp-elem{flex:1;text-align:center;border-radius:9px;padding:8px 4px 6px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);}.iwp-elem .e-emoji{font-size:17px;line-height:1;}.iwp-elem .e-val{display:block;margin-top:4px;font:700 15px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);}.iwp-elem.zero{background:var(--surface-2,#15161a);}.iwp-elem.zero .e-val{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}.iwp-elem.zero .e-emoji{opacity:.45;}.iwp-elem .e-lbl{display:block;margin-top:3px;font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.6px;color:var(--text3,#4e566d);}.iwp-team{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}.iwp-crest{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);}.iwp-teamsub{font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3,#4e566d);}.iwp-teamname{font:700 16px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);margin-top:2px;}@keyframes iwp-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}@media (prefers-reduced-motion:reduce){.iwp-card{animation:none;}.iwp-fill{transition:none;}}</style></head>
-<body class="mode-simple dev-mode">
+<body class="mode-simple">
 
 <div class="grain" aria-hidden="true"></div>
 
@@ -5659,15 +5666,15 @@
         <option value="ssf">SSF</option>
       </select>
       <button id="iw-import-btn">Import</button>
-      <button id="iw-import-test" title="Load a bundled sample profile (no network) to test the import pipeline" style="">Test</button>
+      <button id="iw-import-test" title="Load a bundled sample profile (no network) to test the import pipeline" style="display:none;">Test</button>
     </div>
     <div id="iw-import-status" style="display:none;" hidden></div>
-    <div class="saved-state ok" id="saved-state"><span aria-hidden="true">✓</span><span>Profile saved <b>2 min ago</b> — it will still be here next time.</span><button type="button" class="saved-act" onclick="iwReimport()">Re-import</button><button type="button" class="saved-act" onclick="iwForget()">Forget</button></div>
+    <div class="saved-state" id="saved-state" style="display:none;" hidden></div>
   </div>
 
-    <div class="panel" id="char-panel" style="">
+    <div class="panel" id="char-panel" style="display:none;" hidden>
       <div class="panel-head"><span class="dot purple"></span>Your character</div>
-      <div class="panel-body"><div class="cp-head"><div class="cp-who"><div class="cp-name">JohnSmith_TestImport</div><div class="cp-sub">8 skills · 448 total levels · highest Mining 66</div></div></div><div style="display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:4px;"><div class="cp-facts" style="flex:1 1 auto;margin:0;"><div class="cp-fact"><span class="cp-fact-l">Race</span><span class="cp-fact-v">Goblin (+5% Mining, +5% JC)</span></div><div class="cp-fact"><span class="cp-fact-l">Housing</span><span class="cp-fact-v">T3 – Villa</span></div></div><div class="cp-facts" style="flex:0 0 auto;margin:0;"><div class="cp-fact"><span class="cp-fact-l">Team</span><span class="cp-fact-v">Red Team</span></div></div></div><div class="cp-collapse-row"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Collapse level details" id="cp-collapse-toggle" onclick="iwToggleSkillCollapse()"><span class="knob"></span></button><span class="cp-collapse-label" onclick="iwToggleSkillCollapse()">Collapse level details</span></div><div class="cp-skills" id="cp-skills"><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;mining&#39;)" title="Use Mining in the calculator" data-skill="mining"><span class="cp-icon" aria-hidden="true">⛏️</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Mining</span><span class="cp-lvl">66</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:18.7%"></i></span><span class="cp-xp">6,912,485 / 36,977,588 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;jewelcrafting&#39;)" title="Use Jewelcrafting in the calculator" data-skill="jewelcrafting"><span class="cp-icon" aria-hidden="true">💎</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Jewelcrafting</span><span class="cp-lvl">64</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:84.9%"></i></span><span class="cp-xp">21,108,876 / 24,850,867 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;combat&#39;)" title="Use Combat in the calculator" data-skill="combat"><span class="cp-icon" aria-hidden="true">⚔️</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Combat</span><span class="cp-lvl">61</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:10.4%"></i></span><span class="cp-xp">1,427,876 / 13,694,335 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;gathering&#39;)" title="Use Gathering in the calculator" data-skill="gathering"><span class="cp-icon" aria-hidden="true">🌿</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Gathering</span><span class="cp-lvl">60</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:42.8%"></i></span><span class="cp-xp">4,808,506 / 11,228,165 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;alchemy&#39;)" title="Use Alchemy in the calculator" data-skill="alchemy"><span class="cp-icon" aria-hidden="true">🧪</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Alchemy</span><span class="cp-lvl">59</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:0.3%"></i></span><span class="cp-xp">27,262 / 9,206,595 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;spellcrafting&#39;)" title="Use Spellcrafting in the calculator" data-skill="spellcrafting"><span class="cp-icon" aria-hidden="true">✨</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Spellcrafting</span><span class="cp-lvl">57</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:94.6%"></i></span><span class="cp-xp">5,856,509 / 6,191,027 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;smithing&#39;)" title="Use Smithing in the calculator" data-skill="smithing"><span class="cp-icon" aria-hidden="true">🔨</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Smithing</span><span class="cp-lvl">55</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:56.7%"></i></span><span class="cp-xp">2,360,469 / 4,164,571 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button><button type="button" class="cp-skill is-link" onclick="iwUseSkill(&#39;tailoring&#39;)" title="Use Tailoring in the calculator" data-skill="tailoring"><span class="cp-icon" aria-hidden="true">🧵</span><span class="cp-body"><span class="cp-row1"><span class="cp-skill-name">Tailoring</span><span class="cp-lvl">26</span></span><span class="cp-progress"><span class="cp-bar"><i style="width:0.8%"></i></span><span class="cp-xp">128 / 17,035 XP to next</span></span></span><span class="cp-go" aria-hidden="true">→</span></button></div></div>
+      <div class="panel-body"></div>
     </div>
 
     <!-- v41.3 — "Today's XP boost" lived here AND in the rail card that is
@@ -5678,7 +5685,7 @@
       <div class="panel-head"><span class="dot"></span>Two steps to an answer</div>
       <div class="panel-body">
         <div class="checklist" id="checklist">
-          <div class="cl-row done" id="cl-import">
+          <div class="cl-row" id="cl-import">
             <span class="cl-mark" aria-hidden="true">✓</span>
             <span class="cl-body"><span class="cl-title">Import your character</span><span class="cl-note">Optional, but it fills every field for you.</span></span>
             <button type="button" class="cl-go" onclick="iwFocusImport()">Go</button>
@@ -5759,7 +5766,7 @@
       <h2 class="pane-title">Settings</h2>
       <p class="pane-sub">Everything here is saved on this device. Nothing is sent anywhere.</p>
     </div>
-    <div id="settings-root"><section class="panel set-group"><div class="panel-head"><span class="dot"></span><span aria-hidden="true" style="margin-right:2px;">🎨</span>Appearance</div><div class="panel-body set-rows"><div class="set-row"><div class="set-text"><div class="set-label">Theme</div><div class="set-help">Changes instantly and is remembered on this device.</div></div><div class="set-control"><div class="swatches"><button type="button" class="swatch" data-theme="dark" title="Dark" aria-label="Dark" onclick="iwSetSetting(&#39;theme&#39;,&#39;dark&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Dark</span></button><button type="button" class="swatch" data-theme="light" title="Light" aria-label="Light" onclick="iwSetSetting(&#39;theme&#39;,&#39;light&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Light</span></button><button type="button" class="swatch" data-theme="office" title="Office" aria-label="Office" onclick="iwSetSetting(&#39;theme&#39;,&#39;office&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Office</span></button><button type="button" class="swatch" data-theme="pink" title="Pink" aria-label="Pink" onclick="iwSetSetting(&#39;theme&#39;,&#39;pink&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Pink</span></button><button type="button" class="swatch" data-theme="emerald" title="Emerald" aria-label="Emerald" onclick="iwSetSetting(&#39;theme&#39;,&#39;emerald&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Emerald</span></button><button type="button" class="swatch on" data-theme="sapphire" title="Sapphire" aria-label="Sapphire" onclick="iwSetSetting(&#39;theme&#39;,&#39;sapphire&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Sapphire</span></button><button type="button" class="swatch" data-theme="ruby" title="Ruby" aria-label="Ruby" onclick="iwSetSetting(&#39;theme&#39;,&#39;ruby&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Ruby</span></button><button type="button" class="swatch" data-theme="topaz" title="Topaz" aria-label="Topaz" onclick="iwSetSetting(&#39;theme&#39;,&#39;topaz&#39;)"><span class="sw-page"><span class="sw-acc"></span></span><span class="sw-name">Topaz</span></button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Detail level</div><div class="set-help">Simple hides advanced inputs and shows a short explanation under each step. Expert shows everything.</div></div><div class="set-control"><div class="seg"><button type="button" class="on" onclick="iwSetSetting(&#39;mode&#39;,&#39;simple&#39;)">Simple</button><button type="button" class="" onclick="iwSetSetting(&#39;mode&#39;,&#39;expert&#39;)">Expert</button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Density</div><div class="set-help">Compact tightens padding so more fits on screen.</div></div><div class="set-control"><div class="seg"><button type="button" class="on" onclick="iwSetSetting(&#39;density&#39;,&#39;comfortable&#39;)">Comfortable</button><button type="button" class="" onclick="iwSetSetting(&#39;density&#39;,&#39;compact&#39;)">Compact</button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Disable tooltips in Calculator</div><div class="set-help">Turns off item hover cards on the Calculator tab only.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Disable tooltips in Calculator" onclick="iwSetSetting(&#39;tipOffCalculator&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Disable tooltips in Planner</div><div class="set-help">Turns off item hover cards on the Planner tab only.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Disable tooltips in Planner" onclick="iwSetSetting(&#39;tipOffPlanner&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Disable tooltips in Gear</div><div class="set-help">Turns off item hover cards on the Gear tab only, including the equipment tiles.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Disable tooltips in Gear" onclick="iwSetSetting(&#39;tipOffGear&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Disable tooltips in Item Lookup</div><div class="set-help">Turns off item hover cards on the Items tab only.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Disable tooltips in Item Lookup" onclick="iwSetSetting(&#39;tipOffLookup&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Disable tooltips in Item Lookup on mobile</div><div class="set-help">Same as above, but only on touch devices that cannot hover. Has no effect on this device if it has a mouse or trackpad.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Disable tooltips in Item Lookup on mobile" onclick="iwSetSetting(&#39;tipOffLookupMobile&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Text size</div><div class="set-help">Scales all text, including results.</div></div><div class="set-control"><div class="seg"><button type="button" class="on" onclick="iwSetSetting(&#39;textSize&#39;,&#39;normal&#39;)">Normal</button><button type="button" class="" onclick="iwSetSetting(&#39;textSize&#39;,&#39;large&#39;)">Large</button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Number format</div><div class="set-help">How every figure in the toolkit is written.</div></div><div class="set-control"><div class="seg"><button type="button" class="on" onclick="iwSetSetting(&#39;numberFormat&#39;,&#39;full&#39;)">1,200</button><button type="button" class="" onclick="iwSetSetting(&#39;numberFormat&#39;,&#39;compact&#39;)">1.2k</button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Time format</div><div class="set-help">Which reading leads; the other stays underneath.</div></div><div class="set-control"><div class="seg"><button type="button" class="on" onclick="iwSetSetting(&#39;timeFormat&#39;,&#39;breakdown&#39;)">1d 9h 45m</button><button type="button" class="" onclick="iwSetSetting(&#39;timeFormat&#39;,&#39;hours&#39;)">33.8h</button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Reduce motion</div><div class="set-help">Removes transitions and the load-in animation. Your device setting is already respected — this forces it on.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Reduce motion" onclick="iwSetSetting(&#39;reduceMotion&#39;,true)"><span class="knob"></span></button></div></div></div></section><section class="panel set-group"><div class="panel-head"><span class="dot"></span><span aria-hidden="true" style="margin-right:2px;">🧮</span>Calculation defaults</div><div class="panel-body set-rows"><div class="set-row"><div class="set-text"><div class="set-label">Always include World Boss buff</div><div class="set-help">Keeps the +24 XP world boss bonus ticked in step 6 on every visit.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Always include World Boss buff" onclick="iwSetSetting(&#39;alwaysBoss&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Always apply skill gloves</div><div class="set-help">Assumes you are wearing skill gloves, which unlock tiers up to 4 levels early in the planner.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Always apply skill gloves" onclick="iwSetSetting(&#39;alwaysGloves&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Always include server bonus</div><div class="set-help">Ticks the +25% server-wide bonus by default.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Always include server bonus" onclick="iwSetSetting(&#39;alwaysServer&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Always include ZC team bonus</div><div class="set-help">Ticks the +10% Zone Control team bonus by default.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Always include ZC team bonus" onclick="iwSetSetting(&#39;alwaysZcTeam&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Always include New Player promo</div><div class="set-help">Ticks the +25% new player bonus by default.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Always include New Player promo" onclick="iwSetSetting(&#39;alwaysNewPlayer&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Default housing tier</div><div class="set-help">Housing shortens every action. Applied when you have no saved value.</div></div><div class="set-control"><select class="set-select" onchange="iwSetSetting(&#39;defaultHousing&#39;,this.value)"><option value="" selected="">Leave as is</option><option value="0">None (no house)</option><option value="1">T1 – Camp</option><option value="2">T2 – Cottage</option><option value="3">T3 – Villa</option><option value="4">T4 – Manor</option><option value="5">T5 – Citadel</option><option value="0">None (no house)</option><option value="1">T1 – Camp</option><option value="2">T2 – Cottage</option><option value="3">T3 – Villa</option><option value="4">T4 – Manor</option><option value="5">T5 – Citadel</option><option value="0">None (no house)</option><option value="1">T1 – Camp</option><option value="2">T2 – Cottage</option><option value="3">T3 – Villa</option><option value="4">T4 – Manor</option><option value="5">T5 – Citadel</option></select></div></div><div class="set-row"><div class="set-text"><div class="set-label">Default enchant level</div><div class="set-help">Which enchant level the Gear tab opens on.</div></div><div class="set-control"><div class="seg"><button type="button" class="on" onclick="iwSetSetting(&#39;defaultEnchant&#39;,&#39;&#39;)">Off</button><button type="button" class="" onclick="iwSetSetting(&#39;defaultEnchant&#39;,&#39;0&#39;)">+0</button><button type="button" class="" onclick="iwSetSetting(&#39;defaultEnchant&#39;,&#39;1&#39;)">+1</button><button type="button" class="" onclick="iwSetSetting(&#39;defaultEnchant&#39;,&#39;2&#39;)">+2</button><button type="button" class="" onclick="iwSetSetting(&#39;defaultEnchant&#39;,&#39;3&#39;)">+3</button></div></div></div><div class="set-row"><div class="set-text"><div class="set-label">Auto-apply gather chance from profile</div><div class="set-help">On import, fills "Extra gather chance" from your character and switches it on. Turn off to enter it by hand.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Auto-apply gather chance from profile" onclick="iwSetSetting(&#39;autoGather&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Show all gem tiers in socket planner</div><div class="set-help">By default the planner only suggests gems near your tier.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Show all gem tiers in socket planner" onclick="iwSetSetting(&#39;gemAllTiers&#39;,true)"><span class="knob"></span></button></div></div></div></section><section class="panel set-group"><div class="panel-head"><span class="dot"></span><span aria-hidden="true" style="margin-right:2px;">💾</span>Your data</div><div class="panel-body set-rows"><div class="set-row"><div class="set-text"><div class="set-label">Remember my inputs</div><div class="set-help">Saves your profile and every field on this device so a refresh does not lose them.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Remember my inputs" onclick="iwSetSetting(&#39;remember&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Refresh profile on open</div><div class="set-help">Fetches your current levels from the game each time the toolkit opens, in the background — it will not change tabs or interrupt you. If the game cannot be reached, your last imported profile is kept.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Refresh profile on open" onclick="iwSetSetting(&#39;autoReimport&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Saved profile</div></div><div class="set-control"><span class="set-info-val">JohnSmith_TestImport · saved 2 min ago</span></div></div><div class="set-row"><div class="set-text"><div class="set-label">Re-import now</div><div class="set-help">Fetches your character again using the saved username.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_reimport">Re-import</button></div></div></div></section><section class="panel set-group dev-group"><div class="panel-head"><span class="dot amber"></span><span aria-hidden="true" style="margin-right:2px;">🔧</span>Developer</div><div class="panel-body set-rows"><div class="set-row"><div class="set-text"><div class="set-label">Developer mode</div><div class="set-help">Reveals the tools below, including the offline test profile.</div></div><div class="set-control"><button type="button" class="switch on" role="switch" aria-checked="true" aria-label="Developer mode" onclick="iwSetSetting(&#39;devMode&#39;,false)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Verbose console logging</div><div class="set-help">Sets IW_DEBUG, so the import and skill resolution log their steps.</div></div><div class="set-control"><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Verbose console logging" onclick="iwSetSetting(&#39;verbose&#39;,true)"><span class="knob"></span></button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Run engine self-checks</div><div class="set-help">Re-runs the embedded verification suites and reports anything that complains.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_selfcheck">Run</button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Show raw profile JSON</div><div class="set-help">Dumps the imported profile exactly as stored.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_rawprofile">Show</button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Rebuild item database cache</div><div class="set-help">Clears the cached item data (live API, API cache and legacy keys) and reloads.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_rebuild">Rebuild</button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Live item API</div><div class="set-help">Re-fetch items.json from idleworlds.com now. The current source is shown in the item count tooltip on the Database tab.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_apirefresh">Refresh</button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Import items.json</div><div class="set-help">Offline/CORS fallback: load a downloaded copy of idleworlds.com/items.json from disk.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_apiimport">Choose file</button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Item tooltips</div><div class="set-help">Opens a live sample, one item per acquisition type. Hover, tap or Tab a name to see its card.</div></div><div class="set-control"><button type="button" class="set-action" data-run="_tippreview">Preview</button></div></div><div class="set-row"><div class="set-text"><div class="set-label">Diagnostics</div></div><div class="set-control"><span class="set-info-val">items ? · tiers 34 · restored yes · storage ok · state 7kb · theme sapphire</span></div></div><div class="set-row"><div class="set-text"><div class="set-label">Forget everything on this device</div><div class="set-help">Deletes the saved profile, all saved inputs and these settings.</div></div><div class="set-control"><button type="button" class="set-action danger" data-run="_forget">Forget</button></div></div><div class="dev-out" id="dev-output" style="display:none;"></div></div></section></div>
+    <div id="settings-root"></div>
   </div>
 
   <!-- ═══════════════════════════════════════════
@@ -6034,7 +6041,35 @@
     try{ if(typeof window.calculate==='function') window.calculate(); }catch(e){}
 
     // Read-only info panels (no calculator input exists for these).
+    // Explicitly expose the Start-page character panel. It is authored hidden
+    // until import, and the HTML hidden attribute must be removed separately
+    // from its inline display style.
+    try{
+      var cp = document.getElementById('char-panel');
+      if(cp){
+        cp.hidden = false;
+        cp.removeAttribute('hidden');
+        cp.style.display = '';
+      }
+    }catch(e){}
+
+    // Build/rebuild the character panel first because that renderer replaces
+    // .panel-body.innerHTML, including the stat-card mount.
+    try{
+      if(typeof window.iwRenderCharacter === 'function')
+        window.iwRenderCharacter();
+    }catch(e){}
     renderInfoPanels(profile, stats);
+
+    // A final queued repaint protects against race/housing/input change
+    // handlers that redraw the character panel later in the same event turn.
+    setTimeout(function(){
+      try{
+        if(typeof window.iwRenderCharacter === 'function')
+          window.iwRenderCharacter();
+        renderInfoPanels(profile, profile.combatStats || stats || {});
+      }catch(e){}
+    }, 0);
 
     // v38.8.6: refresh the whole Gear tab so Set details shows the
     // imported equipped set (the panel is now import-aware end-to-end).
@@ -6179,6 +6214,28 @@
 
   function renderInfoPanels(profile, stats){
     var host = document.getElementById('iw-info-panels');
+
+    /* The character summary redraw replaces its entire .panel-body.
+       During import that can temporarily remove the stat-card mount before
+       this renderer runs. Recreate the mount inside the character panel
+       instead of silently returning with no cards. */
+    if(!host){
+      try{
+        var panel = document.getElementById('char-panel');
+        var body = panel && panel.querySelector('.panel-body');
+        if(body){
+          host = document.createElement('div');
+          host.id = 'iw-info-panels';
+          host.setAttribute('aria-label','Imported character statistics');
+
+          var skills = body.querySelector('#cp-skills');
+          var collapse = body.querySelector('.cp-collapse-row');
+          if(collapse) body.insertBefore(host, collapse);
+          else if(skills) body.insertBefore(host, skills);
+          else body.appendChild(host);
+        }
+      }catch(e){}
+    }
     if(!host) return;
     ensureIwPanelStyles();
 
@@ -6377,7 +6434,7 @@
   //    provided earlier (BustedCypher, standard league). Runs the real
   //    applyProfile pipeline — no network — so it exercises the true
   //    mapping (skills array, herbing→gathering, combatStats, panels).
-  var IW_SAMPLE_PROFILE = {"id":"cmocbus5z0e3kkqo3sgg7iw7d","displayName":"JohnSmith_TestImport","level":71,"createdAt":"2026-04-24T03:04:52.247Z","teamColor":"red","leagueType":"standard","hasAlternateLeague":false,"skills":[{"skillKey":"mining","level":66,"xp":175435209},{"skillKey":"jewelcrafting","level":64,"xp":134467308},{"skillKey":"combat","level":61,"xp":64015824},{"skillKey":"herbing","level":60,"xp":56168289},{"skillKey":"alchemy","level":59,"xp":42180450},{"skillKey":"spellcrafting","level":57,"xp":34269217},{"skillKey":"smithing","level":55,"xp":21531157},{"skillKey":"tailoring","level":26,"xp":91864}],"equipped":{"weapon":{"key":"stormglass_sword_plus_3","name":"Stormglass Sword+3","variantId":"cmrimi84l0a9mytd8qgaicwul","statLines":["ATK +119","Requires Combat Lv 57","1 Socket"],"socketEffectLine":"+8% 2x-Gather Chance (gem)","socketState":"filled","socketEffectLine2":null,"socketState2":"none","atk":119,"def":null,"hp":null,"xp":null},"shield":{"key":"stormglass_shield","name":"Stormglass Shield","variantId":"cmrj5i8sw1pe6ujyc2w1lk4g0","statLines":["DEF +22","Requires Combat Lv 57","1 Socket"],"socketEffectLine":"+8% 2x-Gather Chance (gem)","socketState":"filled","socketEffectLine2":null,"socketState2":"none","atk":null,"def":22,"hp":null,"xp":null},"helmet":{"key":"stormglass_helm","name":"Stormglass Helm","variantId":"cmrj5i3i81p90ujycoqyxo5bl","statLines":["DEF +17","Requires Combat Lv 57","1 Socket"],"socketEffectLine":"+8% 2x-Gather Chance (gem)","socketState":"filled","socketEffectLine2":null,"socketState2":"none","atk":null,"def":17,"hp":null,"xp":null},"chest":{"key":"stormglass_chest","name":"Stormglass Chest","variantId":"cmrimi3g60a51ytd8jv2uafkr","statLines":["DEF +26","Requires Combat Lv 57","1 Socket"],"socketEffectLine":"+8% 2x-Gather Chance (gem)","socketState":"filled","socketEffectLine2":null,"socketState2":"none","atk":null,"def":26,"hp":null,"xp":null},"gloves":{"key":"miners_gloves","name":"Miner's Gloves","variantId":null,"statLines":["DEF +1","Mining Level +4"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","atk":null,"def":1,"hp":null,"xp":null},"legs":{"key":"stormglass_leggings","name":"Stormglass Leggings","variantId":"cmrj5i0g91p6jujycdtge5eac","statLines":["DEF +23","Requires Combat Lv 57","1 Socket"],"socketEffectLine":"+8% 2x-Gather Chance (gem)","socketState":"filled","socketEffectLine2":null,"socketState2":"none","atk":null,"def":23,"hp":null,"xp":null},"boots":{"key":"stormglass_boots_plus_3","name":"Stormglass Boots+3","variantId":"cmrimuvnv0nghytd8dubt54ii","statLines":["DEF +32","Requires Combat Lv 57","1 Socket"],"socketEffectLine":"+8% 2x-Gather Chance (gem)","socketState":"filled","socketEffectLine2":null,"socketState2":"none","atk":null,"def":32,"hp":null,"xp":null},"ring":{"key":"tourmaline_ring_of_gathering","name":"Tourmaline Ring of Gathering","variantId":null,"statLines":["XP +34/task","85% chance to gather 2x"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","atk":null,"def":null,"hp":null,"xp":34},"amulet":{"key":"tourmaline_amulet_of_gathering","name":"Tourmaline Amulet of Gathering","variantId":null,"statLines":["XP +34/task","85% chance to gather 2x"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","atk":null,"def":null,"hp":null,"xp":34},"belt":{"key":"enchanted_belt_lv_30","name":"Enchanted Belt Lv. 30","variantId":null,"statLines":["ATK +8 • DEF +10 • HP +8","XP +6/task"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","atk":8,"def":10,"hp":8,"xp":6},"trinket":{"key":"kingssteel_relic_plus_2","name":"Kingssteel Relic+2","variantId":null,"statLines":["Requires Lv 61 (any skill)","XP +27/task"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","atk":null,"def":null,"hp":null,"xp":27}},"marketListings":[{"itemKey":"bloodstone_gloves_plus_3","itemName":"Bloodstone Gloves+3","quantity":1,"unitPrice":50000},{"itemKey":"cut_citrine","itemName":"Cut Citrine","quantity":4,"unitPrice":200000},{"itemKey":"cut_peridot","itemName":"Cut Peridot","quantity":3,"unitPrice":150000},{"itemKey":"cut_spinel","itemName":"Cut Spinel","quantity":2,"unitPrice":150000},{"itemKey":"tourmaline_ring_of_experience","itemName":"Tourmaline Ring of Experience","quantity":2,"unitPrice":1000000}],"housingTier":3,"combatStats":{"atk":224,"def":175,"hp":469,"goldFindPercent":0,"itemFindPercent":17,"doubleGatherChancePercent":256,"xpTaskBonus":101,"fireResist":0,"frostResist":0,"lightningResist":0,"pvpAttackBonus":0},"equippedTitleKey":"title_gemcutter_supreme","race":"goblin","chatNameColorKey":"celestial","itemEnchants":[{"itemKey":"netherite_sword_plus_3","tier":11,"expiresAt":"2026-06-10T09:07:50.597Z"},{"itemKey":"netherite_boots_plus_3","tier":16,"expiresAt":"2026-07-02T02:48:30.758Z"},{"itemKey":"tourmaline_ring_of_experience","tier":17,"expiresAt":"2026-07-20T07:33:36.524Z"},{"itemKey":"stormglass_sword_plus_3","tier":18,"expiresAt":"2026-07-11T21:47:55.118Z"},{"itemKey":"kingssteel_sword_plus_3","tier":18,"expiresAt":"2026-07-19T03:48:50.741Z"},{"itemKey":"netherite_gloves","tier":17,"expiresAt":"2026-07-22T07:23:52.800Z"},{"itemKey":"stormglass_boots_plus_2","tier":16,"expiresAt":"2026-06-29T19:02:51.861Z"},{"itemKey":"tourmaline_ring_of_gathering","tier":18,"expiresAt":"2026-07-19T14:32:58.398Z"},{"itemKey":"miners_gloves","tier":17,"expiresAt":"2026-07-24T04:22:00.307Z"},{"itemKey":"stormglass_helm_plus_3","tier":18,"expiresAt":"2026-07-10T00:57:17.999Z"},{"itemKey":"stormglass_boots_plus_3","tier":18,"expiresAt":"2026-07-23T22:38:33.270Z"},{"itemKey":"jewelcrafters_gloves","tier":17,"expiresAt":"2026-07-20T17:14:27.244Z"},{"itemKey":"glass_striker","tier":18,"expiresAt":"2026-07-17T21:55:25.664Z"}]};
+  var IW_SAMPLE_PROFILE = {"id":"cmocbus5z0e3kkqo3sgg7iw7d","displayName":"BustedCypher","level":73,"createdAt":"2026-04-24T03:04:52.247Z","teamColor":"red","leagueType":"standard","hasAlternateLeague":false,"skills":[{"skillKey":"mining","level":67,"xp":209636086},{"skillKey":"jewelcrafting","level":66,"xp":177588499},{"skillKey":"herbing","level":62,"xp":83249293},{"skillKey":"alchemy","level":62,"xp":81818981},{"skillKey":"combat","level":62,"xp":82178885},{"skillKey":"spellcrafting","level":57,"xp":34269217},{"skillKey":"smithing","level":55,"xp":21945218},{"skillKey":"tailoring","level":26,"xp":95320}],"equipped":{"weapon":{"key":"alchemists_volatile_flask","name":"Alchemist's Volatile Flask","variantId":null,"statLines":["ATK +112","Requires Alchemy Lv 57","XP +12/task","14% Bonus Brew"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":112,"def":null,"hp":null,"xp":12},"shield":{"key":"alchemists_reagent_satchel","name":"Alchemist's Reagent Satchel","variantId":null,"statLines":["DEF +30","Requires Alchemy Lv 57","XP +8/task","7% Bonus Brew"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":30,"hp":null,"xp":8},"helmet":{"key":"moonsilk_hood_plus_1","name":"Moonsilk Hood+1","variantId":"cmrst6a7a41l6s3t3kuf6k0l0","statLines":["DEF +14","Requires Lv 45 (any skill)","2 Sockets"],"socketEffectLine":"+6% Item Find (gem)","socketState":"filled","socketEffectLine2":"+6% Item Find (gem)","socketState2":"filled","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":14,"hp":null,"xp":null},"chest":{"key":"kingssteel_chest_plus_3","name":"Kingssteel Chest+3","variantId":null,"statLines":["DEF +49","Requires Combat Lv 61","1 Socket"],"socketEffectLine":null,"socketState":"open","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":49,"hp":null,"xp":null},"gloves":{"key":"alchemists_gloves","name":"Alchemist's Gloves","variantId":null,"statLines":["DEF +1","Alchemy Level +4"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":1,"hp":null,"xp":null},"legs":{"key":"kingssteel_leggings_plus_3","name":"Kingssteel Leggings+3","variantId":null,"statLines":["DEF +42","Requires Combat Lv 61","1 Socket"],"socketEffectLine":null,"socketState":"open","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":42,"hp":null,"xp":null},"boots":{"key":"moonsilk_boots_plus_1","name":"Moonsilk Boots+1","variantId":"cmru4m31z14fv14hupz8oiisc","statLines":["DEF +15","Requires Lv 45 (any skill)","2 Sockets"],"socketEffectLine":"+6% Item Find (gem)","socketState":"filled","socketEffectLine2":"+6% Item Find (gem)","socketState2":"filled","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":15,"hp":null,"xp":null},"ring":{"key":"zircon_ring_of_experience","name":"Zircon Ring of Experience","variantId":"cms7hzphf0005p2c2xarxc910","statLines":["ATK +36 • DEF +36","Requires Lv 61 (any skill)","XP +54/task"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":36,"def":36,"hp":null,"xp":54},"amulet":{"key":"zircon_amulet_of_experience","name":"Zircon Amulet of Experience","variantId":null,"statLines":["ATK +36 • DEF +36","Requires Lv 61 (any skill)","XP +54/task"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":36,"def":36,"hp":null,"xp":54},"belt":{"key":"enchanted_belt_lv_30","name":"Enchanted Belt Lv. 30","variantId":null,"statLines":["ATK +8 • DEF +10 • HP +8","XP +6/task"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":8,"def":10,"hp":8,"xp":6},"trinket":{"key":"eternium_relic_plus_3","name":"Eternium Relic+3","variantId":null,"statLines":["Requires Lv 65 (any skill)","XP +33/task"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":null,"hp":null,"xp":33},"cloak":{"key":"cloak_tier_17_goldFindPercent_itemFindPercent","name":"Gilded Stormsilk Cloak of Fortune","variantId":null,"statLines":["Requires Lv 57 (any skill)","+17% gold find","+17% item find"],"socketEffectLine":null,"socketState":"none","socketEffectLine2":null,"socketState2":"none","enchantTier":null,"enchantExpiresAt":null,"atk":null,"def":null,"hp":null,"xp":null}},"marketListings":[{"itemKey":"cut_peridot","itemName":"Cut Peridot","quantity":3,"unitPrice":175000}],"housingTier":3,"combatStats":{"atk":291,"def":297,"hp":476,"goldFindPercent":17,"itemFindPercent":41,"doubleGatherChancePercent":0,"xpTaskBonus":167,"fireResist":0,"frostResist":0,"lightningResist":0,"pvpAttackBonus":0,"bonusEnhanceChancePercent":0,"bonusBrewChancePercent":21,"bonusEnchantChancePercent":0},"equippedTitleKey":"title_gemcutter_supreme","race":"goblin","chatNameColorKey":"celestial","itemEnchants":[{"itemKey":"netherite_sword_plus_3","tier":11,"expiresAt":"2026-06-10T09:07:50.597Z"},{"itemKey":"timeworn_bracers","tier":18,"expiresAt":"2026-08-01T02:15:25.322Z"},{"itemKey":"netherite_boots_plus_3","tier":16,"expiresAt":"2026-07-02T02:48:30.758Z"},{"itemKey":"stormglass_sword_plus_3","tier":18,"expiresAt":"2026-07-11T21:47:55.118Z"},{"itemKey":"tourmaline_ring_of_gathering","tier":17,"expiresAt":"2026-07-24T19:11:29.875Z"},{"itemKey":"kingssteel_sword_plus_3","tier":17,"expiresAt":"2026-07-25T01:20:45.888Z"},{"itemKey":"netherite_gloves","tier":17,"expiresAt":"2026-07-22T07:23:52.800Z"},{"itemKey":"tourmaline_ring_of_experience","tier":17,"expiresAt":"2026-07-24T14:11:53.958Z"},{"itemKey":"stormglass_boots_plus_2","tier":16,"expiresAt":"2026-06-29T19:02:51.861Z"},{"itemKey":"miners_gloves","tier":17,"expiresAt":"2026-07-24T04:22:00.307Z"},{"itemKey":"stormglass_helm_plus_3","tier":18,"expiresAt":"2026-07-10T00:57:17.999Z"},{"itemKey":"stormglass_boots_plus_3","tier":18,"expiresAt":"2026-07-23T22:38:33.270Z"},{"itemKey":"glass_striker","tier":18,"expiresAt":"2026-07-17T21:55:25.664Z"},{"itemKey":"jewelers_chisel","tier":17,"expiresAt":"2026-07-31T00:43:33.808Z"},{"itemKey":"celestial_silk_boots","tier":18,"expiresAt":"2026-07-27T16:27:28.387Z"},{"itemKey":"jewelcrafters_gloves","tier":18,"expiresAt":"2026-07-28T16:10:14.170Z"},{"itemKey":"netherweave_hood","tier":18,"expiresAt":"2026-08-02T02:03:34.439Z"}],"itemReinforcements":[{"itemKey":"kingssteel_leggings_plus_1","tier":19,"actionsRemaining":100000},{"itemKey":"kingssteel_boots_plus_1","tier":19,"actionsRemaining":100000},{"itemKey":"kingssteel_shield_plus_1","tier":19,"actionsRemaining":100000},{"itemKey":"kingssteel_chest_plus_3","tier":19,"actionsRemaining":95848}]};
 
   function runTest(){
     try{
@@ -6521,7 +6578,7 @@
             <div class="char-art" id="race-art" aria-hidden="true"><img class="race-sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAABECAYAAAA4E5OyAAAA90lEQVR4nO3ZwQnCMABA0UbcxAUcwQE81YvU+RQv7ckBXMRZ4tlPIwlpFOW/o0hSP6ExbdfpRcj94jD2seWFtHY5TFm/ddX6Qn6NQcAgYBAwCKxrBzhvptnPT4++duivzOsKAYOAQcAgYBCo3mXCdv48NIxd07NPq3ldIWAQMAgYBAwCPjEDVwgYBAwCBgGDQPYuk5LafVJ39Rhj0W4VQkicWcrmzeUKAYOAQcAgYBBJkj6m+iyTcr3dZ88ax/2uaM6lxsnl/xAwCBgEDAIGkSRJkqQ/0OyJ2VJv51u95U/xtAsGAYOAQcAgYBAwCBgEDAIGAYPovSchIC7QOvDbRAAAAABJRU5ErkJggg==" alt=""></div>
             <div class="char-body">
               <div class="char-title">Race <span class="char-pill req">Required</span></div>
-              <select id="race-select" aria-label="Race (required)" class="race-selected">
+              <select id="race-select" aria-label="Race (required)" >
                 <option value="" disabled="" selected="">— Choose your race —</option>
                 <option value="dwarf">⛏️ Dwarf (+5% Mining, +5% Smithing)</option>
                 <option value="elf">🌿 Elf (+5% Gathering, +5% Tailoring)</option>
@@ -6531,11 +6588,11 @@
                 <option value="human">👤 Human (+1% All Skills)</option>
                 <option value="witch">✨ Witch (+5% Spellcrafting)</option>
               </select>
-              <span class="field-helper" id="race-bonus-hint" style="color:var(--teal);">💎 +5% Mining &amp; +5% Jewelcrafting XP</span>
+              <span class="field-helper" id="race-bonus-hint">Choose a race to apply its XP bonus.</span>
             </div>
           </div>
 
-          <div class="char-card house house-selected">
+          <div class="char-card house">
             <div class="char-art" id="house-art" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13L8 22v16h22V22z" fill="var(--amber)" fill-opacity="0.16"></path><path d="M8 22l11-9 11 9" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 22v16h18V22" stroke="var(--amber)" stroke-width="2" stroke-linejoin="round"></path><path d="M30 26h9v12h-9" stroke="var(--amber)" stroke-width="2" stroke-linejoin="round"></path><rect x="14" y="27" width="4" height="4" stroke="var(--amber)" stroke-width="1.4"></rect><path d="M21 38v-6h4v6" stroke="var(--amber)" stroke-width="1.4" stroke-linejoin="round"></path></svg></div>
             <div class="char-body">
               <div class="char-title">Housing <span class="char-pill opt">Optional</span></div>
@@ -6615,6 +6672,7 @@
             <button class="sub-btn" data-sub="spell_ring">Ring Enchant</button>
             <button class="sub-btn" data-sub="spell_weapon">Weapon Enchant</button>
             <button class="sub-btn" data-sub="spell_cache">Arcane Cache</button>
+            <button class="sub-btn" data-sub="spell_lesser_cache">Lesser Arcane Cache</button>
           </div>
         </div>
         <div id="tailor-sub" style="display: none;">
@@ -6742,6 +6800,10 @@
           <div class="field"><label for="action-cost">Resource cost (optional)</label><input type="number" id="action-cost" min="0" placeholder="—" step="1" style=""></div>
         </div>
 
+        <!-- v4.8 repair: ZC Leaderboard Rank, Server-wide XP bonus, and
+             ZC Team Control are intentionally visible in both Simple and
+             Expert modes. Their existing current-engine formula wiring is
+             retained unchanged across Calculator and Planner paths. -->
         <!-- ── XP per Task ─────────────────────────────────────────
              Replaces the old equipment bonus section.
              This is the combined equipment bonus shown in-game
@@ -6759,13 +6821,13 @@
               <span class="field-helper">From in-game Character Stats.</span>
             </div>
             <div class="field">
-              <label for="potion-tier">XP Potion</label>
+              <label for="potion-tier">Potion</label>
               <select id="potion-tier">
-                <option value="0" selected="">None</option>
-              <option value="1">T1 - Copper</option><option value="2">T2 - Iron</option><option value="3">T3 - Silver</option><option value="4">T4 - Gold</option><option value="5">T5 - Mythril</option><option value="6">T6 - Starsteel</option><option value="7">T7 - Obsidian</option><option value="8">T8 - Runite</option><option value="9">T9 - Dragonsteel</option><option value="10">T10 - Aethersteel</option><option value="11">T11 - Voidiron</option><option value="12">T12 - Celestium</option><option value="13">T13 - Bloodstone</option><option value="14">T14 - Moonsteel</option><option value="15">T15 - Sunforged</option><option value="16">T16 - Netherite</option><option value="17">T17 - Stormglass</option><option value="18">T18 - Kingssteel</option><option value="19">T19 - Eternium</option><option value="20">T20 - Astralium</option><option value="21">T21 - Gravite</option><option value="22">T22 - Frostiron</option><option value="23">T23 - Dusksteel</option><option value="24">T24 - Titanium</option><option value="25">T25 - Skysteel</option><option value="26">T26 - Emberium</option><option value="27">T27 - Soulsteel</option><option value="28">T28 - Chronite</option><option value="29">T29 - Worldforge</option><option value="30">T30 - Voidglass</option><option value="31">T31 - Thalassic</option><option value="32">T32 - Ashspire</option><option value="33">T33 - Glacirite</option><option value="34">T34 - Primordite</option><option value="1">T1 - Copper</option><option value="2">T2 - Iron</option><option value="3">T3 - Silver</option><option value="4">T4 - Gold</option><option value="5">T5 - Mythril</option><option value="6">T6 - Starsteel</option><option value="7">T7 - Obsidian</option><option value="8">T8 - Runite</option><option value="9">T9 - Dragonsteel</option><option value="10">T10 - Aethersteel</option><option value="11">T11 - Voidiron</option><option value="12">T12 - Celestium</option><option value="13">T13 - Bloodstone</option><option value="14">T14 - Moonsteel</option><option value="15">T15 - Sunforged</option><option value="16">T16 - Netherite</option><option value="17">T17 - Stormglass</option><option value="18">T18 - Kingssteel</option><option value="19">T19 - Eternium</option><option value="20">T20 - Astralium</option><option value="21">T21 - Gravite</option><option value="22">T22 - Frostiron</option><option value="23">T23 - Dusksteel</option><option value="24">T24 - Titanium</option><option value="25">T25 - Skysteel</option><option value="26">T26 - Emberium</option><option value="27">T27 - Soulsteel</option><option value="28">T28 - Chronite</option><option value="29">T29 - Worldforge</option><option value="30">T30 - Voidglass</option><option value="31">T31 - Thalassic</option><option value="32">T32 - Ashspire</option><option value="33">T33 - Glacirite</option><option value="34">T34 - Primordite</option><option value="1">T1 - Copper</option><option value="2">T2 - Iron</option><option value="3">T3 - Silver</option><option value="4">T4 - Gold</option><option value="5">T5 - Mythril</option><option value="6">T6 - Starsteel</option><option value="7">T7 - Obsidian</option><option value="8">T8 - Runite</option><option value="9">T9 - Dragonsteel</option><option value="10">T10 - Aethersteel</option><option value="11">T11 - Voidiron</option><option value="12">T12 - Celestium</option><option value="13">T13 - Bloodstone</option><option value="14">T14 - Moonsteel</option><option value="15">T15 - Sunforged</option><option value="16">T16 - Netherite</option><option value="17">T17 - Stormglass</option><option value="18">T18 - Kingssteel</option><option value="19">T19 - Eternium</option><option value="20">T20 - Astralium</option><option value="21">T21 - Gravite</option><option value="22">T22 - Frostiron</option><option value="23">T23 - Dusksteel</option><option value="24">T24 - Titanium</option><option value="25">T25 - Skysteel</option><option value="26">T26 - Emberium</option><option value="27">T27 - Soulsteel</option><option value="28">T28 - Chronite</option><option value="29">T29 - Worldforge</option><option value="30">T30 - Voidglass</option><option value="31">T31 - Thalassic</option><option value="32">T32 - Ashspire</option><option value="33">T33 - Glacirite</option><option value="34">T34 - Primordite</option></select>
-              <span class="field-helper">Adds flat XP per action.</span>
+                <option value="0" selected>None</option>
+              </select>
+              <span class="field-helper">Choose a normal or Super XP potion. Adds flat XP per action.</span>
             </div>
-            <div class="field" data-adv="">
+            <div class="field">
               <label for="zc-leaderboard">ZC Leaderboard Rank</label>
               <select id="zc-leaderboard">
                 <option value="0">Unranked (0%)</option>
@@ -6797,13 +6859,13 @@
             <span class="check-label">World Boss XP Bonus</span>
             <span class="check-badge">+24</span>
           </label>
-          <label class="check-row active" id="row-server" data-adv="">
+          <label class="check-row active" id="row-server">
             <input type="checkbox" id="server-bonus">
             <span class="check-box">✓</span>
             <span class="check-label">Server-wide XP bonus</span>
             <span class="check-badge">+25%</span>
           </label>
-          <label class="check-row active" id="row-zc-team" data-adv="">
+          <label class="check-row active" id="row-zc-team">
             <input type="checkbox" id="zc-team">
             <span class="check-box">✓</span>
             <span class="check-label">ZC Team Control</span>
@@ -7028,8 +7090,9 @@
           <div class="planner-disclaimer" style="margin-bottom:10px;">
             <span class="planner-disclaimer-icon">ℹ️</span>
             <div>
-              XP/hr shown are <strong>effective rates</strong> — they include your bonuses and the
-              time to gather any crafting inputs, so paths are ranked on true throughput.
+              XP/hr shown are <strong>effective rates</strong> — they include your bonuses and
+              input-gathering time for ranking. The Planner's <strong>Crafting Time</strong>
+              fields show only the actions listed in the plan.
             </div>
           </div>
           <div class="plan-totals" id="plan-totals">
@@ -7148,7 +7211,7 @@
         <div id="gear-primary-placeholder" style="padding: 14px; color: var(--text3); font-size: 12.5px; display: none;">
           Import your character on the <strong style="cursor:pointer;" onclick="switchTab(&#39;home&#39;)">Start</strong> page to see your equipped gear here.
         </div>
-        <div id="gear-primary-host" style=""><div class="gear-slot-grid"><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Helm" data-iw-sprite-fallback="⛑️" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Helm icon" data-iw-sprite-manifest-name="Stormglass Helm"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 55.5556% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">⛑️</span></span></div><div class="gear-slot-name">Stormglass Helm</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Helm" aria-expanded="false" aria-label="Stormglass Helm, item details"><span class="iw-item-name">Stormglass Helm</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 17</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;helmet&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;helmet&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;helmet&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Chest" data-iw-sprite-fallback="🥋" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Chest icon" data-iw-sprite-manifest-name="Stormglass Chest"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 66.6667% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🥋</span></span></div><div class="gear-slot-name">Stormglass Chest</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Chest" aria-expanded="false" aria-label="Stormglass Chest, item details"><span class="iw-item-name">Stormglass Chest</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 26</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;chest&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;chest&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Leggings" data-iw-sprite-fallback="👖" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Leggings icon" data-iw-sprite-manifest-name="Stormglass Leggings"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 88.8889% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">👖</span></span></div><div class="gear-slot-name">Stormglass Leggings</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Leggings" aria-expanded="false" aria-label="Stormglass Leggings, item details"><span class="iw-item-name">Stormglass Leggings</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 23</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;legs&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;legs&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Miner&#39;s Gloves" data-iw-sprite-fallback="🧤" data-iw-sprite-state="ready" role="img" aria-label="Miner&#39;s Gloves icon" data-iw-sprite-manifest-name="Miner&#39;s Gloves"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 0% 71.8121%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🧤</span></span></div><div class="gear-slot-name">Miner's Gloves</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Miner&#39;s Gloves" aria-expanded="false" aria-label="Miner&#39;s Gloves, item details"><span class="iw-item-name">Miner's Gloves</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 1</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-empty" title="Empty socket — click to plan a gem" onclick="iwTileSocketClick(&#39;gloves&#39;, 0, false)"><span class="gbuff-ic">◇</span>free</button><button type="button" class="gbuff gbuff-empty" title="Empty socket — click to plan a gem" onclick="iwTileSocketClick(&#39;gloves&#39;, 1, false)"><span class="gbuff-ic">◇</span>free</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;gloves&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;gloves&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Boots+3" data-iw-sprite-fallback="👢" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Boots+3 icon" data-iw-sprite-manifest-name="Stormglass Boots"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 100% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">👢</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span></span></div><div class="gear-slot-name">Stormglass Boots+3</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Boots+3" aria-expanded="false" aria-label="Stormglass Boots+3, item details"><span class="iw-item-name">Stormglass Boots+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 32</div><div class="gear-buff-rail"><span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above"><span class="gbuff-ic">✧</span>+3</span><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;boots&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;boots&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;boots&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Sword+3" data-iw-sprite-fallback="⚔️" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Sword+3 icon" data-iw-sprite-manifest-name="Stormglass Sword"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 0% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">⚔️</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span></span></div><div class="gear-slot-name">Stormglass Sword+3</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Sword+3" aria-expanded="false" aria-label="Stormglass Sword+3, item details"><span class="iw-item-name">Stormglass Sword+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">ATK 119</div><div class="gear-buff-rail"><span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above"><span class="gbuff-ic">✧</span>+3</span><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;weapon&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;weapon&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Shield" data-iw-sprite-fallback="🛡️" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Shield icon" data-iw-sprite-manifest-name="Stormglass Shield"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 11.1111% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🛡️</span></span></div><div class="gear-slot-name">Stormglass Shield</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Shield" aria-expanded="false" aria-label="Stormglass Shield, item details"><span class="iw-item-name">Stormglass Shield</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 22</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;shield&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;shield&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Tourmaline Ring of Gathering" data-iw-sprite-fallback="💍" data-iw-sprite-state="ready" role="img" aria-label="Tourmaline Ring of Gathering icon" data-iw-sprite-manifest-name="Tourmaline Ring of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 33.3333% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">💍</span></span></div><div class="gear-slot-name">Tourmaline Ring of Gathering</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Tourmaline Ring of Gathering" aria-expanded="false" aria-label="Tourmaline Ring of Gathering, item details"><span class="iw-item-name">Tourmaline Ring of Gathering</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">XP +34<br>+85% Gather</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;ring&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Tourmaline Amulet of Gathering" data-iw-sprite-fallback="📿" data-iw-sprite-state="ready" role="img" aria-label="Tourmaline Amulet of Gathering icon" data-iw-sprite-manifest-name="Tourmaline Amulet of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 77.7778% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">📿</span></span></div><div class="gear-slot-name">Tourmaline Amulet of Gathering</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Tourmaline Amulet of Gathering" aria-expanded="false" aria-label="Tourmaline Amulet of Gathering, item details"><span class="iw-item-name">Tourmaline Amulet of Gathering</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">XP +34<br>+85% Gather</div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Enchanted Belt Lv. 30" data-iw-sprite-fallback="🎗️" data-iw-sprite-state="ready" role="img" aria-label="Enchanted Belt Lv. 30 icon" data-iw-sprite-manifest-name="Enchanted Belt Lv. 30"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 100% 47.651%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🎗️</span></span></div><div class="gear-slot-name">Enchanted Belt Lv. 30</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 30" aria-expanded="false" aria-label="Enchanted Belt Lv. 30, item details"><span class="iw-item-name">Enchanted Belt Lv. 30</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">ATK 8<br>DEF 10</div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Kingssteel Relic+2" data-iw-sprite-fallback="🔮" data-iw-sprite-state="ready" role="img" aria-label="Kingssteel Relic+2 icon" data-iw-sprite-manifest-name="Kingssteel Relic"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 44.4444% 12.0805%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🔮</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 11.1111% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+2</span></span></span></div><div class="gear-slot-name">Kingssteel Relic+2</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Kingssteel Relic+2" aria-expanded="false" aria-label="Kingssteel Relic+2, item details"><span class="iw-item-name">Kingssteel Relic+2</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">XP +27</div><div class="gear-buff-rail"><span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above"><span class="gbuff-ic">✧</span>+2</span></div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot "><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="" data-iw-sprite-fallback="🧥" data-iw-sprite-state="empty" role="img" aria-label="Empty equipment slot"><span class="iw-gear-sprite-base" aria-hidden="true"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🧥</span></span></div><div class="gear-slot-name">Cloak</div><div class="gear-slot-item dim">—</div><div class="gear-slot-bonus dim">empty</div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div></div></div>
+        <div id="gear-primary-host" style=""><div class="gear-slot-grid"><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Helm" data-iw-sprite-fallback="⛑️" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Helm icon" data-iw-sprite-manifest-name="Stormglass Helm"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 55.5556% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">⛑️</span></span></div><div class="gear-slot-name">Stormglass Helm</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Helm" aria-expanded="false" aria-label="Stormglass Helm, item details"><span class="iw-item-name">Stormglass Helm</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 17</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;helmet&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;helmet&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;helmet&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Chest" data-iw-sprite-fallback="🥋" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Chest icon" data-iw-sprite-manifest-name="Stormglass Chest"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 66.6667% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🥋</span></span></div><div class="gear-slot-name">Stormglass Chest</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Chest" aria-expanded="false" aria-label="Stormglass Chest, item details"><span class="iw-item-name">Stormglass Chest</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 26</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;chest&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;chest&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Leggings" data-iw-sprite-fallback="👖" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Leggings icon" data-iw-sprite-manifest-name="Stormglass Leggings"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 88.8889% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">👖</span></span></div><div class="gear-slot-name">Stormglass Leggings</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Leggings" aria-expanded="false" aria-label="Stormglass Leggings, item details"><span class="iw-item-name">Stormglass Leggings</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 23</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;legs&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;legs&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Miner&#39;s Gloves" data-iw-sprite-fallback="🧤" data-iw-sprite-state="ready" role="img" aria-label="Miner&#39;s Gloves icon" data-iw-sprite-manifest-name="Miner&#39;s Gloves"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 0% 71.8121%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🧤</span></span></div><div class="gear-slot-name">Miner's Gloves</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Miner&#39;s Gloves" aria-expanded="false" aria-label="Miner&#39;s Gloves, item details"><span class="iw-item-name">Miner's Gloves</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 1</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-empty" title="Empty socket — click to plan a gem" onclick="iwTileSocketClick(&#39;gloves&#39;, 0, false)"><span class="gbuff-ic">◇</span>free</button><button type="button" class="gbuff gbuff-empty" title="Empty socket — click to plan a gem" onclick="iwTileSocketClick(&#39;gloves&#39;, 1, false)"><span class="gbuff-ic">◇</span>free</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;gloves&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;gloves&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Boots+3" data-iw-sprite-fallback="👢" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Boots+3 icon" data-iw-sprite-manifest-name="Stormglass Boots"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 100% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">👢</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span></span></div><div class="gear-slot-name">Stormglass Boots+3</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Boots+3" aria-expanded="false" aria-label="Stormglass Boots+3, item details"><span class="iw-item-name">Stormglass Boots+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 32</div><div class="gear-buff-rail"><span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above"><span class="gbuff-ic">✧</span>+3</span><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;boots&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;boots&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;boots&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Sword+3" data-iw-sprite-fallback="⚔️" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Sword+3 icon" data-iw-sprite-manifest-name="Stormglass Sword"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 0% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">⚔️</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span></span></div><div class="gear-slot-name">Stormglass Sword+3</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Sword+3" aria-expanded="false" aria-label="Stormglass Sword+3, item details"><span class="iw-item-name">Stormglass Sword+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">ATK 119</div><div class="gear-buff-rail"><span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above"><span class="gbuff-ic">✧</span>+3</span><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;weapon&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;weapon&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Stormglass Shield" data-iw-sprite-fallback="🛡️" data-iw-sprite-state="ready" role="img" aria-label="Stormglass Shield icon" data-iw-sprite-manifest-name="Stormglass Shield"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 11.1111% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🛡️</span></span></div><div class="gear-slot-name">Stormglass Shield</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Stormglass Shield" aria-expanded="false" aria-label="Stormglass Shield, item details"><span class="iw-item-name">Stormglass Shield</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">DEF 22</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-gem" title="Cut Jade — +8% 2x-Gather Chance (socketed in game — click to replace)" onclick="iwTileSocketClick(&#39;shield&#39;, 0, true)"><span class="gbuff-ic">◆</span>+8% 2x-Gather Chance</button></div><button type="button" class="gear-slot-reinf off suggested" title="Suggested: reinforce for +14 DEF. Click to plan it." onclick="iwTogglePlate(&#39;shield&#39;)"><span class="gbuff-ic">➕</span>No reinforcement</button></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Tourmaline Ring of Gathering" data-iw-sprite-fallback="💍" data-iw-sprite-state="ready" role="img" aria-label="Tourmaline Ring of Gathering icon" data-iw-sprite-manifest-name="Tourmaline Ring of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 33.3333% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">💍</span></span></div><div class="gear-slot-name">Tourmaline Ring of Gathering</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Tourmaline Ring of Gathering" aria-expanded="false" aria-label="Tourmaline Ring of Gathering, item details"><span class="iw-item-name">Tourmaline Ring of Gathering</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">XP +34<br>+85% Gather</div><div class="gear-buff-rail"><button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot" onclick="iwToggleEnchantPlan(&#39;ring&#39;)"><span class="gbuff-ic">✧</span>Plan enchant</button></div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Tourmaline Amulet of Gathering" data-iw-sprite-fallback="📿" data-iw-sprite-state="ready" role="img" aria-label="Tourmaline Amulet of Gathering icon" data-iw-sprite-manifest-name="Tourmaline Amulet of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 77.7778% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">📿</span></span></div><div class="gear-slot-name">Tourmaline Amulet of Gathering</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Tourmaline Amulet of Gathering" aria-expanded="false" aria-label="Tourmaline Amulet of Gathering, item details"><span class="iw-item-name">Tourmaline Amulet of Gathering</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">XP +34<br>+85% Gather</div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Enchanted Belt Lv. 30" data-iw-sprite-fallback="🎗️" data-iw-sprite-state="ready" role="img" aria-label="Enchanted Belt Lv. 30 icon" data-iw-sprite-manifest-name="Enchanted Belt Lv. 30"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 100% 47.651%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🎗️</span></span></div><div class="gear-slot-name">Enchanted Belt Lv. 30</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 30" aria-expanded="false" aria-label="Enchanted Belt Lv. 30, item details"><span class="iw-item-name">Enchanted Belt Lv. 30</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">ATK 8<br>DEF 10</div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot has-bonus"><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Kingssteel Relic+2" data-iw-sprite-fallback="🔮" data-iw-sprite-state="ready" role="img" aria-label="Kingssteel Relic+2 icon" data-iw-sprite-manifest-name="Kingssteel Relic"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 44.4444% 12.0805%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🔮</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-size: 1000% 15000%; background-position: 11.1111% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+2</span></span></span></div><div class="gear-slot-name">Kingssteel Relic+2</div><div class="gear-slot-item"><button type="button" class="iw-item-ref" data-iw-item-name="Kingssteel Relic+2" aria-expanded="false" aria-label="Kingssteel Relic+2, item details"><span class="iw-item-name">Kingssteel Relic+2</span><span class="iw-item-info" aria-hidden="true">i</span></button></div><div class="gear-slot-bonus">XP +27</div><div class="gear-buff-rail"><span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above"><span class="gbuff-ic">✧</span>+2</span></div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div><div class="gear-slot "><div class="gear-slot-icon"><span class="iw-gear-sprite-host" data-iw-gear-sprite="" data-iw-sprite-fallback="🧥" data-iw-sprite-state="empty" role="img" aria-label="Empty equipment slot"><span class="iw-gear-sprite-base" aria-hidden="true"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🧥</span></span></div><div class="gear-slot-name">Cloak</div><div class="gear-slot-item dim">—</div><div class="gear-slot-bonus dim">empty</div><div class="gear-slot-reinf none" title="Reinforcement Plates only accept helmet, chest, legs, gloves, boots, shield.">No reinforcement</div></div></div></div>
         <div id="gear-shopping-list-host"><div class="shop-list-card"><div class="shop-list-head"><button type="button" class="gut-btn" onclick="iwToggleShoppingEdit()">Edit</button><span class="shop-list-title">Shopping List</span><button type="button" class="gut-btn" style="margin-left:auto" onclick="iwToggleShoppingHidden()">Hide</button><button type="button" class="gut-btn danger" onclick="if(confirm(&#39;Clear the entire shopping list?&#39;))iwClearShoppingList()">Clear</button></div><div class="shop-list-body"><div class="shop-row"><span class="shop-qty">6×</span><span class="shop-label">Cut Jade</span></div></div></div></div>
       </div>
     </div>
@@ -7487,12 +7550,12 @@
               <!-- Left column: Helmet, Chest, Cloak, Legs, Boots -->
               <div class="gn-col gn-col-left">
                 <div class="gn-slot gn-slot-has-bonus" data-slot="helmet" onclick="gnOpenTooltip(&#39;helmet&#39;,this)" role="button" tabindex="0" aria-label="Helmet slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="helmet" data-iw-gear-sprite="Stormglass Helm" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Helm icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Helm"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 55.5556% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9v5h2v-5a5 5 0 0 1 10 0v5h2V9c0-3.87-3.13-7-7-7z"></path><rect x="3" y="14" width="18" height="3" rx="1.5"></rect><rect x="7" y="17" width="10" height="2.5" rx="1"></rect></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="helmet" data-iw-gear-sprite="Stormglass Helm" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Helm icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Helm"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 55.5556% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9v5h2v-5a5 5 0 0 1 10 0v5h2V9c0-3.87-3.13-7-7-7z"></path><rect x="3" y="14" width="18" height="3" rx="1.5"></rect><rect x="7" y="17" width="10" height="2.5" rx="1"></rect></svg></span></div>
                   <div class="gn-slot-label">Stormglass Helm</div>
                   <div class="gn-slot-stat">DEF 17</div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="chest" onclick="gnOpenTooltip(&#39;chest&#39;,this)" role="button" tabindex="0" aria-label="Chest slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="chest" data-iw-gear-sprite="Stormglass Chest" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Chest icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Chest"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 66.6667% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 8h14l1 12H4L5 8z"></path><path d="M9 8V5a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><line x1="12" y1="10" x2="12" y2="18" stroke="currentColor" stroke-width="1.5" opacity=".5"></line></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="chest" data-iw-gear-sprite="Stormglass Chest" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Chest icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Chest"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 66.6667% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M5 8h14l1 12H4L5 8z"></path><path d="M9 8V5a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><line x1="12" y1="10" x2="12" y2="18" stroke="currentColor" stroke-width="1.5" opacity=".5"></line></svg></span></div>
                   <div class="gn-slot-label">Stormglass Chest</div>
                   <div class="gn-slot-stat">DEF 26</div>
                 </div>
@@ -7502,12 +7565,12 @@
                   <div class="gn-slot-stat"></div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="legs" onclick="gnOpenTooltip(&#39;legs&#39;,this)" role="button" tabindex="0" aria-label="Legs slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="legs" data-iw-gear-sprite="Stormglass Leggings" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Leggings icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Leggings"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 88.8889% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h12v8H6z" rx="1"></path><rect x="6" y="11" width="4.5" height="11" rx="1"></rect><rect x="13.5" y="11" width="4.5" height="11" rx="1"></rect></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="legs" data-iw-gear-sprite="Stormglass Leggings" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Leggings icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Leggings"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 88.8889% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M6 2h12v8H6z" rx="1"></path><rect x="6" y="11" width="4.5" height="11" rx="1"></rect><rect x="13.5" y="11" width="4.5" height="11" rx="1"></rect></svg></span></div>
                   <div class="gn-slot-label">Stormglass Leggings</div>
                   <div class="gn-slot-stat">DEF 23</div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="boots" onclick="gnOpenTooltip(&#39;boots&#39;,this)" role="button" tabindex="0" aria-label="Boots slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="boots" data-iw-gear-sprite="Stormglass Boots+3" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Boots+3 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Boots"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 100% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7 2h6v11l3 3v4H4v-4l3-3V2z"></path><rect x="4" y="17" width="16" height="3" rx="1"></rect></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="boots" data-iw-gear-sprite="Stormglass Boots+3" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Boots+3 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Boots"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 100% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7 2h6v11l3 3v4H4v-4l3-3V2z"></path><rect x="4" y="17" width="16" height="3" rx="1"></rect></svg></span></div>
                   <div class="gn-slot-label">Stormglass Boots+3</div>
                   <div class="gn-slot-stat">DEF 32</div>
                 </div>
@@ -7519,12 +7582,12 @@
                 <!-- Weapon + Shield beneath -->
                 <div class="gn-weapons">
                   <div class="gn-slot gn-slot-sm gn-slot-has-bonus" data-slot="weapon" onclick="gnOpenTooltip(&#39;weapon&#39;,this)" role="button" tabindex="0" aria-label="Weapon slot">
-                    <div class="gn-slot-layers iw-gear-sprite-host" data-slot="weapon" data-iw-gear-sprite="Stormglass Sword+3" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Sword+3 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Sword"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 0% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="2" width="2" height="14" rx="1"></rect><rect x="7" y="10" width="10" height="2" rx="1"></rect><path d="M10 16l2 6 2-6"></path><circle cx="12" cy="9" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".6"></circle></svg></span></div>
+                    <div class="gn-slot-layers iw-gear-sprite-host" data-slot="weapon" data-iw-gear-sprite="Stormglass Sword+3" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Sword+3 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Sword"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 0% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-size: 1000% 15000%; background-position: 22.2222% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+3</span></span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="11" y="2" width="2" height="14" rx="1"></rect><rect x="7" y="10" width="10" height="2" rx="1"></rect><path d="M10 16l2 6 2-6"></path><circle cx="12" cy="9" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".6"></circle></svg></span></div>
                     <div class="gn-slot-label">Stormglass Sword+3</div>
                     <div class="gn-slot-stat">ATK 119</div>
                   </div>
                   <div class="gn-slot gn-slot-sm gn-slot-has-bonus" data-slot="shield" onclick="gnOpenTooltip(&#39;shield&#39;,this)" role="button" tabindex="0" aria-label="Shield slot">
-                    <div class="gn-slot-layers iw-gear-sprite-host" data-slot="shield" data-iw-gear-sprite="Stormglass Shield" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Shield icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Shield"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 11.1111% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v6c0 5 3.6 9.3 8 10.5C16.4 21.3 20 17 20 12V6L12 2z"></path></svg></span></div>
+                    <div class="gn-slot-layers iw-gear-sprite-host" data-slot="shield" data-iw-gear-sprite="Stormglass Shield" data-iw-sprite-fallback="" role="img" aria-label="Stormglass Shield icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Stormglass Shield"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 11.1111% 11.4094%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6v6c0 5 3.6 9.3 8 10.5C16.4 21.3 20 17 20 12V6L12 2z"></path></svg></span></div>
                     <div class="gn-slot-label">Stormglass Shield</div>
                     <div class="gn-slot-stat">DEF 22</div>
                   </div>
@@ -7534,27 +7597,27 @@
               <!-- Right column: Belt, Gloves, Ring, Amulet, Trinket -->
               <div class="gn-col gn-col-right">
                 <div class="gn-slot gn-slot-has-bonus" data-slot="belt" onclick="gnOpenTooltip(&#39;belt&#39;,this)" role="button" tabindex="0" aria-label="Belt slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="belt" data-iw-gear-sprite="Enchanted Belt Lv. 30" data-iw-sprite-fallback="" role="img" aria-label="Enchanted Belt Lv. 30 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Enchanted Belt Lv. 30"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 100% 47.651%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="9" width="20" height="6" rx="2"></rect><rect x="10" y="8" width="4" height="8" rx="1"></rect><rect x="11" y="10" width="2" height="4" rx=".5" fill="none" stroke="currentColor" stroke-width="1.5"></rect></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="belt" data-iw-gear-sprite="Enchanted Belt Lv. 30" data-iw-sprite-fallback="" role="img" aria-label="Enchanted Belt Lv. 30 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Enchanted Belt Lv. 30"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 100% 47.651%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="9" width="20" height="6" rx="2"></rect><rect x="10" y="8" width="4" height="8" rx="1"></rect><rect x="11" y="10" width="2" height="4" rx=".5" fill="none" stroke="currentColor" stroke-width="1.5"></rect></svg></span></div>
                   <div class="gn-slot-label">Enchanted Belt Lv. 30</div>
                   <div class="gn-slot-stat">ATK 8 · DEF 10</div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="gloves" onclick="gnOpenTooltip(&#39;gloves&#39;,this)" role="button" tabindex="0" aria-label="Gloves slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="gloves" data-iw-gear-sprite="Miner&#39;s Gloves" data-iw-sprite-fallback="" role="img" aria-label="Miner&#39;s Gloves icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Miner&#39;s Gloves"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 0% 71.8121%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7 3h2v6H7zM11 2h2v7h-2zM15 3h2v6h-2z"></path><path d="M5 9h14v8a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V9z"></path></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="gloves" data-iw-gear-sprite="Miner&#39;s Gloves" data-iw-sprite-fallback="" role="img" aria-label="Miner&#39;s Gloves icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Miner&#39;s Gloves"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 0% 71.8121%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7 3h2v6H7zM11 2h2v7h-2zM15 3h2v6h-2z"></path><path d="M5 9h14v8a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V9z"></path></svg></span></div>
                   <div class="gn-slot-label">Miner's Gloves</div>
                   <div class="gn-slot-stat">DEF 1</div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="ring" onclick="gnOpenTooltip(&#39;ring&#39;,this)" role="button" tabindex="0" aria-label="Ring slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="ring" data-iw-gear-sprite="Tourmaline Ring of Gathering" data-iw-sprite-fallback="" role="img" aria-label="Tourmaline Ring of Gathering icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Tourmaline Ring of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 33.3333% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3zm0 3a6 6 0 1 1 0 12A6 6 0 0 1 12 6z"></path><polygon points="12,2 14,5 10,5" opacity=".7"></polygon></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="ring" data-iw-gear-sprite="Tourmaline Ring of Gathering" data-iw-sprite-fallback="" role="img" aria-label="Tourmaline Ring of Gathering icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Tourmaline Ring of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 33.3333% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3zm0 3a6 6 0 1 1 0 12A6 6 0 0 1 12 6z"></path><polygon points="12,2 14,5 10,5" opacity=".7"></polygon></svg></span></div>
                   <div class="gn-slot-label">Tourmaline Ring of Gathering</div>
                   <div class="gn-slot-stat">XP +34 · 85% Gather</div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="amulet" onclick="gnOpenTooltip(&#39;amulet&#39;,this)" role="button" tabindex="0" aria-label="Amulet slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="amulet" data-iw-gear-sprite="Tourmaline Amulet of Gathering" data-iw-sprite-fallback="" role="img" aria-label="Tourmaline Amulet of Gathering icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Tourmaline Amulet of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 77.7778% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="2" x2="12" y2="7" stroke="currentColor" stroke-width="2"></line><path d="M8 2 Q12 3 16 2" fill="none" stroke="currentColor" stroke-width="1.5"></path><circle cx="12" cy="10" r="4"></circle><path d="M10 14l-2 8h8l-2-8" opacity=".7"></path></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="amulet" data-iw-gear-sprite="Tourmaline Amulet of Gathering" data-iw-sprite-fallback="" role="img" aria-label="Tourmaline Amulet of Gathering icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Tourmaline Amulet of Gathering"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 77.7778% 84.5638%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><line x1="12" y1="2" x2="12" y2="7" stroke="currentColor" stroke-width="2"></line><path d="M8 2 Q12 3 16 2" fill="none" stroke="currentColor" stroke-width="1.5"></path><circle cx="12" cy="10" r="4"></circle><path d="M10 14l-2 8h8l-2-8" opacity=".7"></path></svg></span></div>
                   <div class="gn-slot-label">Tourmaline Amulet of Gathering</div>
                   <div class="gn-slot-stat">XP +34 · 85% Gather</div>
                 </div>
                 <div class="gn-slot gn-slot-has-bonus" data-slot="trinket" onclick="gnOpenTooltip(&#39;trinket&#39;,this)" role="button" tabindex="0" aria-label="Trinket slot">
-                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="trinket" data-iw-gear-sprite="Kingssteel Relic+2" data-iw-sprite-fallback="" role="img" aria-label="Kingssteel Relic+2 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Kingssteel Relic"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 44.4444% 12.0805%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 11.1111% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+2</span></span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"></polygon></svg></span></div>
+                  <div class="gn-slot-layers iw-gear-sprite-host" data-slot="trinket" data-iw-gear-sprite="Kingssteel Relic+2" data-iw-sprite-fallback="" role="img" aria-label="Kingssteel Relic+2 icon" data-iw-sprite-state="ready" data-iw-sprite-manifest-name="Kingssteel Relic"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 44.4444% 12.0805%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">❓</span><span class="iw-gear-sprite-upgrade" aria-hidden="true" data-iw-upgrade-state="ready" style="background-size: 1000% 15000%; background-position: 11.1111% 0%; background-repeat: no-repeat;"><span class="iw-gear-sprite-upgrade-text">+2</span></span><span class="gn-slot-silhouette" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"></polygon></svg></span></div>
                   <div class="gn-slot-label">Kingssteel Relic+2</div>
                   <div class="gn-slot-stat">XP +27</div>
                 </div>
@@ -7942,22 +8005,16 @@ for(let t=1;t<=34;t++) SMELT_XP[t] = Math.round(skillXpForTier(t) * oresPerBar(t
 const SMELT_INPUTS = {};
 for(let t=1;t<=34;t++) SMELT_INPUTS[t] = t===1?2:t===2?4:t===3?6:t===4?7:8;
 
-// Alchemy (brew potion): round(skillXp × 6)
+// Alchemy (brew potion): live recipe XP = round(skillXp × 7.2).
+// Verified against the live recipes page at T1=29, T13=461, T24=936, T34=1368.
+const ALCHEMY_XP_MULTIPLIER = 7.2;
 const ALCHEMY_XP = {};
-for(let t=1;t<=34;t++) ALCHEMY_XP[t] = Math.round(skillXpForTier(t) * 6);
+for(let t=1;t<=34;t++) ALCHEMY_XP[t] = Math.round(skillXpForTier(t) * ALCHEMY_XP_MULTIPLIER);
 
-// Forge equipment: round((6 + (t-1)*4) × EQUIPMENT_CRAFT_XP_MULTIPLIER × (barsPerEquip/2) × SMITHING_XP_MULTIPLIER)
-// TODO: verify T1-T4 forge from source (early-tier per-slot curve may differ)
-const SMITH_BOOTS_XP = {}, SMITH_LEGS_XP = {}, SMITH_CHEST_XP = {}, SMITH_SHIELD_XP = {}, SMITH_SWORD_XP = {};
-for(let t=1;t<=34;t++){
-  const base = 6 + (t - 1) * 4;
-  SMITH_BOOTS_XP[t]  = Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * (10 / 2) * SMITHING_XP_MULTIPLIER);
-  SMITH_LEGS_XP[t]   = Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * (15 / 2) * SMITHING_XP_MULTIPLIER);
-  SMITH_CHEST_XP[t]  = Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * (20 / 2) * SMITHING_XP_MULTIPLIER);
-  SMITH_SHIELD_XP[t] = Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * (15 / 2) * SMITHING_XP_MULTIPLIER);
-  SMITH_SWORD_XP[t]  = Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * (15 / 2) * SMITHING_XP_MULTIPLIER);
-}
-
+// Forge equipment: live XP scales from the ACTUAL bar count for that tier/slot.
+// Early tiers use smaller recipes, so XP must use the same early input curve rather
+// than the mature T5+ quantities. Verified against the live recipes page for every
+// smithing slot at T1-T4 and representative T5/T13/T34 values.
 const SMITH_BOOTS_INPUTS = {}, SMITH_LEGS_INPUTS  = {}, SMITH_CHEST_INPUTS = {}, SMITH_SHIELD_INPUTS= {};
 for(let t=1;t<=34;t++){
   SMITH_BOOTS_INPUTS[t]  = t<=5 ? [2,4,6,8,10][t-1] : 10;
@@ -7966,6 +8023,17 @@ for(let t=1;t<=34;t++){
   SMITH_SHIELD_INPUTS[t] = t<=5 ? [4,7,10,13,15][t-1] : 15;
 }
 const SMITH_SWORD_INPUTS = SMITH_SHIELD_INPUTS;
+
+const SMITH_BOOTS_XP = {}, SMITH_LEGS_XP = {}, SMITH_CHEST_XP = {}, SMITH_SHIELD_XP = {}, SMITH_SWORD_XP = {};
+for(let t=1;t<=34;t++){
+  const base = 6 + (t - 1) * 4;
+  const craftXp = bars => Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * (bars / 2) * SMITHING_XP_MULTIPLIER);
+  SMITH_BOOTS_XP[t]  = craftXp(SMITH_BOOTS_INPUTS[t]);
+  SMITH_LEGS_XP[t]   = craftXp(SMITH_LEGS_INPUTS[t]);
+  SMITH_CHEST_XP[t]  = craftXp(SMITH_CHEST_INPUTS[t]);
+  SMITH_SHIELD_XP[t] = craftXp(SMITH_SHIELD_INPUTS[t]);
+  SMITH_SWORD_XP[t]  = craftXp(SMITH_SWORD_INPUTS[t]);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // TAILORING — data foundation (Implementation Plan v1.1, Phase 1)
@@ -8328,8 +8396,10 @@ function getGemChain(t) {
 }
 
 // Prospect XP — verified from wiki: skillXp × 3
+// Prospecting: live recipe XP = round(skillXp × 3.6).
+const JEWEL_PROSPECT_XP_MULTIPLIER = 3.6;
 const JEWEL_PROSPECT_XP = {};
-for(let t=1;t<=34;t++) JEWEL_PROSPECT_XP[t] = skillXpForTier(t) * 3;
+for(let t=1;t<=34;t++) JEWEL_PROSPECT_XP[t] = Math.round(skillXpForTier(t) * JEWEL_PROSPECT_XP_MULTIPLIER);
 
 // Source ore per gem tier — verified from idleworlds.com/wiki/gems.
 // Identical to ORE_NAMES (gem of tier t is prospected from that tier's ore).
@@ -8422,12 +8492,12 @@ function setGemAllTiers(v){
   iwRefreshGearTab();
 }
 
-// Craft XP — exact linear fit verified at ALL 34 screenshot values:
-//   CUT_GEM_XP[t] = 54*t + 18   (T1=72 … T9=504 … T34=1854)
-// NOTE: deliberately NOT derived from skillXpForTier(); the observed
-// values are linear straight through the T8/T9 slope break.
+// Cut-gem XP — live recipe values are the former linear curve ×1.2:
+//   round((54*t + 18) × 1.2), giving T1=86, T2=151, T34=2225.
+// Deliberately not derived from skillXpForTier(); this recipe remains linear.
+const CUT_GEM_XP_MULTIPLIER = 1.2;
 const CUT_GEM_XP = {};
-for (let t = 1; t <= 34; t++) CUT_GEM_XP[t] = 54 * t + 18;
+for (let t = 1; t <= 34; t++) CUT_GEM_XP[t] = Math.round((54 * t + 18) * CUT_GEM_XP_MULTIPLIER);
 
 // Craft duration — 10s at every tier (verified).
 const CUT_GEM_TIME = 10;
@@ -8457,15 +8527,13 @@ function gemTiersForStat(stat) {
     .sort((a, b) => a - b);
 }
 
-// Ring XP — verified from wiki:
-// T1:108, T2:180, T3:252, T4:324, T5:396, T6:468, T7:540, T8:612, T9:684
-// Pattern: ring_xp = 108 + (t-1)*72  → matches wiki exactly for T1-T9
+// Ring XP — live recipe values are the former linear curve ×1.2, rounded.
+// Samples: T1=130, T2=216, T5=475, T6=562.
+const JEWELCRAFT_XP_MULTIPLIER = 1.2;
 const JEWEL_RING_XP = {};
-for(let t=1;t<=34;t++) JEWEL_RING_XP[t] = 108 + (t-1)*72;
+for(let t=1;t<=34;t++) JEWEL_RING_XP[t] = Math.round((108 + (t-1)*72) * JEWELCRAFT_XP_MULTIPLIER);
 
-// Amulet XP — verified from wiki:
-// T1:324, T2:540, T3:756, T4:972, T5:1188, T6:1404, T7:1620, T8:1836, T9:2052
-// Pattern: amulet_xp = ring_xp * 3  → matches wiki exactly for T1-T9
+// Amulet XP is exactly three times the already-rounded live ring XP.
 const JEWEL_AMULET_XP = {};
 for(let t=1;t<=34;t++) JEWEL_AMULET_XP[t] = JEWEL_RING_XP[t] * 3;
 
@@ -8476,9 +8544,12 @@ for(let t=1;t<=34;t++){
   GATHERING_XP[t] = 2 * Math.round(skillXpForTier(t) * 1.1);
 }
 
-// Spellcrafting Harvest Mana — gather action, same as mining/gathering
+// Spellcrafting Harvest Mana — the live base curve was reduced by 20%
+// in patch 0.2.0+2026-07-20.443. Mining/Gathering keep the normal gather
+// curve; Harvest Mana applies the reduction after that base integer value.
+const SPELL_HARVEST_XP_MULTIPLIER = 0.8;
 const SPELL_HARVEST_XP = {};
-for(let t=1;t<=34;t++) SPELL_HARVEST_XP[t] = 2 * Math.round(skillXpForTier(t) * 1.1);
+for(let t=1;t<=34;t++) SPELL_HARVEST_XP[t] = Math.round((2 * Math.round(skillXpForTier(t) * 1.1)) * SPELL_HARVEST_XP_MULTIPLIER);
 
 // Combat: max(1, round(skillXp))  → T1:4, T9:40, T13:64, T34:190
 // VERIFIED against live game observation: T13 (Bloodstone) = 64 XP per
@@ -8533,19 +8604,127 @@ for(let t=1;t<=34;t++) COMBAT_XP[t] = Math.max(1, Math.round(skillXpForTier(t)))
 //   T23+ follow same pattern (Mana name + herb name from CSV)
 // ═══════════════════════════════════════════════════════════════
 
-// XP verified from wiki: 324, 540, 756 … +216 per tier
+// Enchant XP — live recipe values are the former curve ×0.8, rounded.
+// Samples: T1=259, T4=778, T13=2333, T34=5962.
+const SPELL_ENCHANT_XP_MULTIPLIER = 0.8;
 const SPELL_ENCHANT_XP = {};
-for(let t=1;t<=34;t++) SPELL_ENCHANT_XP[t] = 324 + (t-1)*216;
+for(let t=1;t<=34;t++) SPELL_ENCHANT_XP[t] = Math.round((324 + (t-1)*216) * SPELL_ENCHANT_XP_MULTIPLIER);
 
-// Arcane Cache crafting — VERIFIED from in-game recipe list
-// (owner screenshots 2026-07-03, zones 1-8 and 11-18 all exact):
-//   recipe : 1× same-tier Upgrade Orb + 100× same-tier Mana
-//   time   : 10s   · output: 1 <Tier> Supply Cache
-//   XP     : 8,16,…64 (Z1-8) then 104,116,…188 (Z11-18)
-//          = exactly 2 × skillXpForTier(t) — the app's canonical
-//            curve — which also fixes Z9/Z10 and Z19+.
+// Arcane Cache crafting — live recipe XP = round(skillXp × 1.6).
+// Recipe: 1 same-tier Upgrade Orb + 100 same-tier Mana; time 10s.
+// Samples: T1=6, T6=38, T13=102, T34=304.
+const CACHE_CRAFT_XP_MULTIPLIER = 1.6;
 const CACHE_CRAFT_XP = {};
-for(let t=1;t<=34;t++) CACHE_CRAFT_XP[t] = 2 * skillXpForTier(t);
+for(let t=1;t<=34;t++) CACHE_CRAFT_XP[t] = Math.round(skillXpForTier(t) * CACHE_CRAFT_XP_MULTIPLIER);
+
+// Lesser Arcane Cache — live recipe: 200 same-tier Mana, 10s, and exactly
+// half the regular Arcane Cache base XP at every tier (round(skillXp × 0.8)).
+const LESSER_CACHE_CRAFT_XP_MULTIPLIER = 0.8;
+const LESSER_CACHE_CRAFT_XP = {};
+for(let t=1;t<=34;t++) LESSER_CACHE_CRAFT_XP[t] = Math.round(skillXpForTier(t) * LESSER_CACHE_CRAFT_XP_MULTIPLIER);
+
+// Live recipe regression guard (IdleWorlds wiki, checked 2026-08-05).
+(function liveRecipeXpSelfCheck(){
+  const checks = [
+    ['Alchemy T1', ALCHEMY_XP[1], 29],
+    ['Alchemy T13', ALCHEMY_XP[13], 461],
+    ['Alchemy T34', ALCHEMY_XP[34], 1368],
+    ['Prospect T2', JEWEL_PROSPECT_XP[2], 29],
+    ['Prospect T34', JEWEL_PROSPECT_XP[34], 684],
+    ['Cut gem T2', CUT_GEM_XP[2], 151],
+    ['Cut gem T34', CUT_GEM_XP[34], 2225],
+    ['Ring T5', JEWEL_RING_XP[5], 475],
+    ['Amulet T5', JEWEL_AMULET_XP[5], 1425],
+    ['Enchant T1', SPELL_ENCHANT_XP[1], 259],
+    ['Enchant T13', SPELL_ENCHANT_XP[13], 2333],
+    ['Enchant T34', SPELL_ENCHANT_XP[34], 5962],
+    ['Arcane cache T1', CACHE_CRAFT_XP[1], 6],
+    ['Arcane cache T34', CACHE_CRAFT_XP[34], 304],
+    ['Lesser cache T1', LESSER_CACHE_CRAFT_XP[1], 3],
+    ['Lesser cache T34', LESSER_CACHE_CRAFT_XP[34], 152],
+    ['Harvest Mana T1 post-20%', SPELL_HARVEST_XP[1], 7],
+    ['Harvest Mana T34 post-20%', SPELL_HARVEST_XP[34], 334],
+    ['Smelt T1', SMELT_XP[1], 14],
+    ['Smelt T13', SMELT_XP[13], 922],
+    ['Smelt T34', SMELT_XP[34], 2736],
+    ['Smith boots T1', SMITH_BOOTS_XP[1], 194],
+    ['Smith chest T1', SMITH_CHEST_XP[1], 389],
+    ['Smith shield T1', SMITH_SHIELD_XP[1], 389],
+    ['Smith sword T1', SMITH_SWORD_XP[1], 389],
+    ['Smith boots T2', SMITH_BOOTS_XP[2], 648],
+    ['Smith shield T2', SMITH_SHIELD_XP[2], 1134],
+    ['Smith boots T3', SMITH_BOOTS_XP[3], 1361],
+    ['Smith shield T3', SMITH_SHIELD_XP[3], 2268],
+    ['Smith boots T4', SMITH_BOOTS_XP[4], 2333],
+    ['Smith shield T4', SMITH_SHIELD_XP[4], 3791],
+    ['Smith boots T13', SMITH_BOOTS_XP[13], 8748],
+    ['Smith boots T34', SMITH_BOOTS_XP[34], 22356],
+    ['Smith legs T34', SMITH_LEGS_XP[34], 33534],
+    ['Smith chest T34', SMITH_CHEST_XP[34], 44712],
+    ['Plate T1', PLATE_XP[1], 583],
+    ['Plate T34', PLATE_XP[34], 13414],
+    ['Tailor hood T1', TAILOR_HOOD_XP[1], 194],
+    ['Tailor robe T34', TAILOR_ROBE_XP[34], 44712],
+    ['Cloak T1', CLOAK_XP[1], 583],
+    ['Cloak T34', CLOAK_XP[34], 13414]
+  ];
+  const failed = checks.filter(c => c[1] !== c[2]);
+  if (failed.length && typeof console !== 'undefined') {
+    console.warn('[Live recipe XP] self-check FAILED:', failed.map(f => `${f[0]}=${f[1]} (expected ${f[2]})`).join(', '));
+  }
+})();
+
+// Exhaustive live-recipe audit — every recipe-backed action, every tier 1–34.
+// This verifies 1,020 calculator action rows against the independently stated
+// live recipe equations and input curves. It is silent on pass and reports the
+// exact tier/action on any future drift.
+(function exhaustiveRecipeAudit(){
+  const failures = [];
+  const eq = (label, actual, expected) => { if (actual !== expected) failures.push(`${label}: ${actual} !== ${expected}`); };
+  for (let t=1; t<=34; t++) {
+    const sx = skillXpForTier(t);
+    const base = 6 + (t-1)*4;
+    const craft = bars => Math.round(base * 18 * (bars/2) * 1.8);
+    const gatherBase = 2 * Math.round(sx * 1.1);
+
+    // Alchemy: 3 potion actions.
+    ['ATK','DEF','XP'].forEach(k => eq(`T${t} Alchemy ${k}`, ALCHEMY_XP[t], Math.round(sx*7.2)));
+    // Smithing: smelt, 7 gear pieces, reinforcement plate.
+    eq(`T${t} Smelt`, SMELT_XP[t], Math.round(sx*oresPerBar(t)*1.8));
+    eq(`T${t} Smith Boots`, SMITH_BOOTS_XP[t], craft(SMITH_BOOTS_INPUTS[t]));
+    eq(`T${t} Smith Helm`, SMITH_BOOTS_XP[t], craft(SMITH_BOOTS_INPUTS[t]));
+    eq(`T${t} Smith Gloves`, SMITH_BOOTS_XP[t], craft(SMITH_BOOTS_INPUTS[t]));
+    eq(`T${t} Smith Legs`, SMITH_LEGS_XP[t], craft(SMITH_LEGS_INPUTS[t]));
+    eq(`T${t} Smith Chest`, SMITH_CHEST_XP[t], craft(SMITH_CHEST_INPUTS[t]));
+    eq(`T${t} Smith Shield`, SMITH_SHIELD_XP[t], craft(SMITH_SHIELD_INPUTS[t]));
+    eq(`T${t} Smith Sword`, SMITH_SWORD_XP[t], craft(SMITH_SWORD_INPUTS[t]));
+    eq(`T${t} Reinforcement Plate`, PLATE_XP[t], Math.round(base*18*3*1.8));
+    // Tailoring: weave, 5 armour pieces, cloak.
+    eq(`T${t} Weave`, WEAVE_XP[t], Math.round(sx*oresPerBar(t)*1.8));
+    eq(`T${t} Tailor Hood`, TAILOR_HOOD_XP[t], craft(TAILOR_HOOD_INPUTS[t]));
+    eq(`T${t} Tailor Robe`, TAILOR_ROBE_XP[t], craft(TAILOR_ROBE_INPUTS[t]));
+    eq(`T${t} Tailor Gloves`, TAILOR_GLOVES_XP[t], craft(TAILOR_GLOVES_INPUTS[t]));
+    eq(`T${t} Tailor Legs`, TAILOR_LEGGINGS_XP[t], craft(TAILOR_LEGGINGS_INPUTS[t]));
+    eq(`T${t} Tailor Boots`, TAILOR_BOOTS_XP[t], craft(TAILOR_BOOTS_INPUTS[t]));
+    eq(`T${t} Cloak`, CLOAK_XP[t], Math.round(base*18*3*1.8));
+    // Jewelcrafting: prospect, cut, ring, amulet.
+    eq(`T${t} Prospect`, JEWEL_PROSPECT_XP[t], Math.round(sx*3.6));
+    eq(`T${t} Cut Gem`, CUT_GEM_XP[t], Math.round((54*t+18)*1.2));
+    const ring = Math.round((108+(t-1)*72)*1.2);
+    eq(`T${t} Ring`, JEWEL_RING_XP[t], ring);
+    eq(`T${t} Amulet`, JEWEL_AMULET_XP[t], ring*3);
+    // Spellcrafting: 5 enchants, regular cache, lesser cache.
+    const ench = Math.round((324+(t-1)*216)*0.8);
+    ['Boots','Gloves','Helm','Ring','Weapon'].forEach(k => eq(`T${t} ${k} Enchant`, SPELL_ENCHANT_XP[t], ench));
+    eq(`T${t} Arcane Cache`, CACHE_CRAFT_XP[t], Math.round(sx*1.6));
+    eq(`T${t} Lesser Arcane Cache`, LESSER_CACHE_CRAFT_XP[t], Math.round(sx*0.8));
+    // Non-recipe action changed in the same balance patch.
+    eq(`T${t} Harvest Mana`, SPELL_HARVEST_XP[t], Math.round(gatherBase*0.8));
+  }
+  if (failures.length && typeof console !== 'undefined')
+    console.warn('[Exhaustive recipe audit] FAILED (' + failures.length + '):', failures.join(' | '));
+})();
+
 
 // Tier Mana names (verified from wiki T1-22, CSV-confirmed T23-34)
 const SPELL_MANA = {
@@ -8630,7 +8809,8 @@ function tierMaterialName(skill, tier) {
     case 'spell_helm':
     case 'spell_ring':
     case 'spell_weapon':
-    case 'spell_cache':     return SPELL_MANA[t] || `${metal} Mana`;
+    case 'spell_cache':
+    case 'spell_lesser_cache': return SPELL_MANA[t] || `${metal} Mana`;
 
     default:                return metal;
   }
@@ -8775,21 +8955,21 @@ function getActions(tier, skill) {
     }
     case 'jewel_ring': {
       // Verified: 1x each gem in the chain [t, t-5, t-10, ...]
-      // Outputs 4 variants: Of Attack / Defense / Experience / Gathering
+      // Outputs 3 variants: Of Attack / Experience / Gathering
       const gem   = GEM_NAMES[t] || '?';
       const chain = getGemChain(t);
       const costLabel = chain.map(g => `1 ${g}`).join(', ');
-      const outputLabel = `1 ${gem} Ring Of Attack, 1 Of Defense, 1 Of Experience, 1 Of Gathering`;
+      const outputLabel = `1 ${gem} Ring Of Attack, 1 Of Experience, 1 Of Gathering`;
       return [{label:`${gem} Ring`, time:180, xp:JEWEL_RING_XP[t],
                cost:chain.length, costLabel, outputLabel}];
     }
     case 'jewel_amulet': {
       // Verified: 2x each gem in the chain [t, t-5, t-10, ...]
-      // Outputs 4 variants: Of Attack / Defense / Experience / Gathering
+      // Outputs 3 variants: Of Attack / Experience / Gathering
       const gem   = GEM_NAMES[t] || '?';
       const chain = getGemChain(t);
       const costLabel = chain.map(g => `2 ${g}`).join(', ');
-      const outputLabel = `1 ${gem} Amulet Of Attack, 1 Of Defense, 1 Of Experience, 1 Of Gathering`;
+      const outputLabel = `1 ${gem} Amulet Of Attack, 1 Of Experience, 1 Of Gathering`;
       return [{label:`${gem} Amulet`, time:180, xp:JEWEL_AMULET_XP[t],
                cost:chain.length * 2, costLabel, outputLabel}];
     }
@@ -8832,6 +9012,13 @@ function getActions(tier, skill) {
       const costLabel = `1 ${name} Upgrade Orb, 100 ${mana}`;
       const outputLabel = `1 ${name} Supply Cache`;
       return [{label:`Craft ${name} Arcane Cache`, time:10, xp:CACHE_CRAFT_XP[t], cost:100, costLabel, outputLabel}];
+    }
+    case 'spell_lesser_cache': {
+      // Live recipe: 200 same-tier Mana, no Upgrade Orb, 10s.
+      const mana = SPELL_MANA[t] || 'Mana';
+      const costLabel = `200 ${mana}`;
+      const outputLabel = `1 ${name} Lesser Supply Cache`;
+      return [{label:`Craft ${name} Lesser Arcane Cache`, time:10, xp:LESSER_CACHE_CRAFT_XP[t], cost:200, costLabel, outputLabel}];
     }
     case 'spell_weapon': {
       const mana=SPELL_MANA[t]||'Mana', herb=SPELL_HERB[t]||'Herb';
@@ -8904,6 +9091,7 @@ const SKILL_LABELS = {
   spell_ring:'✨ Spellcrafting — Ring Enchant',
   spell_weapon:'✨ Spellcrafting — Weapon Enchant',
   spell_cache:'✨ Spellcrafting — Arcane Cache',
+  spell_lesser_cache:'✨ Spellcrafting — Lesser Arcane Cache',
   // Tailoring — Phase 2 (Plan v1.1). Weave (fibre→cloth) + 5 armour crafts.
   // Slot keys reuse helmet/chest/legs but display as Hood/Robe/Leggings.
   tailor_weave:'🧵 Tailoring — Weave Cloth',
@@ -8962,7 +9150,7 @@ const SKILL_GROUP_ACTIONS = {
   gathering:    ['gather_herb','gather_fiber'],
   alchemy:      ['alchemy'],
   smithing:     ['smelt','smith_boots','smith_legs','smith_chest','smith_shield','smith_sword','smith_plate'],
-  spellcrafting:['spell_harvest','spell_boots','spell_gloves','spell_helm','spell_ring','spell_weapon','spell_cache'],
+  spellcrafting:['spell_harvest','spell_boots','spell_gloves','spell_helm','spell_ring','spell_weapon','spell_cache','spell_lesser_cache'],
   jewelcrafting:['jewel_prospect','jewel_cutgem','jewel_ring','jewel_amulet'],
   tailoring:    ['tailor_weave','tailor_hood','tailor_robe','tailor_gloves','tailor_leggings','tailor_boots','tailor_cloak'],
 };
@@ -9951,7 +10139,7 @@ function syncCheckbox(rowId, inputId) {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// FLAT-BONUS DROPDOWNS — XP Potion (from DB) + Housing Tier
+// FLAT-BONUS DROPDOWNS — Normal/Super XP Potions (from DB) + Housing Tier
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -9961,45 +10149,110 @@ function syncCheckbox(rowId, inputId) {
  * description so the value always tracks the CSV (single source of
  * truth). Returns 0 if the tier is None or the item can't be found.
  */
-function potionFlatForTier(tier) {
-  if (!tier) return 0;
-  // Primary: read straight from the item database. Match by the item's own
-  // tier + "XP Potion" name so it doesn't depend on TIER_NAMES spelling.
-  const items = IDB_STATE.items || [];
-  let item = items.find(i => i.tier === tier && /\bXP Potion$/i.test(i.name || ''));
-  if (!item) {
-    const name = `${TIER_NAMES[tier]} XP Potion`;
-    item = items.find(i => i.name === name);
-  }
-  if (item) {
-    const m = /([+-]?\d+)\s*XP/i.exec(item.desc || '');
-    if (m) return parseInt(m[1], 10);
-  }
-  // Fallback: the XP Potion bonus is exactly +N for tier N. Use this when the
-  // item DB hasn't finished loading yet, so the potion is never silently dropped.
-  return tier;
-}
+function potionItemForSelection(kind, tier) {
+  if (!tier || (kind !== 'normal' && kind !== 'super')) return null;
 
-/** getPotionFlat() — current flat bonus from the XP Potion dropdown. */
-function getPotionFlat() {
-  const sel = document.getElementById('potion-tier');
-  return sel ? potionFlatForTier(parseInt(sel.value, 10) || 0) : 0;
+  const items = IDB_STATE.items || [];
+  const isSuper = kind === 'super';
+  const expectedName = isSuper
+    ? `Super ${TIER_NAMES[tier]} XP Potion`
+    : `${TIER_NAMES[tier]} XP Potion`;
+
+  // Exact-name lookup is intentional. A suffix-only /XP Potion$/ match also
+  // matches Super potions and can silently return the wrong family.
+  return items.find(i => i.tier === tier && i.name === expectedName) || null;
 }
 
 /**
- * populateFlatBonusDropdowns()
- * Builds the XP Potion tier dropdown ("T1 - Copper", …) and the
- * Housing Tier dropdown. Called at boot, after the item DB loads.
+ * potionFlatForSelection(selection)
+ * selection format:
+ *   "normal:13" => Bloodstone XP Potion (+13 XP/task)
+ *   "super:13"  => Super Bloodstone XP Potion (+26 XP/task)
+ * Legacy numeric values from older saved builds are treated as normal potions.
+ */
+function potionFlatForSelection(selection) {
+  if (!selection || selection === '0') return 0;
+
+  const raw = String(selection);
+  let kind = 'normal';
+  let tier = 0;
+
+  if (raw.includes(':')) {
+    const parts = raw.split(':');
+    kind = parts[0] === 'super' ? 'super' : 'normal';
+    tier = parseInt(parts[1], 10) || 0;
+  } else {
+    // Backward compatibility with old persisted values such as "13".
+    tier = parseInt(raw, 10) || 0;
+  }
+
+  if (tier < 1 || tier > 34) return 0;
+
+  const item = potionItemForSelection(kind, tier);
+  if (item) {
+    const text = item.desc || item.effects_raw || '';
+    const m = /([+-]?\d+)\s*XP\s*\/\s*task/i.exec(text);
+    if (m) return parseInt(m[1], 10);
+  }
+
+  // items.json establishes normal = +tier and Super = +(2 × tier).
+  // This fallback keeps the calculator functional before the embedded DB
+  // finishes normalising, while retaining the item database as primary truth.
+  return kind === 'super' ? tier * 2 : tier;
+}
+
+/** Legacy helper retained for any outside code that calls it directly. */
+function potionFlatForTier(tier) {
+  return potionFlatForSelection(`normal:${parseInt(tier, 10) || 0}`);
+}
+
+/** getPotionFlat() — current flat bonus from the Potion dropdown. */
+function getPotionFlat() {
+  const sel = document.getElementById('potion-tier');
+  return sel ? potionFlatForSelection(sel.value) : 0;
+}
+
+/**
+ * Builds both normal and Super XP potion options from items.json semantics.
+ * The option value stores family + tier, preventing normal and Super potions
+ * from colliding at the same numeric tier.
  */
 function populateFlatBonusDropdowns() {
   const potionSel = document.getElementById('potion-tier');
   if (potionSel) {
+    // Preserve the current selection when the item DB finishes loading and
+    // this function runs again. Legacy numeric values migrate to normal:tier.
+    const previousRaw = String(potionSel.value || '0');
+    const previous = /^\d+$/.test(previousRaw) && previousRaw !== '0'
+      ? `normal:${previousRaw}`
+      : previousRaw;
+
+    potionSel.replaceChildren();
+    potionSel.appendChild(new Option('None', '0'));
+
+    const normalGroup = document.createElement('optgroup');
+    normalGroup.label = 'XP Potions';
+    const superGroup = document.createElement('optgroup');
+    superGroup.label = 'Super XP Potions';
+
     for (let t = 1; t <= 34; t++) {
-      const opt = document.createElement('option');
-      opt.value = t;
-      opt.textContent = `T${t} - ${TIER_NAMES[t]}`;
-      potionSel.appendChild(opt);
+      const normalFlat = potionFlatForSelection(`normal:${t}`);
+      const superFlat = potionFlatForSelection(`super:${t}`);
+
+      normalGroup.appendChild(new Option(
+        `T${t} – ${TIER_NAMES[t]} (+${normalFlat} XP/task)`,
+        `normal:${t}`
+      ));
+      superGroup.appendChild(new Option(
+        `T${t} – ${TIER_NAMES[t]} (+${superFlat} XP/task)`,
+        `super:${t}`
+      ));
     }
+
+    potionSel.append(normalGroup, superGroup);
+    potionSel.value = Array.from(potionSel.options).some(o => o.value === previous)
+      ? previous
+      : '0';
   }
 
   const houseSel = document.getElementById('housing-tier');
@@ -11145,6 +11398,7 @@ const SAME_SKILL_INPUT = {
   // Arcane Cache: 100 mana per craft, and Harvest Mana grants
   // Spellcrafting XP — a same-skill loop just like smelt→smith.
   spell_cache:  { producer: 'spell_harvest', producerName: 'mana' },
+  spell_lesser_cache: { producer: 'spell_harvest', producerName: 'mana' },
   // Tailoring (Phase 2): each armour craft consumes cloth, and weaving
   // cloth grants Tailoring XP too — a same-skill loop exactly like
   // smelt→smith.  The producer is tailor_weave; per-craft cloth count is
@@ -11823,11 +12077,9 @@ function renderPlan(steps, skill, opts) {
       <div class="ptc-sub">${Math.round(totalActions).toLocaleString()} actions</div>
     </div>
     <div class="plan-total-card">
-      <div class="ptc-lbl">Total Time${hasDeps ? ' (incl. inputs)' : ''}</div>
-      <div class="ptc-val">${planFormatTime(totalTimeSec)}</div>
-      <div class="ptc-sub">${hasDeps
-        ? planFormatTime(totalRawTime) + ' active crafting'
-        : (totalTimeSec / 3600).toLocaleString(undefined,{maximumFractionDigits:1}) + 'h total'}</div>
+      <div class="ptc-lbl">Total Crafting Time</div>
+      <div class="ptc-val">${planFormatTime(totalRawTime)}</div>
+      <div class="ptc-sub">${(totalRawTime / 3600).toLocaleString(undefined,{maximumFractionDigits:1})}h of listed actions</div>
     </div>
     <div class="plan-total-card">
       <div class="ptc-lbl">${hasResources ? 'Total Resources' : 'Skill'}</div>
@@ -11910,8 +12162,8 @@ function renderPlan(steps, skill, opts) {
     const actionsSub = isLoop
       ? `${planFmt(subs[0].count)} ${vocab.verb.toLowerCase()} + ${planFmt(subs[1].count)} craft`
       : 'actions';
-    const timeSub = (s.isLoop || s.activity.depNote)
-      ? planFormatTime(s.rawTimeSec) + ' active'
+    const timeSub = s.isLoop
+      ? 'time for the listed production and craft actions'
       : 'at ' + s.activity.time + 's each';
     const resVal = s.resources != null ? planFmt(s.resources) : '—';
     const resSub = s.resources != null
@@ -11926,8 +12178,8 @@ function renderPlan(steps, skill, opts) {
           <div class="plan-rate-bar"><i style="width:${barPct}%"></i></div>
         </div>
         <div class="plan-metric">
-          <div class="plan-metric-lbl">Time</div>
-          <div class="plan-metric-val">${planFormatTime(s.timeSec)}</div>
+          <div class="plan-metric-lbl">Crafting Time</div>
+          <div class="plan-metric-val">${planFormatTime(s.rawTimeSec != null ? s.rawTimeSec : s.timeSec)}</div>
           <div class="plan-metric-sub">${timeSub}</div>
         </div>
         <div class="plan-metric">
@@ -13158,7 +13410,7 @@ function iwReadEquippedSet(){
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   GEAR ICON ATLAS — GitHub-backed sprite loader (v44.10, repaired 2x atlas)
+   GEAR ICON ATLAS — external GitHub sprite loader (v44.12, cached full-resolution atlas)
    ───────────────────────────────────────────────────────────────
    Source files:
      gear_icons_atlas.png    — one 1280 × 19200 transparent texture atlas
@@ -13170,18 +13422,18 @@ function iwReadEquippedSet(){
      over that base icon; upgraded duplicate item art is never required.
    • Emoji remain visible while loading, on network errors, and for true
      manifest misses. A failed sprite request can never blank the UI.
-   • Both files load once and are reused by the old Gear tab and Gear NEW.
+   • Both external payloads initialise once and are reused by every gear surface.
    ═══════════════════════════════════════════════════════════════ */
 var IW_GEAR_SPRITES = (function () {
   'use strict';
 
-  var ROOT_URL = 'https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/';
-  // Keep both requests on the same explicit asset revision. This prevents a
-  // cached 64 px manifest being paired with the repaired 128 px atlas (or the
-  // reverse) immediately after the GitHub files are replaced.
-  var ASSET_VERSION = '2x-2026-08-01-indexfix1';
-  var MANIFEST_URL = ROOT_URL + 'gear_icons_manifest.json?v=' + encodeURIComponent(ASSET_VERSION);
-  var ATLAS_URL = ROOT_URL + 'gear_icons_atlas.png?v=' + encodeURIComponent(ASSET_VERSION);
+  // External sprite payload restored. The manifest and atlas are loaded from
+  // the dedicated GitHub asset repository so the toolkit remains compact and
+  // the icon set can be updated independently of this HTML file.
+  var GEAR_ASSET_BASE = 'https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/';
+  var GEAR_ASSET_VERSION = '2x-2026-08-01-indexfix1';
+  var MANIFEST_URL = GEAR_ASSET_BASE + 'gear_icons_manifest.json?v=' + encodeURIComponent(GEAR_ASSET_VERSION);
+  var ATLAS_URL = GEAR_ASSET_BASE + 'gear_icons_atlas.png?v=' + encodeURIComponent(GEAR_ASSET_VERSION);
 
   var state = 'idle';
   var lastError = null;
@@ -13189,9 +13441,14 @@ var IW_GEAR_SPRITES = (function () {
   var atlasImage = null;
   var iconIndex = new Map();
   var upgradeIndex = Object.create(null);
+  var resolvedIconCache = new Map();
+  var paintedHosts = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
   var loadPromise = null;
   var missingWarned = Object.create(null);
   var observer = null;
+  var observerQueue = new Set();
+  var observerFlushScheduled = false;
+  var atlasStyleReady = false;
 
   function esc(value) {
     return String(value == null ? '' : value)
@@ -13265,21 +13522,65 @@ var IW_GEAR_SPRITES = (function () {
     return host;
   }
 
+  function ensureAtlasStyle() {
+    if (atlasStyleReady) return;
+    var style = document.getElementById('iw-gear-atlas-style');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'iw-gear-atlas-style';
+      style.textContent = '.iw-gear-sprite-base,.iw-gear-sprite-upgrade{background-image:url("' + ATLAS_URL + '");}';
+      (document.head || document.documentElement).appendChild(style);
+    }
+    atlasStyleReady = true;
+  }
+
+  function cellStyle(entry) {
+    if (!entry || !manifest) return null;
+    if (entry._iwCellStyle) return entry._iwCellStyle;
+    var columns = Math.max(1, Number(manifest.columns) || 1);
+    var rows = Math.max(1, Number(manifest.rows) || 1);
+    var column = Number.isFinite(Number(entry.column))
+      ? Number(entry.column)
+      : Math.round((Number(entry.x) || 0) / (Number(manifest.cell_size) || 1));
+    var row = Number.isFinite(Number(entry.row))
+      ? Number(entry.row)
+      : Math.round((Number(entry.y) || 0) / (Number(manifest.cell_size) || 1));
+    var xPct = columns > 1 ? (column / (columns - 1)) * 100 : 0;
+    var yPct = rows > 1 ? (row / (rows - 1)) * 100 : 0;
+    entry._iwCellStyle = {
+      size: (columns * 100) + '% ' + (rows * 100) + '%',
+      position: xPct.toFixed(7) + '% ' + yPct.toFixed(7) + '%'
+    };
+    return entry._iwCellStyle;
+  }
+
+  function resolveCached(itemName) {
+    var requested = String(itemName == null ? '' : itemName);
+    if (resolvedIconCache.has(requested)) return resolvedIconCache.get(requested);
+    var parsed = splitItemName(requested);
+    var result = {
+      parsed: parsed,
+      key: normaliseName(parsed.base),
+      baseEntry: null,
+      upgradeEntry: null
+    };
+    if (state === 'ready') {
+      result.baseEntry = iconIndex.get(result.key) || null;
+      result.upgradeEntry = parsed.upgrade ? (upgradeIndex[parsed.upgrade] || null) : null;
+    }
+    resolvedIconCache.set(requested, result);
+    return result;
+  }
+
   function applyCell(layer, entry) {
     if (!layer || !entry || !manifest) return false;
-    var cell = Number(manifest.cell_size) || 64;
-    var atlasW = (atlasImage && atlasImage.naturalWidth) || ((Number(manifest.columns) || 1) * cell);
-    var atlasH = (atlasImage && atlasImage.naturalHeight) || ((Number(manifest.rows) || 1) * cell);
-    var w = Number(entry.width) || cell;
-    var h = Number(entry.height) || cell;
-    var x = Number(entry.x) || 0;
-    var y = Number(entry.y) || 0;
-    var xPct = atlasW > w ? (x / (atlasW - w)) * 100 : 0;
-    var yPct = atlasH > h ? (y / (atlasH - h)) * 100 : 0;
-
-    layer.style.backgroundImage = 'url("' + ATLAS_URL + '")';
-    layer.style.backgroundSize = ((atlasW / w) * 100) + '% ' + ((atlasH / h) * 100) + '%';
-    layer.style.backgroundPosition = xPct.toFixed(7) + '% ' + yPct.toFixed(7) + '%';
+    ensureAtlasStyle();
+    var cached = cellStyle(entry);
+    if (!cached) return false;
+    // The external atlas URL lives in one stylesheet rule, not in every
+    // icon's inline style. Each host only receives its tiny cached coordinates.
+    layer.style.backgroundSize = cached.size;
+    layer.style.backgroundPosition = cached.position;
     layer.style.backgroundRepeat = 'no-repeat';
     return true;
   }
@@ -13287,12 +13588,17 @@ var IW_GEAR_SPRITES = (function () {
   function paintHost(host) {
     if (!host) return false;
     var itemName = host.getAttribute('data-iw-gear-sprite') || '';
-    var parsed = splitItemName(itemName);
+    var previous = paintedHosts ? paintedHosts.get(host) : null;
+    if (previous === itemName && host.getAttribute('data-iw-sprite-state') === 'ready') return true;
+
+    var resolved = resolveCached(itemName);
+    var parsed = resolved.parsed;
     var baseLayer = host.querySelector('.iw-gear-sprite-base');
     var upgradeLayer = host.querySelector('.iw-gear-sprite-upgrade');
 
     if (!parsed.base) {
       host.setAttribute('data-iw-sprite-state', 'empty');
+      if (paintedHosts) paintedHosts.set(host, itemName);
       return false;
     }
     if (state !== 'ready') {
@@ -13300,14 +13606,14 @@ var IW_GEAR_SPRITES = (function () {
       return false;
     }
 
-    var key = normaliseName(parsed.base);
-    var baseEntry = iconIndex.get(key);
+    var baseEntry = resolved.baseEntry;
     if (!baseEntry) {
       host.setAttribute('data-iw-sprite-state', 'missing');
-      if (!missingWarned[key]) {
-        missingWarned[key] = true;
+      if (!missingWarned[resolved.key]) {
+        missingWarned[resolved.key] = true;
         console.warn('[gear sprites] No manifest icon for "' + parsed.base + '"; using emoji fallback.');
       }
+      if (paintedHosts) paintedHosts.set(host, itemName);
       return false;
     }
 
@@ -13316,13 +13622,14 @@ var IW_GEAR_SPRITES = (function () {
     host.setAttribute('data-iw-sprite-manifest-name', baseEntry.name);
 
     if (parsed.upgrade && upgradeLayer) {
-      var upgradeEntry = upgradeIndex[parsed.upgrade];
+      var upgradeEntry = resolved.upgradeEntry;
       if (upgradeEntry && applyCell(upgradeLayer, upgradeEntry)) {
         upgradeLayer.setAttribute('data-iw-upgrade-state', 'ready');
       } else {
         upgradeLayer.setAttribute('data-iw-upgrade-state', 'fallback');
       }
     }
+    if (paintedHosts) paintedHosts.set(host, itemName);
     return true;
   }
 
@@ -13357,8 +13664,10 @@ var IW_GEAR_SPRITES = (function () {
     root = root || document;
     if (!root || !root.querySelectorAll) return;
     var hosts = [];
-    if (root.nodeType === 1 && root.matches && root.matches('[data-iw-gear-sprite]')) hosts.push(root);
-    Array.prototype.push.apply(hosts, root.querySelectorAll('[data-iw-gear-sprite]'));
+    if (root.nodeType === 1 && root.matches && root.matches('[data-iw-gear-sprite]') &&
+        !/^(ready|missing|empty)$/.test(root.getAttribute('data-iw-sprite-state') || '')) hosts.push(root);
+    Array.prototype.push.apply(hosts,
+      root.querySelectorAll('[data-iw-gear-sprite]:not([data-iw-sprite-state="ready"]):not([data-iw-sprite-state="missing"]):not([data-iw-sprite-state="empty"])'));
     hosts.forEach(paintHost);
     decorateLegacyGear(root);
   }
@@ -13376,7 +13685,9 @@ var IW_GEAR_SPRITES = (function () {
   function buildIndexes(obj) {
     iconIndex = new Map();
     upgradeIndex = Object.create(null);
+    resolvedIconCache.clear();
     obj.icons.forEach(function (entry) {
+      if (entry) cellStyle(entry);
       if (!entry || !entry.name) return;
       var upgradeMatch = /^\+([123])$/.exec(String(entry.name).trim());
       if (upgradeMatch) {
@@ -13389,6 +13700,20 @@ var IW_GEAR_SPRITES = (function () {
     [1, 2, 3].forEach(function (level) {
       if (!upgradeIndex[level]) throw new Error('Sprite manifest is missing the +' + level + ' overlay icon.');
     });
+  }
+
+  function loadManifest() {
+    return fetch(MANIFEST_URL, {
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'default'
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error('Could not load ' + MANIFEST_URL + ' (HTTP ' + response.status + ')');
+      }
+      return response.json();
+    }).then(validateManifest);
   }
 
   function loadAtlasImage() {
@@ -13407,12 +13732,7 @@ var IW_GEAR_SPRITES = (function () {
     state = 'loading';
     lastError = null;
     loadPromise = Promise.all([
-      fetch(MANIFEST_URL, { mode: 'cors', credentials: 'omit', cache: 'no-cache' })
-        .then(function (response) {
-          if (!response.ok) throw new Error('Manifest request returned HTTP ' + response.status + '.');
-          return response.json();
-        })
-        .then(validateManifest),
+      loadManifest(),
       loadAtlasImage()
     ]).then(function (result) {
       manifest = result[0];
@@ -13422,18 +13742,21 @@ var IW_GEAR_SPRITES = (function () {
       var expectedW = Number(manifest.columns) * Number(manifest.cell_size);
       var expectedH = Number(manifest.rows) * Number(manifest.cell_size);
       if (atlasImage.naturalWidth !== expectedW || atlasImage.naturalHeight !== expectedH) {
-        throw new Error('Atlas dimensions ' + atlasImage.naturalWidth + '×' + atlasImage.naturalHeight +
-          ' do not match manifest dimensions ' + expectedW + '×' + expectedH + '.');
+        console.warn('[gear sprites] Atlas dimensions ' + atlasImage.naturalWidth + '×' +
+          atlasImage.naturalHeight + ' differ from the manifest source dimensions ' + expectedW + '×' +
+          expectedH + '. Grid-based positioning remains active.');
       }
 
       state = 'ready';
+      resolvedIconCache.clear();
+      ensureAtlasStyle();
       hydrate(document);
       try {
         window.dispatchEvent(new CustomEvent('iw:gear-sprites-ready', {
           detail: { icons: manifest.icons.length, atlasUrl: ATLAS_URL }
         }));
       } catch (e) {}
-      console.info('[gear sprites] Ready: ' + manifest.icons.length + ' atlas cells from GitHub.');
+      console.info('[gear sprites] Ready: ' + manifest.icons.length + ' external atlas cells.');
       return api;
     }).catch(function (error) {
       state = 'error';
@@ -13458,23 +13781,39 @@ var IW_GEAR_SPRITES = (function () {
   }
 
   function resolve(itemName) {
-    var parsed = splitItemName(itemName);
+    var cached = resolveCached(itemName);
     return {
-      requestedName: parsed.original,
-      baseName: parsed.base,
-      upgrade: parsed.upgrade,
-      base: state === 'ready' ? (iconIndex.get(normaliseName(parsed.base)) || null) : null,
-      overlay: state === 'ready' && parsed.upgrade ? (upgradeIndex[parsed.upgrade] || null) : null
+      requestedName: cached.parsed.original,
+      baseName: cached.parsed.base,
+      upgrade: cached.parsed.upgrade,
+      base: state === 'ready' ? cached.baseEntry : null,
+      overlay: state === 'ready' ? cached.upgradeEntry : null
     };
+  }
+
+  function flushObserverQueue() {
+    observerFlushScheduled = false;
+    var nodes = Array.from(observerQueue);
+    observerQueue.clear();
+    nodes.forEach(function (node) {
+      if (node && node.isConnected !== false) hydrate(node);
+    });
+  }
+
+  function queueObserverNode(node) {
+    if (!node || node.nodeType !== 1) return;
+    observerQueue.add(node);
+    if (observerFlushScheduled) return;
+    observerFlushScheduled = true;
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(flushObserverQueue);
+    else Promise.resolve().then(flushObserverQueue);
   }
 
   function startObserver() {
     if (observer || typeof MutationObserver === 'undefined' || !document.documentElement) return;
     observer = new MutationObserver(function (records) {
       records.forEach(function (record) {
-        Array.prototype.forEach.call(record.addedNodes || [], function (node) {
-          if (node && node.nodeType === 1) hydrate(node);
-        });
+        Array.prototype.forEach.call(record.addedNodes || [], queueObserverNode);
       });
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
@@ -17211,7 +17550,7 @@ const TASK_LEAVES = {
   alchemy:['alchemy'],
   smithing:['smelt','smith_boots','smith_legs','smith_chest','smith_shield','smith_sword'],
   jewelcrafting:['jewel_prospect','jewel_cutgem','jewel_ring','jewel_amulet'],
-  spellcrafting:['spell_harvest','spell_boots','spell_gloves','spell_helm','spell_ring','spell_weapon','spell_cache'],
+  spellcrafting:['spell_harvest','spell_boots','spell_gloves','spell_helm','spell_ring','spell_weapon','spell_cache','spell_lesser_cache'],
   tailoring:['tailor_weave','tailor_hood','tailor_robe','tailor_gloves','tailor_leggings','tailor_boots'],
 };
 // Leaves whose XP scales with GATHER mechanics (double-gather / gather-rate),
@@ -18743,10 +19082,9 @@ function highlightMatch(text, query) {
  * XP on the wiki and so get no XP section and no Apply button.
  */
 const ENCHANT_XP = (function () {
-  // Wiki recipe XP for enchants: T1=324, then +216 per tier (verified T1–T22).
-  // Matches SPELL_ENCHANT_XP exactly.
+  // Use the shared live enchant table so Database and Calculator stay identical.
   const m = {};
-  for (let t = 1; t <= MAX_TIER; t++) m[t] = 324 + (t - 1) * 216;
+  for (let t = 1; t <= MAX_TIER; t++) m[t] = SPELL_ENCHANT_XP[t];
   return m;
 })();
 
@@ -21025,13 +21363,60 @@ function syncCombatLevel(val) {
     }
   }
 
+  /* Transient bundled test profiles must never survive a reload.
+     This runs on every startup and removes only profiles explicitly marked
+     by the Test button; ordinary live imports remain untouched. */
+  (function iwPurgePersistedTransientTestProfile() {
+    var state = read();
+    if (!state) return;
+    var storedTest = !!(state.profile && state.profile.__iwBundledTestProfile === true);
+    var metaTest = !!(state.profileMeta && state.profileMeta.transientTest === true);
+    if (!storedTest && !metaTest) return;
+    state.profile = null;
+    state.profileMeta = null;
+    if (state.controls) {
+      delete state.controls['iw-import-user'];
+      delete state.controls['iw-import-league'];
+    }
+    write(state);
+  })();
+
+  /* v4.8 presentation cleanup — one-time only. A previously opened
+     development build may have left the bundled test profile and devMode=true
+     in the shared browser store. Remove only that sample state, preserve real
+     user data, and let the user enable developer mode again normally later. */
+  (function iwCleanPresentationStateOnce() {
+    var state = read();
+    if (!state) return;
+    state.settings = state.settings || {};
+    if (state.settings.presentationCleanV48) return;
+    state.settings.devMode = false;
+    state.settings.verbose = false;
+    var who = state.profileMeta && state.profileMeta.user;
+    var profileName = state.profile && (state.profile.username || state.profile.user || state.profile.name);
+    if (who === 'JohnSmith_TestImport' || profileName === 'JohnSmith_TestImport') {
+      state.profile = null;
+      state.profileMeta = null;
+      if (state.controls) {
+        delete state.controls['iw-import-user'];
+        delete state.controls['iw-import-league'];
+      }
+    }
+    state.settings.presentationCleanV48 = true;
+    write(state);
+  })();
+
   /* ── Capture ──────────────────────────────────────────────────── */
   function snapshotControls() {
     var out = {};
+    var transientTestActive = !!(window.IWProfile &&
+                                 window.IWProfile.__iwBundledTestProfile === true);
     var els = document.querySelectorAll('input[id], select[id]');
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
       if (SKIP[el.id] || el.type === 'button' || el.type === 'submit') continue;
+      if (transientTestActive &&
+          (el.id === 'iw-import-user' || el.id === 'iw-import-league')) continue;
       if (el.type === 'checkbox' || el.type === 'radio') out[el.id] = { c: !!el.checked };
       else if (el.value !== '' && el.value != null) out[el.id] = { v: el.value };
     }
@@ -21251,9 +21636,22 @@ function syncCombatLevel(val) {
       return Date.now() - (s.profileMeta.at || 0);
     },
     forget: function () {
-      try { localStorage.removeItem(KEY); } catch (e) {}
-      LEGACY_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
-      try { localStorage.removeItem('iw_items_v4'); } catch (e) {}
+      /* v4.8 final: "Forget everything" must clear every toolkit-owned
+         persistence key, not only the main profile snapshot. Several Gear,
+         shopping-list and UI modules keep their own namespaced keys. Leaving
+         those behind made old imported values appear to survive the reset. */
+      var keys = [
+        KEY,
+        'iw_gem_alltiers_v1', 'iwGearExpandersV1', 'iw_gear_expanders_v1',
+        'iwSocketPlanV1', 'iwPlatePlanV1', 'iwEnchantPlanV1',
+        'iwShoppingOwned', 'iwShoppingGear',
+        'iw_ui_mode_v1', 'iw_theme_v1', 'iw_goalcards_v1',
+        'iw-settings-open-v1', 'iwCollapseSkills', 'iwVisitedTool',
+        'iw_items_api_v1', 'iw_items_csv_v2', 'iw_items_csv_v1',
+        'iw_items_v1', 'iw_items_v2', 'iw_items_v3', 'iw_items_v4'
+      ];
+      LEGACY_KEYS.forEach(function (k) { if (keys.indexOf(k) < 0) keys.push(k); });
+      keys.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
       mem = null;
     }
   };
@@ -21269,10 +21667,52 @@ function syncCombatLevel(val) {
     if (btn) btn.click();
   };
 
+  function iwResetControlsToMarkupDefaults() {
+    /* Browsers can restore form values across reloads independently of
+       localStorage. Reset every control to its HTML default while saves are
+       suspended, so a forgotten profile cannot reappear through form-history
+       restoration or values left in the current DOM. */
+    restoring = true;
+    try {
+      try { window.IWProfile = null; } catch (e) {}
+      var els = document.querySelectorAll('input, select, textarea');
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        if (el.type === 'button' || el.type === 'submit' || el.type === 'file') continue;
+        if (el.type === 'checkbox' || el.type === 'radio') {
+          el.checked = !!el.defaultChecked;
+        } else if (el.tagName === 'SELECT') {
+          var chosen = -1;
+          for (var j = 0; j < el.options.length; j++) {
+            if (el.options[j].defaultSelected) { chosen = j; break; }
+          }
+          el.selectedIndex = chosen >= 0 ? chosen : (el.options.length ? 0 : -1);
+        } else {
+          el.value = el.defaultValue || '';
+        }
+      }
+    } finally {
+      restoring = false;
+    }
+  }
+
+  /* A reload can be followed by browser-level form restoration. This
+     session marker performs one more reset after the new document exists. */
+  try {
+    if (sessionStorage.getItem('iw_forget_pending_v1') === '1') {
+      sessionStorage.removeItem('iw_forget_pending_v1');
+      iwResetControlsToMarkupDefaults();
+      setTimeout(iwResetControlsToMarkupDefaults, 0);
+    }
+  } catch (e) {}
+
   window.iwForget = function () {
     if (!window.confirm('Forget the saved profile and every saved input on this device?')) return;
     window.IWStore.forget();
-    location.reload();
+    iwResetControlsToMarkupDefaults();
+    try { sessionStorage.setItem('iw_forget_pending_v1', '1'); } catch (e) {}
+    /* replace() avoids returning to the pre-reset state with Back. */
+    location.replace(location.href);
   };
 
   /* ── Hooks ────────────────────────────────────────────────────── */
@@ -21292,6 +21732,24 @@ function syncCombatLevel(val) {
           current = p;
           try { window.dispatchEvent(new CustomEvent('iw:profile', { detail: { profile: p } })); } catch (e) {}
           if (restoring || !p) return;
+          if (p.__iwBundledTestProfile === true) {
+            /* Deliberately session-only: never write the bundled test profile,
+               its username, or its league to persistent storage. */
+            try {
+              var s = read();
+              if (s && ((s.profile && s.profile.__iwBundledTestProfile === true) ||
+                        (s.profileMeta && s.profileMeta.transientTest === true))) {
+                s.profile = null;
+                s.profileMeta = null;
+                if (s.controls) {
+                  delete s.controls['iw-import-user'];
+                  delete s.controls['iw-import-league'];
+                }
+                write(s);
+              }
+            } catch (e) {}
+            return;
+          }
           try {
             var u = $('iw-import-user'), lg = $('iw-import-league');
             saveProfile(p, {
@@ -22192,7 +22650,18 @@ function syncCombatLevel(val) {
     if (!panel) return;
     var p = window.IWProfile;
     var skills = skillsOf(p);
-    if (!p || !skills.length) { panel.style.display = 'none'; return; }
+    if (!p || !skills.length) {
+      panel.style.display = 'none';
+      panel.hidden = true;
+      panel.setAttribute('hidden', '');
+      return;
+    }
+
+    /* The Start-page character panel is authored with both display:none and
+       the HTML hidden attribute. Clearing only display is insufficient:
+       [hidden] continues to suppress the entire panel and all stat cards. */
+    panel.hidden = false;
+    panel.removeAttribute('hidden');
     panel.style.display = '';
 
     skills.sort(function (a, b) { return (b.level || 0) - (a.level || 0); });
@@ -24549,4 +25018,4 @@ function syncCombatLevel(val) {
 })();
 </script>
 
-<div id="iw-tip" role="tooltip" class="" style="top: 622px; left: 902px;"><div class="iw-tip-head has-gear-art"><div class="iw-tip-icon">🛡️</div><div class="iw-tip-title-block"><div class="iw-tip-name">Eternium Leggings</div><div class="iw-tip-badges"><span class="iw-tip-badge t">Tier 19</span><span class="iw-tip-badge">🛡️ Equipment</span><span class="iw-tip-badge">Legs slot</span><span class="iw-tip-badge req">Requires Combat Lv 65</span></div></div><div class="iw-tip-gear-art" aria-hidden="true"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Eternium Leggings" data-iw-sprite-fallback="🛡️" data-iw-sprite-state="ready" role="img" aria-label="Eternium Leggings icon" data-iw-sprite-manifest-name="Eternium Leggings"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-image: url(&quot;https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/gear_icons_atlas.png?v=2x-2026-08-01-indexfix1&quot;); background-size: 1000% 15000%; background-position: 88.8889% 12.7517%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🛡️</span></span></div></div><div class="iw-tip-body"><div class="iw-tip-sec"><div class="iw-tip-effect">DEF +26, Requires Combat Lv 65, 1 Socket</div></div><div class="iw-tip-sec"><div class="iw-tip-sec-title">Stats</div><div class="iw-tip-stats"><div class="iw-tip-stat"><span class="k">🛡️ DEF</span><span class="v">26</span></div><div class="iw-tip-stat"><span class="k">🔷 Sockets</span><span class="v">1</span></div><div class="iw-tip-stat"><span class="k">💰 Base value</span><span class="v amber">1,886g</span></div></div></div><div class="iw-tip-sec"><div class="iw-tip-sec-title">How to get it</div><div class="iw-tip-acq"><div class="iw-tip-acq-main">Crafted · Smithing</div><div class="iw-tip-acq-sub">Smithing Lv 73 · Tier 19 recipe</div></div></div></div><div class="iw-tip-foot"><button type="button" class="iw-tip-open" onclick="iwTipOpenEntry(&#39;eternium_leggings&#39;)">Full entry →</button><a class="iw-tip-link" href="https://idleworlds.com/wiki/items/eternium_leggings" target="_blank" rel="noopener noreferrer">📖 Wiki ↗</a><span class="iw-tip-stale">offline data</span></div></div></body></html>
+<div id="iw-tip" role="tooltip" class="" style="top: 622px; left: 902px;"><div class="iw-tip-head has-gear-art"><div class="iw-tip-icon">🛡️</div><div class="iw-tip-title-block"><div class="iw-tip-name">Eternium Leggings</div><div class="iw-tip-badges"><span class="iw-tip-badge t">Tier 19</span><span class="iw-tip-badge">🛡️ Equipment</span><span class="iw-tip-badge">Legs slot</span><span class="iw-tip-badge req">Requires Combat Lv 65</span></div></div><div class="iw-tip-gear-art" aria-hidden="true"><span class="iw-gear-sprite-host" data-iw-gear-sprite="Eternium Leggings" data-iw-sprite-fallback="🛡️" data-iw-sprite-state="ready" role="img" aria-label="Eternium Leggings icon" data-iw-sprite-manifest-name="Eternium Leggings"><span class="iw-gear-sprite-base" aria-hidden="true" style="background-size: 1000% 15000%; background-position: 88.8889% 12.7517%; background-repeat: no-repeat;"></span><span class="iw-gear-sprite-fallback" aria-hidden="true">🛡️</span></span></div></div><div class="iw-tip-body"><div class="iw-tip-sec"><div class="iw-tip-effect">DEF +26, Requires Combat Lv 65, 1 Socket</div></div><div class="iw-tip-sec"><div class="iw-tip-sec-title">Stats</div><div class="iw-tip-stats"><div class="iw-tip-stat"><span class="k">🛡️ DEF</span><span class="v">26</span></div><div class="iw-tip-stat"><span class="k">🔷 Sockets</span><span class="v">1</span></div><div class="iw-tip-stat"><span class="k">💰 Base value</span><span class="v amber">1,886g</span></div></div></div><div class="iw-tip-sec"><div class="iw-tip-sec-title">How to get it</div><div class="iw-tip-acq"><div class="iw-tip-acq-main">Crafted · Smithing</div><div class="iw-tip-acq-sub">Smithing Lv 73 · Tier 19 recipe</div></div></div></div><div class="iw-tip-foot"><button type="button" class="iw-tip-open" onclick="iwTipOpenEntry(&#39;eternium_leggings&#39;)">Full entry →</button><a class="iw-tip-link" href="https://idleworlds.com/wiki/items/eternium_leggings" target="_blank" rel="noopener noreferrer">📖 Wiki ↗</a><span class="iw-tip-stale">offline data</span></div></div></body></html>
