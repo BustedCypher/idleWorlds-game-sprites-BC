@@ -1,0 +1,376 @@
+index,row,column,x,y,width,height,icon_key,name,group,shared,usage_count,art_source,sha256_rgba
+0,0,0,0,0,128,128,item.copper_ore,Copper Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,ebc23ac79eb40c4b68ba71573ce1a6c9364926900f8b45c24eb1e0953e007ade
+1,0,1,128,0,128,128,item.iron_ore,Iron Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,2c36f41c5759a965749d730d5bbe44986bd3feff3eefcc57504df4987c56248b
+2,0,2,256,0,128,128,item.silver_ore,Silver Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,84a15d2a2fbc79810e928ff9532c69af768243beacb0e7092b82d293152292d0
+3,0,3,384,0,128,128,item.gold_ore,Gold Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,3e80f6e36b7201f8e8cda474b5aa240272745990507c33bc5098641c03f88f43
+4,0,4,512,0,128,128,item.mythril_ore,Mythril Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,5ae6a755bbb2666af934e145355411eb07545512ee30e9d08912761ea6ad92c3
+5,0,5,640,0,128,128,item.starsteel_ore,Starsteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,7615653c085df1acc72f81d43bf35a7cf8e58ebe402b8fe39ba302b24318b7b2
+6,0,6,768,0,128,128,item.obsidian_ore,Obsidian Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,6f09dfb6db5afb5a5bfed2b7aadbb0f658c5e35a64d7d3596a6c2328550d4810
+7,0,7,896,0,128,128,item.runite_ore,Runite Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,beb01727e7e015bdb27df3435828ca5b02376847a6730d5c9d6e5da1538dae1f
+8,0,8,1024,0,128,128,item.dragonsteel_ore,Dragonsteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,b5001ecf6cef7d62efc475d7412f8da3fe767c7cb18ab59ab9442a2b53563f40
+9,0,9,1152,0,128,128,item.aethersteel_ore,Aethersteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,d4b496eb77b311abe4573e63e8379b76871133787f086e5b51efb67ade1d14ed
+10,1,0,0,128,128,128,item.voidiron_ore,Voidiron Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,6731683fb2ffe2f389fad6aea3e079faee8d2ccd0ce6825daf42e007a201cf0b
+11,1,1,128,128,128,128,item.celestium_ore,Celestium Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,aa0c44c8ec161ffd9a3bcd2152bab20157feaa9e87cda24deb930fe5d5a63b72
+12,1,2,256,128,128,128,item.bloodstone_ore,Bloodstone Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,abbbad689d1af32abd34bb5eccb28bad194d64ebee4ac7a01481b805a9c44f3e
+13,1,3,384,128,128,128,item.moonsteel_ore,Moonsteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,0dd19c6cd2d1c8bba4553974aae0a32f759c11af8ab6107aee1f1c25d29ab3a8
+14,1,4,512,128,128,128,item.sunforged_ore,Sunforged Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,888cf62f92951bd4d438fd33ba7295e23743510579db7199f104033bb53087b5
+15,1,5,640,128,128,128,item.netherite_ore,Netherite Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,c25e312d1b672c738c79b27968d080d2021f9ec83de25a48a5775ee030d2297e
+16,1,6,768,128,128,128,item.stormglass_ore,Stormglass Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,194344708adbca159fafe7b6fccd5a5d647c889ef58ce852fb9c87ecbeff73d8
+17,1,7,896,128,128,128,item.kingssteel_ore,Kingssteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,3a0558ef8acc562a102fddb52e3bac7cba8c2ece889d38cbc069ef1015be93e7
+18,1,8,1024,128,128,128,item.eternium_ore,Eternium Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,ffb658430bc7723e5c0728d8467a482bcfcde32d8e8d7f9cf75184dcf72ffc1e
+19,1,9,1152,128,128,128,item.astralium_ore,Astralium Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,39c2e5e7af0c0b09313c4af4fa12eaa53246922e9994f307cff1e34b12abee65
+20,2,0,0,256,128,128,item.gravite_ore,Gravite Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,a7bd078299892189852565ec74ecea78027db9f94d3dced0934e71d0e72a1e44
+21,2,1,128,256,128,128,item.frostiron_ore,Frostiron Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,a4ec3001a4a4e1c658b4569a2ab2c8ec8adfbbf1a5740cae4e95699c263230a0
+22,2,2,256,256,128,128,item.dusksteel_ore,Dusksteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,a12ac7880c34eaacf61e8f32539c69c2ef33d936db0b69fb09c6a9a92d5a11e3
+23,2,3,384,256,128,128,item.titanium_ore,Titanium Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,65720abcb95bde8795c1e565fd5c7210fccc835f45a81851f5802811e35a41bf
+24,2,4,512,256,128,128,item.skysteel_ore,Skysteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,4cf182264e2e25d424f8350c548910976d0e6bcb6763032c91fd27b0005952bd
+25,2,5,640,256,128,128,item.emberium_ore,Emberium Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,f32d9758e7a8b880f51832a36effac48be5171e473713bde8e74b85a93f3ac45
+26,2,6,768,256,128,128,item.soulsteel_ore,Soulsteel Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,dcfaaa74e2b3bc23d24caa8ea03fe0e03bc66016fca878c0e852f0022a04628d
+27,2,7,896,256,128,128,item.chronite_ore,Chronite Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,1e6572a099b8ab3ee0d9f3defb116ec3ffc80efdfee1ca5356e59a74c576d932
+28,2,8,1024,256,128,128,item.worldforge_ore,Worldforge Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,6f457de9e6c67c3aad4974634e4fe3941834c006999e3c9e7b499070da80d62a
+29,2,9,1152,256,128,128,item.voidglass_ore,Voidglass Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,3601475c6a4a3aa36b8e965b168723f9e5b2f782d9c4d0b181d2fc94447341d6
+30,3,0,0,384,128,128,item.thalassic_ore,Thalassic Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,900f6c28126d9b24dd628527c76ba1047ea11152fa3aa38bace2a2eed18c7298
+31,3,1,128,384,128,128,item.ashspire_ore,Ashspire Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,c324f8993cd8eef62d220c42469e3d448e3e800de0ffdb965cb53af44185296b
+32,3,2,256,384,128,128,item.glacirite_ore,Glacirite Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,82bb560600831c23b57ff104b9129889cea51797de708e1af69d02e52a3ec119
+33,3,3,384,384,128,128,item.primordite_ore,Primordite Ore,resources.ore,False,1,supplied ore sheet / generated tier 33-34,22d554e7a23a509757187677e2cdb428ca42f6131d3d97c588bb50e190f3188b
+34,3,4,512,384,128,128,item.copperbloom,Copperbloom,resources.plant,False,1,generated botanical family,0fcbbdcd8e8bc5d230c5483e66fe973bf4028469b50bed06983cef7fd8ebbfa6
+35,3,5,640,384,128,128,item.ironleaf,Ironleaf,resources.plant,False,1,generated botanical family,a555cfe6490d7e03f07ffe0765f064085af49a2bbd01e3d30bb5ae204fba776c
+36,3,6,768,384,128,128,item.silverroot,Silverroot,resources.plant,False,1,generated botanical family,4bfd2829d39aa8237969a6e889b76a4e2b4e54e691b82f0ff024bb3d53755d20
+37,3,7,896,384,128,128,item.golden_mint,Golden Mint,resources.plant,False,1,generated botanical family,2f58cd9c2ca6e13f83f5932bf9d464b0e57e394d03f4c37b770170d46bc0c03c
+38,3,8,1024,384,128,128,item.mythril_moss,Mythril Moss,resources.plant,False,1,generated botanical family,0eb9baa8f35c9ea7627d39e407fe425d11e3d36c38d2846371a3b275f4827771
+39,3,9,1152,384,128,128,item.starpetal,Starpetal,resources.plant,False,1,generated botanical family,5e6188d9d0cad3b0731c410fe4b8f19bd2163a527c0e4f418239bf5983d4822f
+40,4,0,0,512,128,128,item.obsidian_thorn,Obsidian Thorn,resources.plant,False,1,generated botanical family,962a14ba9efd10107e38dc204aa9892752ea26e076397dc07a21204d55a941d6
+41,4,1,128,512,128,128,item.runebloom,Runebloom,resources.plant,False,1,generated botanical family,a064a0e217aeb1b15f4acf387c162af6d8fef0b0e275985dc71d2a98630f9e59
+42,4,2,256,512,128,128,item.embersage,Embersage,resources.plant,False,1,generated botanical family,e1636ae7ab9f4cae9e89dbb7ff6a1bf71f577519cd5eb6c83b5c5970afd65fe1
+43,4,3,384,512,128,128,item.aetherreed,Aetherreed,resources.plant,False,1,generated botanical family,57ef31c397e6a2e9fc60ba7f31683429fb9c076afc8c022fac5a9c4a94ee5e7b
+44,4,4,512,512,128,128,item.void_fern,Void Fern,resources.plant,False,1,generated botanical family,f8cecd1854e7a40f90bfc732493dc40895e7bb9aece176ed95e9badab67f4a6b
+45,4,5,640,512,128,128,item.sunblossom,Sunblossom,resources.plant,False,1,generated botanical family,04453e7b0db6cdc910768703077fd3294b6790cf6eab9557a8a6f9e6ac313800
+46,4,6,768,512,128,128,item.bloodvine,Bloodvine,resources.plant,False,1,generated botanical family,3b60a381478d9278786dea355b0088da4105c382a53e2857e5fd6b9545a9737a
+47,4,7,896,512,128,128,item.moonshade,Moonshade,resources.plant,False,1,generated botanical family,18704848c7a851b92bd58ed3c6fc94074ac75529f4efba148f1a20911c905fad
+48,4,8,1024,512,128,128,item.sunflare_bloom,Sunflare Bloom,resources.plant,False,1,generated botanical family,5b2b137e86344e8d4bf2980a73880821f02d3084c3ac5eab0a2ec2f3b76c6d3a
+49,4,9,1152,512,128,128,item.nether_bramble,Nether Bramble,resources.plant,False,1,generated botanical family,43429c82ec97c885b3f38111fa67e5e6d4174bfecddbc7382ab6b6fe9debdb39
+50,5,0,0,640,128,128,item.stormsage,Stormsage,resources.plant,False,1,generated botanical family,d4e4767fbbe9eba31103ce0ceb5e570d0a40e0291e1d69d1c88ddd1da08ddcc4
+51,5,1,128,640,128,128,item.royal_thyme,Royal Thyme,resources.plant,False,1,generated botanical family,7c451243d794690deccd26a0d7d5f7b26e82c8f0478188d226e038677786865c
+52,5,2,256,640,128,128,item.eternal_orchid,Eternal Orchid,resources.plant,False,1,generated botanical family,ac8998dcfe1c08c11fc67a2521bc4c4297176d921b3f83ee012f9de61e4161f4
+53,5,3,384,640,128,128,item.astral_bloom,Astral Bloom,resources.plant,False,1,generated botanical family,e4c21cb7d89e0bc7cc082db07a298854f588f885d6ca6de06fc29cb5bc4748e9
+54,5,4,512,640,128,128,item.graviweed,Graviweed,resources.plant,False,1,generated botanical family,a29d80576d5f0212383ff81253586424c47aeec513f82b25fa4ce956de628d77
+55,5,5,640,640,128,128,item.frostmint,Frostmint,resources.plant,False,1,generated botanical family,e27591c6553fda82a1113425f94af8f61d3f7827f137ae5f4d1a0efc483690f7
+56,5,6,768,640,128,128,item.duskleaf,Duskleaf,resources.plant,False,1,generated botanical family,51a8b0d7681a85d893597cca331072308bab23c18e5b347dca0bd1b946585abf
+57,5,7,896,640,128,128,item.titanfern,Titanfern,resources.plant,False,1,generated botanical family,fb9f82fee6d8e5590b9109c6a21a1547359870130187c491873edfaccb6e991f
+58,5,8,1024,640,128,128,item.skyblossom,Skyblossom,resources.plant,False,1,generated botanical family,da750d20e2bfaf4c9a02d50c202edd110caad0ad2e3cab1c7fed8d6a35639408
+59,5,9,1152,640,128,128,item.emberroot,Emberroot,resources.plant,False,1,generated botanical family,d97b570a194b5868a7493d518f527b79d4c6c3017443c5e0d6b411a8340e84a7
+60,6,0,0,768,128,128,item.soulsprig,Soulsprig,resources.plant,False,1,generated botanical family,2455c23a5a273bd0487acc2bb72d46b96242c8bd6babdf6a8704908e6c7b4d13
+61,6,1,128,768,128,128,item.chrono_sage,Chrono Sage,resources.plant,False,1,generated botanical family,d4a00c2e2749a1e052c2bbc5c80d4e3f62974f03894398da608f9a94978a927d
+62,6,2,256,768,128,128,item.worldseed,Worldseed,resources.plant,False,1,generated botanical family,193fa41588c51a051f9f42979af783a5fc59017f7a9d950a299a44e54fc39831
+63,6,3,384,768,128,128,item.nullpetal,Nullpetal,resources.plant,False,1,generated botanical family,2d3241b21fad255f53bd2283cb1abf3e1b54bac443bd676a62509750192eec41
+64,6,4,512,768,128,128,item.brinesage,Brinesage,resources.plant,False,1,generated botanical family,e6c769f004ad1c1f04708dbb7869c592598f195fff59ba5a0ac03507371c6f58
+65,6,5,640,768,128,128,item.cinder_lily,Cinder Lily,resources.plant,False,1,generated botanical family,a659fd6b17a4c67a653bbccaf2a97f42215a400c186b89c8ce903838c585c78e
+66,6,6,768,768,128,128,item.frostweald,Frostweald,resources.plant,False,1,generated botanical family,5eec1a230578361331011602817dda6a549ee6c61b59f36cafd2a0d4a2d6c4f9
+67,6,7,896,768,128,128,item.genesis_bloom,Genesis Bloom,resources.plant,False,1,generated botanical family,ac96c0d7363a9fd09be86776d83253c9769a9c4d1e410b62cf8e15001eb0b74e
+68,6,8,1024,768,128,128,item.cotton,Cotton,resources.fiber,False,1,generated raw-fibre family,a4717a2d8cff4cd2e79d935e39f35638928c129c33f4a28a5ae51e6798d74ae8
+69,6,9,1152,768,128,128,item.flax,Flax,resources.fiber,False,1,generated raw-fibre family,4f71dfcf8d695628aaf5d7b40f2c20d4544b963a3395667ce4e34dc14df310c4
+70,7,0,0,896,128,128,item.wool,Wool,resources.fiber,False,1,generated raw-fibre family,ab169e1468a14d917ad1a8eaeb5175454590d6095e4acc8365838634c21d8429
+71,7,1,128,896,128,128,item.silk,Silk,resources.fiber,False,1,generated raw-fibre family,cfb740122476652326e44c932c7932c98dd066a91e4411fcd8737cfeec68089c
+72,7,2,256,896,128,128,item.mythril_silk,Mythril Silk,resources.fiber,False,1,generated raw-fibre family,593e336d97331b800f15e8710a4603c82fe331a8b8137f662ff381e1bab7a14e
+73,7,3,384,896,128,128,item.starweave,Starweave,resources.fiber,False,1,generated raw-fibre family,0a9e1acaf0a83e8d3f9250ef2f6da6211d1ccfecdf4177fb48f368cf2cdb1115
+74,7,4,512,896,128,128,item.shadowweave,Shadowweave,resources.fiber,False,1,generated raw-fibre family,026e8f3b74f441b3fc13973365688edfa69b822d7a6590ce0552724270dae8f9
+75,7,5,640,896,128,128,item.runic_thread,Runic Thread,resources.fiber,False,1,generated raw-fibre family,94a1dcdcbe5a44acc3b55a0d1f8b2eb7305d5f89660d4a683b4dcb28b8d442e8
+76,7,6,768,896,128,128,item.dragonscale_silk,Dragonscale Silk,resources.fiber,False,1,generated raw-fibre family,8a8a3e2924d11620f9c2f26a41b790323c64122060181e6a57f490b68db60294
+77,7,7,896,896,128,128,item.aether_silk,Aether Silk,resources.fiber,False,1,generated raw-fibre family,7cdecb7ab4a50c1aced853290d2676e559c2bbafa63ec60bee40edeff4535d6c
+78,7,8,1024,896,128,128,item.void_thread,Void Thread,resources.fiber,False,1,generated raw-fibre family,4ee1fb71ee922577aee70b37be720cb364e45de42ffcf2399fa31e89ea98cf42
+79,7,9,1152,896,128,128,item.celestial_silk,Celestial Silk,resources.fiber,False,1,generated raw-fibre family,12fdc9152f23ba996bf772d74e4dbd78a2b6c869c84f2d65de56e66238a1da39
+80,8,0,0,1024,128,128,item.bloodweave,Bloodweave,resources.fiber,False,1,generated raw-fibre family,6560cdc676d1757ce0cd1f929710c95852f1bd5eece2461294821b0bb44308c2
+81,8,1,128,1024,128,128,item.moonsilk,Moonsilk,resources.fiber,False,1,generated raw-fibre family,99a350159b29234f86a72edfc53a4312a621a6b95d6ad5d8d5a72481970bb794
+82,8,2,256,1024,128,128,item.sunweave,Sunweave,resources.fiber,False,1,generated raw-fibre family,5cd11eb7ea4bcc6bdfbd473b30a741b35aedc110b7f0c2ab66d82b1308bac907
+83,8,3,384,1024,128,128,item.netherweave,Netherweave,resources.fiber,False,1,generated raw-fibre family,66497d5c9be43db689c0165292f728d379b885004cc90b404deac3a529d46f89
+84,8,4,512,1024,128,128,item.stormsilk,Stormsilk,resources.fiber,False,1,generated raw-fibre family,f46c7342cc23f52e3b67623a9c8a1433bee61f4092745755b579f312e24380b1
+85,8,5,640,1024,128,128,item.regal_silk,Regal Silk,resources.fiber,False,1,generated raw-fibre family,ac29ebbcb1ec5434a7d85b6765703598983cfb11ee48634ac60eb9fda8d29429
+86,8,6,768,1024,128,128,item.eternal_weave,Eternal Weave,resources.fiber,False,1,generated raw-fibre family,338e8b18ec628031892356e037339d32f8e51717e71271e8740d71243e23bf82
+87,8,7,896,1024,128,128,item.astral_silk,Astral Silk,resources.fiber,False,1,generated raw-fibre family,c37441d58bcdb789413de04285f11bb742b4cc01ea233a9dac1991a965799d8b
+88,8,8,1024,1024,128,128,item.gravity_weave,Gravity Weave,resources.fiber,False,1,generated raw-fibre family,963ea666f57ab4bc9d66955ff11a63f178599373cbb201079015482116d3fa94
+89,8,9,1152,1024,128,128,item.frostweave,Frostweave,resources.fiber,False,1,generated raw-fibre family,7cf8c9940c3ffbfb30b34e0c44a4d130a8676e5d0c3ae1b79e1c7500e7ab632c
+90,9,0,0,1152,128,128,item.duskweave,Duskweave,resources.fiber,False,1,generated raw-fibre family,6f59030066aa617dd6b21991dcdafa7d7a492fa41022d3b51b5932bdf94188ce
+91,9,1,128,1152,128,128,item.titanweave,Titanweave,resources.fiber,False,1,generated raw-fibre family,b594c55c6548f1aa008d76b2df770ba342d0a638d8e1d4c59b2f0d2d700f158c
+92,9,2,256,1152,128,128,item.skysilk,Skysilk,resources.fiber,False,1,generated raw-fibre family,3fe2fb442729381b88ea7b93d44b2be230f2edbb361cdfb7f78d952a8feeee60
+93,9,3,384,1152,128,128,item.emberweave,Emberweave,resources.fiber,False,1,generated raw-fibre family,dacb3590e5bc4a2a7533507e6c6215953b4ec76dd45cf2acc050c08f8dc1b4d1
+94,9,4,512,1152,128,128,item.soulweave,Soulweave,resources.fiber,False,1,generated raw-fibre family,24c14fd7d5d65946bdfc3c956617ead04f50ff5ce3faca964f2a4cd225bb7218
+95,9,5,640,1152,128,128,item.chronoweave,Chronoweave,resources.fiber,False,1,generated raw-fibre family,7480fbf4e02329c50ee407cba28b8e91a79ef4fd5195fc8aaf85b13feb36f395
+96,9,6,768,1152,128,128,item.worldweave,Worldweave,resources.fiber,False,1,generated raw-fibre family,ed984c8c5718df990f1d042c10f8e86dcc252e42b7a043c19a98eab7b4da1974
+97,9,7,896,1152,128,128,item.voidglass_silk,Voidglass Silk,resources.fiber,False,1,generated raw-fibre family,055823eac61354d1da19fdd5140411e331b07599f9f13f79675fda75f78b6e62
+98,9,8,1024,1152,128,128,item.abyssal_silk,Abyssal Silk,resources.fiber,False,1,generated raw-fibre family,b8acb16b58dc2e699895ce409bdea284b5a83327357c2ce9d7219d4cc9c6112b
+99,9,9,1152,1152,128,128,item.ashweave,Ashweave,resources.fiber,False,1,generated raw-fibre family,810a2e83bbe54425986cbb131a54bb4566ff2e5076f521abe09f2f1c2e7e75e8
+100,10,0,0,1280,128,128,item.glacial_silk,Glacial Silk,resources.fiber,False,1,generated raw-fibre family,7294cf36e56b2998376fcbe2fce4dff9fa3a604c1d3249d4f28b7043b857adf3
+101,10,1,128,1280,128,128,item.primordial_weave,Primordial Weave,resources.fiber,False,1,generated raw-fibre family,40bdc034523f09afaf06fdff01e8427fabaf0778cc19daf3b22f7706c99dd904
+102,10,2,256,1280,128,128,item.cut_ruby,Cut Ruby,resources.cut_gem,False,1,generated cut-gem family,aead1307657cfa48dd0f51c0fa843b7de23c3b862a1cf2f4ba24065c54058bc8
+103,10,3,384,1280,128,128,item.cut_garnet,Cut Garnet,resources.cut_gem,False,1,generated cut-gem family,4934c63235c3423ced5fc6e2092e2df2b2c2ad1937a3d72a33adb565abe0dc1e
+104,10,4,512,1280,128,128,item.cut_amethyst,Cut Amethyst,resources.cut_gem,False,1,generated cut-gem family,e811065536fa11d01d49b2cc05b4f8f04799ea89bc2b0405110cd58e7443f59a
+105,10,5,640,1280,128,128,item.cut_topaz,Cut Topaz,resources.cut_gem,False,1,generated cut-gem family,ad8c49f8ad84f5e4c79e4723ad91b0f17c4a39175a07f0aff2d5008a579e1526
+106,10,6,768,1280,128,128,item.cut_peridot,Cut Peridot,resources.cut_gem,False,1,generated cut-gem family,5e5d959c2e599f0117067ef0477f277e8a53f6c2f3b6e323b8e8649fa092cc98
+107,10,7,896,1280,128,128,item.cut_aquamarine,Cut Aquamarine,resources.cut_gem,False,1,generated cut-gem family,869ad37c6b6ffa59d2ad034018fda5fb5054d6150394a4a3fc058414622301fd
+108,10,8,1024,1280,128,128,item.cut_onyx,Cut Onyx,resources.cut_gem,False,1,generated cut-gem family,aeda3aad630572d9156ce6ad186bacd5c3bc97c69602772da438495ded609a33
+109,10,9,1152,1280,128,128,item.cut_jade,Cut Jade,resources.cut_gem,False,1,generated cut-gem family,906d155bc833121b7f44c82b89550eb2c5f3df6240a4810fe57e0457c28c01fe
+110,11,0,0,1408,128,128,item.cut_sapphire,Cut Sapphire,resources.cut_gem,False,1,generated cut-gem family,bd5183ebd59e9a50082a4089be3e277be2e830140a2478245ab8ab53a7a5e209
+111,11,1,128,1408,128,128,item.cut_opal,Cut Opal,resources.cut_gem,False,1,generated cut-gem family,5a0972505661d1563ab50877083679a76095434b9ca3eff5699156962a7deddd
+112,11,2,256,1408,128,128,item.cut_alexandrite,Cut Alexandrite,resources.cut_gem,False,1,generated cut-gem family,a19a11616e9483788822e8184fd7c700a710b0cbf44ff669ee53f311e02de723
+113,11,3,384,1408,128,128,item.cut_citrine,Cut Citrine,resources.cut_gem,False,1,generated cut-gem family,d4919a4a1e5650dbd42a5018f4b1a8f9217a81147a3dfd24015ba4b6c52f4a17
+114,11,4,512,1408,128,128,item.cut_spinel,Cut Spinel,resources.cut_gem,False,1,generated cut-gem family,4b24e88335e63ec6a19174debd0df046399fffecacb420c2737e54e683c82c5d
+115,11,5,640,1408,128,128,item.cut_moonstone,Cut Moonstone,resources.cut_gem,False,1,generated cut-gem family,9a488ba6bb7df1b9c60387c98695d8df9bdad16c9a21644c12de1daa55ec006b
+116,11,6,768,1408,128,128,item.cut_sunstone,Cut Sunstone,resources.cut_gem,False,1,generated cut-gem family,885070dedb822005226b6f0b9a32046d5d47b000ade1857df1285edeee12929c
+117,11,7,896,1408,128,128,item.cut_tanzanite,Cut Tanzanite,resources.cut_gem,False,1,generated cut-gem family,1522ccbb96a1b66f7f628a11bd72e65b7dc995f60f3e1ce32085ed8dc99990a4
+118,11,8,1024,1408,128,128,item.cut_tourmaline,Cut Tourmaline,resources.cut_gem,False,1,generated cut-gem family,42e4fb2f3e96cd934df5fc3daa5669a10c7e8ffb6e46dee6041c5efba32f5f49
+119,11,9,1152,1408,128,128,item.cut_zircon,Cut Zircon,resources.cut_gem,False,1,generated cut-gem family,0fc095d057c3e7012e5f0ded5185c43f51de291e4bec0a6c14793a135a14f643
+120,12,0,0,1536,128,128,item.cut_lapis,Cut Lapis,resources.cut_gem,False,1,generated cut-gem family,5371f5b382f83808d2f7a916560fda6643f1a9be09fdfed238d4728411a30306
+121,12,1,128,1536,128,128,item.cut_labradorite,Cut Labradorite,resources.cut_gem,False,1,generated cut-gem family,a0eab6cd6112e9e870310401f5dd1563dcf34694c4161678a957b0a727cdf98d
+122,12,2,256,1536,128,128,item.cut_malachite,Cut Malachite,resources.cut_gem,False,1,generated cut-gem family,79a9b022c8c00f67dcf68b4d7e4c51ab8e5a44788ee27e7fdd473d28dd72e4fa
+123,12,3,384,1536,128,128,item.cut_howlite,Cut Howlite,resources.cut_gem,False,1,generated cut-gem family,8b05abf06fc381f482addbfe64bca0acd1d35005b7f72aa1a8527b0a32c1b3ec
+124,12,4,512,1536,128,128,item.cut_shadow_pearl,Cut Shadow Pearl,resources.cut_gem,False,1,generated cut-gem family,5ca4027d1921870d447e33baef18e7dc3341391721a335f63ac5918a195cf197
+125,12,5,640,1536,128,128,item.cut_celestite,Cut Celestite,resources.cut_gem,False,1,generated cut-gem family,955bbffbccc15fdd943712060add6e504e918ea22061feaf41bb1b9b2c479bca
+126,12,6,768,1536,128,128,item.cut_azurite,Cut Azurite,resources.cut_gem,False,1,generated cut-gem family,da23390cb33041448329ab686ff5524d75b0e67fec0c7adb3daf8cf74a8b7957
+127,12,7,896,1536,128,128,item.cut_cinnabar,Cut Cinnabar,resources.cut_gem,False,1,generated cut-gem family,3bf4978578450a4b3cdee32f12cd53abc7815a55999204e141708e9cfb7e4d5c
+128,12,8,1024,1536,128,128,item.cut_phantom_quartz,Cut Phantom Quartz,resources.cut_gem,False,1,generated cut-gem family,01727e5f8badf844840c6a80242bada6828a56d3e103df9a940664f88463b7d4
+129,12,9,1152,1536,128,128,item.cut_sphene,Cut Sphene,resources.cut_gem,False,1,generated cut-gem family,63e5bb6fb5e0931f0bd1af6818c06bbc75c91362e67e82adaf2bc1e016ec6b67
+130,13,0,0,1664,128,128,item.cut_heliodor,Cut Heliodor,resources.cut_gem,False,1,generated cut-gem family,f6a9edd03e776acfe551f9ff4f07fa9219c37168e20064110548220cf2462adb
+131,13,1,128,1664,128,128,item.cut_void_crystal,Cut Void Crystal,resources.cut_gem,False,1,generated cut-gem family,6d092fb4171ccfb67eb87d87b2d828975886a4b39e47e621d80ef8f013c4ad0c
+132,13,2,256,1664,128,128,item.cut_abyssal_pearl,Cut Abyssal Pearl,resources.cut_gem,False,1,generated cut-gem family,62da2655f1e9f75fdd1de1efc95a55ad3352636f45e341d460d74f1a9f854e13
+133,13,3,384,1664,128,128,item.cut_pyrope,Cut Pyrope,resources.cut_gem,False,1,generated cut-gem family,549ab26663cea331c0f1f6449c36d68302e9abdf2643f0b14e33c996cbaced6f
+134,13,4,512,1664,128,128,item.cut_glacial_diamond,Cut Glacial Diamond,resources.cut_gem,False,1,generated cut-gem family,31db0e3f1562272a04f72f13ec8a5c74044571e8c54e71c0cf884ddceddbe482
+135,13,5,640,1664,128,128,item.cut_primordial_gem,Cut Primordial Gem,resources.cut_gem,False,1,generated cut-gem family,11be2b2cd53ccc56821596e516bc53d807d513ef748eb2e182fef316b7558f13
+136,13,6,768,1664,128,128,item.copper_mana,Copper Mana,resources.mana,False,1,generated mana family,c7599ea3b1a2b8a5df0cb9c730fe4a128c5dc53f6d75f1b94a39bbc0e41140ed
+137,13,7,896,1664,128,128,item.iron_mana,Iron Mana,resources.mana,False,1,generated mana family,b3855194a0a565d46a9075959e4a467a79b444cce164752d8c271e6fa0b6544a
+138,13,8,1024,1664,128,128,item.silver_mana,Silver Mana,resources.mana,False,1,generated mana family,8478e8e513db6189ebe95b52f75a10899af8c1048d239ea141984d8e46d84aae
+139,13,9,1152,1664,128,128,item.gold_mana,Gold Mana,resources.mana,False,1,generated mana family,40e3997016587982b681abd1b44475d44a2e13cb974bdf20edae7dc116a88261
+140,14,0,0,1792,128,128,item.mythril_mana,Mythril Mana,resources.mana,False,1,generated mana family,a40fe287d3145a97f357a7e624dfef52d09b523a697262ebf1abd46f33bd75f7
+141,14,1,128,1792,128,128,item.starsteel_mana,Starsteel Mana,resources.mana,False,1,generated mana family,bf2261b485fc18367dd80683f8e1841eb764a5a42c6d8456d47ee65009501c83
+142,14,2,256,1792,128,128,item.obsidian_mana,Obsidian Mana,resources.mana,False,1,generated mana family,6b96251e768422fdaedfa463ef8c45f9787b8426aae5848c40382e5fd5c84847
+143,14,3,384,1792,128,128,item.runite_mana,Runite Mana,resources.mana,False,1,generated mana family,cc487698dc0a631fcc1512fb1f3501ff057b25542b4be6c288367ce4b759a9c6
+144,14,4,512,1792,128,128,item.dragonsteel_mana,Dragonsteel Mana,resources.mana,False,1,generated mana family,db0366e6ba27207bdb16f3f9196ae68c241373fb935c5c8c1f4c5c0a3973c17d
+145,14,5,640,1792,128,128,item.aethersteel_mana,Aethersteel Mana,resources.mana,False,1,generated mana family,017b11868b089837342299d817519d9b70c57f2da3f5cadbcf8f14605ac44895
+146,14,6,768,1792,128,128,item.voidiron_mana,Voidiron Mana,resources.mana,False,1,generated mana family,faa564650f06c547a74ff89316d95561fc320cd177f38067c4b4b324c7936072
+147,14,7,896,1792,128,128,item.celestium_mana,Celestium Mana,resources.mana,False,1,generated mana family,380bf320d55bd48cde06476ea2e07f7c2e4afc9ddaa03129d4b42b8bd141a79d
+148,14,8,1024,1792,128,128,item.bloodstone_mana,Bloodstone Mana,resources.mana,False,1,generated mana family,d9c59b64154f313460f97f2d87fb69a3cd1250d852a3010d8c1d4f0cb22c2156
+149,14,9,1152,1792,128,128,item.moonsteel_mana,Moonsteel Mana,resources.mana,False,1,generated mana family,d63c6a72d745e007c42dacafb246f160cf8be130857c356e3e92078223932513
+150,15,0,0,1920,128,128,item.sunforged_mana,Sunforged Mana,resources.mana,False,1,generated mana family,5a93e472d6bba9b7054355d1881c1ac637a4981ad59e9b906cd9b351241840d9
+151,15,1,128,1920,128,128,item.netherite_mana,Netherite Mana,resources.mana,False,1,generated mana family,0957cfb1356e726270f9656897fee3c5bc11026d9995513257f2e90085479e06
+152,15,2,256,1920,128,128,item.stormglass_mana,Stormglass Mana,resources.mana,False,1,generated mana family,69054cbf8238b47fa1df8ac843c23b8269d502eed9e1a01c6300f1715002e0e9
+153,15,3,384,1920,128,128,item.kingssteel_mana,Kingssteel Mana,resources.mana,False,1,generated mana family,4c861457e72b5ba1598b0a1297cdc2b6512dd67f7e672db4129e887824421264
+154,15,4,512,1920,128,128,item.eternium_mana,Eternium Mana,resources.mana,False,1,generated mana family,090d2866fce42a3088e7657869e75283db7ad029ec6978242426c2251980a37e
+155,15,5,640,1920,128,128,item.astralium_mana,Astralium Mana,resources.mana,False,1,generated mana family,e003001089eb3525d92756f83acb0896dbdc989cf2bd34f89e1d0060ecb0349e
+156,15,6,768,1920,128,128,item.gravite_mana,Gravite Mana,resources.mana,False,1,generated mana family,c80e26217cf905da1589f3d5f76940d2b19f35e5e067952df724319c3a52c905
+157,15,7,896,1920,128,128,item.frostiron_mana,Frostiron Mana,resources.mana,False,1,generated mana family,3090fc055084a351abd4931c8a075f13581334cbf082a52a1c317009d12020fd
+158,15,8,1024,1920,128,128,item.dusksteel_mana,Dusksteel Mana,resources.mana,False,1,generated mana family,2578e9c812ed9e54977467fb0678331f0f7015dcd0490b6414fc18246b4b81a2
+159,15,9,1152,1920,128,128,item.titanium_mana,Titanium Mana,resources.mana,False,1,generated mana family,f0e48138b996bdd6263d9daee702df9df8be9c7f6f76c31c3660b05cc5aa80d8
+160,16,0,0,2048,128,128,item.skysteel_mana,Skysteel Mana,resources.mana,False,1,generated mana family,34ab1860d63dd1cb26e11c193717023b3f76556c660cb813de4d5641fcaf0f8c
+161,16,1,128,2048,128,128,item.emberium_mana,Emberium Mana,resources.mana,False,1,generated mana family,747ced3733c890e6ba9dcda58afe00f8cf82b65642b25872b21ca061c1fd3a58
+162,16,2,256,2048,128,128,item.soulsteel_mana,Soulsteel Mana,resources.mana,False,1,generated mana family,84f524907c84c7d0b9a978ffd4f60b5525f62547f92473434c856bb7016de1a7
+163,16,3,384,2048,128,128,item.chronite_mana,Chronite Mana,resources.mana,False,1,generated mana family,05dc5928850af2f851b124ee64a3860f7e70fe73cbf9741169939b9171c45871
+164,16,4,512,2048,128,128,item.worldforge_mana,Worldforge Mana,resources.mana,False,1,generated mana family,714fd6ac95d7ebbf85ba21f8398e1bc8b529dcd0797eb61fd4eca3e64ba19567
+165,16,5,640,2048,128,128,item.voidglass_mana,Voidglass Mana,resources.mana,False,1,generated mana family,591cb83b859724060e1393186b55d7eb061d2326c9e3bc379574327dd939fa00
+166,16,6,768,2048,128,128,item.thalassic_mana,Thalassic Mana,resources.mana,False,1,generated mana family,b02c7d6ea7c74fdfdcc23ee39a8cc518cd83c8a4215aed870787864ecda83c6e
+167,16,7,896,2048,128,128,item.ashspire_mana,Ashspire Mana,resources.mana,False,1,generated mana family,30044886f0d2d10028262749155ea2cf76991ca8195995841e6cca359c0e1115
+168,16,8,1024,2048,128,128,item.glacirite_mana,Glacirite Mana,resources.mana,False,1,generated mana family,d5e1445547cbced1ac8ec67d0eb5d6ec7ee00904fde2a306f3a55533857bea2f
+169,16,9,1152,2048,128,128,item.primordite_mana,Primordite Mana,resources.mana,False,1,generated mana family,7cf58cfec87c7bbc166f2367c6f409edfae0d399ab0157d78eabf3c3440efedb
+170,17,0,0,2176,128,128,item.ruby,Ruby,resources.raw_gem,False,1,generated raw-gem family,a2b32d83c3c9b7148a56e36827b8053c16e67894782e4457583cafd295d60d2f
+171,17,1,128,2176,128,128,item.garnet,Garnet,resources.raw_gem,False,1,generated raw-gem family,6dd144aae4f7e83626e384aa1ff23b308b4da777a5d2097fb1c1b40532228e06
+172,17,2,256,2176,128,128,item.amethyst,Amethyst,resources.raw_gem,False,1,generated raw-gem family,1e733df46e294bc27770004175433b9871cbb93d7d3a70592f02d7ac20616a60
+173,17,3,384,2176,128,128,item.topaz,Topaz,resources.raw_gem,False,1,generated raw-gem family,39bb2c5440c0ae53140e46939ef1dca61dcb96f747c0471d2673b43584700e2c
+174,17,4,512,2176,128,128,item.peridot,Peridot,resources.raw_gem,False,1,generated raw-gem family,84000b4970e3a7a05fb811479912ce8644c086768b10eaef881fb38f6ff2ea32
+175,17,5,640,2176,128,128,item.aquamarine,Aquamarine,resources.raw_gem,False,1,generated raw-gem family,f04a7c6e72be172f9545683d6eb5f86d2bb93ba2e8b235870fefa5f5a0b94553
+176,17,6,768,2176,128,128,item.onyx,Onyx,resources.raw_gem,False,1,generated raw-gem family,3899cd9590e0d701c2e8b5014ed67b05d88f7be1c66bb4aba00da0c84add9207
+177,17,7,896,2176,128,128,item.jade,Jade,resources.raw_gem,False,1,generated raw-gem family,a6341f1ce62ecfe90ad5a78ed74a2aa477090b49c493d1cfd16440e6003accea
+178,17,8,1024,2176,128,128,item.sapphire,Sapphire,resources.raw_gem,False,1,generated raw-gem family,3b99b0b5709a520d858da8ff0df23d3a2567999ca2430b7cdb249bfed811e902
+179,17,9,1152,2176,128,128,item.opal,Opal,resources.raw_gem,False,1,generated raw-gem family,82d5f44dae45d6ba1b7fd8c092f28624a67b269237ee0ba0a87e5f658f83fbd5
+180,18,0,0,2304,128,128,item.alexandrite,Alexandrite,resources.raw_gem,False,1,generated raw-gem family,bb7c71a5795ce2f7f2f692a97131194a77ada548efebdf80573929b1f1dc8c27
+181,18,1,128,2304,128,128,item.citrine,Citrine,resources.raw_gem,False,1,generated raw-gem family,66f00f07f0e6e7150d5d0013801936725a79569401d767c10d96a9ea5778ee6c
+182,18,2,256,2304,128,128,item.spinel,Spinel,resources.raw_gem,False,1,generated raw-gem family,59ed249aad608f4c080322ef71d0f1d1165211058411a1e0e6cb3d4737ab0385
+183,18,3,384,2304,128,128,item.moonstone,Moonstone,resources.raw_gem,False,1,generated raw-gem family,537088bcac8b7f55d8b4165a5ff90cdde4df14c171e5ab79c27ec62cc37d9437
+184,18,4,512,2304,128,128,item.sunstone,Sunstone,resources.raw_gem,False,1,generated raw-gem family,76e271230d8e278ddce46ebf38892edaa3bf6aeb7eb9ca06bd39896f7f5cd4b0
+185,18,5,640,2304,128,128,item.tanzanite,Tanzanite,resources.raw_gem,False,1,generated raw-gem family,30988c3c21687ebf6fcbc79e235838ca9ca594515aaa0227720f20060084ad4c
+186,18,6,768,2304,128,128,item.tourmaline,Tourmaline,resources.raw_gem,False,1,generated raw-gem family,984d6c5603c592bf8ef0acf8d517da8496a5067c1256667e978aa46ebaf8a7d7
+187,18,7,896,2304,128,128,item.zircon,Zircon,resources.raw_gem,False,1,generated raw-gem family,87caa743704eff5b0057ef08bf0b55519fbf1e9bfa437dac9f67078e4005e90a
+188,18,8,1024,2304,128,128,item.lapis,Lapis,resources.raw_gem,False,1,generated raw-gem family,a56b005865b245788e70a515e930d8de25a52da127c34f23edcc8ed73b1fc927
+189,18,9,1152,2304,128,128,item.labradorite,Labradorite,resources.raw_gem,False,1,generated raw-gem family,0700a9dc377298f1683c8b5ef0c7e1b1dcd2c577b6a6e03a64fd250d2e3a87ea
+190,19,0,0,2432,128,128,item.malachite,Malachite,resources.raw_gem,False,1,generated raw-gem family,462b37a984d389d3365390a2b544794d01d78c503110a674f3bd25a0f06b6f6b
+191,19,1,128,2432,128,128,item.howlite,Howlite,resources.raw_gem,False,1,generated raw-gem family,29b072dd95a64a9550311df87b503c9fcff2cf544dc32fbd6d0a74c4904b13d6
+192,19,2,256,2432,128,128,item.shadow_pearl,Shadow Pearl,resources.raw_gem,False,1,generated raw-gem family,93848d9018c9d4f17d3d41cbb924c2ba13ea410a48bb5b3e937cf41bb5b210c7
+193,19,3,384,2432,128,128,item.celestite,Celestite,resources.raw_gem,False,1,generated raw-gem family,00f475afdabb4848eab5fb102afda7a491bd4a4ab69f109eab341c3caf690d29
+194,19,4,512,2432,128,128,item.azurite,Azurite,resources.raw_gem,False,1,generated raw-gem family,5ae39026b2c1f3a0162a6715f1d56f6c879a9d4d269e82ce109080111198f857
+195,19,5,640,2432,128,128,item.cinnabar,Cinnabar,resources.raw_gem,False,1,generated raw-gem family,7cd85ef5593784657c057509735840286ebd7a369e1f6deb595355ed998a30cf
+196,19,6,768,2432,128,128,item.phantom_quartz,Phantom Quartz,resources.raw_gem,False,1,generated raw-gem family,f0b127325c5684022a99d8193912b7981815587251de352b22ac249f3f011052
+197,19,7,896,2432,128,128,item.sphene,Sphene,resources.raw_gem,False,1,generated raw-gem family,3caa5481512ca8450daf675c70882983fea10556011740d110568d95a7e2b9ed
+198,19,8,1024,2432,128,128,item.heliodor,Heliodor,resources.raw_gem,False,1,generated raw-gem family,47bc28cb98888a17eadcc5355163983f7f3cb787396b47badec1e6f2ca525a13
+199,19,9,1152,2432,128,128,item.void_crystal,Void Crystal,resources.raw_gem,False,1,generated raw-gem family,6f582584c10dc648128f95563b1e795dd7f0db74edad2a39828c44daf384f95e
+200,20,0,0,2560,128,128,item.abyssal_pearl,Abyssal Pearl,resources.raw_gem,False,1,generated raw-gem family,e708452f958e8fd1e67da83174ddaf3bf17df574b0d871cfa8d8f445bb915719
+201,20,1,128,2560,128,128,item.pyrope,Pyrope,resources.raw_gem,False,1,generated raw-gem family,c06d6d4fdda7bc17e4e2e1c87673a971aec85278d2056f253050c6c1593788cb
+202,20,2,256,2560,128,128,item.glacial_diamond,Glacial Diamond,resources.raw_gem,False,1,generated raw-gem family,d62ef60bd4da6194f90133d7b4c9480097838c4f21a8b94caf6de77ef6c4ac44
+203,20,3,384,2560,128,128,item.primordial_gem,Primordial Gem,resources.raw_gem,False,1,generated raw-gem family,3022fb7d8a24943837ae5d011b5bbd4a3cda80dffa1d47901139cfd110759731
+204,20,4,512,2560,128,128,item.copper_bar,Copper Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,1c5d7db8586da02097f7373a71efebb53533a2d186b061dbcd3e491e3acdba36
+205,20,5,640,2560,128,128,item.iron_bar,Iron Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,64343d8d9b85db8bc7b12e6ea353056e6713b27b2f1bcaf3877f5741820a92d7
+206,20,6,768,2560,128,128,item.silver_bar,Silver Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,7b2c0ef09b8165f5be02356f8bfd98a6a390cab1919ffdc6f1a058e8a0dd54d4
+207,20,7,896,2560,128,128,item.gold_bar,Gold Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,c54246d18e66719c093256c6416f854d97f54c6ac3aafd836b80fdc24950d21d
+208,20,8,1024,2560,128,128,item.mythril_bar,Mythril Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,ea1518266ebe94370fe4e55b39d6bd096bde438e87d69b894aca14e3c0b43e27
+209,20,9,1152,2560,128,128,item.starsteel_bar,Starsteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,230136ae506b0e6c41a876e322beb6dcb4ad5aa18120609b48362f54370972cc
+210,21,0,0,2688,128,128,item.obsidian_bar,Obsidian Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,f7e82957497a42bd9edd8876f8011a301b5f06dbad5fbdd21056592b145e9716
+211,21,1,128,2688,128,128,item.runite_bar,Runite Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,0eb09fd9f7a0bcff18b96e5b356d89ef776c3b4113e6d07a4486c07ac0ef281d
+212,21,2,256,2688,128,128,item.dragonsteel_bar,Dragonsteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,b712debe339ed0255a1ea18d9764dc5caa319eb4ec6c2eed6b8a69783414de38
+213,21,3,384,2688,128,128,item.aethersteel_bar,Aethersteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,a93bd8863e18327b44cd40d302fe137e64aab79d303f0ca9940041a5ff78ad44
+214,21,4,512,2688,128,128,item.voidiron_bar,Voidiron Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,989c204556343ebf565c88ad614c9e7cff695bdb962f4b8173d09033a000f388
+215,21,5,640,2688,128,128,item.celestium_bar,Celestium Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,50fa16a67965f3429122fa13a149bb7e079a0abd1ae70555e07027bc50cd9c9d
+216,21,6,768,2688,128,128,item.bloodstone_bar,Bloodstone Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,11a28f2a1f8e2d2ba9afe73da0f5a0a02068ca473b685758be486e8e9b9fd810
+217,21,7,896,2688,128,128,item.moonsteel_bar,Moonsteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,039e03815bae47e288f1d97db9ef59d7917f821d09b6b040c61e18734c802c51
+218,21,8,1024,2688,128,128,item.sunforged_bar,Sunforged Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,41fe9e0c67c83df9827640383e2ec69d713fee220083105532d3f32a6b17e1b2
+219,21,9,1152,2688,128,128,item.netherite_bar,Netherite Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,252e228cd0200e9d53132348e73a762672a4d8f9ac7af7fde044c95c89dc4f19
+220,22,0,0,2816,128,128,item.stormglass_bar,Stormglass Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,da9886598790920eddaccfeca3b36cac2abfdcc63ba385b1e45917ab2c79cd52
+221,22,1,128,2816,128,128,item.kingssteel_bar,Kingssteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,c6e97d0374fe529191dc5d538dfe8916f3f9bed6d08f57e65a01e824663d7da7
+222,22,2,256,2816,128,128,item.eternium_bar,Eternium Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,925f9600604558ad44e1fe3a86cf0eac0daee843be8194c97e47d47c9860f82e
+223,22,3,384,2816,128,128,item.astralium_bar,Astralium Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,fda40e95cbcda127dfa669f1e55d49630700c3711c8ff13ceec2bfe3c137f850
+224,22,4,512,2816,128,128,item.gravite_bar,Gravite Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,4d201a014a10f1a1d311f02078ec94277f9653791ce2e80ed8d308cec4b8e5a1
+225,22,5,640,2816,128,128,item.frostiron_bar,Frostiron Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,443a541fe7fbff7aeb5e5638e77ea83c5edd57082df02c76498f1aca02974bcd
+226,22,6,768,2816,128,128,item.dusksteel_bar,Dusksteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,d1b3a5fc87f3cd5cd2cb4738bded6703e08edab33632891b8ceeb90ab44af60c
+227,22,7,896,2816,128,128,item.titanium_bar,Titanium Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,3e002a75ab55c38d24e4f9bd1348ad0b2bbd761f161bb5c89908d8a517ea610c
+228,22,8,1024,2816,128,128,item.skysteel_bar,Skysteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,b3dfba5ca6694c488fd41c3617c9e5b058b3e691dc021be998935e19c685c9aa
+229,22,9,1152,2816,128,128,item.emberium_bar,Emberium Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,ee8caa271ff6336f839fd27c30d4ad3acc8c2326af0b9c7bcdd05a3e2652b7f3
+230,23,0,0,2944,128,128,item.soulsteel_bar,Soulsteel Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,ee5348a1d70b1a79a2afea3b3092525354278a58ba0e939b2f47b949c026baf6
+231,23,1,128,2944,128,128,item.chronite_bar,Chronite Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,c94eebcc6bd2cc89aca93e3b8c2f7bbc64b48747d37579fc838720c494ca8d79
+232,23,2,256,2944,128,128,item.worldforge_bar,Worldforge Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,0220b761a3ceaf135322f366d6e63cd6b1ae48215336a271cb51277172f5df5c
+233,23,3,384,2944,128,128,item.voidglass_bar,Voidglass Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,9122df2608eac54cacff256895f21d0847d6aac69adbf21ca2cffe5f1a519e62
+234,23,4,512,2944,128,128,item.thalassic_bar,Thalassic Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,a27b54de4edfb36a57b88aefc1939fa58fa3ee27cfcd72fe95af1d6fa72811f6
+235,23,5,640,2944,128,128,item.ashspire_bar,Ashspire Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,22804eeffb3b877f7695d049e407b12cff8e38509fa194689766798947d3696e
+236,23,6,768,2944,128,128,item.glacirite_bar,Glacirite Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,9c6e0b0329154cc5fb044e0cea8f862f843081d9f11dc0478a05f2c1515a503b
+237,23,7,896,2944,128,128,item.primordite_bar,Primordite Bar,processed.bar,False,1,supplied ingot sheet / generated tier 33-34,59fe94561a21423913f52b26b193a272a5dad31564a1e95af9333e2602531520
+238,23,8,1024,2944,128,128,item.cotton_cloth,Cotton Cloth,processed.cloth,False,1,generated cloth family,2efe4054f0801cabcf6f3a81ae5157f096086216ac9780b252340b4c10a3fc30
+239,23,9,1152,2944,128,128,item.flax_cloth,Flax Cloth,processed.cloth,False,1,generated cloth family,fe278bfb16c94f091ad14e8d82168db9a24a3d123fa8ec43067251fcd0eb0ef6
+240,24,0,0,3072,128,128,item.wool_cloth,Wool Cloth,processed.cloth,False,1,generated cloth family,4bb8d5e86cc17338daea6580a432759c5c05b1627538cc3d62bc0361739e3d59
+241,24,1,128,3072,128,128,item.silk_cloth,Silk Cloth,processed.cloth,False,1,generated cloth family,b89763db64321e79f3459164e75f93eb3fcedd93aaa0f929dc523ec0a053fbfb
+242,24,2,256,3072,128,128,item.mythril_silk_cloth,Mythril Silk Cloth,processed.cloth,False,1,generated cloth family,9bd97d05356be68ecc11e5b7b27af1f68a06599f0c5ef653eb857cd0966b5bec
+243,24,3,384,3072,128,128,item.starweave_cloth,Starweave Cloth,processed.cloth,False,1,generated cloth family,d0f93c2a9e2b451f3ea311192f936ba4163d62b1e7381667c0577520ee76efb8
+244,24,4,512,3072,128,128,item.shadowweave_cloth,Shadowweave Cloth,processed.cloth,False,1,generated cloth family,c887f9e2b5886f8b2fbefc41ba1dddbbe8b5f0ea602275b49a40642a309969bf
+245,24,5,640,3072,128,128,item.runic_thread_cloth,Runic Thread Cloth,processed.cloth,False,1,generated cloth family,9efcaadefc703cec037aa1f3b2d61e11e02a3139e0dbc5d87abd128e0138c564
+246,24,6,768,3072,128,128,item.dragonscale_silk_cloth,Dragonscale Silk Cloth,processed.cloth,False,1,generated cloth family,160425c3e3f71ba0bf87a6dcf33bad858dbfc9f7319f432921489db1bca4ebbc
+247,24,7,896,3072,128,128,item.aether_silk_cloth,Aether Silk Cloth,processed.cloth,False,1,generated cloth family,c4bc4e518103febd66f15d34faf42de9c7cab64e1490f97924e87e77c42ddb23
+248,24,8,1024,3072,128,128,item.void_thread_cloth,Void Thread Cloth,processed.cloth,False,1,generated cloth family,b733c2812f3192a13bb6b73a4ba707326ec5856c52f32b102528d7f5a8db1a39
+249,24,9,1152,3072,128,128,item.celestial_silk_cloth,Celestial Silk Cloth,processed.cloth,False,1,generated cloth family,1bb9edffb30377e2d6f42346ce5e1565c7dcbde12a928279c984917817ba5904
+250,25,0,0,3200,128,128,item.bloodweave_cloth,Bloodweave Cloth,processed.cloth,False,1,generated cloth family,46c0855cc32cd30795429bf16f99f5dc789fa9b0c73e0ce09c790fad06f51956
+251,25,1,128,3200,128,128,item.moonsilk_cloth,Moonsilk Cloth,processed.cloth,False,1,generated cloth family,119d1d25dd443fe3b8c4d318cf15cbd328beb5a9373cb20d16a8f93e6bbcefa3
+252,25,2,256,3200,128,128,item.sunweave_cloth,Sunweave Cloth,processed.cloth,False,1,generated cloth family,5e46d095629a4e9b4cbe9e4009ee9f14efe1c3c122bb79f58daa6a3822f7e468
+253,25,3,384,3200,128,128,item.netherweave_cloth,Netherweave Cloth,processed.cloth,False,1,generated cloth family,e82cec2c12c3b2bb6590ae6f1c4b733267d4ee27306bd2e308298c5350e929e5
+254,25,4,512,3200,128,128,item.stormsilk_cloth,Stormsilk Cloth,processed.cloth,False,1,generated cloth family,4ee4ad9c9fe27f1fd2f81bf40a71dac602eac622cc87fb57d2dc3f432ed997f5
+255,25,5,640,3200,128,128,item.regal_silk_cloth,Regal Silk Cloth,processed.cloth,False,1,generated cloth family,0d94e70cf41cca8ad97ec17ffd12beccc9b34cf838910cc7ea96722bce927f16
+256,25,6,768,3200,128,128,item.eternal_weave_cloth,Eternal Weave Cloth,processed.cloth,False,1,generated cloth family,c27f4b06ca59d5fd80da0af7d06199677cd96f1292eba53da5fb3fc057faba36
+257,25,7,896,3200,128,128,item.astral_silk_cloth,Astral Silk Cloth,processed.cloth,False,1,generated cloth family,478ef483752f0cea1d135fa33a4b7a74fd8c2c197901881837935201338c864f
+258,25,8,1024,3200,128,128,item.gravity_weave_cloth,Gravity Weave Cloth,processed.cloth,False,1,generated cloth family,5d71f05932c606c1ad601e20655719cecacead35284dc477622b05d72e71b3be
+259,25,9,1152,3200,128,128,item.frostweave_cloth,Frostweave Cloth,processed.cloth,False,1,generated cloth family,93d9eb335c48084f81ad183d062fe0e940432ae6c8efb11ffe79bd6213d756e9
+260,26,0,0,3328,128,128,item.duskweave_cloth,Duskweave Cloth,processed.cloth,False,1,generated cloth family,63c480c8c6373162d4e5a583f251818f3d73b48c0d6c3fd1014542540a0a24f5
+261,26,1,128,3328,128,128,item.titanweave_cloth,Titanweave Cloth,processed.cloth,False,1,generated cloth family,72ea29d89a3df7d4aa5d0263391692673153a53c06bba8e80124639afa210604
+262,26,2,256,3328,128,128,item.skysilk_cloth,Skysilk Cloth,processed.cloth,False,1,generated cloth family,11e2121657fb8f707f1fe24617193ae0b750b298c8823841507194df0263a6a8
+263,26,3,384,3328,128,128,item.emberweave_cloth,Emberweave Cloth,processed.cloth,False,1,generated cloth family,9cb7cb0bcb47198f8d15039bc94dff0a0420897ecd85b849e49b22a9649e73ba
+264,26,4,512,3328,128,128,item.soulweave_cloth,Soulweave Cloth,processed.cloth,False,1,generated cloth family,13ed87637863226a8f92addbdd799a90e0855624b411a4ac7b8a155312a24ae5
+265,26,5,640,3328,128,128,item.chronoweave_cloth,Chronoweave Cloth,processed.cloth,False,1,generated cloth family,31dbcc70d842db1d9385ef56f8db8ef550b7d412de5444024152559b54b841fc
+266,26,6,768,3328,128,128,item.worldweave_cloth,Worldweave Cloth,processed.cloth,False,1,generated cloth family,2c3458adae60e28a9b2952c93ef304e6b6df66d0aed72f0204e248c7cae55162
+267,26,7,896,3328,128,128,item.voidglass_silk_cloth,Voidglass Silk Cloth,processed.cloth,False,1,generated cloth family,d91213698c5446f943b48711cffeb61382960d41fd8e85832b8a08e322ce7e34
+268,26,8,1024,3328,128,128,item.abyssal_silk_cloth,Abyssal Silk Cloth,processed.cloth,False,1,generated cloth family,075210b94e083065a43ff182ce69781e06cdde79e5c14088e7d68cab49682802
+269,26,9,1152,3328,128,128,item.ashweave_cloth,Ashweave Cloth,processed.cloth,False,1,generated cloth family,2f6c9e8324ed50b7ac161d1a300a73324fab358d98ef2ec4022a89c542cdeb44
+270,27,0,0,3456,128,128,item.glacial_silk_cloth,Glacial Silk Cloth,processed.cloth,False,1,generated cloth family,e101b3663b70b39c679b6e9771fb4cb8faa18d3a0e7c689d7bc5b196c36f9c50
+271,27,1,128,3456,128,128,item.primordial_weave_cloth,Primordial Weave Cloth,processed.cloth,False,1,generated cloth family,be84c59982c4dc29c7fa6df74b5846629c7337949cd90c96692a50f60a679607
+272,27,2,256,3456,128,128,item.salvage_material,Salvage Material,processed.salvage,False,1,generated utility archetype,a2d0c686b5a2198c14ceeb457e82da79315138485dffedd2e11959f13e9ddad8
+273,27,3,384,3456,128,128,item.rat_tail,Rat Tail,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,370d5b476f7f3f8ac09b2196f08c626b590593a5ef74035cb95823e646b90032
+274,27,4,512,3456,128,128,item.wolf_pelt,Wolf Pelt,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,4386483cbc091698dad9047e131c46ec637551f0cc0d16733831e58ab10663e5
+275,27,5,640,3456,128,128,item.boar_tusk,Boar Tusk,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,afbbadf878d2e06d74b00b0d0fddb4ce7a32749989338fc7004fded43aa9aedb
+276,27,6,768,3456,128,128,item.bandit_badge,Bandit Badge,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,4f3e2d68a0308ca089cd68ee59b69693cc52df2ad495bf805ba5c6ea43606067
+277,27,7,896,3456,128,128,item.sentinel_core,Sentinel Core,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,cc986937bfe833f3f218c37dd5116ed20712373260f3d2260d7a297ab3e751f8
+278,27,8,1024,3456,128,128,item.titan_shard,Titan Shard,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,2fb51451935c21108e76d84907287096bf5ae23b3a26719ed410cf4754e9f7f0
+279,27,9,1152,3456,128,128,item.revenant_essence,Revenant Essence,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,3b898c1c5e37576f2c8dd3e4a8290465b25add38fbf09ce691b2eba12c6327c4
+280,28,0,0,3584,128,128,item.drake_scale,Drake Scale,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,3e8c41a22b2e08006334a1761a94007d0c67d5b1e76b79491d8f006382977240
+281,28,1,128,3584,128,128,item.warlord_seal,Warlord Seal,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,7146cff2399063adbe63346abca8def46d85e2eb32c565651e714b5dcbc5a239
+282,28,2,256,3584,128,128,item.colossus_fragment,Colossus Fragment,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,b57cf8cb05e4b122105ae5cec260b1a27273b39c90668d38a563232db533b4ea
+283,28,3,384,3584,128,128,item.wraith_shard,Wraith Shard,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,3c12359b294f97b30871e03c72b8e3b2358095d4f5f25132eebaeb9d44d8f42b
+284,28,4,512,3584,128,128,item.wyrm_fang,Wyrm Fang,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,a406255743d791bf3905ebe52d41eeddff7e1186ef8d672c64c3557680a2bc06
+285,28,5,640,3584,128,128,item.reaper_sigil,Reaper Sigil,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,98687da2f56ba08fc4ef3c6b62b06b5608d6ccb97835144bb56849b8fcff8ba4
+286,28,6,768,3584,128,128,item.night_claw,Night Claw,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,2baa53a7bd3d100570b9ec662eb681376b6331e7475a0bf46c2d0d63894afd98
+287,28,7,896,3584,128,128,item.phoenix_ash,Phoenix Ash,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,6bf3b0d1ae14d063065aff49594355e1895d716f60e162e7cab360d7a69e7287
+288,28,8,1024,3584,128,128,item.dreadguard_plate,Dreadguard Plate,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,90bd9c5bbc9033432dc5815ef5160bb8eac14b65521b26f71908de2de61ec1c2
+289,28,9,1152,3584,128,128,item.tempest_core,Tempest Core,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,8b0d5cb10585329b8e92288bc71f33930afc7f737848bbfcb137b02ce34d6fa5
+290,29,0,0,3712,128,128,item.overlord_crest,Overlord Crest,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,95bb2c0c081d3ef4bb3b2846f017fada358c0fb4b7fc3de0968a76efdad59a8a
+291,29,1,128,3712,128,128,item.ancient_relic,Ancient Relic,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,b03c74193b5f4ae1e1c1936f6a7dde616cc01be7081cc1623ba5d3298d5689b7
+292,29,2,256,3712,128,128,item.astral_lens,Astral Lens,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,0ffd724d8483585824cc4ca9decd2b467b0100869d7ac8edec7c995d5d8b4d1b
+293,29,3,384,3712,128,128,item.juggernaut_rivet,Juggernaut Rivet,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,c6aa3c81965891c061fd3fa37030358307bc3d745ebad0f50c0c6d1d00edbfb5
+294,29,4,512,3712,128,128,item.frostfiend_horn,Frostfiend Horn,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,09bf38e781b7226d40d0528f0c9b33aa9956e689859c3fca28d2cc6b33d2398a
+295,29,5,640,3712,128,128,item.shadelord_eye,Shadelord Eye,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,45b31983611f981e1761b6a6399e4b9717cec2c2288d54f2192695cefa73927e
+296,29,6,768,3712,128,128,item.mammoth_tusk,Mammoth Tusk,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,b29eb7e8fda182d76d844e7399c09006e4aef670f232a903b45b0f82e0c64b24
+297,29,7,896,3712,128,128,item.skyserpent_scale,Skyserpent Scale,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,c9a388c336231a355c4895e711d34cb039c7b54f7fbfb96039f481c59ac1d2f1
+298,29,8,1024,3712,128,128,item.infernal_cinder,Infernal Cinder,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,61db01d324298b8a50aaf57953f771ff6df00bbe630ce7c45467e4f7a57bf6b6
+299,29,9,1152,3712,128,128,item.lich_phylactery,Lich Phylactery,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,532d9a13e4ecde32c57ed7ed47d5d41d85f386ed0a17b7f18edb780a29885e53
+300,30,0,0,3840,128,128,item.timekeeper_gear,Timekeeper Gear,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,5e402a29b59024f44855fe4a5dcc586b66a1eacf1676bb03d67971fcfe0899eb
+301,30,1,128,3840,128,128,item.forgemaster_heart,Forgemaster Heart,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,5dc963ca2073a0b9a285ffdbabd16ebe7c71173bc18d64ef11db32cd70166333
+302,30,2,256,3840,128,128,item.voidweaver_filament,Voidweaver Filament,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,9a72ff91953de06775791ff0a426150f8a520057a87b55a8af971240cd2eac44
+303,30,3,384,3840,128,128,item.mawkraken_ink,Mawkraken Ink,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,e3bf5b89f66082021a0fd4dbd2159eb87471f98cfcedb04206af2eb006cba7d4
+304,30,4,512,3840,128,128,item.ashen_rune,Ashen Rune,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,462a9cb23cb4a126a3e0be53a87fe6ba8df7b12c4419fdc637a5bccf8d352548
+305,30,5,640,3840,128,128,item.glacial_heart,Glacial Heart,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,3129d3b7237972a3c03a199d611bf6d1075abb823053620c489db8a5c1905aec
+306,30,6,768,3840,128,128,item.primordial_essence,Primordial Essence,trade.monster_drop,False,1,supplied indexed monster-drop sheet / generated tier 33-34,a4384ccee5295708811148fc2579a0757865ecd2ad73b2cc37e7bf0833f686e7
+307,30,7,896,3840,128,128,item.cotton_remnant,Cotton Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,d25c182da7ba5d72b395aabe631e5c1382d35fcf2a9cee12bc8d9d78fbb43f46
+308,30,8,1024,3840,128,128,item.flax_remnant,Flax Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,cf94b2cc96d03e5e3550164e1de1c41403c9b0f626944225bf48f7742c09e159
+309,30,9,1152,3840,128,128,item.wool_remnant,Wool Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,00516f09e28aa74ec11d161bb4a318602bc5fa9d505b24bc68550078531ebc81
+310,31,0,0,3968,128,128,item.silk_remnant,Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,e4c47982c67c2d89e379ef940b3ba89c5dc3d701ac608860b09067f43a6417d5
+311,31,1,128,3968,128,128,item.mythril_silk_remnant,Mythril Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,ffa118bbb44252063cff64b9e4078553afc0ce330842d3918ecd172b0b7dc1d7
+312,31,2,256,3968,128,128,item.starweave_remnant,Starweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,77614357c979c6167b23ffca9e0acae858978d63574830b1a7a962009b90386b
+313,31,3,384,3968,128,128,item.shadowweave_remnant,Shadowweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,3c938bbf3ab67425811cd04f7707adb0adbd761a74bf120206cb21a920acc787
+314,31,4,512,3968,128,128,item.runic_thread_remnant,Runic Thread Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,b492ff66a9b9c631a35025e6d6012dc89afd4643af458f675fb66f0bb5082487
+315,31,5,640,3968,128,128,item.dragonscale_silk_remnant,Dragonscale Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,d538c599575cfb7c9defa181615cc001c51c98017d228666aef62a864f52c08a
+316,31,6,768,3968,128,128,item.aether_silk_remnant,Aether Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,5391b75af1f3104b5610303988eb75296ebcfad385035c51029d9cea718a6d9f
+317,31,7,896,3968,128,128,item.void_thread_remnant,Void Thread Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,acd4fa4f54faa70ad72baf97a6e6bf3bfac278f845e0cd3a788bf43e3f81eabc
+318,31,8,1024,3968,128,128,item.celestial_silk_remnant,Celestial Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,1ecde6850de1a7f0295b5ef0289e62f235b8b2f547da31d8d4827fbfb9220e32
+319,31,9,1152,3968,128,128,item.bloodweave_remnant,Bloodweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,5ed040050a2537219b916337f0d08ab77a5e1b4af194b03b2bd4a7ca2dc6b345
+320,32,0,0,4096,128,128,item.moonsilk_remnant,Moonsilk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,c848a31a13f0a7cba958c8442c89265fc661155b3949e1eceb76bb48df165791
+321,32,1,128,4096,128,128,item.sunweave_remnant,Sunweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,b136c10903b7a6e9f0a7bfcc092e16cb67c860502426ae049a956d89ab4550e4
+322,32,2,256,4096,128,128,item.netherweave_remnant,Netherweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,095fad2f2df4a088a9863501c52c1892d5b76d33b6d5908c6e9d7e0781865e00
+323,32,3,384,4096,128,128,item.stormsilk_remnant,Stormsilk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,8459fa236bd07d5b2347bf1a46eb92d3989680f074286566d6194b845ba4665b
+324,32,4,512,4096,128,128,item.regal_silk_remnant,Regal Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,fa36a4accdaee7ff9276879b564741dd025a366f6105260bf52e48072b245cc2
+325,32,5,640,4096,128,128,item.eternal_weave_remnant,Eternal Weave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,188eca9a7277da232cfdd05a5b4dff8d96e3eafda4c5d9aa46952f4015874fe0
+326,32,6,768,4096,128,128,item.astral_silk_remnant,Astral Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,05e2d59b746145586027dcc1243d7a9231565ad35569d5b505f6bbc4eb958ee7
+327,32,7,896,4096,128,128,item.gravity_weave_remnant,Gravity Weave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,de3bd6b60449d510cd74e46434c66e7a9b9f21d80ff779b2d126eb1a4593fbff
+328,32,8,1024,4096,128,128,item.frostweave_remnant,Frostweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,07c776e9d7156333e35288e5b9c00c5f838ff85356bb744230f10afbf2dd4d74
+329,32,9,1152,4096,128,128,item.duskweave_remnant,Duskweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,b212d1ae9b6d29556a637ce48514e7a370b85bbfc0cb98adf77f6a5c70b97d66
+330,33,0,0,4224,128,128,item.titanweave_remnant,Titanweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,d6432a2e3dfc998f3013bc30b028f9c7462de454690b2812195fbc0a6f31d6eb
+331,33,1,128,4224,128,128,item.skysilk_remnant,Skysilk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,93b8b86dfe31d6719e8c6cc184658aae8a63f871dcc46048981f92e65312dd27
+332,33,2,256,4224,128,128,item.emberweave_remnant,Emberweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,53842b0b97f8e33cf0e94d268d1cd657f6243647af8fab7321050e6df83d85e6
+333,33,3,384,4224,128,128,item.soulweave_remnant,Soulweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,a7efcba23c90c62ff2eea80637189ca88cde17ec6553fe0b92680f7ef6af9ba5
+334,33,4,512,4224,128,128,item.chronoweave_remnant,Chronoweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,31dd66655c784c918a7633c7297b79da25782ae966094762da693209fa9b8e26
+335,33,5,640,4224,128,128,item.worldweave_remnant,Worldweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,1251e78e71724c1c3f5db0a319e6d15b4f3e7f27ada70e34e0f0458540469ea6
+336,33,6,768,4224,128,128,item.voidglass_silk_remnant,Voidglass Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,a58e604c5584427cf1226daf1fe3d9338ac8dad8a38832c9ae56dbcd29a8288c
+337,33,7,896,4224,128,128,item.abyssal_silk_remnant,Abyssal Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,895782f6f0ca4d8a9ebbff0f1d39f745ff7e894f391cd6615939fa7177b76581
+338,33,8,1024,4224,128,128,item.ashweave_remnant,Ashweave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,0208187575ef0e8e9b42d8baa039c2eac2b020e872cbde4e1e35891e7c08f515
+339,33,9,1152,4224,128,128,item.glacial_silk_remnant,Glacial Silk Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,73ae004033a6823a8d388002921788e5f4a79cd0a6bee554c483f6110181ee08
+340,34,0,0,4352,128,128,item.primordial_weave_remnant,Primordial Weave Silkbind Thread,trade.silkbind,False,1,generated Silkbind spool family,1a19cf15ece18588308bbd8bdaf443b305278119af758587fbc146d21431e988
+341,34,1,128,4352,128,128,item.trader_token,Trader's Token,trade.token,False,1,generated utility archetype,dc6cd5ffa065041b3a6360efdcdd32f23e2f3f65d4ce4a994aacddb45d47550d
+342,34,2,256,4352,128,128,potion.standard.xp,Standard XP Potion ×34,consumable.potion.xp,True,34,approved six-icon potion family,7e28b1e9f993aebeb6c586e622b647503fd1596f1708232ee953ee35378128e0
+343,34,3,384,4352,128,128,potion.standard.atk,Standard ATK Potion ×34,consumable.potion.atk,True,34,approved six-icon potion family,d5e3b3c277df144a432466ab010ed9d82c7a8d0de36073f040e4afc1038eca0e
+344,34,4,512,4352,128,128,potion.standard.def,Standard DEF Potion ×34,consumable.potion.def,True,34,approved six-icon potion family,1964b65aa506bd3051c84ae2791a278477523bbd4b01c46e9a81a066e0a82be7
+345,34,5,640,4352,128,128,potion.super.xp,Super XP Potion ×34,consumable.potion.super_xp,True,34,approved six-icon potion family,f875e840bbb633c6d5ebb4ca4389c51a650655ee3297f64ff7bc66720f11c8de
+346,34,6,768,4352,128,128,potion.super.atk,Super ATK Potion ×34,consumable.potion.super_atk,True,34,approved six-icon potion family,9d4f2e911d4f5f10cda0ea24ae2e4726d4225c1ef2ad182d7e3af6d4645b5dd5
+347,34,7,896,4352,128,128,potion.super.def,Super DEF Potion ×34,consumable.potion.super_def,True,34,approved six-icon potion family,6356b3084087c8067d58db97594eb0564f2265a3ee9d9c3a420f2324cd5975cc
+348,34,8,1024,4352,128,128,scroll.combat,Combat XP Scroll ×34,consumable.xp_scroll.combat,True,34,tier-neutral XP scroll archetype,3d3ebc21f25691bd7fcaa31c64d139164bfc5507238aec22a511812c67c8acaf
+349,34,9,1152,4352,128,128,scroll.mining,Mining XP Scroll ×34,consumable.xp_scroll.mining,True,34,tier-neutral XP scroll archetype,d61f0b9f6abb683da418acf2431786c22d32cf8c627f99bec5c607af05161e19
+350,35,0,0,4480,128,128,scroll.gathering,Gathering XP Scroll ×34,consumable.xp_scroll.gathering,True,34,tier-neutral XP scroll archetype,d1ad9ee4451aa3732208e5193ff130a25a7f995e117a5f22d95f86fcc785fa54
+351,35,1,128,4480,128,128,scroll.smithing,Smithing XP Scroll ×34,consumable.xp_scroll.smithing,True,34,tier-neutral XP scroll archetype,7ad9e82b5a766b9441fc5a32170dc092eb911c45a816ac419ad3a50000287af6
+352,35,2,256,4480,128,128,scroll.alchemy,Alchemy XP Scroll ×34,consumable.xp_scroll.alchemy,True,34,tier-neutral XP scroll archetype,95381caabfd4542522afc9abfa085f10118bb0878b1744414a45df5c39bb871c
+353,35,3,384,4480,128,128,scroll.jewelcrafting,Jewelcrafting XP Scroll ×34,consumable.xp_scroll.jewelcrafting,True,34,tier-neutral XP scroll archetype,d663fa9381dc902196ac741ccb643322cd21e73a81928eb199cb3852e5620f58
+354,35,4,512,4480,128,128,scroll.spellcrafting,Spellcrafting XP Scroll ×34,consumable.xp_scroll.spellcrafting,True,34,tier-neutral XP scroll archetype,1949afc9ea421b40acca59da387e3075ca9e4e72d855bb63354f9f82117f3187
+355,35,5,640,4480,128,128,enchant.weapon_attack,Weapon Attack Enchant ×34,consumable.enchant.weapon_attack,True,34,tier-neutral enchantment archetype,3884dfff7bc0f30db7680da8f34f4a6321a51a4c91443be7faf20e4a2fffdffd
+356,35,6,768,4480,128,128,enchant.ring_experience,Ring Experience Enchant ×34,consumable.enchant.ring_experience,True,34,tier-neutral enchantment archetype,90a5dc5886212b1e500a02ad18cf8aba72cf706b6ae696bedfb3ae4667816563
+357,35,7,896,4480,128,128,enchant.helm_gold_find,Helm Gold Find Enchant ×34,consumable.enchant.helm_gold_find,True,34,tier-neutral enchantment archetype,0c818746cce86016c12dc6b7d47208cfb19239ea7287018a8ae6bd283ebe79bc
+358,35,8,1024,4480,128,128,enchant.gloves_item_find,Gloves Item Find Enchant ×34,consumable.enchant.gloves_item_find,True,34,tier-neutral enchantment archetype,7f05821b74308f3e44f03a53253a3ae1604383c4f0c69c65cdae53e02be0a929
+359,35,9,1152,4480,128,128,enchant.boots_gather,Boots Gather Enchant ×34,consumable.enchant.boots_gather,True,34,tier-neutral enchantment archetype,bcfd88f5489d3f4721caaf07aca11549c383ffc087505fe299db8e7e2a5eec36
+360,36,0,0,4608,128,128,shard.smithing,Smithing XP Shard ×34,consumable.xp_shard.smithing,True,34,tier-neutral XP-shard archetype,5f7f5fb65fd73ed7c23164cd15e2eea3331f9d3deff954fef4d990572c3eaaef
+361,36,1,128,4608,128,128,shard.alchemy,Alchemy XP Shard ×34,consumable.xp_shard.alchemy,True,34,tier-neutral XP-shard archetype,e5a9b4ef5203dc090ff2021dff7d0c228ab81531163700fe5d361587ba275ac1
+362,36,2,256,4608,128,128,cache.arcane,Arcane Cache ×34,consumable.cache.arcane,True,34,tier-neutral cache archetype,0a933484e161dccc2cd5601dcb8d4d3ca9e74baf7f1a617b1fd6372b794b28d8
+363,36,3,384,4608,128,128,cache.lesser_arcane,Lesser Arcane Cache ×34,consumable.cache.lesser_arcane,True,34,tier-neutral cache archetype,d71531b06ac00acf8eb544f5cb1e834f9340a0e108c351b5ae50e4c2c01af4e2
+364,36,4,512,4608,128,128,orb.upgrade,Upgrade Orb ×34,consumable.upgrade_orb,True,34,tier-neutral Upgrade Orb archetype,d6d2d6f454772d12c5bca339ecc019287b99074eb60f5ddd921a0327f939124c
+365,36,5,640,4608,128,128,plate.reinforcement,Reinforcement Plate ×34,consumable.reinforcement_plate,True,34,tier-neutral reinforcement archetype,64640911f5aaf94c38b05871aecde257e89d632b44f4f21d355252e94554bbb3
+366,36,6,768,4608,128,128,item.cache_compass,Cache Compass,consumable.utility.cache_compass,False,1,generated utility archetype,1bc2dc373370b916ba40909e6a6dd9600807ed6729333cb14e393efa78180c13
+367,36,7,896,4608,128,128,item.arcane_amplifier,Arcane Amplifier,consumable.utility.arcane_amplifier,False,1,generated utility archetype,2e0e07e9c593d724bb9e207a8d08439381a841599105470a493464c18da46e59
+368,36,8,1024,4608,128,128,item.void_lens,Void Lens,consumable.utility.void_lens,False,1,generated utility archetype,10a58a7d3861c956dab126e41f190b41ba9c5b87294d039775978f6e998d8d6d
+369,36,9,1152,4608,128,128,item.cache_badge_token_treasure_hunter,Treasure Hunter Badge Token,consumable.cosmetic_token,False,1,generated cosmetic-token source,54c61ce09d507ebea3136ae8568fcb105ae3a54d62b3ddcaea72bf547fbfc4c0
+370,37,0,0,4736,128,128,item.cache_badge_token_fortune_seeker,Fortune Seeker Badge Token,consumable.cosmetic_token,False,1,generated cosmetic-token source,5ea5edc005b948d58cf4a9d48d6249cd121ba42847493cc47b7a27feef5388a3
+371,37,1,128,4736,128,128,item.cache_color_token_fortune_gold,Fortune's Gold Color Token,consumable.cosmetic_token,False,1,generated cosmetic-token source,da412f15033be3977900ce2a7bc2237a0d0ed71d2e70704967ba748468222756
+372,37,2,256,4736,128,128,item.cache_color_token_cache_jade,Cache Jade Color Token,consumable.cosmetic_token,False,1,generated cosmetic-token source,82a4f33a72b04f0dfe222609e41f75bc1f7ead41d815ac954c3db4cb4b1e320d
+373,37,3,384,4736,128,128,item.cache_title_token_cache_hunter,Token: The Cache Hunter,consumable.cosmetic_token,False,1,generated cosmetic-token source,21e1df7e9ab914ef693af5ef0ea3770af2351ee666cd2f62107aae06a7c94ee9
+374,37,4,512,4736,128,128,item.cache_title_token_fortunes_chosen,Token: Fortune's Chosen,consumable.cosmetic_token,False,1,generated cosmetic-token source,d951920e847992415fc1c3a64018921d0a2195b72a964480362fa9358f6ed47b
