@@ -19752,6 +19752,70 @@ let _IW_EMBEDDED_CACHE = null;
 let IDB_EMBEDDED_GENERATED_AT = null;
 
 /**
+ * iwRepairGatheringJewelleryRequirements(rows) — v5.0 JC jewellery hotfix.
+ *
+ * The current item export omits the any-skill equip gate from crafted
+ * Ring/Amulet "of Gathering" records even when the exact same-tier
+ * Experience sibling carries it. That omission makes tooltips look
+ * unrestricted and, more importantly, lets the Gear/BIS engine treat
+ * above-level Gathering jewellery as wearable.
+ *
+ * This repair is intentionally narrow and non-destructive:
+ *   • only Equipment in Ring/Amulet slots;
+ *   • only stable item_ids ending in _of_gathering;
+ *   • only fields missing on the Gathering record are filled;
+ *   • values come from the exact same-tier/same-slot _of_experience sibling;
+ *   • if the source export starts supplying the fields itself, source data wins.
+ *
+ * The returned array contains cloned rows only where a repair is needed, so
+ * the raw API/import object is never mutated. Early tiers whose Experience
+ * sibling genuinely has no equip gate remain unrestricted.
+ */
+function iwRepairGatheringJewelleryRequirements(rows) {
+  if (!Array.isArray(rows) || !rows.length) return rows || [];
+
+  const byId = new Map();
+  rows.forEach(function (r) {
+    if (r && r.item_id) byId.set(String(r.item_id), r);
+  });
+
+  return rows.map(function (r) {
+    if (!r || r.category !== 'Equipment') return r;
+    if (r.subcategory !== 'Ring slot' && r.subcategory !== 'Amulet slot') return r;
+
+    const id = String(r.item_id || '');
+    if (!/_of_gathering$/i.test(id)) return r;
+
+    const peer = byId.get(id.replace(/_of_gathering$/i, '_of_experience'));
+    if (!peer || peer.category !== 'Equipment' || peer.subcategory !== r.subcategory ||
+        Number(peer.tier) !== Number(r.tier)) return r;
+
+    const patch = {};
+    let changed = false;
+    if ((r.req_skill === '' || r.req_skill == null) && peer.req_skill !== '' && peer.req_skill != null) {
+      patch.req_skill = peer.req_skill; changed = true;
+    }
+    if ((r.req_level === '' || r.req_level == null) && peer.req_level !== '' && peer.req_level != null) {
+      patch.req_level = peer.req_level; changed = true;
+    }
+    if (!r.req_text && peer.req_text) {
+      patch.req_text = peer.req_text; changed = true;
+    }
+
+    if (!changed) return r;
+
+    const fixed = Object.assign({}, r, patch);
+    // Keep the tooltip summary line consistent with sibling jewellery. The
+    // requirement badge comes from req_text; this only prevents the summary
+    // sentence from continuing to imply that the item has no equip gate.
+    if (fixed.req_text && !/\bRequires\b/i.test(String(fixed.effects_raw || ''))) {
+      fixed.effects_raw = fixed.req_text + (fixed.effects_raw ? ', ' + fixed.effects_raw : '');
+    }
+    return fixed;
+  });
+}
+
+/**
  * iwEmbeddedItems() — parse the embedded fallback table, once.
  *
  * Read from a <script type="application/json"> tag rather than a JS
@@ -19768,7 +19832,9 @@ function iwEmbeddedItems() {
   try {
     const el = document.getElementById('iw-embedded-items');
     const payload = el ? JSON.parse(el.textContent) : null;
-    _IW_EMBEDDED_CACHE = (payload && Array.isArray(payload.items)) ? payload.items : [];
+    _IW_EMBEDDED_CACHE = (payload && Array.isArray(payload.items))
+      ? iwRepairGatheringJewelleryRequirements(payload.items)
+      : [];
     if (payload && payload.generatedAt) IDB_EMBEDDED_GENERATED_AT = payload.generatedAt;
   } catch (e) {
     console.warn('[itemdb] embedded fallback failed to parse:', e);
@@ -19840,7 +19906,8 @@ const IDB_CATEGORIES = (function deriveCategoriesFromItems() {
 })();
 
 // ── buildItemDatabase() — parses the embedded payload into records ──
-// Returns one record per embedded item. None skipped. No field invented.
+// Returns one record per embedded item. None skipped. The only derived fields
+// are the narrowly-scoped Gathering-jewellery requirement repair above.
 
 /**
  * buildItemDatabase() — offline fallback path.
@@ -19855,6 +19922,38 @@ const IDB_CATEGORIES = (function deriveCategoriesFromItems() {
 function buildItemDatabase() {
   return iwEmbeddedItems().map(idbFromApi);
 }
+
+// v5.0 JC jewellery requirement regression guard. Silent on pass.
+(function iwGatheringJewelleryRequirementSelfCheck(){
+  try {
+    const rows = iwEmbeddedItems();
+    const byId = new Map(rows.filter(Boolean).map(function(r){ return [String(r.item_id || ''), r]; }));
+    const warn = [];
+    rows.forEach(function(r){
+      if (!r || r.category !== 'Equipment' ||
+          (r.subcategory !== 'Ring slot' && r.subcategory !== 'Amulet slot') ||
+          !/_of_gathering$/i.test(String(r.item_id || ''))) return;
+      const peer = byId.get(String(r.item_id).replace(/_of_gathering$/i, '_of_experience'));
+      if (!peer) return;
+
+      // Experience must always remain the stronger XP variant at the same tier.
+      if (Number(peer.xp_per_task || 0) <= Number(r.xp_per_task || 0))
+        warn.push(r.item_id + ': Gathering XP ' + r.xp_per_task + ' is not below Experience XP ' + peer.xp_per_task);
+
+      // Whenever the same-tier Experience sibling has an equip gate, Gathering
+      // must expose the same gate to tooltips and every Gear eligibility path.
+      if (peer.req_text && r.req_text !== peer.req_text)
+        warn.push(r.item_id + ': req_text mismatch (' + (r.req_text || 'missing') + ' vs ' + peer.req_text + ')');
+      if (peer.req_level != null && Number(r.req_level) !== Number(peer.req_level))
+        warn.push(r.item_id + ': req_level mismatch (' + r.req_level + ' vs ' + peer.req_level + ')');
+      if (peer.req_skill && r.req_skill !== peer.req_skill)
+        warn.push(r.item_id + ': req_skill mismatch (' + (r.req_skill || 'missing') + ' vs ' + peer.req_skill + ')');
+    });
+    if (warn.length) console.warn('[selfcheck JC jewellery requirements]\n  ' + warn.slice(0,20).join('\n  '));
+  } catch(e) {
+    console.warn('[selfcheck JC jewellery requirements] failed:', e);
+  }
+})();
 
 // ───────────────────────────────────────────────────────────────
 // SELF-CHECK 13 — wiki link engine (v40, Phase 1)
@@ -21753,7 +21852,8 @@ function idbFromApi(r) {
 /** idbParseApiPayload(obj) — validate and map. Throws on a bad shape. */
 function idbParseApiPayload(obj) {
   if (!obj || !Array.isArray(obj.items)) throw new Error('payload has no items[] array');
-  const items = obj.items.filter(r => r && r.item_id && r.name).map(idbFromApi);
+  const usable = obj.items.filter(r => r && r.item_id && r.name);
+  const items = iwRepairGatheringJewelleryRequirements(usable).map(idbFromApi);
   if (!items.length) throw new Error('payload contained no usable items');
   IDB_STATE.apiGeneratedAt = obj.generatedAt || null;
   return items;
