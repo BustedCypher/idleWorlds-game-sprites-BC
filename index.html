@@ -3,7 +3,10 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v4.8.8</title>
+<title>IdleWorlds Toolkit v5.0</title>
+<!-- v5.0 Gear Search & Theorycraft: adds an isolated manual equipment browser to the Gear tab.
+     Search reads the current normalized item dataset, reuses the existing tooltip and Add-to-Gear paths,
+     and derives socket display through the Gear engine's authoritative slot/socket resolver. -->
 <!-- v4.8.8 Bug fix: removed erroneous setInput('action-xp', xpPerTask) in applyProfile(). A
      v32.14 mapping wrote the player's gear XP/task stat into the Base XP per action field on
      profile import. When the separate #xp-per-task field was added the second write was correctly
@@ -43,7 +46,7 @@
      • Removed accumulated duplicate static potion options; population is now idempotent.
      ═══════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════════════
-     IDLEWORLDS TOOLKIT — v4.8.5
+     IDLEWORLDS TOOLKIT — v5.0
 
      Release history now lives in CHANGELOG.md beside this file. It was
      previously inlined here as a ~123 KB comment; the text is unchanged,
@@ -4493,6 +4496,36 @@
   .gn-equip-btn:disabled,
   .gn-reset-btn:disabled { opacity: .42; cursor: default; color: var(--text-3); }
 
+  /* v5.0 — Gear Search & Theorycraft. Kept intentionally small: result rows
+     reuse .gn-rec-option and controls reuse the shared .field system. */
+  .gn-search-panel { margin-top: 14px; }
+  .gn-search-body { padding: 0 9px 9px; border-top: 1px solid var(--border); }
+  .gn-search-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px;
+    gap: 10px;
+    align-items: end;
+    padding: 10px 0;
+  }
+  .gn-search-results {
+    max-height: 400px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .gn-search-list { padding: 0; }
+  .gn-search-count {
+    padding: 0 0 7px;
+    color: var(--text-3);
+    font-size: 10.5px;
+    line-height: 1.4;
+  }
+  .gn-search-empty {
+    padding: 9px 2px 3px;
+    color: var(--text-3);
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+
   /* Reset and the shared shopping list sit immediately beneath the doll.
      The list uses short columns instead of the legacy full-width stack. */
   .gn-gear-actions {
@@ -4608,6 +4641,8 @@
     .gn-rec-progress,
     .gn-rec-groups { grid-template-columns: 1fr; }
     .gn-bis-table { min-width: 520px; }
+    .gn-search-controls { grid-template-columns: 1fr; }
+    .gn-search-results { max-height: 360px; }
   }
 
   /* ── Slot tooltip overlay ── */
@@ -5708,7 +5743,7 @@
     <div class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div class="brandsub">Fan-made companion</div>
   </div>
-  <span class="ver-pill">v4.8.8</span>
+  <span class="ver-pill">v5.0</span>
   <div class="appbar-spacer"></div>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span class="tab-icon" aria-hidden="true">⚙️</span>
@@ -7696,6 +7731,33 @@
           <div id="gn-bis-output"><div class="gn-bis-scroll"><table class="gn-bis-table"><thead><tr><th></th><th>Slot</th><th>Best-in-Slot Gear</th><th class="gn-bis-action">Add</th></tr></thead><tbody><tr><td>⛑️</td><td>Helmet</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Hood+3" aria-expanded="false" aria-label="Eternal Weave Hood+3, item details"><span class="iw-item-name">Eternal Weave Hood+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="helmet" data-gn-item="Eternal Weave Hood+3" aria-label="Add Eternal Weave Hood+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>🥋</td><td>Chest</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Overlord&#39;s Pauldrons" aria-expanded="false" aria-label="Overlord&#39;s Pauldrons, item details"><span class="iw-item-name">Overlord's Pauldrons</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="chest" data-gn-item="Overlord&#39;s Pauldrons" aria-label="Add Overlord&#39;s Pauldrons to the Gear UI">Add to Gear</button></td></tr><tr><td>🧥</td><td>Cloak</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Fortunate Eternal Weave Cloak of Insight" aria-expanded="false" aria-label="Fortunate Eternal Weave Cloak of Insight, item details"><span class="iw-item-name">Fortunate Eternal Weave Cloak of Insight</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="cloak" data-gn-item="Fortunate Eternal Weave Cloak of Insight" aria-label="Add Fortunate Eternal Weave Cloak of Insight to the Gear UI">Add to Gear</button></td></tr><tr><td>👖</td><td>Legs</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Leggings+3" aria-expanded="false" aria-label="Eternal Weave Leggings+3, item details"><span class="iw-item-name">Eternal Weave Leggings+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="legs" data-gn-item="Eternal Weave Leggings+3" aria-label="Add Eternal Weave Leggings+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>👢</td><td>Boots</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Boots+3" aria-expanded="false" aria-label="Eternal Weave Boots+3, item details"><span class="iw-item-name">Eternal Weave Boots+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="boots" data-gn-item="Eternal Weave Boots+3" aria-label="Add Eternal Weave Boots+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>⚔️</td><td>Weapon</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Cindersteel Warblade" aria-expanded="false" aria-label="Cindersteel Warblade, item details"><span class="iw-item-name">Cindersteel Warblade</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="weapon" data-gn-item="Cindersteel Warblade" aria-label="Add Cindersteel Warblade to the Gear UI">Add to Gear</button></td></tr><tr><td>🛡️</td><td>Shield</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Warlord&#39;s Bulwark" aria-expanded="false" aria-label="Warlord&#39;s Bulwark, item details"><span class="iw-item-name">Warlord's Bulwark</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="shield" data-gn-item="Warlord&#39;s Bulwark" aria-label="Add Warlord&#39;s Bulwark to the Gear UI">Add to Gear</button></td></tr><tr><td>🎗️</td><td>Belt</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 40" aria-expanded="false" aria-label="Enchanted Belt Lv. 40, item details"><span class="iw-item-name">Enchanted Belt Lv. 40</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="belt" data-gn-item="Enchanted Belt Lv. 40" aria-label="Add Enchanted Belt Lv. 40 to the Gear UI">Add to Gear</button></td></tr><tr><td>🧤</td><td>Gloves</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Gloves+3" aria-expanded="false" aria-label="Eternal Weave Gloves+3, item details"><span class="iw-item-name">Eternal Weave Gloves+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="gloves" data-gn-item="Eternal Weave Gloves+3" aria-label="Add Eternal Weave Gloves+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>💍</td><td>Ring</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Lapis Ring of Attack" aria-expanded="false" aria-label="Lapis Ring of Attack, item details"><span class="iw-item-name">Lapis Ring of Attack</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="ring" data-gn-item="Lapis Ring of Attack" aria-label="Add Lapis Ring of Attack to the Gear UI">Add to Gear</button></td></tr><tr><td>📿</td><td>Amulet</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Lapis Amulet of Attack" aria-expanded="false" aria-label="Lapis Amulet of Attack, item details"><span class="iw-item-name">Lapis Amulet of Attack</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="amulet" data-gn-item="Lapis Amulet of Attack" aria-label="Add Lapis Amulet of Attack to the Gear UI">Add to Gear</button></td></tr><tr><td>🔮</td><td>Trinket</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternium Relic" aria-expanded="false" aria-label="Eternium Relic, item details"><span class="iw-item-name">Eternium Relic</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="trinket" data-gn-item="Eternium Relic" aria-label="Add Eternium Relic to the Gear UI">Add to Gear</button></td></tr></tbody></table></div></div>
         </div>
       </div>
+
+      <!-- ── v5.0 Manual Gear Search / Theorycraft ─────────────── -->
+      <details class="gn-rec-group gn-search-panel" id="gn-gear-search-panel">
+        <summary class="gn-rec-summary">
+          <span aria-hidden="true">⌕</span>
+          <span class="gn-rec-summary-main">
+            <span class="gn-rec-summary-slot">Search Gear</span>
+            <span class="gn-rec-summary-best">Find any equipment item to add to your loadout</span>
+          </span>
+        </summary>
+        <div class="gn-search-body">
+          <div class="gn-search-controls">
+            <div class="field">
+              <label for="gn-search-input">Item name</label>
+              <input type="text" id="gn-search-input" autocomplete="off" placeholder="Search equipment..." aria-describedby="gn-search-count">
+            </div>
+            <div class="field">
+              <label for="gn-search-tier">Tier</label>
+              <select id="gn-search-tier" aria-label="Filter gear search by tier">
+                <option value="">All tiers</option>
+              </select>
+            </div>
+          </div>
+          <div id="gn-search-count" class="gn-search-count" aria-live="polite"></div>
+          <div id="gn-search-results" class="gn-search-results"></div>
+        </div>
+      </details>
 
       <!-- ── Compact recommendation alternatives from the original Gear engine ── -->
       <div class="panel gn-recommended-panel">
@@ -24720,6 +24782,10 @@ function syncCombatLevel(val) {
   var GN_COMBAT_LV = 0;
   var GN_OPEN_SLOT = null;   // currently open tooltip slot key
   var GN_IMPORTED_EQUIPPED = null; // immutable reset point from latest profile import
+  var GN_EQUIPMENT_INDEX = null;     // normalized, searchable Equipment rows
+  var GN_EQUIPMENT_INDEX_SRC = null; // invalidates when IDB_STATE.items is replaced by live data
+  var GN_EQUIPMENT_FALLBACK = null;  // one normalized offline snapshot if IDB_STATE is not ready
+  var GN_SEARCH_TIMER = null;
 
   // Slot display order matches the spec layout
   var GN_SLOT_ORDER = [
@@ -24756,6 +24822,183 @@ function syncCombatLevel(val) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+
+  // ── v5.0 Gear Search & Theorycraft ───────────────────────────
+  // Search is intentionally read-only until an existing data-gn-equip button
+  // is clicked. It does not own loadout state, score items, or rerender Gear.
+  function gnSearchItemSlot(item) {
+    var sub = String(item && (item.sub || item.subcategory) || '').trim();
+    var m = sub.match(/^(.+?)\s+slot$/i);
+    if (!m) return null;
+    var label = m[1].trim();
+    var slot = null;
+    try {
+      if (typeof iwSlotKeyFromLabel === 'function') slot = iwSlotKeyFromLabel(label);
+    } catch(e) {}
+    if (!slot) slot = label.toLowerCase();
+    return GN_SLOT_ORDER.indexOf(slot) >= 0 ? slot : null;
+  }
+
+  function gnGetEquipmentIndex() {
+    var items = null;
+    try {
+      if (typeof IDB_STATE !== 'undefined' && IDB_STATE &&
+          Array.isArray(IDB_STATE.items) && IDB_STATE.items.length) {
+        items = IDB_STATE.items;
+      }
+    } catch(e) {}
+
+    // Very early/offline fallback. Build once through the app's ONE normalizer;
+    // never parse the embedded JSON into a second ad-hoc record shape here.
+    if (!items) {
+      if (!GN_EQUIPMENT_FALLBACK) {
+        try {
+          GN_EQUIPMENT_FALLBACK = (typeof buildItemDatabase === 'function')
+            ? buildItemDatabase() : [];
+        } catch(e) { GN_EQUIPMENT_FALLBACK = []; }
+      }
+      items = GN_EQUIPMENT_FALLBACK;
+    }
+
+    if (GN_EQUIPMENT_INDEX && GN_EQUIPMENT_INDEX_SRC === items) return GN_EQUIPMENT_INDEX;
+    GN_EQUIPMENT_INDEX_SRC = items;
+    GN_EQUIPMENT_INDEX = (items || []).filter(function(item) {
+      return item && item.category === 'Equipment' && !!gnSearchItemSlot(item);
+    });
+    return GN_EQUIPMENT_INDEX;
+  }
+
+  function gnSearchSocketCount(item, slot) {
+    try {
+      if (typeof iwSlotSocketsFor === 'function') {
+        var n = Number(iwSlotSocketsFor(item, slot));
+        return isFinite(n) && n > 0 ? Math.floor(n) : 0;
+      }
+    } catch(e) {}
+    // Safety fallback follows the same legal-slot contract; it never trusts a
+    // stale Ring/Amulet/etc. `sockets` field.
+    var legal = ['weapon','shield','helmet','chest','gloves','legs','boots'];
+    if (legal.indexOf(slot) < 0) return 0;
+    var raw = Number(item && item.sockets);
+    return isFinite(raw) && raw > 0 ? Math.floor(raw) : 0;
+  }
+
+  function gnSearchMeta(item, slot) {
+    var meta = (typeof SLOT_META !== 'undefined' && SLOT_META[slot]) ? SLOT_META[slot] : null;
+    var tier = Number(item && item.tier);
+    var atk = Number(item && item.atk);
+    var def = Number(item && item.def);
+    var xp = Number(item && item.xpPerTask);
+    var sockets = gnSearchSocketCount(item, slot);
+    var parts = [];
+    parts.push((isFinite(tier) && tier > 0 ? 'T' + tier + ' ' : '') + (meta ? meta.label : slot));
+    parts.push('ATK ' + (isFinite(atk) ? atk : 0));
+    parts.push('DEF ' + (isFinite(def) ? def : 0));
+    parts.push('XP/task ' + (isFinite(xp) ? xp : 0));
+    parts.push(sockets + ' Socket' + (sockets === 1 ? '' : 's'));
+    return parts.join(' · ');
+  }
+
+  function gnRenderGearSearch() {
+    var input = document.getElementById('gn-search-input');
+    var tierEl = document.getElementById('gn-search-tier');
+    var resultsEl = document.getElementById('gn-search-results');
+    var countEl = document.getElementById('gn-search-count');
+    if (!input || !tierEl || !resultsEl || !countEl) return;
+
+    var rawQuery = String(input.value || '').trim();
+    var query = rawQuery.toLowerCase();
+    var tier = parseInt(tierEl.value, 10) || 0;
+
+    if (!query && !tier) {
+      countEl.textContent = '';
+      resultsEl.innerHTML = '<div class="gn-search-empty">Type at least 2 characters or choose a tier to browse equipment.</div>';
+      return;
+    }
+    if (query && query.length < 2) {
+      countEl.textContent = '';
+      resultsEl.innerHTML = '<div class="gn-search-empty">Type at least 2 characters to search by item name.</div>';
+      return;
+    }
+
+    var matches = gnGetEquipmentIndex().filter(function(item) {
+      if (tier && Number(item.tier) !== tier) return false;
+      if (query && String(item.name || '').toLowerCase().indexOf(query) < 0) return false;
+      return true;
+    });
+
+    matches.sort(function(a, b) {
+      var at = Number(a.tier) || 0, bt = Number(b.tier) || 0;
+      if (at !== bt) return at - bt;
+      var as = gnSearchItemSlot(a), bs = gnSearchItemSlot(b);
+      var ai = GN_SLOT_ORDER.indexOf(as), bi = GN_SLOT_ORDER.indexOf(bs);
+      if (ai !== bi) return ai - bi;
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    });
+
+    var total = matches.length;
+    var shown = matches.slice(0, 50);
+    countEl.textContent = total
+      ? ('Showing ' + shown.length + ' of ' + total + ' match' + (total === 1 ? '' : 'es') + '.')
+      : 'No matching equipment found.';
+
+    if (!shown.length) {
+      resultsEl.innerHTML = '';
+      return;
+    }
+
+    var rows = shown.map(function(item) {
+      var slot = gnSearchItemSlot(item);
+      if (!slot) return '';
+      // Stable ID-backed tooltip when possible; name-based Add path remains the
+      // existing Gear contract and is handled by the delegated listener below.
+      var itemHtml = (typeof iwItemRef === 'function') ? iwItemRef(item) : gnEsc(item.name);
+      var button = '<button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="' + gnEsc(slot) +
+        '" data-gn-item="' + gnEsc(item.name) + '" aria-label="Add ' + gnEsc(item.name) + ' to the Gear UI">Add</button>';
+      return '<div class="gn-rec-option">' +
+        '<div class="gn-rec-option-main">' +
+          '<div class="gn-rec-option-name">' + itemHtml + '</div>' +
+          '<div class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) + '</div>' +
+        '</div>' + button +
+      '</div>';
+    }).join('');
+
+    resultsEl.innerHTML = '<div class="gn-rec-options gn-search-list">' + rows + '</div>';
+  }
+
+  function gnQueueGearSearch() {
+    if (GN_SEARCH_TIMER) clearTimeout(GN_SEARCH_TIMER);
+    GN_SEARCH_TIMER = setTimeout(function() {
+      GN_SEARCH_TIMER = null;
+      gnRenderGearSearch();
+    }, 200);
+  }
+
+  function gnInitGearSearch() {
+    var input = document.getElementById('gn-search-input');
+    var tierEl = document.getElementById('gn-search-tier');
+    var panel = document.getElementById('gn-gear-search-panel');
+    if (!input || !tierEl || !panel || input.getAttribute('data-gn-search-ready') === '1') return;
+
+    // Rebuild rather than append, so re-init cannot duplicate tier options.
+    tierEl.innerHTML = '<option value="">All tiers</option>';
+    for (var t = 1; t <= 34; t++) {
+      var opt = document.createElement('option');
+      opt.value = String(t);
+      var tierName = (typeof TIER_NAMES !== 'undefined' && TIER_NAMES[t]) ? TIER_NAMES[t] : '';
+      opt.textContent = 'T' + t + (tierName ? ' · ' + tierName : '');
+      tierEl.appendChild(opt);
+    }
+
+    input.addEventListener('input', gnQueueGearSearch);
+    tierEl.addEventListener('change', gnRenderGearSearch);
+    panel.addEventListener('toggle', function() {
+      if (panel.open) gnRenderGearSearch();
+    });
+    input.setAttribute('data-gn-search-ready', '1');
+    gnRenderGearSearch();
   }
 
   function gnClone(value) {
@@ -25874,6 +26117,7 @@ function syncCombatLevel(val) {
 
   gnCaptureImportedEquipment(window.IWProfile);
   window.gnSetCombatLevelFromShared(gnSharedCombatLevel());
+  gnInitGearSearch();
 
   // ── Initial render (in case tab is already active) ───────────
   if (document.getElementById('tab-gear-new') &&
