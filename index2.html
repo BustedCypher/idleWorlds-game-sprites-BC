@@ -3,7 +3,10 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v4.8.6</title>
+<title>IdleWorlds Toolkit v4.8.7</title>
+<!-- v4.8.7 Bug fix: removed spurious 'active' CSS class hardcoded on row-server and row-zc-team.
+     The inputs had no 'checked' attribute so the visual lied — rows looked ticked but were false.
+     Every click toggled them ON (adding +25%/+10%) instead of OFF, making XP jump up on click. -->
 <!-- v4.8.6 Bug fix: removed redundant row-click listener on checkbox rows. The rows are <label>
      elements whose native click already toggles the input and fires 'change'. The extra listener
      was double-toggling server-bonus and zc-team, causing both to always read as unchecked in
@@ -5700,7 +5703,7 @@
     <div class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div class="brandsub">Fan-made companion</div>
   </div>
-  <span class="ver-pill">v4.8.6</span>
+  <span class="ver-pill">v4.8.7</span>
   <div class="appbar-spacer"></div>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span class="tab-icon" aria-hidden="true">⚙️</span>
@@ -7025,13 +7028,13 @@
             <span class="check-label">World Boss XP Bonus</span>
             <span class="check-badge">+24</span>
           </label>
-          <label class="check-row active" id="row-server">
+          <label class="check-row" id="row-server">
             <input type="checkbox" id="server-bonus">
             <span class="check-box">✓</span>
             <span class="check-label">Server-wide XP bonus</span>
             <span class="check-badge">+25%</span>
           </label>
-          <label class="check-row active" id="row-zc-team">
+          <label class="check-row" id="row-zc-team">
             <input type="checkbox" id="zc-team">
             <span class="check-box">✓</span>
             <span class="check-label">ZC Team Control</span>
