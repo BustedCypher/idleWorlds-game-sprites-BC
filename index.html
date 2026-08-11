@@ -3,7 +3,20 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v4.8.5</title>
+<title>IdleWorlds Toolkit v4.8.8</title>
+<!-- v4.8.8 Bug fix: removed erroneous setInput('action-xp', xpPerTask) in applyProfile(). A
+     v32.14 mapping wrote the player's gear XP/task stat into the Base XP per action field on
+     profile import. When the separate #xp-per-task field was added the second write was correctly
+     added but the first was never removed, causing the base XP field to show the equipment bonus
+     (e.g. 195) instead of the zone's monster XP after import. -->
+<!-- v4.8.7 Bug fix: removed spurious 'active' CSS class hardcoded on row-server and row-zc-team.
+     The inputs had no 'checked' attribute so the visual lied — rows looked ticked but were false.
+     Every click toggled them ON (adding +25%/+10%) instead of OFF, making XP jump up on click. -->
+<!-- v4.8.6 Bug fix: removed redundant row-click listener on checkbox rows. The rows are <label>
+     elements whose native click already toggles the input and fires 'change'. The extra listener
+     was double-toggling server-bonus and zc-team, causing both to always read as unchecked in
+     calculate() despite appearing visually active — so +25% server and +10% ZC team were silently
+     dropped from every XP calculation. -->
 <!-- v4.8.5 Gear audit patch: profile-authoritative utility totals + hard socket eligibility guards. -->
 <!-- v4.8.4 preliminary item-icons patch: non-equipment tooltip art now resolves by item_id from item_icons_index.csv / item_icons_cells.csv and item_icons_atlas.png. -->
 <!-- v4.8.4 preliminary planner-tooltip patch: planner item names now reuse the shared item tooltip engine with conservative action-to-item resolution. -->
@@ -5695,7 +5708,7 @@
     <div class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div class="brandsub">Fan-made companion</div>
   </div>
-  <span class="ver-pill">v4.8.5</span>
+  <span class="ver-pill">v4.8.8</span>
   <div class="appbar-spacer"></div>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span class="tab-icon" aria-hidden="true">⚙️</span>
@@ -6150,16 +6163,15 @@
     var stats = profile.combatStats || {};
     var skillIx = indexSkills(profile);
 
-    // EXP per task (real key: combatStats.xpTaskBonus).
-    // v32.14: mapped to "Base XP per action" (#action-xp) per user request.
+    // Equipment XP / task (#xp-per-task) — the combined XP/task bonus shown in
+    // Character Stats. Populated from xpTaskBonus on import.
+    // NOTE: this must NOT also write to #action-xp (Base XP per action). That
+    // field represents the monster/action's base XP from the zone data and is
+    // only set by the action lookup. Writing the gear stat there (as was done
+    // in v32.14) caused the base XP field to show the player's equipment bonus
+    // instead of the zone XP after a profile import.
     var xpPerTask = (stats.xpTaskBonus!=null) ? stats.xpTaskBonus
                     : (profile.bonuses && profile.bonuses.xp_per_task!=null ? profile.bonuses.xp_per_task : null);
-    if(xpPerTask!=null) setInput('action-xp', xpPerTask);
-
-    // Equipment XP / task (#xp-per-task) — this field maps to the same
-    // in-game "Character Stats" XP/task total (its helper text says so), so
-    // fill it from the same xpTaskBonus value. Without this the box stays at
-    // its default 0 after import even though the profile carries the number.
     if(xpPerTask!=null) setInput('xp-per-task', xpPerTask);
 
     // Housing tier (flat: profile.housingTier).
@@ -7020,13 +7032,13 @@
             <span class="check-label">World Boss XP Bonus</span>
             <span class="check-badge">+24</span>
           </label>
-          <label class="check-row active" id="row-server">
+          <label class="check-row" id="row-server">
             <input type="checkbox" id="server-bonus">
             <span class="check-box">✓</span>
             <span class="check-label">Server-wide XP bonus</span>
             <span class="check-badge">+25%</span>
           </label>
-          <label class="check-row active" id="row-zc-team">
+          <label class="check-row" id="row-zc-team">
             <input type="checkbox" id="zc-team">
             <span class="check-box">✓</span>
             <span class="check-label">ZC Team Control</span>
@@ -10129,17 +10141,18 @@ function syncCheckbox(rowId, inputId) {
   document.getElementById(rowId).classList.toggle('active', document.getElementById(inputId).checked);
 }
 
-// Single pass wire-up, no duplicate listeners
+// Single pass wire-up: only the 'change' event on the input is needed.
+// The rows are <label> elements containing the <input>, so clicking the label
+// already toggles the checkbox natively and fires 'change'. Adding a separate
+// click listener on the row was causing a double-toggle: the label click fired
+// 'change', then the row click listener flipped inp.checked back and called
+// calculate() again with the wrong (un-toggled) state — making server-bonus and
+// zc-team always read as unchecked despite appearing visually active.
 ['server-bonus','zc-team','new-player-promo','boss-active'].forEach(id => {
   const rowMap = { 'server-bonus':'row-server', 'zc-team':'row-zc-team',
                    'new-player-promo':'row-new-player',
                    'boss-active':'row-world-boss' };
   document.getElementById(id).addEventListener('change', function(){
-    syncCheckbox(rowMap[id], id); calculate();
-  });
-  document.getElementById(rowMap[id]).addEventListener('click', function(){
-    const inp = document.getElementById(id);
-    inp.checked = !inp.checked;
     syncCheckbox(rowMap[id], id); calculate();
   });
 });
