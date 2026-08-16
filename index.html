@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IdleWorlds Toolkit v5.1</title>
 <!-- v5.1 release: Gear import integrity fixes promoted to toolkit version 5.1. -->
+<!-- v5.1.1 Gear planner interaction hotfix: live plates/enchants remain authoritative CURRENT state,
+     but can now be explicitly marked for removal/replacement in the planner without mutating the imported profile. -->
 <!-- v5.0.1 Gear import follow-up: reinforced slots now suppress/clear stale enchant plans everywhere;
      mannequin per-item stats use display rounding instead of leaking fractional game-math precision. -->
 <!-- v5.0 Gear import integrity hotfix (2026-08-16):
@@ -15096,33 +15098,43 @@ function buildEquippedPips(equipped){
       }
     }
 
-    // 3. Enchant. Live import wins (a real, already-active enchant can't
-    //    be "planned over" — it just IS, until it expires); otherwise
-    //    show/allow a planned pick, same live-vs-planned pattern as
-    //    sockets. v43.11: both states are now clickable.
+    // 3. Enchant. Imported live state stays visible, but the planner can
+    //    explicitly mark it for removal/replacement without mutating IWProfile.
     var livePlateForBuffRail = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(slotKey) : null;
     var liveEnch = livePlateForBuffRail ? null : iwActiveEnchantForSlot(slotKey);
+    var livePlateRemoval = !!(livePlateForBuffRail && iwIsLiveEnhancementRemovalPlanned(slotKey, 'plate'));
+    var liveEnchRemoval = !!(liveEnch && iwIsLiveEnhancementRemovalPlanned(slotKey, 'enchant'));
     var enchMeta = iwEnchantSlotMeta()[slotKey];
+    var planEnch = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED)
+      ? IW_ENCHANT_PLAN[slotKey] : null;
     if(liveEnch){
-      buffs.push('<span class="gbuff gbuff-ench" title="'+
-        iwTipEsc('Active enchant: '+iwEnchantLabel(liveEnch)+
-          (liveEnch.expiresAt ? ' \u2014 expires '+String(liveEnch.expiresAt).slice(0,10) : '')+
-          '. Already active in-game \u2014 nothing to plan.')+'">'+
-        '<span class="gbuff-ic">\u2728</span><span class="gbuff-kind">Enchant</span>'+iwTipEsc(iwEnchantLabel(liveEnch))+'</span>');
-    } else if(enchMeta && !livePlateForBuffRail){
-      var planEnch = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED)
-        ? IW_ENCHANT_PLAN[slotKey] : null;
+      buffs.push('<button type="button" class="gbuff gbuff-ench'+(liveEnchRemoval?' planned-removal':'')+'" title="'+
+        iwTipEsc(liveEnchRemoval
+          ? 'Active in game: '+iwEnchantLabel(liveEnch)+'. Removal is planned. Click to undo the removal plan.'
+          : 'Active enchant: '+iwEnchantLabel(liveEnch)+
+            (liveEnch.expiresAt ? ' — expires '+String(liveEnch.expiresAt).slice(0,10) : '')+
+            '. Click to plan its removal/replacement.')+'"'+
+        ' onclick="iwToggleEnchantPlan(\''+slotKey+'\')">'+
+        '<span class="gbuff-ic">✨</span><span class="gbuff-kind">Enchant</span>'+iwTipEsc(iwEnchantLabel(liveEnch))+
+        (liveEnchRemoval?' · remove planned':'')+'</button>');
+    } else if(enchMeta){
       if(planEnch){
         buffs.push('<button type="button" class="gbuff gbuff-ench planned" title="'+
-          iwTipEsc('Planned enchant: +' + planEnch + (enchMeta.pct?'%':'') + ' ' + enchMeta.kind + '. Click to remove.')+'"'+
+          iwTipEsc('Planned enchant: +' + planEnch + (enchMeta.pct?'%':'') + ' ' + enchMeta.kind +
+            (livePlateRemoval ? '. This will replace the active reinforcement.' : '') + '. Click to remove the plan.')+'"'+
           ' onclick="iwToggleEnchantPlan(\''+slotKey+'\')">'+
-          '<span class="gbuff-ic">\u2727</span><span class="gbuff-kind">Enchant</span>+'+planEnch+(enchMeta.pct?'%':'')+' '+iwTipEsc(enchMeta.kind)+'</button>');
+          '<span class="gbuff-ic">✧</span><span class="gbuff-kind">Enchant</span>+'+planEnch+(enchMeta.pct?'%':'')+' '+iwTipEsc(enchMeta.kind)+'</button>');
+      } else if(livePlateForBuffRail && !livePlateRemoval){
+        buffs.push('<button type="button" class="gbuff gbuff-empty is-blocked" title="Active reinforcement occupies this slot. Click the reinforcement below to plan its removal first."'+
+          ' onclick="iwToggleEnchantPlan(\''+slotKey+'\')">'+
+          '<span class="gbuff-ic">⛔</span><span class="gbuff-kind">Enchant</span>Remove plate first</button>');
       } else {
-        buffs.push('<button type="button" class="gbuff gbuff-empty" title="No enchant planned \u2014 click to plan one for this slot"'+
+        buffs.push('<button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one for this slot"'+
           ' onclick="iwToggleEnchantPlan(\''+slotKey+'\')">'+
-          '<span class="gbuff-ic">\u2727</span><span class="gbuff-kind">Enchant</span>Plan enchant</button>');
+          '<span class="gbuff-ic">✧</span><span class="gbuff-kind">Enchant</span>Plan enchant</button>');
       }
     }
+
 
     var railHtml = buffs.length
       ? '<div class="gear-buff-rail">'+buffs.join('')+'</div>' : '';
@@ -15142,10 +15154,16 @@ function buildEquippedPips(equipped){
         iwTipEsc('Reinforcement Plates only accept '+iwPlateableSlots().join(', ')+'.')+'">'+
         'No reinforcement</div>';
     } else if(livePlate){
-      reinfHtml = '<div class="gear-slot-reinf on live" title="'+
-        iwTipEsc((livePlate.name||'Reinforcement Plate')+' — '+iwPlateEffectLabel(livePlate.tier)+
-          ' — ACTIVE IN GAME'+(livePlate.actionsRemaining!=null ? ' — '+Number(livePlate.actionsRemaining).toLocaleString()+' actions remaining' : ''))+'">'+
-        '<span class="gbuff-ic">🔩</span>'+iwPlateEffectLabel(livePlate.tier)+' <span class="gbuff-kind">active</span></div>';
+      var livePlateRemoving = iwIsLiveEnhancementRemovalPlanned(slotKey, 'plate');
+      reinfHtml = '<button type="button" class="gear-slot-reinf on live'+(livePlateRemoving?' planned-removal':'')+'" title="'+
+        iwTipEsc(livePlateRemoving
+          ? (livePlate.name||'Reinforcement Plate')+' — ACTIVE IN GAME; removal/replacement is planned. Click to undo the removal plan.'
+          : (livePlate.name||'Reinforcement Plate')+' — '+iwPlateEffectLabel(livePlate.tier)+
+            ' — ACTIVE IN GAME'+(livePlate.actionsRemaining!=null ? ' — '+Number(livePlate.actionsRemaining).toLocaleString()+' actions remaining' : '')+
+            '. Click to plan its removal/replacement.')+'"'+
+        ' onclick="iwTogglePlate(\''+slotKey+'\')">'+
+        '<span class="gbuff-ic">🔩</span>'+iwPlateEffectLabel(livePlate.tier)+' <span class="gbuff-kind">'+
+          (livePlateRemoving?'remove planned':'active')+'</span></button>';
     } else if(planPlate){
       var pfx = iwPlateMeta()[planPlate];
       // v43.11: a PLANNED enchant is just as real a conflict as a live
@@ -16378,40 +16396,163 @@ function iwActivePlateForSlot(slot){
   return null;
 }
 
+// ══════════════════════════════════════════════════════════════════
+// v5.1.1 — LIVE ENHANCEMENT REMOVAL / REPLACEMENT INTENT
+// ──────────────────────────────────────────────────────────────────
+// CURRENT state and PLANNED state must remain separate:
+//   • iwActivePlateForSlot / iwActiveEnchantForSlot describe what the game
+//     says is active right now and must never be mutated by the planner.
+//   • IW_PLATE_PLAN / IW_ENCHANT_PLAN describe consumables the player intends
+//     to apply.
+// A third state is required when the current item already has one of those
+// mutually-exclusive effects: "I intend to remove/replace the live effect".
+// null could not encode that intent because null previously meant "no plan".
+//
+// The removal record is bound to profile + exact equipped copy identity, so a
+// stale plan cannot leak onto another character or a replacement item in the
+// same slot. It only suppresses the live effect for CONFLICT/PLANNING logic;
+// current totals continue to use the imported live effect until a re-import
+// proves the game state actually changed.
+var IW_ENHANCEMENT_REMOVAL_PLAN = {};
+(function loadEnhancementRemovalPlan(){
+  try{
+    var raw = localStorage.getItem('iwEnhancementRemovalPlanV1');
+    if(!raw) return;
+    var saved = JSON.parse(raw);
+    if(saved && typeof saved === 'object' && saved.plan && typeof saved.plan === 'object'){
+      Object.keys(saved.plan).forEach(function(slot){
+        var r = saved.plan[slot];
+        if(!r || (r.type !== 'plate' && r.type !== 'enchant')) return;
+        IW_ENHANCEMENT_REMOVAL_PLAN[slot] = {
+          type:r.type,
+          profileId:String(r.profileId || ''),
+          itemKey:String(r.itemKey || ''),
+          variantId:String(r.variantId || '')
+        };
+      });
+    }
+  }catch(e){}
+})();
+function iwSaveEnhancementRemovalPlan(){
+  try{
+    localStorage.setItem('iwEnhancementRemovalPlanV1',
+      JSON.stringify({plan:IW_ENHANCEMENT_REMOVAL_PLAN}));
+  }catch(e){}
+}
+function iwEnhancementIdentity(slot, type){
+  try{
+    var prof = window.IWProfile;
+    var it = prof && prof.equipped && prof.equipped[slot];
+    if(!prof || !it) return null;
+    return {
+      type:type,
+      profileId:String(prof.id || prof.playerId || prof.displayName || ''),
+      itemKey:String(it.key || it.itemKey || it.name || ''),
+      variantId:String(it.variantId || it.itemVariantId || it.variantID || '')
+    };
+  }catch(e){}
+  return null;
+}
+function iwIsLiveEnhancementRemovalPlanned(slot, type){
+  var r = IW_ENHANCEMENT_REMOVAL_PLAN[slot];
+  var cur = iwEnhancementIdentity(slot, type);
+  if(!r || !cur || r.type !== type) return false;
+  if(r.profileId && cur.profileId && r.profileId !== cur.profileId) return false;
+  if(r.itemKey !== cur.itemKey) return false;
+  // If either side has per-copy identity, both must agree. This prevents a
+  // replacement copy with the same itemKey inheriting the old removal plan.
+  if((r.variantId || cur.variantId) && r.variantId !== cur.variantId) return false;
+  return true;
+}
+function iwSetLiveEnhancementRemoval(slot, type, enabled){
+  if(!enabled){
+    if(IW_ENHANCEMENT_REMOVAL_PLAN[slot]) delete IW_ENHANCEMENT_REMOVAL_PLAN[slot];
+    iwSaveEnhancementRemovalPlan();
+    return true;
+  }
+  var live = type === 'plate'
+    ? ((typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(slot) : null)
+    : ((typeof iwActiveEnchantForSlot === 'function') ? iwActiveEnchantForSlot(slot) : null);
+  if(!live) return false;
+  var id = iwEnhancementIdentity(slot, type);
+  if(!id) return false;
+  IW_ENHANCEMENT_REMOVAL_PLAN[slot] = id;
+  iwSaveEnhancementRemovalPlan();
+  return true;
+}
+function iwClearEnhancementRemoval(slot){
+  if(slot == null){
+    IW_ENHANCEMENT_REMOVAL_PLAN = {};
+  }else if(IW_ENHANCEMENT_REMOVAL_PLAN[slot]){
+    delete IW_ENHANCEMENT_REMOVAL_PLAN[slot];
+  }
+  iwSaveEnhancementRemovalPlan();
+}
+// Planning-view live state. These helpers are intentionally NOT used by
+// iwReadEquippedSet(), because current totals must continue to show reality.
+function iwPlanningActivePlate(slot){
+  var live = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(slot) : null;
+  return (live && !iwIsLiveEnhancementRemovalPlanned(slot, 'plate')) ? live : null;
+}
+function iwPlanningActiveEnchant(slot){
+  var live = (typeof iwActiveEnchantForSlot === 'function') ? iwActiveEnchantForSlot(slot) : null;
+  return (live && !iwIsLiveEnhancementRemovalPlanned(slot, 'enchant')) ? live : null;
+}
+if(typeof window !== 'undefined'){
+  window.iwIsLiveEnhancementRemovalPlanned = iwIsLiveEnhancementRemovalPlanned;
+  window.iwSetLiveEnhancementRemoval = iwSetLiveEnhancementRemoval;
+  window.iwClearEnhancementRemoval = iwClearEnhancementRemoval;
+  window.iwPlanningActivePlate = iwPlanningActivePlate;
+  window.iwPlanningActiveEnchant = iwPlanningActiveEnchant;
+}
+
 // ── Plate controls (button-driven; no checkboxes) ─────────────────
-/** True if this slot currently has a live OR planned enchant. */
+/** True if this slot has an enchant that still occupies the PLANNED end-state. */
 function iwSlotHasEnchant(slot){
-  // A live plate is the authoritative current state and suppresses any old
-  // enchant record/plan for this slot. Do this before consulting local plans.
-  try{ if(typeof iwActivePlateForSlot==='function' && iwActivePlateForSlot(slot)) return false; }catch(e){}
-  try{ if(iwActiveEnchantForSlot(slot)) return true; }catch(e){}
+  // A non-removed live plate occupies the slot and physically suppresses any
+  // stale enchant record. Once its removal is explicitly planned, the slot is
+  // free for a new enchant plan without lying about current game state.
+  try{ if(iwPlanningActivePlate(slot)) return false; }catch(e){}
+  try{ if(iwPlanningActiveEnchant(slot)) return true; }catch(e){}
   try{ if(typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED && IW_ENCHANT_PLAN[slot]) return true; }catch(e){}
   return false;
 }
-/** True if this slot has a live OR planned reinforcement plate. */
+/** True if this slot has a reinforcement that still occupies the PLANNED end-state. */
 function iwSlotHasPlate(slot){
-  try{ if(typeof iwActivePlateForSlot === 'function' && iwActivePlateForSlot(slot)) return true; }catch(e){}
+  try{ if(iwPlanningActivePlate(slot)) return true; }catch(e){}
   try{ return !!(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED && IW_PLATE_PLAN[slot]); }catch(e){}
   return false;
 }
 
 /**
- * Remove impossible same-slot plans after a profile import.
+ * Reconcile persistent planner state against the newly imported live profile.
  *
- * Planning data is persisted independently of the imported character. If an
- * older session planned an enchant on Helmet and the newly imported Helmet is
- * already reinforced, that plan cannot currently apply and must not surface as
- * an enhancement, shopping-list item or tooltip badge. The same rule applies
- * in reverse for an active enchant versus an old plate plan.
+ * A same-slot plan is stale by default when the game reports a live plate or
+ * enchant. The only exception is an explicit, exact-item-scoped removal plan:
+ * that proves the user intentionally wants to replace/remove the live effect,
+ * so the opposite planned enhancement must survive a background re-import.
  */
 function iwReconcileEnhancementPlansWithLiveProfile(){
-  var changedEnchant = false, changedPlate = false;
+  var changedEnchant = false, changedPlate = false, changedRemoval = false;
   try{
     if(!window.IWProfile || !window.IWProfile.equipped) return false;
     (typeof SLOT_ORDER !== 'undefined' ? SLOT_ORDER : []).forEach(function(slot){
       var lp = (typeof iwActivePlateForSlot==='function') ? iwActivePlateForSlot(slot) : null;
       var le = lp ? null : ((typeof iwActiveEnchantForSlot==='function') ? iwActiveEnchantForSlot(slot) : null);
-      if(lp || le){
+      var rem = IW_ENHANCEMENT_REMOVAL_PLAN[slot] || null;
+      var remValid = !!(rem && ((rem.type === 'plate' && lp && iwIsLiveEnhancementRemovalPlanned(slot,'plate')) ||
+                               (rem.type === 'enchant' && le && iwIsLiveEnhancementRemovalPlanned(slot,'enchant'))));
+
+      // Identity or live-state changed: the old removal intention is no longer
+      // about the item/effect currently in this slot.
+      if(rem && !remValid){
+        delete IW_ENHANCEMENT_REMOVAL_PLAN[slot];
+        changedRemoval = true;
+      }
+
+      // Without an intentional removal/replacement, retain the v5.0.1 stale-
+      // plan cleanup that fixed phantom enhancements on import.
+      if((lp || le) && !remValid){
         if(typeof IW_ENCHANT_PLAN !== 'undefined' && IW_ENCHANT_PLAN[slot]){
           IW_ENCHANT_PLAN[slot] = null; changedEnchant = true;
         }
@@ -16422,26 +16563,55 @@ function iwReconcileEnhancementPlansWithLiveProfile(){
     });
     if(changedEnchant && typeof iwSaveEnchantPlan==='function') iwSaveEnchantPlan();
     if(changedPlate && typeof iwSavePlatePlan==='function') iwSavePlatePlan();
+    if(changedRemoval) iwSaveEnhancementRemovalPlan();
   }catch(e){}
-  return changedEnchant || changedPlate;
+  return changedEnchant || changedPlate || changedRemoval;
 }
 if(typeof window !== 'undefined') window.iwReconcileEnhancementPlansWithLiveProfile = iwReconcileEnhancementPlansWithLiveProfile;
 
-// v43.15 — Option A: plate and enchant are now MUTUALLY EXCLUSIVE per
-// slot, not just warned-about. Only the "turn ON" transition is gated —
-// clearing either is always allowed, since that only frees the slot up
-// and can never conflict with anything.
+// Plate/enchant controls are a three-state interaction when a live enhancement
+// exists: ACTIVE -> REMOVAL PLANNED -> ACTIVE. A replacement plan may only be
+// added after the live opposite type has been explicitly marked for removal.
 function iwTogglePlate(slot){
   if(iwPlateableSlots().indexOf(slot) < 0) return;
-  var turningOn = !IW_PLATE_PLAN[slot];
-  if(turningOn && iwSlotHasEnchant(slot)){
-    window.alert('This slot already has an enchant (active or planned). ' +
-      'A reinforcement plate replaces it in-game, so this tool won\'t let you plan both at once \u2014 ' +
-      'remove the enchant first if you want to reinforce this slot instead.');
+
+  // Existing planned plate: ordinary toggle removes the PLAN only. Current
+  // imported state is never modified here.
+  if(IW_PLATE_PLAN[slot]){
+    IW_PLATE_TEST_FILL = false;
+    IW_PLATE_PLAN[slot] = null;
+    iwSavePlatePlan(); iwRefreshGearTab();
     return;
   }
-  IW_PLATE_TEST_FILL = false;      // hand-edited — no longer the test fill
-  IW_PLATE_PLAN[slot] = turningOn ? iwPlateDefaultTier(slot) : null;
+
+  var livePlate = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(slot) : null;
+  if(livePlate){
+    var removing = iwIsLiveEnhancementRemovalPlanned(slot, 'plate');
+    if(removing){
+      // Undoing the removal while a replacement enchant is still planned would
+      // recreate an impossible plate+enchant end-state. Make the user remove
+      // the replacement plan first instead of silently deleting it.
+      if(typeof IW_ENCHANT_PLAN !== 'undefined' && IW_ENCHANT_PLAN[slot]){
+        window.alert('An enchant is planned to replace this reinforcement. Remove the planned enchant first if you want to keep the active reinforcement.');
+        return;
+      }
+      iwSetLiveEnhancementRemoval(slot, 'plate', false);
+    }else{
+      iwSetLiveEnhancementRemoval(slot, 'plate', true);
+    }
+    IW_PLATE_TEST_FILL = false;
+    iwRefreshGearTab();
+    return;
+  }
+
+  // Adding a new plate is blocked only by the PLANNED end-state. A live enchant
+  // marked for removal no longer blocks the replacement.
+  if(iwSlotHasEnchant(slot)){
+    window.alert('This slot still has an enchant in the planned end-state. Remove the active/planned enchant first if you want to reinforce this slot instead.');
+    return;
+  }
+  IW_PLATE_TEST_FILL = false;
+  IW_PLATE_PLAN[slot] = iwPlateDefaultTier(slot);
   iwSavePlatePlan(); iwRefreshGearTab();
 }
 function iwStepPlate(slot, dir){
@@ -16494,7 +16664,7 @@ function iwReinforceSuggestions(){
   var plateable = iwPlateableSlots();
   return SLOT_ORDER.map(function(slot){
     var worn = eq ? (eq[slot] || null) : null;
-    var ench = iwActiveEnchantForSlot(slot);
+    var ench = (typeof iwPlanningActiveEnchant === 'function') ? iwPlanningActiveEnchant(slot) : iwActiveEnchantForSlot(slot);
     if(plateable.indexOf(slot) < 0) return { slot:slot, state:'not-plateable', worn:worn, ench:ench };
     var planned = IW_PLATES_ENABLED ? IW_PLATE_PLAN[slot] : null;
     if(planned) return { slot:slot, state:'plated', tier:planned, worn:worn, ench:ench };
@@ -16892,6 +17062,8 @@ function iwClearShoppingList(){
       if (typeof iwSaveEnchantPlan === 'function') iwSaveEnchantPlan();
     }
   } catch(e){}
+  // Clear explicit live-enhancement removal/replacement intentions.
+  try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(null); } catch(e){}
   IW_SHOPPING_EDIT = false;
   try { if (typeof iwRefreshGearTab === 'function') iwRefreshGearTab(); } catch(e){}
 }
@@ -16965,8 +17137,8 @@ function iwShoppingEntries(){
       Object.keys(IW_PLATE_PLAN || {}).forEach(function(s){
         var t = IW_PLATE_PLAN[s];
         if (!t) return;
-        var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
-        var le=lp?null:((typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null);
+        var lp=(typeof iwPlanningActivePlate==='function')?iwPlanningActivePlate(s):null;
+        var le=(typeof iwPlanningActiveEnchant==='function')?iwPlanningActiveEnchant(s):null;
         if(lp || le) return;
         add('plate:'+t, iwPlateName(t), 1);
       });
@@ -16982,8 +17154,8 @@ function iwShoppingEntries(){
       Object.keys(IW_ENCHANT_PLAN || {}).forEach(function(s){
         var t = IW_ENCHANT_PLAN[s];
         if (!t) return;
-        var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
-        var le=lp?null:((typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null);
+        var lp=(typeof iwPlanningActivePlate==='function')?iwPlanningActivePlate(s):null;
+        var le=(typeof iwPlanningActiveEnchant==='function')?iwPlanningActiveEnchant(s):null;
         if(lp || le) return;
         var name = (typeof iwEnchantName === 'function') ? iwEnchantName(s, t) : null;
         if (name) add('ench:'+s+':'+t, name, 1);
@@ -17110,6 +17282,8 @@ function iwAddToLoadout(slotKey){
     // a slot's PREVIOUS item is meaningless once that item is gone.
     try { if (typeof IW_SOCKET_PLAN !== 'undefined') { IW_SOCKET_PLAN[slotKey] = []; iwSaveSocketPlan(); } } catch(e){}
     try { if (typeof IW_PLATE_PLAN  !== 'undefined') { IW_PLATE_PLAN[slotKey]  = null; iwSavePlatePlan();  } } catch(e){}
+    try { if (typeof IW_ENCHANT_PLAN !== 'undefined') { IW_ENCHANT_PLAN[slotKey] = null; iwSaveEnchantPlan(); } } catch(e){}
+    try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(slotKey); } catch(e){}
 
     iwAddGearToShoppingList(w.name);
     window.iwRefreshGearTab();
@@ -17153,12 +17327,15 @@ function iwAddLoadoutToShoppingList(){
       // the old piece's gem/plate plan.
       try { if (typeof IW_SOCKET_PLAN !== 'undefined') IW_SOCKET_PLAN[slotKey] = []; } catch(e){}
       try { if (typeof IW_PLATE_PLAN  !== 'undefined') IW_PLATE_PLAN[slotKey]  = null; } catch(e){}
+      try { if (typeof IW_ENCHANT_PLAN !== 'undefined') IW_ENCHANT_PLAN[slotKey] = null; } catch(e){}
+      try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(slotKey); } catch(e){}
 
       iwAddGearToShoppingList(w.name);
     });
 
     try { iwSaveSocketPlan(); } catch(e){}
     try { iwSavePlatePlan();  } catch(e){}
+    try { iwSaveEnchantPlan(); } catch(e){}
     window.iwRefreshGearTab();
     if (typeof iwNotifyEquipmentChanged === 'function') iwNotifyEquipmentChanged('goal loadout');
   }catch(e){}
@@ -17278,13 +17455,30 @@ function iwApplyReTierOverride(tier){
 
   var enchSlots = iwEnchantCapableSlots();
   var enchSet = {};
-  enchSlots.forEach(function(s){ enchSet[s] = true; IW_ENCHANT_PLAN[s] = t; });
+  enchSlots.forEach(function(s){
+    enchSet[s] = true;
+    // Explicit bulk planning is user intent. If this exact item currently has
+    // a plate, record that the plate is to be replaced so the enchant plan is
+    // visible/valid instead of being discarded by import reconciliation.
+    try{
+      if(typeof iwActivePlateForSlot === 'function' && iwActivePlateForSlot(s))
+        iwSetLiveEnhancementRemoval(s, 'plate', true);
+    }catch(e){}
+    IW_ENCHANT_PLAN[s] = t;
+  });
 
   // Plate only the plate-capable slots that are NOT being enchanted, and
   // clear any plate on slots we just enchanted (a plate would replace it).
   iwPlateCapableSlots().forEach(function(s){
-    if (enchSet[s]) { IW_PLATE_PLAN[s] = null; }
-    else            { IW_PLATE_PLAN[s] = t; }
+    if (enchSet[s]) {
+      IW_PLATE_PLAN[s] = null;
+    } else {
+      try{
+        if(typeof iwActiveEnchantForSlot === 'function' && iwActiveEnchantForSlot(s))
+          iwSetLiveEnhancementRemoval(s, 'enchant', true);
+      }catch(e){}
+      IW_PLATE_PLAN[s] = t;
+    }
   });
 
   IW_ENCHANTS_ENABLED = true;
@@ -17390,20 +17584,39 @@ function iwEnchantName(slot, tier){
 }
 function iwToggleEnchantPlan(slot){
   if (!iwEnchantSlotMeta()[slot]) return;
-  var turningOn = !IW_ENCHANT_PLAN[slot];
-  if (turningOn && iwSlotHasPlate(slot)) {
-    window.alert('This slot already has a reinforcement plate planned. ' +
-      'A plate replaces any enchant in-game, so this tool won\'t let you plan both at once \u2014 ' +
-      'remove the plate first if you want to enchant this slot instead.');
+
+  if(IW_ENCHANT_PLAN[slot]){
+    IW_ENCHANT_PLAN[slot] = null;
+    iwSaveEnchantPlan(); iwRefreshGearTab();
     return;
   }
-  // v4.8.2: default a newly-planned enchant to the enchant-specific tier — an
-  // explicit R&E dropdown/setting choice wins, otherwise the Spellcrafting-level
-  // default (never a plate-driven low tier, and no longer collapsing to T1 when
-  // the import lacks a Spellcrafting skill).
-  IW_ENCHANT_PLAN[slot] = turningOn ? iwResolveEnchantTier() : null;
+
+  var liveEnchant = (typeof iwActiveEnchantForSlot === 'function') ? iwActiveEnchantForSlot(slot) : null;
+  if(liveEnchant){
+    var removing = iwIsLiveEnhancementRemovalPlanned(slot, 'enchant');
+    if(removing){
+      if(typeof IW_PLATE_PLAN !== 'undefined' && IW_PLATE_PLAN[slot]){
+        window.alert('A reinforcement is planned to replace this enchant. Remove the planned reinforcement first if you want to keep the active enchant.');
+        return;
+      }
+      iwSetLiveEnhancementRemoval(slot, 'enchant', false);
+    }else{
+      iwSetLiveEnhancementRemoval(slot, 'enchant', true);
+    }
+    iwRefreshGearTab();
+    return;
+  }
+
+  // A live plate only blocks while it remains part of the planned end-state.
+  if(iwSlotHasPlate(slot)){
+    window.alert('This slot still has a reinforcement in the planned end-state. Remove the active/planned reinforcement first if you want to enchant this slot instead.');
+    return;
+  }
+  // v4.8.2: explicit R&E choice wins; otherwise use the SC-level default.
+  IW_ENCHANT_PLAN[slot] = iwResolveEnchantTier();
   iwSaveEnchantPlan(); iwRefreshGearTab();
 }
+
 
 function iwParsePlateEffect(text){
   var t = String(text || '');
@@ -20554,6 +20767,8 @@ function iwAddNamedItemToLoadout(slotLabel, itemName){
     };
     try { if (typeof IW_SOCKET_PLAN !== 'undefined') { IW_SOCKET_PLAN[slotKey] = []; iwSaveSocketPlan(); } } catch(e){}
     try { if (typeof IW_PLATE_PLAN  !== 'undefined') { IW_PLATE_PLAN[slotKey]  = null; iwSavePlatePlan();  } } catch(e){}
+    try { if (typeof IW_ENCHANT_PLAN !== 'undefined') { IW_ENCHANT_PLAN[slotKey] = null; iwSaveEnchantPlan(); } } catch(e){}
+    try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(slotKey); } catch(e){}
 
     iwAddGearToShoppingList(w.name);
     window.iwRefreshGearTab();
@@ -24484,7 +24699,7 @@ function syncCombatLevel(val) {
       var keys = [
         KEY,
         'iw_gem_alltiers_v1', 'iwGearExpandersV1', 'iw_gear_expanders_v1',
-        'iwSocketPlanV1', 'iwPlatePlanV1', 'iwEnchantPlanV1',
+        'iwSocketPlanV1', 'iwPlatePlanV1', 'iwEnchantPlanV1', 'iwEnhancementRemovalPlanV1',
         'iwShoppingOwned', 'iwShoppingGear',
         'iw_ui_mode_v1', 'iw_theme_v1', 'iw_goalcards_v1',
         'iw-settings-open-v1', 'iwCollapseSkills', 'iwVisitedTool',
@@ -27228,12 +27443,22 @@ function syncCombatLevel(val) {
     // Planned state is useful, but it must never masquerade as current gear.
     var planned = [];
     try{
+      // Explicit removals are first-class planner changes. The current effect
+      // remains in Active Enhancements until the game profile changes.
+      Object.keys(IW_ENHANCEMENT_REMOVAL_PLAN || {}).forEach(function(s){
+        if(iwIsLiveEnhancementRemovalPlanned(s,'plate')){
+          var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
+          if(lp) planned.push('↔ '+enhSlotLabel(s)+' · remove active T'+lp.tier+' reinforcement (+'+displayWhole(lp.def)+' DEF)');
+        } else if(iwIsLiveEnhancementRemovalPlanned(s,'enchant')){
+          var le=(typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null;
+          if(le) planned.push('↔ '+enhSlotLabel(s)+' · remove active '+iwEnchantLabel(le)+' enchant');
+        }
+      });
       if(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED){
         Object.keys(IW_PLATE_PLAN || {}).forEach(function(s){
           var tier=Number(IW_PLATE_PLAN[s]); if(!tier) return;
-          // Any live plate/enchant makes an old same-slot plate plan inactive.
-          var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
-          var le=lp?null:((typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null);
+          var lp=(typeof iwPlanningActivePlate==='function')?iwPlanningActivePlate(s):null;
+          var le=(typeof iwPlanningActiveEnchant==='function')?iwPlanningActiveEnchant(s):null;
           if(lp || le) return;
           var fx=iwPlateMeta()[tier]; if(!fx||fx.slots.indexOf(s)<0) return;
           planned.push('🔩 '+enhSlotLabel(s)+' +'+displayWhole(fx.def)+' DEF (T'+tier+')');
@@ -27243,8 +27468,8 @@ function syncCombatLevel(val) {
         var em=(typeof iwEnchantSlotMeta==='function')?iwEnchantSlotMeta():{};
         Object.keys(IW_ENCHANT_PLAN || {}).forEach(function(s){
           var tier=Number(IW_ENCHANT_PLAN[s]); var meta=em[s]; if(!tier||!meta) return;
-          var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
-          var le=lp?null:((typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null);
+          var lp=(typeof iwPlanningActivePlate==='function')?iwPlanningActivePlate(s):null;
+          var le=(typeof iwPlanningActiveEnchant==='function')?iwPlanningActiveEnchant(s):null;
           if(lp || le) return;
           planned.push('✧ '+enhSlotLabel(s)+' +'+tier+(meta.pct?'%':'')+' '+meta.kind+' (planned)');
         });
@@ -27565,6 +27790,7 @@ function syncCombatLevel(val) {
       try { if (typeof IW_SOCKET_PLAN !== 'undefined') IW_SOCKET_PLAN[slot] = []; } catch(e) {}
       try { if (typeof IW_PLATE_PLAN !== 'undefined') IW_PLATE_PLAN[slot] = null; } catch(e) {}
       try { if (typeof IW_ENCHANT_PLAN !== 'undefined') IW_ENCHANT_PLAN[slot] = null; } catch(e) {}
+      try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(slot); } catch(e) {}
     });
     try { if (typeof iwSaveSocketPlan === 'function') iwSaveSocketPlan(); } catch(e) {}
     try { if (typeof iwSavePlatePlan === 'function') iwSavePlatePlan(); } catch(e) {}
@@ -27705,29 +27931,42 @@ function syncCombatLevel(val) {
           }
         }
 
-        // 2. Enchant
+        // 2. Enchant — current state remains visible; planner removal/
+        // replacement intent is a separate exact-item-scoped state.
         var livePlateForTooltip = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(s) : null;
         var liveEnch = livePlateForTooltip ? null : (typeof iwActiveEnchantForSlot === 'function' ? iwActiveEnchantForSlot(s) : null);
+        var livePlateRemoval = !!(livePlateForTooltip && iwIsLiveEnhancementRemovalPlanned(s, 'plate'));
+        var liveEnchRemoval = !!(liveEnch && iwIsLiveEnhancementRemovalPlanned(s, 'enchant'));
         var enchMeta = typeof iwEnchantSlotMeta === 'function' ? iwEnchantSlotMeta()[s] : null;
+        var planEnch = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED) ? IW_ENCHANT_PLAN[s] : null;
         if (liveEnch) {
-          buffs.push('<span class="gbuff gbuff-ench" title="' +
-            iwTipEsc('Active enchant: ' + iwEnchantLabel(liveEnch) +
-              (liveEnch.expiresAt ? ' \u2014 expires ' + String(liveEnch.expiresAt).slice(0, 10) : '') +
-              '. Already active in-game \u2014 nothing to plan.') + '">' +
-            '<span class="gbuff-ic">\u2728</span><span class="gbuff-kind">Enchant</span>' + iwTipEsc(iwEnchantLabel(liveEnch)) + '</span>');
-        } else if (enchMeta && !livePlateForTooltip) {
-          var planEnch = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED) ? IW_ENCHANT_PLAN[s] : null;
+          buffs.push('<button type="button" class="gbuff gbuff-ench' + (liveEnchRemoval ? ' planned-removal' : '') + '" title="' +
+            iwTipEsc(liveEnchRemoval
+              ? 'Active in game: ' + iwEnchantLabel(liveEnch) + '. Removal is planned. Click to undo the removal plan.'
+              : 'Active enchant: ' + iwEnchantLabel(liveEnch) +
+                (liveEnch.expiresAt ? ' — expires ' + String(liveEnch.expiresAt).slice(0, 10) : '') +
+                '. Click to plan its removal/replacement.') + '"' +
+            ' onclick="iwToggleEnchantPlan(\'' + s + '\')">' +
+            '<span class="gbuff-ic">✨</span><span class="gbuff-kind">Enchant</span>' + iwTipEsc(iwEnchantLabel(liveEnch)) +
+            (liveEnchRemoval ? ' · remove planned' : '') + '</button>');
+        } else if (enchMeta) {
           if (planEnch) {
             buffs.push('<button type="button" class="gbuff gbuff-ench planned" title="' +
-              iwTipEsc('Planned enchant: +' + planEnch + (enchMeta.pct ? '%' : '') + ' ' + enchMeta.kind + '. Click to remove.') + '"' +
+              iwTipEsc('Planned enchant: +' + planEnch + (enchMeta.pct ? '%' : '') + ' ' + enchMeta.kind +
+                (livePlateRemoval ? '. This will replace the active reinforcement.' : '') + '. Click to remove the plan.') + '"' +
               ' onclick="iwToggleEnchantPlan(\'' + s + '\')">' +
-              '<span class="gbuff-ic">\u2727</span><span class="gbuff-kind">Enchant</span>+' + planEnch + (enchMeta.pct ? '%' : '') + ' ' + iwTipEsc(enchMeta.kind) + '</button>');
+              '<span class="gbuff-ic">✧</span><span class="gbuff-kind">Enchant</span>+' + planEnch + (enchMeta.pct ? '%' : '') + ' ' + iwTipEsc(enchMeta.kind) + '</button>');
+          } else if (livePlateForTooltip && !livePlateRemoval) {
+            buffs.push('<button type="button" class="gbuff gbuff-empty is-blocked" title="Active reinforcement occupies this slot. Click the reinforcement below to plan its removal first."' +
+              ' onclick="iwToggleEnchantPlan(\'' + s + '\')">' +
+              '<span class="gbuff-ic">⛔</span><span class="gbuff-kind">Enchant</span>Remove plate first</button>');
           } else {
-            buffs.push('<button type="button" class="gbuff gbuff-empty" title="No enchant planned \u2014 click to plan one"' +
+            buffs.push('<button type="button" class="gbuff gbuff-empty" title="No enchant planned — click to plan one"' +
               ' onclick="iwToggleEnchantPlan(\'' + s + '\')">' +
-              '<span class="gbuff-ic">\u2727</span><span class="gbuff-kind">Enchant</span>Plan enchant</button>');
+              '<span class="gbuff-ic">✧</span><span class="gbuff-kind">Enchant</span>Plan enchant</button>');
           }
         }
+
 
         if (buffs.length) {
           html += '<div class="gn-tt-section-label">Gems &amp; Enchants</div>';
@@ -27746,11 +27985,16 @@ function syncCombatLevel(val) {
           var planPlate = (typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED) ? IW_PLATE_PLAN[s] : null;
           var blocked   = typeof iwSlotHasEnchant === 'function' && iwSlotHasEnchant(s);
           if (livePlate) {
-            html += '<div class="gear-slot-reinf on live" style="margin-bottom:8px;" title="' +
-              iwTipEsc((livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME' +
-                (livePlate.actionsRemaining != null ? ' — ' + Number(livePlate.actionsRemaining).toLocaleString() + ' actions remaining' : '')) + '">' +
+            var livePlateRemoving = iwIsLiveEnhancementRemovalPlanned(s, 'plate');
+            html += '<button type="button" class="gear-slot-reinf on live' + (livePlateRemoving ? ' planned-removal' : '') + '" style="margin-bottom:8px;" title="' +
+              iwTipEsc(livePlateRemoving
+                ? (livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME; removal/replacement is planned. Click to undo the removal plan.'
+                : (livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME' +
+                  (livePlate.actionsRemaining != null ? ' — ' + Number(livePlate.actionsRemaining).toLocaleString() + ' actions remaining' : '') +
+                  '. Click to plan its removal/replacement.') + '"' +
+              ' onclick="iwTogglePlate(\'' + s + '\')">' +
               '<span class="gbuff-ic">🔩</span>' + (typeof iwPlateEffectLabel === 'function' ? iwPlateEffectLabel(livePlate.tier) : ('+'+livePlate.def+' DEF')) +
-              ' <span class="gbuff-kind">active</span></div>';
+              ' <span class="gbuff-kind">' + (livePlateRemoving ? 'remove planned' : 'active') + '</span></button>';
           } else if (planPlate) {
             var pfx = typeof iwPlateMeta === 'function' ? iwPlateMeta()[planPlate] : null;
             html += '<button type="button" class="gear-slot-reinf on" style="margin-bottom:8px;" title="' +
@@ -30750,11 +30994,12 @@ function syncCombatLevel(val) {
     var savedProfile=window.IWProfile;
     var savedOverride=(typeof IW_RE_TIER_OVERRIDE!=='undefined')?IW_RE_TIER_OVERRIDE:null;
     var savedSetting=(typeof IW_RE_TIER_SETTING!=='undefined')?IW_RE_TIER_SETTING:null;
-    var savedEnchantPlan={}; var savedPlatePlan={}; var savedSocketPlan={};
+    var savedEnchantPlan={}; var savedPlatePlan={}; var savedSocketPlan={}; var savedRemovalPlan={};
     try{
       Object.keys(IW_ENCHANT_PLAN||{}).forEach(function(k){savedEnchantPlan[k]=IW_ENCHANT_PLAN[k];});
       Object.keys(IW_PLATE_PLAN||{}).forEach(function(k){savedPlatePlan[k]=IW_PLATE_PLAN[k];});
       Object.keys(IW_SOCKET_PLAN||{}).forEach(function(k){savedSocketPlan[k]=Array.isArray(IW_SOCKET_PLAN[k])?IW_SOCKET_PLAN[k].slice():IW_SOCKET_PLAN[k];});
+      Object.keys(IW_ENHANCEMENT_REMOVAL_PLAN||{}).forEach(function(k){savedRemovalPlan[k]=Object.assign({},IW_ENHANCEMENT_REMOVAL_PLAN[k]);});
 
       var a=iwParseSocketEffect('+16% 2x Gather Chance');
       ok('post-Jul-7 socket text parses',!!a);
@@ -30811,6 +31056,50 @@ function syncCombatLevel(val) {
       ok('later live legacy enchant resolves after expired row',!!later);
       if(later) eq('expired row does not mask live row',later.tier,17);
 
+      // Planner interaction regression: a live plate/enchant remains CURRENT,
+      // but can be marked for removal and replaced by the opposite plan.
+      window.IWProfile={id:'planner-swap-probe',displayName:'planner-swap-probe',
+        skills:[{skillKey:'smithing',level:63},{skillKey:'spellcrafting',level:69}],
+        equipped:{helmet:{key:'regal_silk_hood',name:'Regal Silk Hood+4',variantId:'probe-copy'}},
+        itemReinforcements:[{itemKey:'regal_silk_hood',variantId:'probe-copy',tier:17,actionsRemaining:50000}],itemEnchants:[]};
+      IW_ENCHANT_PLAN={}; IW_PLATE_PLAN={}; IW_ENHANCEMENT_REMOVAL_PLAN={};
+      var currentPlate=iwActivePlateForSlot('helmet');
+      ok('planner swap probe live plate exists',!!currentPlate);
+      iwSetLiveEnhancementRemoval('helmet','plate',true);
+      ok('live plate removal intent recorded',iwIsLiveEnhancementRemovalPlanned('helmet','plate'));
+      ok('live plate still exists in CURRENT state',!!iwActivePlateForSlot('helmet'));
+      eq('removed live plate no longer blocks planned end-state',!!iwSlotHasPlate('helmet'),false);
+      IW_ENCHANT_PLAN.helmet=18;
+      eq('replacement enchant occupies planned end-state',!!iwSlotHasEnchant('helmet'),true);
+      var curAfterRemovalPlan=iwReadEquippedSet();
+      ok('current totals still retain live plate while removal is only planned',
+         !!(curAfterRemovalPlan && curAfterRemovalPlan.slots.helmet && curAfterRemovalPlan.slots.helmet.livePlate));
+      var shopSwap=iwShoppingEntries().map(function(x){return x.label;});
+      ok('replacement enchant reaches shopping list despite current live plate',
+         shopSwap.some(function(x){return /enchant/i.test(String(x));}));
+
+      // Re-import of the SAME exact item must preserve intentional replacement.
+      iwReconcileEnhancementPlansWithLiveProfile();
+      ok('same-item re-import preserves removal intent',iwIsLiveEnhancementRemovalPlanned('helmet','plate'));
+      eq('same-item re-import preserves replacement enchant plan',IW_ENCHANT_PLAN.helmet,18);
+
+      // Replacing the physical item invalidates the old removal record and stale plan.
+      window.IWProfile.equipped.helmet={key:'stormsilk_hood',name:'Stormsilk Hood+4',variantId:'different-copy'};
+      iwReconcileEnhancementPlansWithLiveProfile();
+      eq('replacement item clears stale removal intent',!!IW_ENHANCEMENT_REMOVAL_PLAN.helmet,false);
+
+      // Symmetric live-enchant -> planned plate path.
+      window.IWProfile={id:'planner-enchant-probe',displayName:'planner-enchant-probe',
+        skills:[{skillKey:'smithing',level:69},{skillKey:'spellcrafting',level:69}],
+        equipped:{helmet:{key:'stormsilk_hood',name:'Stormsilk Hood+4',variantId:'ench-copy',enchantTier:18,enchantExpiresAt:'2099-01-01T00:00:00.000Z'}},
+        itemReinforcements:[],itemEnchants:[]};
+      IW_ENCHANT_PLAN={}; IW_PLATE_PLAN={}; IW_ENHANCEMENT_REMOVAL_PLAN={};
+      ok('planner swap probe live enchant exists',!!iwActiveEnchantForSlot('helmet'));
+      iwSetLiveEnhancementRemoval('helmet','enchant',true);
+      eq('removed live enchant no longer blocks planned end-state',!!iwSlotHasEnchant('helmet'),false);
+      IW_PLATE_PLAN.helmet=18;
+      eq('replacement plate occupies planned end-state',!!iwSlotHasPlate('helmet'),true);
+
       // Explicit R&E choice wins for a manually-added plate; absent explicit
       // intent, Smithing 63 correctly falls back to T16.
       window.IWProfile={skills:[{skillKey:'smithing',level:63}],equipped:{chest:{key:'__tier_probe',name:'__tier_probe'}}};
@@ -30823,7 +31112,7 @@ function syncCombatLevel(val) {
     finally{
       window.IWProfile=savedProfile;
       IW_RE_TIER_OVERRIDE=savedOverride; IW_RE_TIER_SETTING=savedSetting;
-      IW_ENCHANT_PLAN=savedEnchantPlan; IW_PLATE_PLAN=savedPlatePlan; IW_SOCKET_PLAN=savedSocketPlan;
+      IW_ENCHANT_PLAN=savedEnchantPlan; IW_PLATE_PLAN=savedPlatePlan; IW_SOCKET_PLAN=savedSocketPlan; IW_ENHANCEMENT_REMOVAL_PLAN=savedRemovalPlan;
     }
     if(fail.length&&typeof console!=='undefined')console.warn('[Gear import integrity] FAILED:',fail.join(' | '));
     return fail;
