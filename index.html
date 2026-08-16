@@ -4,6 +4,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IdleWorlds Toolkit v5.1</title>
+<!-- v5.1 Gear planner hotfix: the Reinforcement & Enchantment Tier dropdown now re-tiers EXISTING enhancements only.
+     It preserves each slot's current/planned enhancement type and presence: plates stay plates, enchants stay enchants,
+     empty slots stay empty, explicit removals stay removed, and gems are untouched. Live effects are represented as
+     same-type replacement plans so imported current-state totals remain truthful while the planner shows the target tier. -->
 <!-- v5.1 release: Gear import integrity fixes promoted to toolkit version 5.1. -->
 <!-- v5.1.1 Gear planner interaction hotfix: live plates/enchants remain authoritative CURRENT state,
      but can now be explicitly marked for removal/replacement in the planner without mutating the imported profile. -->
@@ -6294,10 +6298,10 @@
       }catch(e){}
     }, 0);
 
-    // v5.0.1: reconcile persistent planning state against LIVE imported
-    // enhancements before repainting Gear. A live plate/enchant makes any old
-    // same-slot plan impossible in the current state; leaving those localStorage
-    // entries alive is what produced phantom "planned enchants" on reinforced gear.
+    // Reconcile persistent planning state against LIVE imported enhancements
+    // before repainting Gear. Unscoped same-slot plans are stale and are cleared;
+    // exact-item removal/replacement intent is preserved (including same-type
+    // re-tier plans created by the R&E selector).
     try{
       if(typeof iwReconcileEnhancementPlansWithLiveProfile==='function')
         iwReconcileEnhancementPlansWithLiveProfile();
@@ -7756,14 +7760,16 @@
                 </div>
               </div>
             </div>
-            <!-- v4.8.1: Reinforcement & Enchantment Tier override (live gear
-                 tab). Bulk-sets every plate/enchant on the loadout to the
-                 chosen tier; options populated in iwInitReTierControl(). -->
+            <!-- v5.1: Reinforcement & Enchantment Tier selector (live gear tab).
+                 Re-tiers ONLY enhancements that already exist in the planner end-state.
+                 It never invents an enhancement for an empty slot and never swaps plate
+                 <-> enchant. Imported live effects become same-type replacement plans so
+                 Current Equipment remains the authoritative in-game state. -->
             <div class="field" style="max-width:260px;">
               <label for="re-tier-select">Reinforcement &amp; Enchantment Tier</label>
               <select id="re-tier-select" aria-label="Reinforcement and Enchantment Tier"
                       onchange="iwSetReTier(this.value)"></select>
-              <span class="field-helper">Overrides plates &amp; enchants on the whole loadout to this tier.</span>
+              <span class="field-helper">Re-tiers existing plates and enchants only. Empty slots stay empty and enhancement types are never changed.</span>
             </div>
           </div>
           <div id="gn-bis-output"><div class="gn-bis-scroll"><table class="gn-bis-table"><thead><tr><th></th><th>Slot</th><th>Best-in-Slot Gear</th><th class="gn-bis-action">Add</th></tr></thead><tbody><tr><td>⛑️</td><td>Helmet</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Hood+3" aria-expanded="false" aria-label="Eternal Weave Hood+3, item details"><span class="iw-item-name">Eternal Weave Hood+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="helmet" data-gn-item="Eternal Weave Hood+3" aria-label="Add Eternal Weave Hood+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>🥋</td><td>Chest</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Overlord&#39;s Pauldrons" aria-expanded="false" aria-label="Overlord&#39;s Pauldrons, item details"><span class="iw-item-name">Overlord's Pauldrons</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="chest" data-gn-item="Overlord&#39;s Pauldrons" aria-label="Add Overlord&#39;s Pauldrons to the Gear UI">Add to Gear</button></td></tr><tr><td>🧥</td><td>Cloak</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Fortunate Eternal Weave Cloak of Insight" aria-expanded="false" aria-label="Fortunate Eternal Weave Cloak of Insight, item details"><span class="iw-item-name">Fortunate Eternal Weave Cloak of Insight</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="cloak" data-gn-item="Fortunate Eternal Weave Cloak of Insight" aria-label="Add Fortunate Eternal Weave Cloak of Insight to the Gear UI">Add to Gear</button></td></tr><tr><td>👖</td><td>Legs</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Leggings+3" aria-expanded="false" aria-label="Eternal Weave Leggings+3, item details"><span class="iw-item-name">Eternal Weave Leggings+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="legs" data-gn-item="Eternal Weave Leggings+3" aria-label="Add Eternal Weave Leggings+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>👢</td><td>Boots</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Boots+3" aria-expanded="false" aria-label="Eternal Weave Boots+3, item details"><span class="iw-item-name">Eternal Weave Boots+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="boots" data-gn-item="Eternal Weave Boots+3" aria-label="Add Eternal Weave Boots+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>⚔️</td><td>Weapon</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Cindersteel Warblade" aria-expanded="false" aria-label="Cindersteel Warblade, item details"><span class="iw-item-name">Cindersteel Warblade</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="weapon" data-gn-item="Cindersteel Warblade" aria-label="Add Cindersteel Warblade to the Gear UI">Add to Gear</button></td></tr><tr><td>🛡️</td><td>Shield</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Warlord&#39;s Bulwark" aria-expanded="false" aria-label="Warlord&#39;s Bulwark, item details"><span class="iw-item-name">Warlord's Bulwark</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="shield" data-gn-item="Warlord&#39;s Bulwark" aria-label="Add Warlord&#39;s Bulwark to the Gear UI">Add to Gear</button></td></tr><tr><td>🎗️</td><td>Belt</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 40" aria-expanded="false" aria-label="Enchanted Belt Lv. 40, item details"><span class="iw-item-name">Enchanted Belt Lv. 40</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="belt" data-gn-item="Enchanted Belt Lv. 40" aria-label="Add Enchanted Belt Lv. 40 to the Gear UI">Add to Gear</button></td></tr><tr><td>🧤</td><td>Gloves</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternal Weave Gloves+3" aria-expanded="false" aria-label="Eternal Weave Gloves+3, item details"><span class="iw-item-name">Eternal Weave Gloves+3</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="gloves" data-gn-item="Eternal Weave Gloves+3" aria-label="Add Eternal Weave Gloves+3 to the Gear UI">Add to Gear</button></td></tr><tr><td>💍</td><td>Ring</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Lapis Ring of Attack" aria-expanded="false" aria-label="Lapis Ring of Attack, item details"><span class="iw-item-name">Lapis Ring of Attack</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="ring" data-gn-item="Lapis Ring of Attack" aria-label="Add Lapis Ring of Attack to the Gear UI">Add to Gear</button></td></tr><tr><td>📿</td><td>Amulet</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Lapis Amulet of Attack" aria-expanded="false" aria-label="Lapis Amulet of Attack, item details"><span class="iw-item-name">Lapis Amulet of Attack</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="amulet" data-gn-item="Lapis Amulet of Attack" aria-label="Add Lapis Amulet of Attack to the Gear UI">Add to Gear</button></td></tr><tr><td>🔮</td><td>Trinket</td><td><button type="button" class="iw-item-ref" data-iw-item-name="Eternium Relic" aria-expanded="false" aria-label="Eternium Relic, item details"><span class="iw-item-name">Eternium Relic</span><span class="iw-item-info" aria-hidden="true">i</span></button></td><td class="gn-bis-action"><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="trinket" data-gn-item="Eternium Relic" aria-label="Add Eternium Relic to the Gear UI">Add to Gear</button></td></tr></tbody></table></div></div>
@@ -15108,15 +15114,20 @@ function buildEquippedPips(equipped){
     var planEnch = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED)
       ? IW_ENCHANT_PLAN[slotKey] : null;
     if(liveEnch){
-      buffs.push('<button type="button" class="gbuff gbuff-ench'+(liveEnchRemoval?' planned-removal':'')+'" title="'+
-        iwTipEsc(liveEnchRemoval
+      var sameEnchantRetier = !!(liveEnchRemoval && planEnch);
+      var retierEnchantLabel = sameEnchantRetier
+        ? ('+'+planEnch+(enchMeta&&enchMeta.pct?'%':'')+' '+(enchMeta?enchMeta.kind:liveEnch.kind)) : '';
+      buffs.push('<button type="button" class="gbuff gbuff-ench'+(sameEnchantRetier?' planned-retier':liveEnchRemoval?' planned-removal':'')+'" title="'+
+        iwTipEsc(sameEnchantRetier
+          ? 'Active in game: '+iwEnchantLabel(liveEnch)+'. Re-tier planned: '+retierEnchantLabel+'. Click to cancel the re-tier.'
+          : liveEnchRemoval
           ? 'Active in game: '+iwEnchantLabel(liveEnch)+'. Removal is planned. Click to undo the removal plan.'
           : 'Active enchant: '+iwEnchantLabel(liveEnch)+
             (liveEnch.expiresAt ? ' — expires '+String(liveEnch.expiresAt).slice(0,10) : '')+
             '. Click to plan its removal/replacement.')+'"'+
         ' onclick="iwToggleEnchantPlan(\''+slotKey+'\')">'+
         '<span class="gbuff-ic">✨</span><span class="gbuff-kind">Enchant</span>'+iwTipEsc(iwEnchantLabel(liveEnch))+
-        (liveEnchRemoval?' · remove planned':'')+'</button>');
+        (sameEnchantRetier?' → '+iwTipEsc(retierEnchantLabel)+' planned':liveEnchRemoval?' · remove planned':'')+'</button>');
     } else if(enchMeta){
       if(planEnch){
         buffs.push('<button type="button" class="gbuff gbuff-ench planned" title="'+
@@ -15155,15 +15166,19 @@ function buildEquippedPips(equipped){
         'No reinforcement</div>';
     } else if(livePlate){
       var livePlateRemoving = iwIsLiveEnhancementRemovalPlanned(slotKey, 'plate');
-      reinfHtml = '<button type="button" class="gear-slot-reinf on live'+(livePlateRemoving?' planned-removal':'')+'" title="'+
-        iwTipEsc(livePlateRemoving
+      var samePlateRetier = !!(livePlateRemoving && planPlate);
+      var retierPlateLabel = samePlateRetier ? iwPlateEffectLabel(planPlate) : '';
+      reinfHtml = '<button type="button" class="gear-slot-reinf on live'+(samePlateRetier?' planned-retier':livePlateRemoving?' planned-removal':'')+'" title="'+
+        iwTipEsc(samePlateRetier
+          ? (livePlate.name||'Reinforcement Plate')+' — ACTIVE IN GAME at '+iwPlateEffectLabel(livePlate.tier)+'. Re-tier planned: '+retierPlateLabel+'. Click to cancel the re-tier.'
+          : livePlateRemoving
           ? (livePlate.name||'Reinforcement Plate')+' — ACTIVE IN GAME; removal/replacement is planned. Click to undo the removal plan.'
           : (livePlate.name||'Reinforcement Plate')+' — '+iwPlateEffectLabel(livePlate.tier)+
             ' — ACTIVE IN GAME'+(livePlate.actionsRemaining!=null ? ' — '+Number(livePlate.actionsRemaining).toLocaleString()+' actions remaining' : '')+
             '. Click to plan its removal/replacement.')+'"'+
         ' onclick="iwTogglePlate(\''+slotKey+'\')">'+
-        '<span class="gbuff-ic">🔩</span>'+iwPlateEffectLabel(livePlate.tier)+' <span class="gbuff-kind">'+
-          (livePlateRemoving?'remove planned':'active')+'</span></button>';
+        '<span class="gbuff-ic">🔩</span>'+iwPlateEffectLabel(livePlate.tier)+
+          (samePlateRetier?' → '+retierPlateLabel+' planned':' <span class="gbuff-kind">'+(livePlateRemoving?'remove planned':'active')+'</span>')+'</button>';
     } else if(planPlate){
       var pfx = iwPlateMeta()[planPlate];
       // v43.11: a PLANNED enchant is just as real a conflict as a live
@@ -16530,7 +16545,8 @@ function iwSlotHasPlate(slot){
  * A same-slot plan is stale by default when the game reports a live plate or
  * enchant. The only exception is an explicit, exact-item-scoped removal plan:
  * that proves the user intentionally wants to replace/remove the live effect,
- * so the opposite planned enhancement must survive a background re-import.
+ * so its paired replacement plan survives a background re-import. The replacement
+ * may be the opposite type (plate <-> enchant) or the same type at a new tier.
  */
 function iwReconcileEnhancementPlansWithLiveProfile(){
   var changedEnchant = false, changedPlate = false, changedRemoval = false;
@@ -16575,11 +16591,16 @@ if(typeof window !== 'undefined') window.iwReconcileEnhancementPlansWithLiveProf
 function iwTogglePlate(slot){
   if(iwPlateableSlots().indexOf(slot) < 0) return;
 
-  // Existing planned plate: ordinary toggle removes the PLAN only. Current
-  // imported state is never modified here.
+  // Existing planned plate: remove the plan. If it is a SAME-TYPE re-tier of
+  // the currently-live plate, cancel the paired removal intent too so one click
+  // cleanly returns the slot to its imported live state. Opposite-type swaps keep
+  // their live removal intent, preserving the user's explicit replacement flow.
   if(IW_PLATE_PLAN[slot]){
+    var samePlateRetier = false;
+    try{ samePlateRetier = !!(iwActivePlateForSlot(slot) && iwIsLiveEnhancementRemovalPlanned(slot,'plate')); }catch(e){}
     IW_PLATE_TEST_FILL = false;
     IW_PLATE_PLAN[slot] = null;
+    if(samePlateRetier){ try{ iwSetLiveEnhancementRemoval(slot,'plate',false); }catch(e){} }
     iwSavePlatePlan(); iwRefreshGearTab();
     return;
   }
@@ -17369,22 +17390,18 @@ function iwSaveEnchantPlan(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// v4.8.1: REINFORCEMENT & ENCHANTMENT TIER OVERRIDE
+// REINFORCEMENT & ENCHANTMENT TIER SELECTOR — CURRENT CONTRACT (v5.1)
 //
-// A single user control (Gear-tab dropdown + matching permanent setting)
-// that bulk-sets every reinforcement plate and enchantment on the active
-// loadout to one chosen tier. Enchants are purchasable consumables, so the
-// player — not their own Spellcrafting level — decides the tier.
+// The Gear-tab selector is an explicit RE-TIER action, not an auto-fill action.
+// It walks the enhancement already occupying each slot's planned end-state and
+// changes only that effect's tier: plate stays plate, enchant stays enchant.
+// Empty slots remain empty; explicit removal-only slots remain empty; gems are
+// unrelated and untouched. Imported live effects are never rewritten in the
+// profile — a different target tier becomes a same-type replacement plan.
 //
-// There is no "off" state. The dropdown always resolves to a concrete tier:
-//   1) the permanent setting's chosen tier, if the user set one; else
-//   2) the player's Spellcrafting level mapped to a tier (the old default).
-// The session dropdown may override to any T1–T34.
-//
-// Conflict rule (simplest predictable): apply an ENCHANT to every
-// enchant-capable slot, and a PLATE only to plate-capable slots that are
-// NOT being enchanted. No slot ever carries both (matches the in-game
-// "a plate replaces any active enchant" rule).
+// The matching permanent Setting is deliberately different: it only chooses the
+// selector's default value because settings are applied automatically on page load.
+// It must never mutate the loadout merely because the toolkit was opened.
 // ═══════════════════════════════════════════════════════════════
 
 // Session override tier (null = follow the resolver default). Not persisted
@@ -17446,56 +17463,133 @@ function iwPlateCapableSlots(){
   });
 }
 
-/** Bulk-apply the resolved tier across the loadout using the conflict rule.
-    Enchant-capable slots get an enchant at `tier`; plate-capable slots that
-    are NOT enchant-capable get a plate at `tier`. Persists + refreshes. */
-function iwApplyReTierOverride(tier){
-  var t = (tier != null) ? tier : iwResolveReTier();
-  if (!(t >= 1 && t <= 34)) return;
+/**
+ * Re-tier the enhancement that ALREADY occupies each slot's planned end-state.
+ *
+ * Contract:
+ *   - plate -> plate, enchant -> enchant; never swap type
+ *   - no enhancement -> no enhancement; never fill an empty slot
+ *   - an explicit live-effect removal with no replacement stays removed
+ *   - existing manual replacement plans keep their chosen type and are re-tiered
+ *   - imported live effects are not mutated; a different target tier is represented
+ *     as an exact-item-scoped removal + SAME-TYPE replacement plan
+ *   - selecting the live tier again collapses that same-type replacement back to
+ *     the unmodified live state (no redundant shopping-list entry)
+ *   - gems are outside this system and are untouched
+ *
+ * Returns a small audit object for regression tests/debugging.
+ */
+function iwRetierExistingEnhancements(tier){
+  var t = parseInt(tier, 10);
+  var audit = { tier:t, changed:0, plates:0, enchants:0, skippedEmpty:0, skippedRemoval:0, skippedInvalid:0 };
+  if (!(t >= 1 && t <= 34)) return audit;
 
-  var enchSlots = iwEnchantCapableSlots();
-  var enchSet = {};
-  enchSlots.forEach(function(s){
-    enchSet[s] = true;
-    // Explicit bulk planning is user intent. If this exact item currently has
-    // a plate, record that the plate is to be replaced so the enchant plan is
-    // visible/valid instead of being discarded by import reconciliation.
-    try{
-      if(typeof iwActivePlateForSlot === 'function' && iwActivePlateForSlot(s))
-        iwSetLiveEnhancementRemoval(s, 'plate', true);
-    }catch(e){}
-    IW_ENCHANT_PLAN[s] = t;
-  });
+  // Clear only impossible stale state before classifying each slot. This is the
+  // same import reconciliation already used elsewhere; it cannot create effects.
+  try{ if(typeof iwReconcileEnhancementPlansWithLiveProfile === 'function') iwReconcileEnhancementPlansWithLiveProfile(); }catch(e){}
 
-  // Plate only the plate-capable slots that are NOT being enchanted, and
-  // clear any plate on slots we just enchanted (a plate would replace it).
-  iwPlateCapableSlots().forEach(function(s){
-    if (enchSet[s]) {
-      IW_PLATE_PLAN[s] = null;
-    } else {
-      try{
-        if(typeof iwActiveEnchantForSlot === 'function' && iwActiveEnchantForSlot(s))
-          iwSetLiveEnhancementRemoval(s, 'enchant', true);
-      }catch(e){}
-      IW_PLATE_PLAN[s] = t;
+  var plateChanged = false, enchantChanged = false;
+  var slots = (typeof SLOT_ORDER !== 'undefined' && Array.isArray(SLOT_ORDER)) ? SLOT_ORDER : [];
+  slots.forEach(function(s){
+    var livePlate = null, liveEnchant = null;
+    try{ livePlate = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(s) : null; }catch(e){}
+    try{ liveEnchant = livePlate ? null : ((typeof iwActiveEnchantForSlot === 'function') ? iwActiveEnchantForSlot(s) : null); }catch(e){}
+
+    var removePlate = !!(livePlate && typeof iwIsLiveEnhancementRemovalPlanned === 'function' && iwIsLiveEnhancementRemovalPlanned(s,'plate'));
+    var removeEnchant = !!(liveEnchant && typeof iwIsLiveEnhancementRemovalPlanned === 'function' && iwIsLiveEnhancementRemovalPlanned(s,'enchant'));
+    var planPlate = (typeof IW_PLATES_ENABLED === 'undefined' || IW_PLATES_ENABLED) ? Number(IW_PLATE_PLAN[s] || 0) : 0;
+    var planEnchant = (typeof IW_ENCHANTS_ENABLED === 'undefined' || IW_ENCHANTS_ENABLED) ? Number(IW_ENCHANT_PLAN[s] || 0) : 0;
+
+    // Both plans on one slot is an impossible legacy state. Do not guess which
+    // effect the user wanted and do not silently remove either one.
+    if(planPlate && planEnchant){ audit.skippedInvalid++; return; }
+
+    // Determine the enhancement that survives in the PLANNED end-state. A plan
+    // is explicit user intent and wins over the live effect it is replacing.
+    var endType = planPlate ? 'plate' : planEnchant ? 'enchant' :
+      (livePlate && !removePlate) ? 'plate' : (liveEnchant && !removeEnchant) ? 'enchant' : null;
+
+    if(!endType){
+      if((livePlate && removePlate) || (liveEnchant && removeEnchant)) audit.skippedRemoval++;
+      else audit.skippedEmpty++;
+      return;
+    }
+
+    if(endType === 'plate') {
+      if(planPlate){
+        // Same-type live replacement selected back to its real tier: collapse the
+        // plan rather than buying/reapplying an identical plate.
+        if(livePlate && removePlate && Number(livePlate.tier) === t){
+          IW_PLATE_PLAN[s] = null;
+          try{ iwSetLiveEnhancementRemoval(s,'plate',false); }catch(e){}
+          plateChanged = true; audit.changed++; audit.plates++;
+        } else if(planPlate !== t){
+          IW_PLATE_PLAN[s] = t;
+          plateChanged = true; audit.changed++; audit.plates++;
+        }
+        return;
+      }
+
+      // Existing live plate: only create a plan when its tier actually differs.
+      if(livePlate && !removePlate && Number(livePlate.tier) !== t){
+        var marked = false;
+        try{ marked = !!iwSetLiveEnhancementRemoval(s,'plate',true); }catch(e){}
+        if(marked){
+          IW_PLATES_ENABLED = true;
+          IW_PLATE_PLAN[s] = t;
+          plateChanged = true; audit.changed++; audit.plates++;
+        }
+      }
+      return;
+    }
+
+    if(endType === 'enchant') {
+      if(planEnchant){
+        if(liveEnchant && removeEnchant && Number(liveEnchant.tier) === t){
+          IW_ENCHANT_PLAN[s] = null;
+          try{ iwSetLiveEnhancementRemoval(s,'enchant',false); }catch(e){}
+          enchantChanged = true; audit.changed++; audit.enchants++;
+        } else if(planEnchant !== t){
+          IW_ENCHANT_PLAN[s] = t;
+          enchantChanged = true; audit.changed++; audit.enchants++;
+        }
+        return;
+      }
+
+      if(liveEnchant && !removeEnchant && Number(liveEnchant.tier) !== t){
+        var markedEnchant = false;
+        try{ markedEnchant = !!iwSetLiveEnhancementRemoval(s,'enchant',true); }catch(e){}
+        if(markedEnchant){
+          IW_ENCHANTS_ENABLED = true;
+          IW_ENCHANT_PLAN[s] = t;
+          enchantChanged = true; audit.changed++; audit.enchants++;
+        }
+      }
     }
   });
 
-  IW_ENCHANTS_ENABLED = true;
-  IW_PLATES_ENABLED = true;
-  if (typeof IW_PLATE_TEST_FILL !== 'undefined') IW_PLATE_TEST_FILL = false;
-
-  try{ iwSaveEnchantPlan(); }catch(e){}
-  try{ iwSavePlatePlan(); }catch(e){}
-  if (typeof iwRefreshGearTab === 'function') iwRefreshGearTab();
+  if(plateChanged){
+    try{ IW_PLATE_TEST_FILL = false; }catch(e){}
+    try{ iwSavePlatePlan(); }catch(e){}
+  }
+  if(enchantChanged){ try{ iwSaveEnchantPlan(); }catch(e){} }
+  return audit;
 }
 
-/** Gear-tab dropdown handler: set the session override and apply it. */
-function iwSetReTier(v){
-  var t = parseInt(v, 10);
-  if (!(t >= 1 && t <= 34)) return;
+/** Compatibility entry point: store the chosen tier and re-tier existing effects only. */
+function iwApplyReTierOverride(tier){
+  var t = parseInt(tier, 10);
+  if (!(t >= 1 && t <= 34)) return false;
   IW_RE_TIER_OVERRIDE = t;
-  iwApplyReTierOverride(t);
+  var audit = iwRetierExistingEnhancements(t);
+  try { if(typeof iwInitReTierControl === 'function') iwInitReTierControl(); } catch(e){}
+  try { if(typeof iwRefreshGearTab === 'function') iwRefreshGearTab(); } catch(e){}
+  return audit;
+}
+
+/** Gear-tab dropdown handler: re-tier existing enhancement types without filling empty slots. */
+function iwSetReTier(v){
+  return iwApplyReTierOverride(v);
 }
 /** Populate the Gear-tab dropdown with T1–T34 and select the resolved
     default. Idempotent — safe to call on every gear-tab refresh. */
@@ -17518,6 +17612,7 @@ function iwInitReTierControl(){
 if (typeof window !== 'undefined') {
   window.iwSetReTier = iwSetReTier;
   window.iwApplyReTierOverride = iwApplyReTierOverride;
+  window.iwRetierExistingEnhancements = iwRetierExistingEnhancements;
   window.iwResolveReTier = iwResolveReTier;
   window.iwResolveEnchantTier = iwResolveEnchantTier;
   window.iwEnchantDefaultTier = iwEnchantDefaultTier;
@@ -17532,11 +17627,9 @@ if (typeof window !== 'undefined') {
     IW_RE_TIER_SETTING  = (t >= 1 && t <= 34) ? t : null;
     IW_RE_TIER_OVERRIDE = null;   // a new permanent setting wins over session
     try { iwSaveReTierSetting(); } catch(e){}
-    // v5.0 hotfix: this setter is called by iwApplySettings() on EVERY page
-    // load. Bulk-applying here silently created a full set of planned enchants
-    // and plates even when the setting was blank (it resolved to SC level).
-    // The setting now only chooses the DEFAULT tier. The Gear-tab dropdown is
-    // still the explicit "apply this tier to the loadout" action.
+    // This setter is called by iwApplySettings() on EVERY page load, so it must
+    // remain non-mutating. It chooses the Gear selector's default value only.
+    // The user-triggered Gear dropdown (iwSetReTier) performs the explicit re-tier.
     try { iwInitReTierControl(); } catch(e){}
     try { if(typeof iwRefreshGearTab === 'function') iwRefreshGearTab(); } catch(e){}
   };
@@ -17586,7 +17679,10 @@ function iwToggleEnchantPlan(slot){
   if (!iwEnchantSlotMeta()[slot]) return;
 
   if(IW_ENCHANT_PLAN[slot]){
+    var sameEnchantRetier = false;
+    try{ sameEnchantRetier = !!(iwActiveEnchantForSlot(slot) && iwIsLiveEnhancementRemovalPlanned(slot,'enchant')); }catch(e){}
     IW_ENCHANT_PLAN[slot] = null;
+    if(sameEnchantRetier){ try{ iwSetLiveEnhancementRemoval(slot,'enchant',false); }catch(e){} }
     iwSaveEnchantPlan(); iwRefreshGearTab();
     return;
   }
@@ -26264,7 +26360,7 @@ function syncCombatLevel(val) {
       } },
 
     { key: 'reTier', type: 'select', def: '', label: 'Reinforcement & Enchantment Tier',
-      help: 'Sets the default tier used when you plan a reinforcement or enchant. It does not add enhancements by itself. When unset, enchants follow Spellcrafting and plates follow Smithing.',
+      help: 'Sets the default tier shown in the Gear selector. Changing the Gear selector re-tiers enhancements that already exist, preserving plate/enchant type and leaving empty slots empty. When unset, enchants follow Spellcrafting and plates follow Smithing.',
       options: function () {
         var out = [['', 'Automatic — enchants: Spellcrafting / plates: Smithing']];
         var names = (typeof window !== 'undefined' && window.IW_TIER_NAMES) ? window.IW_TIER_NAMES : null;
@@ -27443,20 +27539,39 @@ function syncCombatLevel(val) {
     // Planned state is useful, but it must never masquerade as current gear.
     var planned = [];
     try{
-      // Explicit removals are first-class planner changes. The current effect
-      // remains in Active Enhancements until the game profile changes.
+      // Explicit removals are first-class planner changes. When the replacement
+      // is the SAME enhancement type, render it as one re-tier operation rather
+      // than misleadingly showing a remove line plus an add line. Current-state
+      // totals remain the imported game state until the profile actually changes.
+      var combinedRetier = {};
       Object.keys(IW_ENHANCEMENT_REMOVAL_PLAN || {}).forEach(function(s){
         if(iwIsLiveEnhancementRemovalPlanned(s,'plate')){
           var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
-          if(lp) planned.push('↔ '+enhSlotLabel(s)+' · remove active T'+lp.tier+' reinforcement (+'+displayWhole(lp.def)+' DEF)');
+          var rp=Number((IW_PLATE_PLAN||{})[s]||0);
+          if(lp && rp){
+            var rfx=iwPlateMeta()[rp];
+            planned.push('↔ '+enhSlotLabel(s)+' · reinforcement T'+lp.tier+' → T'+rp+
+              ' (+'+displayWhole(lp.def)+' → +'+displayWhole(rfx&&rfx.def!=null?rfx.def:rp)+' DEF)');
+            combinedRetier[s]='plate';
+          } else if(lp){
+            planned.push('↔ '+enhSlotLabel(s)+' · remove active T'+lp.tier+' reinforcement (+'+displayWhole(lp.def)+' DEF)');
+          }
         } else if(iwIsLiveEnhancementRemovalPlanned(s,'enchant')){
           var le=(typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null;
-          if(le) planned.push('↔ '+enhSlotLabel(s)+' · remove active '+iwEnchantLabel(le)+' enchant');
+          var re=Number((IW_ENCHANT_PLAN||{})[s]||0);
+          var remeta=(typeof iwEnchantSlotMeta==='function')?(iwEnchantSlotMeta()[s]||null):null;
+          if(le && re && remeta){
+            planned.push('↔ '+enhSlotLabel(s)+' · '+remeta.kind+' enchant T'+le.tier+' → T'+re+
+              ' ('+iwEnchantLabel(le)+' → +'+re+(remeta.pct?'%':'')+' '+remeta.kind+')');
+            combinedRetier[s]='enchant';
+          } else if(le){
+            planned.push('↔ '+enhSlotLabel(s)+' · remove active '+iwEnchantLabel(le)+' enchant');
+          }
         }
       });
       if(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED){
         Object.keys(IW_PLATE_PLAN || {}).forEach(function(s){
-          var tier=Number(IW_PLATE_PLAN[s]); if(!tier) return;
+          var tier=Number(IW_PLATE_PLAN[s]); if(!tier || combinedRetier[s]==='plate') return;
           var lp=(typeof iwPlanningActivePlate==='function')?iwPlanningActivePlate(s):null;
           var le=(typeof iwPlanningActiveEnchant==='function')?iwPlanningActiveEnchant(s):null;
           if(lp || le) return;
@@ -27467,7 +27582,7 @@ function syncCombatLevel(val) {
       if(typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED){
         var em=(typeof iwEnchantSlotMeta==='function')?iwEnchantSlotMeta():{};
         Object.keys(IW_ENCHANT_PLAN || {}).forEach(function(s){
-          var tier=Number(IW_ENCHANT_PLAN[s]); var meta=em[s]; if(!tier||!meta) return;
+          var tier=Number(IW_ENCHANT_PLAN[s]); var meta=em[s]; if(!tier||!meta||combinedRetier[s]==='enchant') return;
           var lp=(typeof iwPlanningActivePlate==='function')?iwPlanningActivePlate(s):null;
           var le=(typeof iwPlanningActiveEnchant==='function')?iwPlanningActiveEnchant(s):null;
           if(lp || le) return;
@@ -27940,15 +28055,20 @@ function syncCombatLevel(val) {
         var enchMeta = typeof iwEnchantSlotMeta === 'function' ? iwEnchantSlotMeta()[s] : null;
         var planEnch = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED) ? IW_ENCHANT_PLAN[s] : null;
         if (liveEnch) {
-          buffs.push('<button type="button" class="gbuff gbuff-ench' + (liveEnchRemoval ? ' planned-removal' : '') + '" title="' +
-            iwTipEsc(liveEnchRemoval
+          var sameEnchantRetier = !!(liveEnchRemoval && planEnch);
+          var retierEnchantLabel = sameEnchantRetier
+            ? ('+' + planEnch + (enchMeta && enchMeta.pct ? '%' : '') + ' ' + (enchMeta ? enchMeta.kind : liveEnch.kind)) : '';
+          buffs.push('<button type="button" class="gbuff gbuff-ench' + (sameEnchantRetier ? ' planned-retier' : liveEnchRemoval ? ' planned-removal' : '') + '" title="' +
+            iwTipEsc(sameEnchantRetier
+              ? 'Active in game: ' + iwEnchantLabel(liveEnch) + '. Re-tier planned: ' + retierEnchantLabel + '. Click to cancel the re-tier.'
+              : liveEnchRemoval
               ? 'Active in game: ' + iwEnchantLabel(liveEnch) + '. Removal is planned. Click to undo the removal plan.'
               : 'Active enchant: ' + iwEnchantLabel(liveEnch) +
                 (liveEnch.expiresAt ? ' — expires ' + String(liveEnch.expiresAt).slice(0, 10) : '') +
                 '. Click to plan its removal/replacement.') + '"' +
             ' onclick="iwToggleEnchantPlan(\'' + s + '\')">' +
             '<span class="gbuff-ic">✨</span><span class="gbuff-kind">Enchant</span>' + iwTipEsc(iwEnchantLabel(liveEnch)) +
-            (liveEnchRemoval ? ' · remove planned' : '') + '</button>');
+            (sameEnchantRetier ? ' → ' + iwTipEsc(retierEnchantLabel) + ' planned' : liveEnchRemoval ? ' · remove planned' : '') + '</button>');
         } else if (enchMeta) {
           if (planEnch) {
             buffs.push('<button type="button" class="gbuff gbuff-ench planned" title="' +
@@ -27986,15 +28106,21 @@ function syncCombatLevel(val) {
           var blocked   = typeof iwSlotHasEnchant === 'function' && iwSlotHasEnchant(s);
           if (livePlate) {
             var livePlateRemoving = iwIsLiveEnhancementRemovalPlanned(s, 'plate');
-            html += '<button type="button" class="gear-slot-reinf on live' + (livePlateRemoving ? ' planned-removal' : '') + '" style="margin-bottom:8px;" title="' +
-              iwTipEsc(livePlateRemoving
+            var samePlateRetier = !!(livePlateRemoving && planPlate);
+            var currentPlateLabel = (typeof iwPlateEffectLabel === 'function' ? iwPlateEffectLabel(livePlate.tier) : ('+'+livePlate.def+' DEF'));
+            var retierPlateLabel = samePlateRetier
+              ? (typeof iwPlateEffectLabel === 'function' ? iwPlateEffectLabel(planPlate) : ('T'+planPlate)) : '';
+            html += '<button type="button" class="gear-slot-reinf on live' + (samePlateRetier ? ' planned-retier' : livePlateRemoving ? ' planned-removal' : '') + '" style="margin-bottom:8px;" title="' +
+              iwTipEsc(samePlateRetier
+                ? (livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME at ' + currentPlateLabel + '. Re-tier planned: ' + retierPlateLabel + '. Click to cancel the re-tier.'
+                : livePlateRemoving
                 ? (livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME; removal/replacement is planned. Click to undo the removal plan.'
                 : (livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME' +
                   (livePlate.actionsRemaining != null ? ' — ' + Number(livePlate.actionsRemaining).toLocaleString() + ' actions remaining' : '') +
                   '. Click to plan its removal/replacement.') + '"' +
               ' onclick="iwTogglePlate(\'' + s + '\')">' +
-              '<span class="gbuff-ic">🔩</span>' + (typeof iwPlateEffectLabel === 'function' ? iwPlateEffectLabel(livePlate.tier) : ('+'+livePlate.def+' DEF')) +
-              ' <span class="gbuff-kind">' + (livePlateRemoving ? 'remove planned' : 'active') + '</span></button>';
+              '<span class="gbuff-ic">🔩</span>' + currentPlateLabel +
+              (samePlateRetier ? ' → ' + retierPlateLabel + ' planned' : ' <span class="gbuff-kind">' + (livePlateRemoving ? 'remove planned' : 'active') + '</span>') + '</button>';
           } else if (planPlate) {
             var pfx = typeof iwPlateMeta === 'function' ? iwPlateMeta()[planPlate] : null;
             html += '<button type="button" class="gear-slot-reinf on" style="margin-bottom:8px;" title="' +
@@ -31107,6 +31233,58 @@ function syncCombatLevel(val) {
       eq('manual plate honours explicit T18',iwPlateDefaultTier('chest'),18);
       IW_RE_TIER_OVERRIDE=null; IW_RE_TIER_SETTING=null;
       eq('manual plate Smithing-63 fallback remains T16',iwPlateDefaultTier('chest'),16);
+
+      // v5.1 regression: R&E dropdown re-tiers EXISTING enhancements only.
+      // Presence and type must be invariant: plate->plate, enchant->enchant, empty->empty.
+      window.IWProfile={id:'retier-existing-only-probe',equipped:{
+        helmet:{key:'__retier_h',name:'__retier_h',variantId:'h-copy'},
+        ring:{key:'__retier_r',name:'__retier_r',variantId:'r-copy',enchantTier:16,enchantExpiresAt:'2099-01-01T00:00:00.000Z'},
+        chest:{key:'__retier_c',name:'__retier_c'},
+        legs:{key:'__retier_l',name:'__retier_l'},
+        gloves:{key:'__retier_g',name:'__retier_g'},
+        boots:{key:'__retier_b',name:'__retier_b',variantId:'b-copy',enchantTier:15,enchantExpiresAt:'2099-01-01T00:00:00.000Z'}
+      },itemReinforcements:[{itemKey:'__retier_h',variantId:'h-copy',tier:17,actionsRemaining:50000}],itemEnchants:[]};
+      IW_ENCHANTS_ENABLED=true; IW_PLATES_ENABLED=true;
+      IW_ENCHANT_PLAN={gloves:12}; IW_PLATE_PLAN={legs:11}; IW_ENHANCEMENT_REMOVAL_PLAN={};
+      // Boots are intentionally removal-only; dropdown must NOT re-add an enhancement there.
+      iwSetLiveEnhancementRemoval('boots','enchant',true);
+      var retierAudit=iwSetReTier('18');
+      eq('R&E dropdown stores T18 session default',IW_RE_TIER_OVERRIDE,18);
+      ok('live T17 helmet plate remains CURRENT',!!iwActivePlateForSlot('helmet') && iwActivePlateForSlot('helmet').tier===17);
+      ok('live helmet plate gets same-type replacement intent',iwIsLiveEnhancementRemovalPlanned('helmet','plate'));
+      eq('live helmet plate re-tier target is T18 plate',IW_PLATE_PLAN.helmet,18);
+      eq('live helmet plate never gains enchant plan',!!IW_ENCHANT_PLAN.helmet,false);
+      ok('live T16 ring enchant remains CURRENT',!!iwActiveEnchantForSlot('ring') && iwActiveEnchantForSlot('ring').tier===16);
+      ok('live ring enchant gets same-type replacement intent',iwIsLiveEnhancementRemovalPlanned('ring','enchant'));
+      eq('live ring enchant re-tier target is T18 enchant',IW_ENCHANT_PLAN.ring,18);
+      eq('ring never gains plate plan',!!IW_PLATE_PLAN.ring,false);
+      eq('existing planned plate is re-tiered without type change',IW_PLATE_PLAN.legs,18);
+      eq('existing planned enchant is re-tiered without type change',IW_ENCHANT_PLAN.gloves,18);
+      eq('empty chest stays enhancement-free (plate)',!!IW_PLATE_PLAN.chest,false);
+      eq('empty chest stays enhancement-free (enchant)',!!IW_ENCHANT_PLAN.chest,false);
+      ok('explicit boots removal stays removal-only',iwIsLiveEnhancementRemovalPlanned('boots','enchant'));
+      eq('explicit boots removal does not get new enchant plan',!!IW_ENCHANT_PLAN.boots,false);
+      eq('explicit boots removal does not get plate plan',!!IW_PLATE_PLAN.boots,false);
+      ok('retier audit reports actual changes',!!retierAudit && retierAudit.changed>=4);
+
+      // Selecting the real live tier again collapses a redundant same-type plan.
+      window.IWProfile={id:'retier-collapse-probe',equipped:{helmet:{key:'__collapse_h',name:'__collapse_h',variantId:'collapse-copy'}},
+        itemReinforcements:[{itemKey:'__collapse_h',variantId:'collapse-copy',tier:17,actionsRemaining:50000}],itemEnchants:[]};
+      IW_ENCHANT_PLAN={}; IW_PLATE_PLAN={helmet:18}; IW_ENHANCEMENT_REMOVAL_PLAN={};
+      iwSetLiveEnhancementRemoval('helmet','plate',true);
+      iwSetReTier('17');
+      eq('selecting live plate tier cancels redundant replacement plan',!!IW_PLATE_PLAN.helmet,false);
+      eq('selecting live plate tier cancels paired removal intent',iwIsLiveEnhancementRemovalPlanned('helmet','plate'),false);
+
+      // Opposite-type replacement remains the user's chosen type; dropdown only re-tiers it.
+      window.IWProfile={id:'retier-swap-preserve-probe',equipped:{helmet:{key:'__swap_h',name:'__swap_h',variantId:'swap-copy'}},
+        itemReinforcements:[{itemKey:'__swap_h',variantId:'swap-copy',tier:17,actionsRemaining:50000}],itemEnchants:[]};
+      IW_ENCHANT_PLAN={helmet:16}; IW_PLATE_PLAN={}; IW_ENHANCEMENT_REMOVAL_PLAN={};
+      iwSetLiveEnhancementRemoval('helmet','plate',true);
+      iwSetReTier('19');
+      eq('opposite replacement remains enchant',IW_ENCHANT_PLAN.helmet,19);
+      eq('opposite replacement does not recreate plate plan',!!IW_PLATE_PLAN.helmet,false);
+      ok('opposite replacement preserves live plate removal intent',iwIsLiveEnhancementRemovalPlanned('helmet','plate'));
 
     }catch(e){ fail.push('Gear import integrity suite threw: '+(e&&e.message?e.message:String(e))); }
     finally{
