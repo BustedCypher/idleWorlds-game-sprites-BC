@@ -4,6 +4,13 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IdleWorlds Toolkit v5.0</title>
+<!-- v5.0 Gear import integrity hotfix (2026-08-16):
+     • Active reinforcement plates now come from the imported profile.
+     • Planned enchants/plates/gems no longer count as Active/current gear.
+     • Manual plate add respects an explicitly selected R&E tier.
+     • Live socket parsing tolerates the game's post-Jul-7 removal of "(gem)" and
+       Aug-9 "2x Gather Chance" wording; current totals use the live stat/value
+       directly, with combatStats reconciliation to expose any remaining drift. -->
 <!-- v5.0 hotfix: Task Advisor eligibility + Mana Gathering Extra Gather Chance.
      Harvest Mana now keys gather math from the resolved spell_harvest action,
      not the spellcrafting parent group; enchant/craft actions remain unaffected. -->
@@ -14040,28 +14047,111 @@ function buildProgressionHero(current, next, combatLevel) {
 
 // Read the player's equipped set from the imported profile into a
 // normalised { slots: { <slotKey>: { item, stats } }, totals } shape.
-// Stats come from the resolved DB row (so special stats parse), with the
-// planned socket layer applied — identical to the old imported table.
+// Stats come from the resolved DB row (so special stats parse), then the
+// imported LIVE gem/enchant/reinforcement state is applied. Planning state is
+// deliberately kept separate from current equipment totals.
 function iwReadEquippedSet(){
   var prof = window.IWProfile;
   if(!prof || !prof.equipped) return null;
-  var out = { slots:{}, totals:{atk:0,def:0,itemFind:0,goldFind:0,gather:0,
-                               fire:0,frost:0,lightning:0,xpPerTask:0,warfare:0},
+  var zeroTotals = function(){ return {atk:0,def:0,itemFind:0,goldFind:0,gather:0,
+    fire:0,frost:0,lightning:0,xpPerTask:0,warfare:0}; };
+  var out = { slots:{}, totals:zeroTotals(), itemTotals:zeroTotals(),
+              setBonusTotals:zeroTotals(), activeSetBonuses:[], liveEnhancements:[],
               displayName: prof.displayName || 'player' };
+
+  /* v5.0 Gear import integrity hotfix (2026-08-16)
+     ------------------------------------------------
+     This object represents CURRENT equipped gear, so imported live state is
+     authoritative here. Previous builds applied IW_SOCKET_PLAN / IW_PLATE_PLAN
+     directly to these totals. That made a future plan look active and, because
+     the new Gear tab no longer runs the legacy socket-planner adoption path,
+     could simultaneously omit the real socketed gems from the profile.
+
+     Current-state order per slot:
+       base item -> live socket gems -> live reinforcement OR live enchant.
+     Plans stay plans and are rendered separately by the Gear UI. */
   SLOT_ORDER.forEach(function(slot){
     var it = prof.equipped[slot];
     if(!it){ out.slots[slot] = null; return; }
     var db = iwResolveDbItem(it);
-    var stats = db ? iwParseGearStats(db) : {
+    var baseStats = db ? iwParseGearStats(db) : {
       atk:Number(it.atk)||0, def:Number(it.def)||0, xpPerTask:Number(it.xp)||0,
       itemFind:0,goldFind:0,gather:0,fire:0,frost:0,lightning:0,warfare:0
     };
-    stats = iwApplySocket(stats, slot);
-    // v42.7: plates are the second additive layer. Same no-op contract
-    // as sockets, so an empty plate plan leaves every total unchanged.
-    stats = iwApplyPlate(stats, slot);
-    Object.keys(out.totals).forEach(function(k){ out.totals[k]+= (stats[k]||0); });
-    out.slots[slot] = { item: it, stats: stats, db: db };
+    var stats = {};
+    Object.keys(baseStats).forEach(function(k){ stats[k] = baseStats[k]; });
+
+    // Live socket effects are read directly from the imported item. The parser
+    // does NOT require a gem tier in order to apply the stat, so a harmless UI
+    // wording change in IdleWorlds cannot zero a real socket bonus again.
+    var liveSockets = [];
+    if(typeof iwApplyLiveSocketEffects === 'function'){
+      try{
+        var sock = iwApplyLiveSocketEffects(stats, it, slot);
+        if(sock && sock.stats) stats = sock.stats;
+        liveSockets = (sock && sock.statuses) || [];
+        if(sock && Array.isArray(sock.sources)){
+          sock.sources.forEach(function(src){ out.liveEnhancements.push(src); });
+        }
+      }catch(e){}
+    }
+
+    // A live reinforcement replaces a live enchant on the same physical item.
+    // Prefer the reinforcement exactly as the game does, and preserve legacy
+    // >50k remaining-action counts verbatim from the profile.
+    var livePlate = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(slot) : null;
+    var liveEnchant = null;
+    if(livePlate){
+      stats.def = (stats.def || 0) + (Number(livePlate.def) || 0);
+      out.liveEnhancements.push({
+        type:'plate', slot:slot, stat:'def', value:Number(livePlate.def)||0, pct:false,
+        tier:livePlate.tier, name:livePlate.name || 'Reinforcement Plate',
+        actionsRemaining:livePlate.actionsRemaining
+      });
+    } else {
+      liveEnchant = (typeof iwActiveEnchantForSlot === 'function') ? iwActiveEnchantForSlot(slot) : null;
+      if(liveEnchant && liveEnchant.stat){
+        stats[liveEnchant.stat] = (stats[liveEnchant.stat] || 0) + (Number(liveEnchant.value) || 0);
+        out.liveEnhancements.push({
+          type:'enchant', slot:slot, stat:liveEnchant.stat,
+          value:Number(liveEnchant.value)||0, pct:!!liveEnchant.pct,
+          tier:liveEnchant.tier, kind:liveEnchant.kind,
+          expiresAt:liveEnchant.expiresAt || null
+        });
+      }
+    }
+
+    Object.keys(out.itemTotals).forEach(function(k){ out.itemTotals[k]+= (stats[k]||0); });
+    out.slots[slot] = { item: it, stats: stats, baseStats: baseStats, db: db,
+                        liveSockets: liveSockets, livePlate: livePlate,
+                        liveEnchant: liveEnchant };
+  });
+
+  // Set bonuses are loadout properties, not per-piece stats. Resolve them from
+  // the actual physical equipped rows and add the active bonuses ONCE to the
+  // aggregate totals. Individual slot stats intentionally remain item-only.
+  try{
+    if(typeof iwActiveSetsForSlots === 'function' && typeof iwSetBonusStats === 'function'){
+      var physical = {};
+      SLOT_ORDER.forEach(function(slot){
+        var c = out.slots[slot];
+        if(c && c.db) physical[slot] = {winner:c.db};
+      });
+      out.activeSetBonuses = iwActiveSetsForSlots(physical, 'balanced') || [];
+      out.activeSetBonuses.forEach(function(active){
+        var b = iwSetBonusStats(active && active.bonus);
+        Object.keys(out.setBonusTotals).forEach(function(k){
+          out.setBonusTotals[k] += Number(b && b[k] || 0);
+        });
+      });
+    }
+  }catch(e){
+    out.activeSetBonuses = [];
+    if(typeof console !== 'undefined') console.warn('[gear] active set total resolution skipped:',e);
+  }
+
+  Object.keys(out.totals).forEach(function(k){
+    out.totals[k] = Number(out.itemTotals[k]||0) + Number(out.setBonusTotals[k]||0);
   });
   return out;
 }
@@ -15030,6 +15120,7 @@ function buildEquippedPips(equipped){
     // "No reinforcement" with a tooltip naming the accepted slots —
     // an actionable-looking control on a ring would just be a lie.
     var plateable = iwPlateableSlots().indexOf(slotKey) >= 0;
+    var livePlate = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(slotKey) : null;
     var planPlate = (typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED)
       ? IW_PLATE_PLAN[slotKey] : null;
     var reinfHtml;
@@ -15037,6 +15128,11 @@ function buildEquippedPips(equipped){
       reinfHtml = '<div class="gear-slot-reinf none" title="'+
         iwTipEsc('Reinforcement Plates only accept '+iwPlateableSlots().join(', ')+'.')+'">'+
         'No reinforcement</div>';
+    } else if(livePlate){
+      reinfHtml = '<div class="gear-slot-reinf on live" title="'+
+        iwTipEsc((livePlate.name||'Reinforcement Plate')+' — '+iwPlateEffectLabel(livePlate.tier)+
+          ' — ACTIVE IN GAME'+(livePlate.actionsRemaining!=null ? ' — '+Number(livePlate.actionsRemaining).toLocaleString()+' actions remaining' : ''))+'">'+
+        '<span class="gbuff-ic">🔩</span>'+iwPlateEffectLabel(livePlate.tier)+' <span class="gbuff-kind">active</span></div>';
     } else if(planPlate){
       var pfx = iwPlateMeta()[planPlate];
       // v43.11: a PLANNED enchant is just as real a conflict as a live
@@ -15075,7 +15171,7 @@ function buildEquippedPips(equipped){
     }
 
     var slotLabel = nm ? nm : meta.label;
-    return '<div class="gear-slot '+borderCls+(planPlate?' has-plate':'')+'">'+
+    return '<div class="gear-slot '+borderCls+((livePlate||planPlate)?' has-plate':'')+'">'+
       '<div class="gear-slot-icon">'+IW_GEAR_SPRITES.markup(spriteNm, meta.icon)+'</div>'+
       '<div class="gear-slot-name">'+slotLabel+'</div>'+
       nameHtml+
@@ -15095,6 +15191,8 @@ function buildEquippedSetCard(equipped, combatLevel){
   COMBAT_TOTAL_SLOTS.forEach(function(s){
     var c = equipped.slots[s]; if(c){ combatAtk += c.stats.atk||0; combatDef += c.stats.def||0; }
   });
+  combatAtk += Number(equipped.setBonusTotals && equipped.setBonusTotals.atk || 0);
+  combatDef += Number(equipped.setBonusTotals && equipped.setBonusTotals.def || 0);
   var displayWhole = (typeof window.iwAggregateDisplayWhole === 'function')
     ? window.iwAggregateDisplayWhole
     : function(value){ var n=Number(value); return isFinite(n)?Math.round(n):0; };
@@ -15109,6 +15207,10 @@ function buildEquippedSetCard(equipped, combatLevel){
     (t.warfare?iwChip('Warfare', displayWhole(t.warfare)):'');
   var sockLine = iwSocketSummaryText()
     ? '<div class="gear-set-sub" style="color:var(--teal,#2ec4a0);margin-top:2px;">⬥ '+iwSocketSummaryText()+' (planned)</div>' : '';
+  var setLine = equipped.activeSetBonuses && equipped.activeSetBonuses.length
+    ? '<div class="gear-set-sub" style="color:var(--teal,#2ec4a0);margin-top:4px;">Active sets: '+
+      equipped.activeSetBonuses.map(function(a){return a.label+' ('+a.pieces+' pieces)';}).join(' · ')+'</div>'
+    : '';
   // v43.14: the tile grid (buildEquippedPips) moved to its own primary
   // panel at the top of the tab and is no longer duplicated here — this
   // card is now purely the numeric summary (totals + goal chips), which
@@ -15126,6 +15228,7 @@ function buildEquippedSetCard(equipped, combatLevel){
       '<div class="gear-xp-row"><span>Total ATK</span><span class="gear-xp-val">'+displayWhole(combatAtk)+'</span></div>'+
       '<div class="gear-xp-row"><span>Total DEF</span><span class="gear-xp-val">'+displayWhole(combatDef)+'</span></div>'+
       (chips?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">'+chips+'</div>':'')+
+      setLine+
       sockLine+
     '</div>';
 }
@@ -15469,6 +15572,216 @@ function iwGoalLabel(){
     lightning:'Lightning Resist',zonecombat:'Zone Combat (Warfare)'})[IW_GEAR_GOAL] || 'Attack';
 }
 
+// ═══════════════════════════════════════════════════════════════
+// GEAR PLANNER CURRENT-DATA CANDIDATE LAYER — 2026-08-16
+// ----------------------------------------------------------------
+// Live items.json is authoritative. The embedded fallback predates +4 gear,
+// though, so the Planner previously had no +4 rows to score at all.
+//
+// IMPORTANT BOUNDARY:
+//   • ITEM_DB / IDB_STATE remain the real imported/embedded item data.
+//   • This layer creates DERIVED +4 rows for Gear planning ONLY when the
+//     source has the demonstrable base → +1 → +2 → +3 upgrade family but
+//     lacks +4.
+//   • Item Lookup therefore does not falsely claim these rows came from the
+//     July payload.
+//   • As soon as live items.json provides a real +4 row, that exact row wins
+//     and no derived duplicate is created.
+// ═══════════════════════════════════════════════════════════════
+
+var _IW_GEAR_PLANNER_ITEMS = null, _IW_GEAR_PLANNER_ITEMS_REV = -1;
+var _IW_GEAR_PLANNER_DERIVED_COUNT = 0;
+
+function iwGearPlannerStandardDescription(row){
+  var parts = [];
+  if(Number(row.atk || 0) > 0) parts.push('ATK +' + row.atk);
+  if(Number(row.def || 0) > 0) parts.push('DEF +' + row.def);
+  if(row.req) parts.push(row.req);
+  if(Number(row.xpPerTask || 0) > 0) parts.push('XP +' + row.xpPerTask + '/task');
+  if(Number(row.dblGather || 0) > 0) parts.push(row.dblGather + '% chance to gather 2x');
+  // Some historical payload rows carry a stale sockets:1 field on Ring and
+  // Amulet. Never let that leak into a derived +4 description; the legal
+  // socket-slot contract is Weapon/Shield/Helmet/Chest/Gloves/Legs/Boots.
+  var socketSubs = ['Weapon slot','Shield slot','Helmet slot','Chest slot',
+                    'Gloves slot','Legs slot','Boots slot'];
+  if(socketSubs.indexOf(String(row.sub || '')) !== -1 && Number(row.sockets || 0) > 0)
+    parts.push(row.sockets + ' Socket' + (Number(row.sockets) === 1 ? '' : 's'));
+  return parts.join(' • ');
+}
+
+function iwGearPlannerDerivedPlus4(base, plus3){
+  if(!base || !plus3 || !base.name) return null;
+  var row = Object.assign({}, base);
+  row.name = String(base.name) + '+4';
+  var baseId = String(base.id || String(base.name).toLowerCase().replace(/[^a-z0-9]+/g,'_'))
+    .replace(/_+$/,'');
+  var p3id = String(plus3.id || '');
+  var derivedId = p3id ? p3id.replace(/_plus_3$/i, '_plus_4') : '';
+  // Future payloads are not required to keep the historical `_plus_3` ID
+  // suffix. Never reuse the +3 ID if that replacement did not actually fire.
+  if(!derivedId || derivedId === p3id) derivedId = baseId + '_plus_4';
+  row.id = derivedId;
+  row.price = ''; // do not invent current market/base-value data.
+  row._iwDerivedPlanner = true;
+  row._iwDerivedPlannerReason = 'missing +4 in active item snapshot';
+
+  if(iwIsTailoringArmourRecord(row)){
+    // Tailoring +4 is NOT Smithing-style +100% DEF. Its current payoff is
+    // exactly 4/15 of the tier's Tailoring set bonus, plus unchanged base DEF.
+    var shown = iwTailoringModeledStats(row, true);
+    if(!shown) return null;
+
+    ['atk','def','xpPerTask','dblGather','itemFind','goldFind','extraStats'].forEach(function(k){
+      delete row[k];
+    });
+    row.def = shown.def;
+    if(shown.atk > 0) row.atk = shown.atk;
+    if(shown.xpPerTask > 0) row.xpPerTask = shown.xpPerTask;
+    if(shown.gather > 0) row.dblGather = shown.gather;
+    if(shown.itemFind > 0) row.itemFind = shown.itemFind;
+    if(shown.goldFind > 0) row.goldFind = shown.goldFind;
+    if(shown.fire > 0 && shown.fire === shown.frost && shown.fire === shown.lightning)
+      row.extraStats = {all_resists:shown.fire};
+    row.desc = iwTailoringDisplayEffectText(row, shown);
+  } else {
+    // Standard Smithing/accessory/relic upgrade family. Only fields that
+    // actually exist on the base row are enhanced; this mirrors the existing
+    // +1/+2/+3 family instead of inventing new stats.
+    ['atk','def','xpPerTask','dblGather'].forEach(function(k){
+      var b = Number(base[k]);
+      var p3 = Number(plus3[k]);
+      if(!Number.isFinite(b)) return;
+      // A zero-valued normalized field is not evidence that enhancement grants
+      // that stat. Require either a positive base value or proof from the real
+      // +3 family that the stat is enhancement-bearing. This prevents Swords
+      // from accidentally gaining +4 DEF via iwGearUpgradeValue(0,4) => 4.
+      if(b > 0 || (Number.isFinite(p3) && p3 > 0)) row[k] = iwGearUpgradeValue(b, 4);
+      else row[k] = b;
+    });
+    row.desc = iwGearPlannerStandardDescription(row);
+  }
+  return row;
+}
+
+/**
+ * Pure candidate builder. Exposed separately so regressions can verify that a
+ * simulated current/live dataset containing +4 never receives duplicates.
+ */
+function iwBuildGearPlannerCandidates(sourceRows){
+  var rows = Array.isArray(sourceRows) ? sourceRows : [];
+  var out = rows.slice();
+  var byName = new Map();
+  rows.forEach(function(r){
+    if(r && r.name && !byName.has(r.name)) byName.set(r.name, r);
+  });
+
+  var derived = 0;
+  rows.forEach(function(base){
+    if(!base || base.cat !== 'Equipment' || !base.name) return;
+    if(/\+\d+$/.test(base.name)) return;
+    var p1 = byName.get(base.name + '+1');
+    var p2 = byName.get(base.name + '+2');
+    var p3 = byName.get(base.name + '+3');
+    var p4 = byName.get(base.name + '+4');
+
+    // Require the COMPLETE existing enhancement family. This prevents a
+    // coincidental "+3" named unique from being treated as upgradeable gear.
+    if(!p1 || !p2 || !p3 || p4) return;
+
+    var synthetic = iwGearPlannerDerivedPlus4(base, p3);
+    if(!synthetic) return;
+    out.push(synthetic);
+    byName.set(synthetic.name, synthetic);
+    derived++;
+  });
+
+  try { Object.defineProperty(out, '_iwDerivedCount', {value:derived, enumerable:false}); }
+  catch(e) { out._iwDerivedCount = derived; }
+  return out;
+}
+
+function iwGearPlannerItems(){
+  var rev = (typeof iwItemDataRevision === 'function') ? iwItemDataRevision() : 0;
+  if(_IW_GEAR_PLANNER_ITEMS && _IW_GEAR_PLANNER_ITEMS_REV === rev)
+    return _IW_GEAR_PLANNER_ITEMS;
+
+  var source = (typeof ITEM_DB !== 'undefined' && Array.isArray(ITEM_DB)) ? ITEM_DB : [];
+  var built = iwBuildGearPlannerCandidates(source);
+  _IW_GEAR_PLANNER_ITEMS = built;
+  _IW_GEAR_PLANNER_ITEMS_REV = rev;
+  _IW_GEAR_PLANNER_DERIVED_COUNT = Number(built._iwDerivedCount || 0);
+  return _IW_GEAR_PLANNER_ITEMS;
+}
+
+function iwGearPlannerDerivedCount(){
+  iwGearPlannerItems();
+  return _IW_GEAR_PLANNER_DERIVED_COUNT;
+}
+
+function iwGearPlannerDataStatus(){
+  var n = iwGearPlannerDerivedCount();
+  var source = '';
+  try { source = IDB_STATE && IDB_STATE.dataSource || ''; } catch(e){}
+  return {
+    source:source || 'embedded',
+    derivedPlus4:n,
+    totalCandidates:iwGearPlannerItems().length,
+    livePlus4:iwGearPlannerItems().filter(function(r){
+      return r && r.cat === 'Equipment' && /\+4$/.test(String(r.name||'')) && !r._iwDerivedPlanner;
+    }).length
+  };
+}
+
+
+function iwGearPlannerCombatTierContext(combatLevel){
+  var level = Math.max(0, Number(combatLevel)||0);
+  var byTier = {};
+  iwGearPlannerItems().forEach(function(r){
+    if(!r || r.cat !== 'Equipment' || r.sub !== 'Weapon slot') return;
+    if(/\+\d+$/.test(String(r.name||''))) return;
+    if(iwItemClass(r) !== 'metal') return;
+    var req = iwParseRequirement(r.req);
+    if(req.type !== 'combat' || !req.level) return;
+    var tier = Number(r.tier)||0;
+    if(!tier) return;
+    if(!byTier[tier]) byTier[tier] = {
+      tier:tier,
+      setName:(typeof TIER_NAMES !== 'undefined' && TIER_NAMES[tier]) ? TIER_NAMES[tier] : String(r.name).split(' ')[0],
+      combatLevel:Number(req.level)
+    };
+  });
+  var rows = Object.keys(byTier).map(function(k){return byTier[k];})
+    .sort(function(a,b){return a.combatLevel-b.combatLevel || a.tier-b.tier;});
+  var current=null,next=null;
+  rows.forEach(function(r){
+    if(r.combatLevel <= level) current=r;
+    else if(!next) next=r;
+  });
+  return {current:current,next:next,rows:rows};
+}
+window.iwGearPlannerCombatTierContext = iwGearPlannerCombatTierContext;
+
+// Minimal normalized shape used ONLY when a derived Planner item needs a
+// tooltip. It is explicitly labelled as a Planner fallback rather than a live
+// API record.
+function iwGearPlannerTooltipItem(row){
+  if(!row) return null;
+  return {
+    id:row.id, name:row.name, category:row.cat, tier:row.tier, sub:row.sub,
+    description:row.desc || '', requirements:row.req || '',
+    atk:row.atk, def:row.def, xpPerTask:row.xpPerTask, dblGather:row.dblGather,
+    itemFind:row.itemFind, goldFind:row.goldFind, warfare:row.warfare,
+    sockets:row.sockets, extraStats:row.extraStats,
+    acqType:'Upgrade',
+    acqSummary:'Planner-derived +4 fallback. Live items.json is authoritative when available.',
+    _iwDerivedPlanner:true
+  };
+}
+
+window.iwGearPlannerItems = iwGearPlannerItems;
+window.iwBuildGearPlannerCandidates = iwBuildGearPlannerCandidates;
+window.iwGearPlannerDataStatus = iwGearPlannerDataStatus;
+
 // Match an imported equipped item (has key/name/atk/def/xp) to a DB row so we
 // can read its parsed special stats. Falls back to the import's own numbers.
 function iwResolveDbItem(equippedItem){
@@ -15476,18 +15789,19 @@ function iwResolveDbItem(equippedItem){
   var byId = null, byName = null;
   try{
     if(typeof ITEM_DB !== 'undefined'){
+      var plannerRows = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
       // v4.8.4 gear fix: prefer the stable item key/id over display text.
       // Profile display names can lag canonical names (notably cloaks).
       var rawKey = equippedItem.id || equippedItem.item_id || equippedItem.key || '';
       var key = String(rawKey);
       if(/^loadout:/i.test(key)) key = key.split(':')[1] || '';
       if(key){
-        byId = ITEM_DB.find(function(r){
+        byId = plannerRows.find(function(r){
           return r.cat==='Equipment' && r.id && String(r.id).toLowerCase() === key.toLowerCase();
         }) || null;
       }
       if(!byId){
-        byName = ITEM_DB.find(function(r){
+        byName = plannerRows.find(function(r){
           return r.cat==='Equipment' && r.name && equippedItem.name &&
                  r.name.toLowerCase() === String(equippedItem.name).toLowerCase();
         }) || null;
@@ -15616,7 +15930,7 @@ function iwBestInSlot(slot, goal, combatLevel, equippedItem){
       result.wornScore = wornScore;
 
       var best=null, bestScore=-Infinity, bestCombat=-Infinity, bestTier=-Infinity;
-      ITEM_DB.forEach(function(r){
+      iwGearPlannerItems().forEach(function(r){
         if(r.cat!=='Equipment' || r.sub!==subMatch) return;
         // Equip gate: exclude anything the player cannot actually wear —
         // combat, any-skill AND profession gates all enforced (v38.8.5).
@@ -15869,8 +16183,9 @@ function iwSaveSocketPlan(){
 
 // ── Plate plan (v42.7) ────────────────────────────────────────────
 // slot → plate tier, or null. Deliberately mirrors IW_SOCKET_PLAN:
-// same shape, same enable flag, same persistence idiom, so the two
-// layers compose in iwReadEquippedSet without special-casing.
+// same shape, same enable flag, same persistence idiom. Since the v5.0
+// import-integrity repair this is FUTURE/PLANNED state only; current equipped
+// totals come from the live profile and never consume this plan.
 var IW_PLATE_PLAN = {};
 var IW_PLATES_ENABLED = true;
 // v42.8: set only by the dev test-fill button. Persisted with the plan so
@@ -15972,6 +16287,19 @@ function iwPlateDefaultTier(slot){
   if(!tiers.length) return null;
   var best = null;
 
+  // v5.0 hotfix: an EXPLICIT Reinforcement & Enchantment tier selection is
+  // user intent and wins over the craftable-Smithing fallback. Do not use the
+  // resolver's implicit Spellcrafting default here: plates are Smithing items,
+  // so only a session/permanent tier the user actually selected overrides it.
+  try{
+    var explicitTier = null;
+    if(typeof IW_RE_TIER_OVERRIDE !== 'undefined' && IW_RE_TIER_OVERRIDE >= 1 && IW_RE_TIER_OVERRIDE <= 34)
+      explicitTier = Number(IW_RE_TIER_OVERRIDE);
+    else if(typeof IW_RE_TIER_SETTING !== 'undefined' && IW_RE_TIER_SETTING >= 1 && IW_RE_TIER_SETTING <= 34)
+      explicitTier = Number(IW_RE_TIER_SETTING);
+    if(explicitTier != null && tiers.indexOf(explicitTier) >= 0) return explicitTier;
+  }catch(e){}
+
   var smith = iwSmithingLevel();
   if(smith != null){
     for(var i=0;i<tiers.length;i++){
@@ -16001,6 +16329,42 @@ function iwPlateDefaultTier(slot){
   return tiers[0];
 }
 
+/**
+ * Live reinforcement on the item CURRENTLY equipped in `slot`.
+ * The public profile has exposed itemReinforcements as itemKey/tier/
+ * actionsRemaining; newer per-copy payloads may additionally carry a variant
+ * id, which is honoured when present. Returns null for exhausted/invalid rows.
+ */
+function iwActivePlateForSlot(slot){
+  try{
+    var prof = window.IWProfile;
+    var it = prof && prof.equipped && prof.equipped[slot];
+    if(!prof || !it) return null;
+    var key = it.key;
+    var variant = it.variantId || it.variantID || null;
+    var rows = Array.isArray(prof.itemReinforcements) ? prof.itemReinforcements : [];
+    var fallback = null;
+    for(var i=0;i<rows.length;i++){
+      var r = rows[i];
+      if(!r || r.itemKey !== key) continue;
+      var remaining = Number(r.actionsRemaining);
+      var tier = Number(r.tier);
+      if(!(tier >= 1 && tier <= 34) || !(remaining > 0)) continue;
+      var rowVariant = r.variantId || r.itemVariantId || r.variantID || null;
+      if(rowVariant && variant && String(rowVariant) !== String(variant)) continue;
+      var fx = iwPlateMeta()[tier];
+      if(!fx || !Array.isArray(fx.slots) || fx.slots.indexOf(slot) < 0) continue;
+      var out = { tier:tier, def:Number(fx.def)||tier, actionsRemaining:remaining,
+                  durationActions:fx.durationActions, replacesEnchant:!!fx.replacesEnchant,
+                  name:fx.name || iwPlateName(tier), source:'profile' };
+      if(rowVariant && variant) return out; // exact per-copy match is strongest
+      if(!fallback) fallback = out;
+    }
+    return fallback;
+  }catch(e){}
+  return null;
+}
+
 // ── Plate controls (button-driven; no checkboxes) ─────────────────
 /** True if this slot currently has a live OR planned enchant. */
 function iwSlotHasEnchant(slot){
@@ -16008,8 +16372,9 @@ function iwSlotHasEnchant(slot){
   try{ if(typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED && IW_ENCHANT_PLAN[slot]) return true; }catch(e){}
   return false;
 }
-/** True if this slot currently has a planned reinforcement plate. */
+/** True if this slot has a live OR planned reinforcement plate. */
 function iwSlotHasPlate(slot){
+  try{ if(typeof iwActivePlateForSlot === 'function' && iwActivePlateForSlot(slot)) return true; }catch(e){}
   try{ return !!(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED && IW_PLATE_PLAN[slot]); }catch(e){}
   return false;
 }
@@ -16918,8 +17283,13 @@ if (typeof window !== 'undefined') {
     IW_RE_TIER_SETTING  = (t >= 1 && t <= 34) ? t : null;
     IW_RE_TIER_OVERRIDE = null;   // a new permanent setting wins over session
     try { iwSaveReTierSetting(); } catch(e){}
-    try { iwApplyReTierOverride(); } catch(e){}
+    // v5.0 hotfix: this setter is called by iwApplySettings() on EVERY page
+    // load. Bulk-applying here silently created a full set of planned enchants
+    // and plates even when the setting was blank (it resolved to SC level).
+    // The setting now only chooses the DEFAULT tier. The Gear-tab dropdown is
+    // still the explicit "apply this tier to the loadout" action.
     try { iwInitReTierControl(); } catch(e){}
+    try { if(typeof iwRefreshGearTab === 'function') iwRefreshGearTab(); } catch(e){}
   };
   // Expose the tier-name table too, so the setting's option list can show
   // real names rather than falling back to "Tier N".
@@ -17212,20 +17582,44 @@ function iwActiveEnchantForSlot(slot){
   if(!meta) return null;                      // slot takes no enchant
   try{
     var prof = window.IWProfile;
-    if(!prof || !Array.isArray(prof.itemEnchants)) return null;
-    var it = prof.equipped && prof.equipped[slot];
-    var key = it && it.key;
-    if(!key) return null;
+    var it = prof && prof.equipped && prof.equipped[slot];
+    if(!prof || !it) return null;
+
+    // Current IdleWorlds enchants are per-copy. The exact equipped item fields
+    // are therefore stronger evidence than an itemKey-wide legacy list.
+    var directTier = Number(it.enchantTier);
+    if(directTier > 0){
+      var directExpiry = it.enchantExpiresAt || null;
+      var directExpired = IW_ENCH_RESPECT_EXPIRY && directExpiry &&
+        isFinite(new Date(directExpiry).getTime()) && new Date(directExpiry).getTime() < Date.now();
+      if(!directExpired){
+        return { tier:directTier, stat:meta.stat, pct:meta.pct, kind:meta.kind,
+                 value:directTier, expiresAt:directExpiry, source:'equipped-item' };
+      }
+    }
+
+    if(!Array.isArray(prof.itemEnchants)) return null;
+    var key = it.key;
+    var variant = it.variantId || it.variantID || null;
+    var fallback = null;
     for(var i = 0; i < prof.itemEnchants.length; i++){
       var e = prof.itemEnchants[i];
       if(!e || e.itemKey !== key) continue;
-      if(IW_ENCH_RESPECT_EXPIRY && e.expiresAt &&
-         new Date(e.expiresAt).getTime() < Date.now()) return null;   // lapsed
+      var rowVariant = e.variantId || e.itemVariantId || e.variantID || null;
+      if(rowVariant && variant && String(rowVariant) !== String(variant)) continue;
+      if(IW_ENCH_RESPECT_EXPIRY && e.expiresAt){
+        var expiryMs = new Date(e.expiresAt).getTime();
+        if(isFinite(expiryMs) && expiryMs < Date.now()) continue; // skip stale row; do not abort search
+      }
       var tier = Number(e.tier);
-      if(!(tier > 0)) return null;
-      return { tier: tier, stat: meta.stat, pct: meta.pct, kind: meta.kind,
-               value: tier, expiresAt: e.expiresAt || null };
+      if(!(tier > 0)) continue;
+      var found = { tier:tier, stat:meta.stat, pct:meta.pct, kind:meta.kind,
+                    value:tier, expiresAt:e.expiresAt || null,
+                    source:rowVariant ? 'profile-per-copy' : 'profile-legacy' };
+      if(rowVariant && variant) return found;
+      if(!fallback) fallback = found;
     }
+    return fallback;
   }catch(e){}
   return null;
 }
@@ -17756,6 +18150,45 @@ function iwItemPrice(name){
 // belts, and the odd profession item). A "N Socket(s)" line in statLines
 // is a secondary signal used only to show empty sockets on pieces whose
 // state we cannot otherwise read.
+function iwNormaliseSocketStatLabel(label){
+  var x = String(label || '').toLowerCase()
+    .replace(/[()]/g,' ').replace(/[-_/]+/g,' ').replace(/\s+/g,' ').trim();
+  var aliases = {
+    'atk':'atk', 'attack':'atk',
+    'fire resist':'fire', 'fire resistance':'fire',
+    'frost resist':'frost', 'frost resistance':'frost',
+    'lightning resist':'lightning', 'lightning resistance':'lightning',
+    'xp task':'xpPerTask', 'xp per task':'xpPerTask', 'experience':'xpPerTask',
+    'gold find':'goldFind', 'item find':'itemFind',
+    '2x gather chance':'gather', '2x gather':'gather',
+    'double gather chance':'gather', 'double gather':'gather', 'gather chance':'gather'
+  };
+  return aliases[x] || null;
+}
+
+/** Parse the LIVE socket text itself, independent of the current gem table.
+    IdleWorlds removed the trailing "(gem)" from the profile overview on
+    2026-07-07 and later standardised "2x Gather Chance" wording, so neither
+    token is required here. tier is best-effort; stat/value are authoritative. */
+function iwParseSocketEffect(line){
+  if(!line) return null;
+  var raw = String(line).trim();
+  var cleaned = raw.replace(/\s*\(gem\)\s*$/i,'').trim();
+  var m = cleaned.match(/^\+?(-?\d+(?:\.\d+)?)\s*(%)?\s+(.+?)\s*$/i);
+  if(!m) return null;
+  var value = Number(m[1]);
+  if(!isFinite(value)) return null;
+  var stat = iwNormaliseSocketStatLabel(m[3]);
+  if(!stat) return null;
+  var pct = !!(typeof CUT_GEM_PCT_STATS !== 'undefined' && CUT_GEM_PCT_STATS[stat]);
+  var tier = null;
+  for(var t=1;t<=34;t++){
+    var fx = CUT_GEM_EFFECT[t];
+    if(fx && fx.stat===stat && Number(fx.value)===value){ tier=t; break; }
+  }
+  return { stat:stat, value:value, pct:pct, tier:tier, raw:raw };
+}
+
 function iwItemSocketStatus(it){
   if(!it) return [];
   var out = [];
@@ -17763,28 +18196,29 @@ function iwItemSocketStatus(it){
     { state: it.socketState,  line: it.socketEffectLine  },
     { state: it.socketState2, line: it.socketEffectLine2 },
   ];
-  chans.forEach(function(c){
+  chans.forEach(function(c, idx){
     var state = String(c.state || 'none').toLowerCase();
     if(state === 'filled'){
-      var t = iwParseSocketEffectLine(c.line);
-      out.push(t
-        ? { state:'filled', gemTier:t, gemName:cutGemName(t), effect:cutGemEffectLabel(t) }
-        // Filled, but the effect line did not parse to a known gem — show
-        // the raw effect rather than dropping it. Never guess a tier.
+      var parsed = iwParseSocketEffect(c.line);
+      out[idx] = parsed
+        ? { state:'filled', gemTier:parsed.tier,
+            gemName:parsed.tier ? cutGemName(parsed.tier) : 'Socketed Gem',
+            effect:String(c.line || '').replace(/\s*\(gem\)\s*$/i,'').trim(),
+            stat:parsed.stat, value:parsed.value, pct:parsed.pct }
+        // Filled, but the effect line did not parse — show it and flag it;
+        // never invent a stat or tier.
         : { state:'filled', gemTier:null,
-            gemName: (c.line ? String(c.line).replace(/\s*\(gem\)\s*$/i,'') : 'Gem'),
-            effect: '' });
-    } else if(state === 'empty'){
-      out.push({ state:'empty' });
+            gemName:(c.line ? String(c.line).replace(/\s*\(gem\)\s*$/i,'') : 'Gem'),
+            effect:String(c.line || ''), stat:null, value:null, pct:false, unparsed:true };
+    } else if(state === 'empty' || state === 'open'){
+      out[idx] = { state:'empty' };
     }
-    // 'none' → not a physical socket on this channel; contribute nothing.
+    // 'none' → not a physical socket on this channel; leave an index hole.
   });
-  // Fallback for pieces that report a socket COUNT but no per-socket
-  // state (older payloads): surface that many empty sockets so the user
-  // still sees the piece is socketable.
-  if(out.length === 0){
+  // Fallback for pieces that report a socket COUNT but no per-socket state.
+  if(!out.some(function(x){ return !!x; })){
     var n = iwSocketCountFromStatLines(it);
-    for(var i=0;i<n;i++) out.push({ state:'empty' });
+    for(var i=0;i<n;i++) out[i] = { state:'empty' };
   }
   return out;
 }
@@ -17802,37 +18236,34 @@ function iwSocketCountFromStatLines(it){
   return 0;
 }
 
-// Q4 (resolved): parse an equipped item's socketEffectLine — e.g.
-// "+4 XP/task (gem)" or "+12% Gold Find (gem)" — back to the unique
-// gem tier. Every (stat,value) pair in CUT_GEM_EFFECT is distinct, so
-// the mapping is unambiguous. Returns tier 1-34 or null (defensive:
-// unknown formats are ignored, never guessed).
+// Back-compat helper used by the socket PLAN: return a tier only when the live
+// stat/value maps unambiguously to our current Cut Gem table.
 function iwParseSocketEffectLine(line){
-  if(!line) return null;
-  var m = String(line).match(/^\+(\d+)\s*%?\s+(.+?)\s*\(gem\)\s*$/i);
-  if(!m) return null;
-  var val = Number(m[1]);
-  var label = m[2].trim().toLowerCase();
-  var statKey = null;
-  Object.keys(CUT_GEM_STAT_LABEL).forEach(function(k){
-    if(CUT_GEM_STAT_LABEL[k].toLowerCase()===label) statKey = k;
+  var parsed = iwParseSocketEffect(line);
+  return parsed && parsed.tier ? parsed.tier : null;
+}
+
+/** Apply real socket effects directly to a stats bundle. The tier is optional:
+    this deliberately trusts the imported +value/stat line so live totals stay
+    correct even if a future balance patch changes which tier owns that value. */
+function iwApplyLiveSocketEffects(stats, it, slot){
+  var out = {};
+  Object.keys(stats || {}).forEach(function(k){ out[k] = stats[k]; });
+  var statuses = iwItemSocketStatus(it);
+  var sources = [];
+  statuses.forEach(function(st, idx){
+    if(!st || st.state !== 'filled' || !st.stat || !isFinite(Number(st.value))) return;
+    out[st.stat] = (out[st.stat] || 0) + Number(st.value);
+    sources.push({ type:'gem', slot:slot, socketIndex:idx, stat:st.stat,
+                   value:Number(st.value), pct:!!st.pct, tier:st.gemTier,
+                   name:st.gemName, detail:st.effect, source:'profile' });
   });
-  if(!statKey) return null;
-  for(var t=1;t<=34;t++){
-    var fx = CUT_GEM_EFFECT[t];
-    if(fx && fx.stat===statKey && fx.value===val) return t;
-  }
-  return null;
+  return { stats:out, statuses:statuses, sources:sources };
 }
 
 // Live sockets parsed from the imported profile: slot → ARRAY of tiers,
-// one per physical socket. v43.15 fix: this previously only ever read
-// it.socketState/it.socketEffectLine (channel 1) — it.socketState2/
-// it.socketEffectLine2 (channel 2, which DOES exist on 2-socket items)
-// was never read at all, so a live second gem was never adopted into
-// the plan under any circumstances. An unparseable or non-"filled"
-// channel becomes a hole (undefined) rather than shifting the other
-// channel's tier into the wrong array position.
+// one per physical socket. This is ONLY for plan/shopping reconciliation;
+// current stat totals use iwApplyLiveSocketEffects and do not need a tier.
 function iwLiveSockets(){
   var live = {};
   try{
@@ -17841,15 +18272,11 @@ function iwLiveSockets(){
     SOCKETABLE_SLOTS.forEach(function(slot){
       var it = prof.equipped[slot];
       if(!it) return;
+      var statuses = iwItemSocketStatus(it);
       var arr = [];
-      if(it.socketState === 'filled'){
-        var t1 = iwParseSocketEffectLine(it.socketEffectLine);
-        if(t1) arr[0] = t1;
-      }
-      if(it.socketState2 === 'filled'){
-        var t2 = iwParseSocketEffectLine(it.socketEffectLine2);
-        if(t2) arr[1] = t2;
-      }
+      statuses.forEach(function(st, idx){
+        if(st && st.state === 'filled' && st.gemTier) arr[idx] = st.gemTier;
+      });
       if(arr.length) live[slot] = arr;
     });
   }catch(e){}
@@ -18607,7 +19034,7 @@ function iwEnumerateTailoringSets(combatLevel, goal){
 
   IW_TAILORING_ARMOUR_SLOTS.forEach(function(slot){
     var subMatch = slot.charAt(0).toUpperCase()+slot.slice(1)+' slot';
-    ITEM_DB.forEach(function(r){
+    iwGearPlannerItems().forEach(function(r){
       if(r.cat!=='Equipment' || r.sub!==subMatch) return;
       if(iwItemClass(r) !== 'tailoring') return;
       if(!iwCanEquip(r, clvl)) return;
@@ -19473,7 +19900,8 @@ function buildTaskGearIndex() {
   // never fed into XP/gather/DPS. Kept as a SEPARATE regex from fxRe so there
   // is zero chance of one of these values leaking into a formula branch.
   const procRe = /\+(\d+)%\s*(Enhance Chance|Brew Chance|Enchant Chance)/g;
-  TASK_GEAR_INDEX = ITEM_DB
+  const taskSource = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
+  TASK_GEAR_INDEX = taskSource
     .filter(r => r.cat === 'Equipment' && /slot$/.test(r.sub || ''))
     .map(r => {
       const slot   = (r.sub || '').replace(/ slot$/,'');
@@ -19933,7 +20361,7 @@ function taskGoalAlternatives(slot, combatLevel){
     // secondary stat", the only signal left that's actually informative.
     var goalStatExists = best.winnerScore > 0;
 
-    ITEM_DB.forEach(function(r){
+    iwGearPlannerItems().forEach(function(r){
       if (r.cat!=='Equipment' || r.sub!==subMatch) return;
       if (!iwCanEquip(r, combatLevel)) return;
       if (r === best.winner) return;                       // that's the pick itself
@@ -20046,7 +20474,8 @@ function iwAddNamedItemToLoadout(slotLabel, itemName){
     var combatLevel = appState && appState.combatLevel;
     if (!combatLevel || !itemName) return;
     var slotKey = iwSlotKeyFromLabel(slotLabel);
-    var w = (ITEM_DB || []).find(function(r){ return r.name === itemName; });
+    var plannerRows = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : (ITEM_DB || []);
+    var w = plannerRows.find(function(r){ return r.name === itemName; });
     if (!w) return;
 
     if (!window.IWProfile) window.IWProfile = {};
@@ -20814,6 +21243,11 @@ function iwInvalidateItemDerivedCaches(){
   try { _IW_ENCH_META = null; _IW_ENCH_META_REV = -1; } catch(e){}
   try { IW_ITEM_CLASS = null; IW_ITEM_CLASS_REV = -1; } catch(e){}
   try { TASK_GEAR_INDEX = null; TASK_GEAR_INDEX_REV = -1; } catch(e){}
+  try {
+    _IW_GEAR_PLANNER_ITEMS = null;
+    _IW_GEAR_PLANNER_ITEMS_REV = -1;
+    _IW_GEAR_PLANNER_DERIVED_COUNT = 0;
+  } catch(e){}
 }
 
 /**
@@ -21424,7 +21858,24 @@ function iwTipFindItem(ref) {
       }
       _iwTipNameMapSrc = items;
     }
-    return _iwTipNameMap.get(String(ref.name).toLowerCase()) || null;
+    var liveHit = _iwTipNameMap.get(String(ref.name).toLowerCase()) || null;
+    if(liveHit) return liveHit;
+    try {
+      var pr = iwGearPlannerItems().find(function(r){
+        return r && r._iwDerivedPlanner &&
+          String(r.name || '').toLowerCase() === String(ref.name).toLowerCase();
+      });
+      if(pr) return iwGearPlannerTooltipItem(pr);
+    } catch(e){}
+    return null;
+  }
+  if(ref.id){
+    try {
+      var byPlannerId = iwGearPlannerItems().find(function(r){
+        return r && r._iwDerivedPlanner && String(r.id || '') === String(ref.id);
+      });
+      if(byPlannerId) return iwGearPlannerTooltipItem(byPlannerId);
+    } catch(e){}
   }
   return null;
 }
@@ -21740,15 +22191,21 @@ function iwTipRender(item) {
   // the numbers are live.
   // 'embedded' is the build-time snapshot; anything else came from the
   // live API this session.
-  const stale = (IDB_STATE.dataSource === 'embedded')
-    ? '<span class="iw-tip-stale">offline data</span>' : '<span class="iw-tip-hint">Esc to close</span>';
+  const stale = item._iwDerivedPlanner
+    ? '<span class="iw-tip-stale">derived +4 fallback</span>'
+    : ((IDB_STATE.dataSource === 'embedded')
+      ? '<span class="iw-tip-stale">offline data</span>' : '<span class="iw-tip-hint">Esc to close</span>');
 
   // The item name is now the trigger, which on a search result card means
   // clicking it no longer opens that card. This is the way back: it works
   // from anywhere in the app, so a gear table can also jump straight to
   // an item's full entry — something no surface offered before.
-  const openBtn = '<button type="button" class="iw-tip-open" onclick="iwTipOpenEntry(\'' +
-    iwTipEsc(item.id) + '\')">Full entry \u2192</button>';
+  const openBtn = item._iwDerivedPlanner ? '' :
+    ('<button type="button" class="iw-tip-open" onclick="iwTipOpenEntry(\'' +
+      iwTipEsc(item.id) + '\')">Full entry \u2192</button>');
+  const wikiLink = item.wikiUrl
+    ? '<a class="iw-tip-link" href="' + esc(item.wikiUrl) + '" target="_blank" rel="noopener noreferrer">\uD83D\uDCD6 Wiki \u2197</a>'
+    : '';
 
   return '<div class="iw-tip-head' + (hasGearArt ? ' has-gear-art' : (hasItemArt ? ' has-item-art' : '')) + '">' +
       '<div class="iw-tip-icon">' + cat.icon + '</div>' +
@@ -21758,9 +22215,7 @@ function iwTipRender(item) {
     '</div>' +
     '<div class="iw-tip-body">' + effectSec + statsSec + iwTipAcquisition(item) + '</div>' +
     '<div class="iw-tip-foot">' +
-      openBtn +
-      '<a class="iw-tip-link" href="' + esc(item.wikiUrl) + '" target="_blank" rel="noopener noreferrer">\uD83D\uDCD6 Wiki \u2197</a>' +
-      stale +
+      openBtn + wikiLink + stale +
     '</div>';
 }
 
@@ -25532,9 +25987,9 @@ function syncCombatLevel(val) {
       } },
 
     { key: 'reTier', type: 'select', def: '', label: 'Reinforcement & Enchantment Tier',
-      help: 'Automatically overrides every reinforcement plate and enchant on the gear loadout to this tier. When unset, defaults to your Spellcrafting level.',
+      help: 'Sets the default tier used when you plan a reinforcement or enchant. It does not add enhancements by itself. When unset, enchants follow Spellcrafting and plates follow Smithing.',
       options: function () {
-        var out = [['', 'Follow Spellcrafting level']];
+        var out = [['', 'Automatic — enchants: Spellcrafting / plates: Smithing']];
         var names = (typeof window !== 'undefined' && window.IW_TIER_NAMES) ? window.IW_TIER_NAMES : null;
         for (var t = 1; t <= 34; t++) {
           var name = (names && names[t]) ? names[t] : ('Tier ' + t);
@@ -25543,7 +25998,7 @@ function syncCombatLevel(val) {
         return out;
       },
       apply: function (v) {
-        // State + persistence + apply all happen inside the exported setter
+        // State + persistence happen inside the exported setter; startup must not auto-create plans
         // (the R&E state lives in a different <script> scope).
         if (typeof window !== 'undefined' && typeof window.iwSetReTierSetting === 'function') {
           try { window.iwSetReTierSetting(v); } catch (e) {}
@@ -26133,11 +26588,31 @@ function syncCombatLevel(val) {
       items = GN_EQUIPMENT_FALLBACK;
     }
 
-    if (GN_EQUIPMENT_INDEX && GN_EQUIPMENT_INDEX_SRC === items) return GN_EQUIPMENT_INDEX;
-    GN_EQUIPMENT_INDEX_SRC = items;
-    GN_EQUIPMENT_INDEX = (items || []).filter(function(item) {
+    var plannerRev = (typeof iwItemDataRevision === 'function') ? iwItemDataRevision() : 0;
+    var indexSrcKey = String(plannerRev) + '|' + String(items && items.length || 0) + '|' +
+      String(typeof iwGearPlannerDerivedCount === 'function' ? iwGearPlannerDerivedCount() : 0);
+    if (GN_EQUIPMENT_INDEX && GN_EQUIPMENT_INDEX_SRC === indexSrcKey) return GN_EQUIPMENT_INDEX;
+    GN_EQUIPMENT_INDEX_SRC = indexSrcKey;
+
+    var normalized = (items || []).filter(function(item) {
       return item && item.category === 'Equipment' && !!gnSearchItemSlot(item);
-    });
+    }).slice();
+
+    // Search/theorycraft is part of Gear, so expose Planner-derived +4 rows
+    // there too. Item Lookup remains untouched.
+    try {
+      iwGearPlannerItems().forEach(function(r){
+        if(!r || !r._iwDerivedPlanner) return;
+        normalized.push({
+          id:r.id, name:r.name, category:r.cat, tier:r.tier, sub:r.sub,
+          description:r.desc, requirements:r.req,
+          atk:r.atk, def:r.def, xpPerTask:r.xpPerTask, dblGather:r.dblGather,
+          itemFind:r.itemFind, goldFind:r.goldFind, warfare:r.warfare,
+          extraStats:r.extraStats, sockets:r.sockets, _iwDerivedPlanner:true
+        });
+      });
+    } catch(e){}
+    GN_EQUIPMENT_INDEX = normalized;
     return GN_EQUIPMENT_INDEX;
   }
 
@@ -26231,7 +26706,9 @@ function syncCombatLevel(val) {
       return '<div class="gn-rec-option">' +
         '<div class="gn-rec-option-main">' +
           '<div class="gn-rec-option-name">' + itemHtml + '</div>' +
-          '<div class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) + '</div>' +
+          '<div class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) +
+            (item._iwDerivedPlanner ? ' · <span style="color:var(--text-3);">derived +4 fallback</span>' : '') +
+          '</div>' +
         '</div>' + button +
       '</div>';
     }).join('');
@@ -26410,8 +26887,9 @@ function syncCombatLevel(val) {
         // not of layerEl. This lets it cover the full slot with inset:0.
         var hasPlate = false;
         try {
-          hasPlate = !!(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED &&
-                        typeof IW_PLATE_PLAN     !== 'undefined' && IW_PLATE_PLAN[slot]);
+          hasPlate = !!((typeof iwActivePlateForSlot === 'function' && iwActivePlateForSlot(slot)) ||
+                        (typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED &&
+                         typeof IW_PLATE_PLAN !== 'undefined' && IW_PLATE_PLAN[slot]));
         } catch(e) {}
 
         // Frame lives on the card, not inside the icon layers
@@ -26469,25 +26947,18 @@ function syncCombatLevel(val) {
         tile.classList.add(hasBonus ? 'gn-slot-has-bonus' : 'gn-slot-equipped');
       }
 
-      // Enchanted — live import enchant OR a planned enchant on this slot
+      // State glows are CURRENT-state indicators only. Planned enchants/plates
+      // already have dashed/planned controls inside the tile; giving the whole
+      // tile the active glow was another way a plan could look equipped.
       var isEnchanted = false;
       try {
-        if (typeof iwActiveEnchantForSlot === 'function' && iwActiveEnchantForSlot(slot)) {
-          isEnchanted = true;
-        }
-        if (!isEnchanted &&
-            typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED &&
-            typeof IW_ENCHANT_PLAN     !== 'undefined' && IW_ENCHANT_PLAN[slot]) {
-          isEnchanted = true;
-        }
+        isEnchanted = !!(typeof iwActiveEnchantForSlot === 'function' && iwActiveEnchantForSlot(slot));
       } catch(e) {}
       if (isEnchanted) tile.classList.add('gn-slot-enchanted');
 
-      // Reinforced — planned plate on this slot
       var hasPlateClass = false;
       try {
-        hasPlateClass = !!(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED &&
-                           typeof IW_PLATE_PLAN     !== 'undefined' && IW_PLATE_PLAN[slot]);
+        hasPlateClass = !!(typeof iwActivePlateForSlot === 'function' && iwActivePlateForSlot(slot));
       } catch(e) {}
       if (hasPlateClass) tile.classList.add('gn-slot-reinforced');
     });
@@ -26508,12 +26979,18 @@ function syncCombatLevel(val) {
       var c = equipped.slots && equipped.slots[s];
       if (c) { combatAtk += c.stats.atk || 0; combatDef += c.stats.def || 0; }
     });
+    var setAtk = Number(equipped.setBonusTotals && equipped.setBonusTotals.atk || 0);
+    var setDef = Number(equipped.setBonusTotals && equipped.setBonusTotals.def || 0);
+    combatAtk += setAtk;
+    combatDef += setDef;
     // Full set totals (all 12 slots)
     var totalAtk = 0, totalDef = 0;
     GN_SLOT_ORDER.forEach(function(s) {
       var c = equipped.slots && equipped.slots[s];
       if (c) { totalAtk += c.stats.atk || 0; totalDef += c.stats.def || 0; }
     });
+    totalAtk += setAtk;
+    totalDef += setDef;
 
     function row(label, val, hl) {
       return '<div class="gn-stat-row"><span class="gn-stat-label">' + label +
@@ -26535,15 +27012,13 @@ function syncCombatLevel(val) {
     html += row('ATK (all slots)',  displayWhole(totalAtk), false);
     html += row('DEF (all slots)',  displayWhole(totalDef), false);
 
-    // ── Gear bonuses (toolkit model) ──
-    // Keep this panel intentionally model-only. The imported profile's
-    // combatStats are authoritative for the live character, but they can
-    // include effects outside this loadout model. Mixing the two quantities
-    // in one panel makes comparisons look like calculation errors.
+    // ── Current equipment totals (base gear + set + LIVE enhancements) ──
+    // Plans are excluded. A separate live-profile audit below compares these
+    // independently-modelled totals with IdleWorlds combatStats.
     var hasAccessory = t.xpPerTask || t.itemFind || t.goldFind || t.gather ||
                        t.fire || t.frost || t.lightning || t.warfare;
     if (hasAccessory) {
-      html += '<div class="gn-section-head">Gear Bonuses</div>';
+      html += '<div class="gn-section-head">Current Equipment Totals</div>';
       if (t.xpPerTask)  html += row('XP per Task',        '+' + displayWhole(t.xpPerTask), false);
       if (t.itemFind)   html += row('Item Find',          '+' + displayWhole(t.itemFind)  + '%', false);
       if (t.goldFind)   html += row('Gold Find',          '+' + displayWhole(t.goldFind)  + '%', false);
@@ -26554,15 +27029,31 @@ function syncCombatLevel(val) {
       if (t.warfare)    html += row('Warfare',            '+' + displayWhole(t.warfare),         false);
     }
 
-    // ── Enhancements ──
-    // v45.3: collapse every effective gem, enchant and reinforcement into
-    // one total per stat. The old per-item information is retained inside
-    // an on-hover/on-click source breakdown instead of filling the panel
-    // with one badge per enhancement.
+    if(equipped.activeSetBonuses && equipped.activeSetBonuses.length){
+      html += '<div class="gn-section-head">Active Set Bonuses</div>';
+      equipped.activeSetBonuses.forEach(function(active){
+        var bs = (typeof iwSetBonusStats === 'function') ? iwSetBonusStats(active.bonus) : {};
+        var bits = [];
+        if(bs.atk) bits.push('ATK +'+displayWhole(bs.atk));
+        if(bs.def) bits.push('DEF +'+displayWhole(bs.def));
+        if(bs.xpPerTask) bits.push('XP/task +'+displayWhole(bs.xpPerTask));
+        if(bs.itemFind) bits.push('Item Find +'+displayWhole(bs.itemFind)+'%');
+        if(bs.goldFind) bits.push('Gold Find +'+displayWhole(bs.goldFind)+'%');
+        if(bs.gather) bits.push('Gather +'+displayWhole(bs.gather)+'%');
+        if(bs.fire) bits.push('Fire +'+displayWhole(bs.fire)+'%');
+        if(bs.frost) bits.push('Frost +'+displayWhole(bs.frost)+'%');
+        if(bs.lightning) bits.push('Lightning +'+displayWhole(bs.lightning)+'%');
+        if(bs.warfare) bits.push('Warfare +'+displayWhole(bs.warfare));
+        html += row(active.label+' ('+active.pieces+' pieces)', bits.join(' · ') || 'Active', true);
+      });
+    }
+
+    // ── Live enhancements ──
+    // v5.0 hotfix: "Active" means imported, active IN GAME. Plans no longer
+    // leak into this section or into equipped.totals.
     html += '<div class="gn-section-head">Active Enhancements</div>';
 
     var enhancementStats = Object.create(null);
-    var effectivePlates = Object.create(null);
     var enhancementMeta = {
       atk:       { label:'ATK',                order:0 },
       def:       { label:'DEF',                order:1 },
@@ -26614,113 +27105,24 @@ function syncCombatLevel(val) {
       enhancementStats[stat].sources.push(source);
     }
 
-    // Resolve valid, equipped plate plans first. A plate replaces any
-    // enchant on the same item, so only the plate is effective in a stale
-    // saved state that predates their mutually-exclusive controls.
-    if (typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED &&
-        typeof IW_PLATE_PLAN !== 'undefined' && typeof iwPlateMeta === 'function') {
-      Object.keys(IW_PLATE_PLAN).forEach(function(s) {
-        var tier = Number(IW_PLATE_PLAN[s]);
-        var cell = equipped.slots && equipped.slots[s];
-        var fx = tier ? iwPlateMeta()[tier] : null;
-        if (!cell || !cell.item || !fx || !Array.isArray(fx.slots) || fx.slots.indexOf(s) < 0) return;
-        effectivePlates[s] = { tier:tier, fx:fx };
-        var duration = fx.durationActions
-          ? ' · ' + Number(fx.durationActions).toLocaleString() + ' combat actions' : '';
-        addEnhancement('def', fx.def, false, {
-          type:'plate', icon:'🔩',
-          name:enhSlotLabel(s) + ' · Reinforcement',
-          detail:(fx.name || 'Reinforcement Plate') + ' · planned' + duration
-        });
-      });
-    }
-
-    // Enchants: live import wins over a plan. A plate on the same slot is
-    // already counted above and suppresses the enchant it replaces.
-    if (typeof iwEnchantSlotMeta === 'function') {
-      var eMeta = iwEnchantSlotMeta();
-      Object.keys(eMeta).forEach(function(s) {
-        var cell = equipped.slots && equipped.slots[s];
-        var meta = eMeta[s];
-        if (!cell || !cell.item || !meta || effectivePlates[s]) return;
-        var live = (typeof iwActiveEnchantForSlot === 'function')
-          ? iwActiveEnchantForSlot(s) : null;
-        if (live) {
-          var expiry = live.expiresAt ? ' · expires ' + String(live.expiresAt).slice(0, 10) : '';
-          addEnhancement(live.stat || meta.stat, live.value, live.pct, {
-            type:'enchant', icon:'✨',
-            name:enhSlotLabel(s) + ' · ' + (live.kind || meta.kind) + ' enchant',
-            detail:'Active in game' + expiry
-          });
-          return;
-        }
-        var planned = (typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED &&
-                       typeof IW_ENCHANT_PLAN !== 'undefined')
-          ? Number(IW_ENCHANT_PLAN[s]) : 0;
-        if (planned > 0) {
-          addEnhancement(meta.stat, planned, meta.pct, {
-            type:'enchant', icon:'✧',
-            name:enhSlotLabel(s) + ' · ' + meta.kind + ' enchant',
-            detail:'Planned'
-          });
-        }
-      });
-    }
-
-    // Gems: calculate one effective value per physical socket. A planned
-    // replacement wins over its live predecessor; an adopted plan equal
-    // to the live gem is still labelled as socketed and is counted once.
-    if (typeof iwItemSocketStatus === 'function' &&
-        typeof CUT_GEM_EFFECT !== 'undefined') {
-      GN_SLOT_ORDER.forEach(function(s) {
-        var cell = equipped.slots && equipped.slots[s];
-        if (!cell || !cell.item) return;
-        if (SOCKETABLE_SLOTS.indexOf(s) < 0) return;
-        var liveSockets = iwItemSocketStatus(cell.item) || [];
-        var plannedSockets = (typeof IW_SOCKETS_ENABLED !== 'undefined' && IW_SOCKETS_ENABLED &&
-                              typeof IW_SOCKET_PLAN !== 'undefined' && Array.isArray(IW_SOCKET_PLAN[s]))
-          ? IW_SOCKET_PLAN[s] : [];
-        var physicalCount = liveSockets.length;
-        if (typeof iwSlotSocketsFor === 'function') {
-          try {
-            physicalCount = Math.max(physicalCount,
-              Number(iwSlotSocketsFor(cell.db || cell.item, s)) || 0);
-          } catch(e) {}
-        } else if (typeof iwSocketCount === 'function') {
-          try { physicalCount = Math.max(physicalCount, Number(iwSocketCount(s)) || 0); } catch(e) {}
-        }
-
-        for (var socketIndex = 0; socketIndex < physicalCount; socketIndex++) {
-          var liveSocket = liveSockets[socketIndex] || null;
-          var liveTier = liveSocket && liveSocket.state === 'filled'
-            ? Number(liveSocket.gemTier) : 0;
-          var plannedTier = Number(plannedSockets[socketIndex]) || 0;
-          var effectiveTier = plannedTier || liveTier;
-          var gemFx = effectiveTier ? CUT_GEM_EFFECT[effectiveTier] : null;
-          if (!gemFx) continue;
-
-          var state;
-          if (plannedTier && liveSocket && liveSocket.state === 'filled') {
-            state = liveTier === plannedTier
-              ? 'Socketed in game'
-              : 'Planned replacement for ' + (liveSocket.gemName || 'current gem');
-          } else if (plannedTier) {
-            state = 'Planned';
-          } else {
-            state = 'Socketed in game';
-          }
-          var gemName = (typeof cutGemName === 'function')
-            ? cutGemName(effectiveTier)
-            : (liveSocket && liveSocket.gemName ? liveSocket.gemName : 'Cut Gem');
-          addEnhancement(gemFx.stat, gemFx.value,
-            typeof CUT_GEM_PCT_STATS !== 'undefined' && !!CUT_GEM_PCT_STATS[gemFx.stat], {
-              type:'gem', icon:'◆',
-              name:enhSlotLabel(s) + ' · Gem, socket ' + (socketIndex + 1),
-              detail:gemName + ' · ' + state
-            });
-        }
-      });
-    }
+    (equipped.liveEnhancements || []).forEach(function(src){
+      if(!src || !src.stat) return;
+      var detail = '';
+      var icon = '•';
+      var name = enhSlotLabel(src.slot || '') + ' · Enhancement';
+      if(src.type === 'plate'){
+        icon = '🔩'; name = enhSlotLabel(src.slot) + ' · Reinforcement';
+        detail = (src.name || 'Reinforcement Plate') + ' · active in game' +
+          (src.actionsRemaining != null ? ' · ' + Number(src.actionsRemaining).toLocaleString() + ' actions remaining' : '');
+      } else if(src.type === 'enchant'){
+        icon = '✨'; name = enhSlotLabel(src.slot) + ' · ' + (src.kind || 'Enchant') + ' enchant';
+        detail = 'Active in game' + (src.expiresAt ? ' · expires ' + String(src.expiresAt).slice(0,10) : '');
+      } else if(src.type === 'gem'){
+        icon = '◆'; name = enhSlotLabel(src.slot) + ' · Gem, socket ' + (Number(src.socketIndex||0)+1);
+        detail = (src.name || 'Socketed Gem') + ' · socketed in game' + (src.detail ? ' · ' + src.detail : '');
+      }
+      addEnhancement(src.stat, src.value, src.pct, {type:src.type||'live',icon:icon,name:name,detail:detail});
+    });
 
     var enhancementKeys = Object.keys(enhancementStats).sort(function(a, b) {
       var aa = enhancementStats[a], bb = enhancementStats[b];
@@ -26760,6 +27162,81 @@ function syncCombatLevel(val) {
     } else {
       html += '<div style="color:var(--text-3);font-size:12px;padding:4px 0;">No active enchants, gems or plates.</div>';
     }
+
+    // Planned state is useful, but it must never masquerade as current gear.
+    var planned = [];
+    try{
+      if(typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED){
+        Object.keys(IW_PLATE_PLAN || {}).forEach(function(s){
+          var tier=Number(IW_PLATE_PLAN[s]); if(!tier) return;
+          // Do not repeat a plan that is already the same live plate.
+          var lp=(typeof iwActivePlateForSlot==='function')?iwActivePlateForSlot(s):null;
+          if(lp && Number(lp.tier)===tier) return;
+          var fx=iwPlateMeta()[tier]; if(!fx||fx.slots.indexOf(s)<0) return;
+          planned.push('🔩 '+enhSlotLabel(s)+' +'+displayWhole(fx.def)+' DEF (T'+tier+')');
+        });
+      }
+      if(typeof IW_ENCHANTS_ENABLED !== 'undefined' && IW_ENCHANTS_ENABLED){
+        var em=(typeof iwEnchantSlotMeta==='function')?iwEnchantSlotMeta():{};
+        Object.keys(IW_ENCHANT_PLAN || {}).forEach(function(s){
+          var tier=Number(IW_ENCHANT_PLAN[s]); var meta=em[s]; if(!tier||!meta) return;
+          var le=(typeof iwActiveEnchantForSlot==='function')?iwActiveEnchantForSlot(s):null;
+          if(le && Number(le.tier)===tier) return;
+          planned.push('✧ '+enhSlotLabel(s)+' +'+tier+(meta.pct?'%':'')+' '+meta.kind+' (planned)');
+        });
+      }
+      if(typeof IW_SOCKETS_ENABLED !== 'undefined' && IW_SOCKETS_ENABLED){
+        GN_SLOT_ORDER.forEach(function(s){
+          var cell=equipped.slots&&equipped.slots[s]; if(!cell||!cell.item) return;
+          var live=iwItemSocketStatus(cell.item)||[];
+          var arr=Array.isArray(IW_SOCKET_PLAN[s])?IW_SOCKET_PLAN[s]:[];
+          arr.forEach(function(tier,idx){
+            tier=Number(tier); if(!tier) return;
+            var liveTier=live[idx]&&live[idx].state==='filled'?Number(live[idx].gemTier):0;
+            if(liveTier===tier) return;
+            planned.push('◇ '+enhSlotLabel(s)+' socket '+(idx+1)+' · '+cutGemName(tier)+' '+cutGemEffectLabel(tier)+' (planned)');
+          });
+        });
+      }
+    }catch(e){}
+    if(planned.length){
+      html += '<div class="gn-section-head">Planned Enhancements</div>'+
+        '<div style="font-size:12px;color:var(--text-2);line-height:1.65;">'+planned.map(enhEsc).join('<br>')+'</div>';
+    }
+
+    // Imported combatStats are the game's own aggregate. Keep a visible audit
+    // against the independently modelled current gear so a future schema/data
+    // drift cannot hide another 88-point discrepancy.
+    try{
+      var cs=window.IWProfile&&window.IWProfile.combatStats;
+      if(cs){
+        var checks=[
+          ['XP per Task','xpPerTask',cs.xpTaskBonus,false],
+          ['Item Find','itemFind',cs.itemFindPercent,true],
+          ['Gold Find','goldFind',cs.goldFindPercent,true],
+          ['2x Gather Chance','gather',cs.doubleGatherChancePercent,true],
+          ['Fire Resist','fire',cs.fireResist,true],
+          ['Frost Resist','frost',cs.frostResist,true],
+          ['Lightning Resist','lightning',cs.lightningResist,true]
+        ];
+        var auditRows=''; var mismatches=0;
+        checks.forEach(function(c){
+          if(c[2]==null || !isFinite(Number(c[2]))) return;
+          var model=Number(t[c[1]]||0), live=Number(c[2]);
+          if(Math.abs(model)<0.000001 && Math.abs(live)<0.000001) return;
+          var diff=live-model;
+          if(Math.abs(diff)>0.000001) mismatches++;
+          var suffix=c[3]?'%':'';
+          auditRows += row(c[0], '+'+displayWhole(live)+suffix+
+            (Math.abs(diff)>0.000001 ? ' <small style="color:var(--warn);font-weight:600;">model '+
+              (model>=0?'+':'')+displayWhole(model)+suffix+' · Δ '+(diff>=0?'+':'')+displayWhole(diff)+suffix+'</small>' :
+              ' <small style="color:var(--positive);font-weight:600;">✓ model matches</small>'), false);
+        });
+        if(auditRows){
+          html += '<div class="gn-section-head">Live Profile Check'+(mismatches?' · ⚠ '+mismatches+' mismatch'+(mismatches===1?'':'es'):' · ✓')+'</div>'+auditRows;
+        }
+      }
+    }catch(e){}
 
     body.innerHTML = html;
   }
@@ -26871,20 +27348,34 @@ function syncCombatLevel(val) {
       return;
     }
 
-    var current = typeof getRecommendedGear === 'function' ? getRecommendedGear(GN_COMBAT_LV) : null;
-    var next = typeof getNextGearUpgrade === 'function' ? getNextGearUpgrade(GN_COMBAT_LV) : null;
+    var tierCtx = (typeof iwGearPlannerCombatTierContext === 'function')
+      ? iwGearPlannerCombatTierContext(GN_COMBAT_LV) : null;
+    var current = tierCtx && tierCtx.current
+      ? tierCtx.current
+      : (typeof getRecommendedGear === 'function' ? getRecommendedGear(GN_COMBAT_LV) : null);
+    var next = tierCtx && tierCtx.next
+      ? tierCtx.next
+      : (typeof getNextGearUpgrade === 'function' ? getNextGearUpgrade(GN_COMBAT_LV) : null);
     var progression = '<div class="gn-rec-progress">' +
       '<div class="gn-rec-progress-card">' +
-        '<span class="gn-rec-progress-label">Current tier</span>' +
+        '<span class="gn-rec-progress-label">Current combat tier</span>' +
         '<span class="gn-rec-progress-value">' + gnEsc(current ? current.setName + ' Set' : 'No tier set') + '</span>' +
         '<span class="gn-rec-progress-note">' + gnEsc(current ? 'Tier ' + current.tier + ' · Combat Lv ' + GN_COMBAT_LV : 'No recommendation available') + '</span>' +
       '</div>' +
       '<div class="gn-rec-progress-card">' +
-        '<span class="gn-rec-progress-label">Next tier</span>' +
+        '<span class="gn-rec-progress-label">Next combat tier</span>' +
         '<span class="gn-rec-progress-value">' + gnEsc(next ? next.setName + ' Set' : 'Maximum tier reached') + '</span>' +
         '<span class="gn-rec-progress-note">' + gnEsc(next ? 'Tier ' + next.tier + ' · Requires Combat Lv ' + next.combatLevel : 'No higher tier remains') + '</span>' +
       '</div>' +
     '</div>';
+
+    var plannerStatus = (typeof iwGearPlannerDataStatus === 'function') ? iwGearPlannerDataStatus() : null;
+    if(plannerStatus && plannerStatus.derivedPlus4 > 0){
+      progression += '<div class="gn-rec-empty" style="margin-top:8px;color:var(--text-3);">' +
+        'Planner fallback: ' + plannerStatus.derivedPlus4 +
+        ' missing +4 equipment variants are formula-derived from their verified base/+1/+2/+3 families. ' +
+        'Live items.json replaces them automatically when available.</div>';
+    }
 
     if (typeof taskGoalAlternatives !== 'function') {
       out.innerHTML = progression + '<div class="gn-rec-empty">Alternative recommendation data is unavailable.</div>';
@@ -27172,9 +27663,16 @@ function syncCombatLevel(val) {
             iwTipEsc('Reinforcement Plates only accept ' + (typeof iwPlateableSlots === 'function' ? iwPlateableSlots().join(', ') : '')) + '">' +
             'No reinforcement</div>';
         } else {
+          var livePlate = (typeof iwActivePlateForSlot === 'function') ? iwActivePlateForSlot(s) : null;
           var planPlate = (typeof IW_PLATES_ENABLED !== 'undefined' && IW_PLATES_ENABLED) ? IW_PLATE_PLAN[s] : null;
           var blocked   = typeof iwSlotHasEnchant === 'function' && iwSlotHasEnchant(s);
-          if (planPlate) {
+          if (livePlate) {
+            html += '<div class="gear-slot-reinf on live" style="margin-bottom:8px;" title="' +
+              iwTipEsc((livePlate.name || 'Reinforcement Plate') + ' — ACTIVE IN GAME' +
+                (livePlate.actionsRemaining != null ? ' — ' + Number(livePlate.actionsRemaining).toLocaleString() + ' actions remaining' : '')) + '">' +
+              '<span class="gbuff-ic">🔩</span>' + (typeof iwPlateEffectLabel === 'function' ? iwPlateEffectLabel(livePlate.tier) : ('+'+livePlate.def+' DEF')) +
+              ' <span class="gbuff-kind">active</span></div>';
+          } else if (planPlate) {
             var pfx = typeof iwPlateMeta === 'function' ? iwPlateMeta()[planPlate] : null;
             html += '<button type="button" class="gear-slot-reinf on" style="margin-bottom:8px;" title="' +
               iwTipEsc((pfx ? pfx.name : 'Plate') + ' \u2014 ' + (typeof iwPlateEffectLabel === 'function' ? iwPlateEffectLabel(planPlate) : '') +
@@ -29182,8 +29680,9 @@ function syncCombatLevel(val) {
   function iwBestMemberPick(desc, slot, combatLevel, goal){
     var best = null;
     if(typeof ITEM_DB === 'undefined') return null;
-    for(var i=0;i<ITEM_DB.length;i++){
-      var r = ITEM_DB[i];
+    var plannerItems = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
+    for(var i=0;i<plannerItems.length;i++){
+      var r = plannerItems[i];
       if(!r || r.cat !== 'Equipment' || iwItemSlotKey(r) !== slot) continue;
       if(!iwCanEquip(r, combatLevel)) continue;
       if(!iwRowCountsForSet(r, desc)) continue;
@@ -29584,8 +30083,9 @@ function syncCombatLevel(val) {
 
   function iwTaskIndexDbRow(indexRow){
     if(!indexRow || typeof ITEM_DB === 'undefined') return null;
-    for(var i=0;i<ITEM_DB.length;i++){
-      var r = ITEM_DB[i];
+    var taskRows = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
+    for(var i=0;i<taskRows.length;i++){
+      var r = taskRows[i];
       if(r && r.cat === 'Equipment' && r.name === indexRow.name) return r;
     }
     return null;
@@ -29814,19 +30314,26 @@ function syncCombatLevel(val) {
            opt.optimization && opt.optimization.bonusScore >= 12000);
       }
 
-      // Real embedded classic + Tailoring coexistence case. Gold Find at
-      // Combat 20 should beat isolated per-slot BIS by fitting 6 Gold classic
-      // members beside 4 Mythril-Silk Tailoring members in different slots.
-      var goldLoad=iwBuildGoalLoadout(20,'goldfind');
-      ok('Gold Find optimized loadout missing',!!goldLoad);
-      if(goldLoad && goldLoad.optimization){
-        var gs=goldLoad.optimization.activeSets||[];
-        ok('Gold classic set should activate in global optimizer',
-           gs.some(function(a){return a.id==='classic:4';}));
-        ok('Mythril Silk Tailoring set should coexist physically',
-           gs.some(function(a){return a.id==='tailoring:5';}));
-        ok('set-aware Gold Find result should strictly beat isolated BIS',
-           goldLoad.optimization.gain > 0);
+      // Classic + Tailoring coexistence case. Isolate this fixture from the
+      // user's imported profile: a real maxed profession profile legitimately
+      // changes the any-skill candidate ceiling and therefore this Combat-20
+      // expected loadout.
+      var savedProfileForGold=window.IWProfile;
+      window.IWProfile=null;
+      try{
+        var goldLoad=iwBuildGoalLoadout(20,'goldfind');
+        ok('Gold Find optimized loadout missing',!!goldLoad);
+        if(goldLoad && goldLoad.optimization){
+          var gs=goldLoad.optimization.activeSets||[];
+          ok('Gold classic set should activate in global optimizer',
+             gs.some(function(a){return a.id==='classic:4';}));
+          ok('Mythril Silk Tailoring set should coexist physically',
+             gs.some(function(a){return a.id==='tailoring:5';}));
+          ok('set-aware Gold Find result should strictly beat isolated BIS',
+             goldLoad.optimization.gain > 0);
+        }
+      } finally {
+        window.IWProfile=savedProfileForGold;
       }
 
       // Task Advisor: Combat 20 / Mining 66 must evaluate the Mining action
@@ -29928,6 +30435,376 @@ function syncCombatLevel(val) {
 
     if(fail.length && typeof console !== 'undefined')
       console.warn('[Character Stat Rounding] FAILED:', fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   GEAR PLANNER CURRENT-DATA FIX — regression suite
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  window.iwGearPlannerCurrentDataSelfCheck = function(){
+    var fail=[];
+    function ok(label,cond){ if(!cond) fail.push(label); }
+    function eq(label,got,want){
+      if(got!==want) fail.push(label+': got '+String(got)+', expected '+String(want));
+    }
+    function near(label,got,want,eps){
+      if(Math.abs(Number(got)-Number(want))>(eps||1e-9))
+        fail.push(label+': got '+String(got)+', expected '+String(want));
+    }
+
+    try{
+      var source=ITEM_DB.slice();
+      var sourceP4=source.filter(function(r){return r.cat==='Equipment'&&/\+4$/.test(String(r.name||''));});
+      var planner=iwBuildGearPlannerCandidates(source);
+      var derived=planner.filter(function(r){return r&&r._iwDerivedPlanner;});
+
+      // The July fallback has no +4; live data may. This branch tests the
+      // offline repair only when needed, while the pure duplicate test below
+      // always runs.
+      if(sourceP4.length===0){
+        eq('offline derived +4 family count',derived.length,510);
+        eq('planner total adds 510 candidates',planner.length,source.length+510);
+
+        var helm=planner.find(function(r){return r.name==='Primordite Helm+4';});
+        ok('Primordite Helm+4 derived',!!helm);
+        if(helm) eq('Primordite Helm+4 DEF',helm.def,70);
+
+        var ring=planner.find(function(r){return r.name==='Primordite Ring+4';});
+        ok('Primordite Ring+4 derived',!!ring);
+        if(ring){
+          eq('Primordite Ring+4 ATK',ring.atk,94);
+          eq('Primordite Ring+4 DEF',ring.def,68);
+          eq('Primordite Ring+4 XP/task',ring.xpPerTask,68);
+          eq('Primordite Ring+4 gather',ring.dblGather,136);
+        }
+
+        var hood=planner.find(function(r){return r.name==='Primordial Weave Hood+4';});
+        ok('Primordial Weave Hood+4 derived',!!hood);
+        if(hood){
+          var exact=iwParseGearStats(hood);
+          // Current Tailoring rule: 28 base DEF + (60 × 4/15) = 44.
+          near('Primordial Weave Hood+4 exact DEF',exact.def,44);
+          near('Primordial Weave Hood+4 XP/task',exact.xpPerTask,35*4/15);
+          near('Primordial Weave Hood+4 Gather',exact.gather,35*4/15);
+          near('Primordial Weave Hood+4 Item Find',exact.itemFind,28*4/15);
+          near('Primordial Weave Hood+4 each Resist',exact.fire,20*4/15);
+        }
+
+        var d=iwBestInSlot('helmet','defence',125,null);
+        ok('offline Defence BIS has winner',d&&d.winner);
+        if(d&&d.winner) eq('offline isolated Defence BIS uses +4',d.winner.name,'Primordite Helm+4');
+
+        var x=iwBestInSlot('trinket','xptask',125,null);
+        ok('offline XP/task trinket has winner',x&&x.winner);
+        if(x&&x.winner) ok('offline trinket can reach +4',/\+4$/.test(x.winner.name)||x.winnerScore>=68);
+
+        var copperSword4=planner.find(function(r){return r.name==='Copper Sword+4';});
+        ok('Copper Sword+4 derived',!!copperSword4);
+        if(copperSword4){
+          eq('Copper Sword+4 must not invent DEF',Number(copperSword4.def||0),0);
+          ok('Copper Sword+4 description must not claim DEF',!/DEF \+/.test(copperSword4.desc||''));
+        }
+        var copperRing4=planner.find(function(r){return r.name==='Copper Ring+4';});
+        if(copperRing4) ok('Ring +4 description must not claim socket',!/Socket/.test(copperRing4.desc||''));
+
+        // No standard synthetic +4 may introduce a positive structured stat
+        // that its real +3 family does not already carry.
+        derived.filter(function(r){return !iwIsTailoringArmourRecord(r);}).forEach(function(r){
+          var p3=source.find(function(x){return x.name===String(r.name).replace(/\+4$/,'+3');});
+          ['atk','def','xpPerTask','dblGather'].forEach(function(k){
+            if(Number(r[k]||0)>0 && !(Number(p3&&p3[k]||0)>0))
+              fail.push(r.name+' introduced unsupported '+k);
+          });
+        });
+
+        var task4=taskBaselineSet({gearTier:34,accessoryTier:34},4);
+        ok('Task baseline +4 weapon exists',task4&&task4.weapon);
+        if(task4&&task4.weapon) eq('Task baseline uses Primordite Sword+4',task4.weapon.name,'Primordite Sword+4');
+      }
+
+      // Candidate IDs/names must be unique, including fallback IDs.
+      (function(){
+        var names={},ids={};
+        planner.forEach(function(r){
+          if(r&&r.name){ if(names[r.name]) fail.push('duplicate planner name: '+r.name); names[r.name]=1; }
+          if(r&&r.id){ if(ids[r.id]) fail.push('duplicate planner id: '+r.id); ids[r.id]=1; }
+        });
+      })();
+      var idProbe=iwGearPlannerDerivedPlus4(
+        {id:'probe_sword',name:'Probe Sword',cat:'Equipment',sub:'Weapon slot',atk:10,def:0},
+        {id:'unexpected-third-id',name:'Probe Sword+3',cat:'Equipment',sub:'Weapon slot',atk:18,def:0}
+      );
+      if(idProbe) eq('nonstandard +3 id must get safe +4 id',idProbe.id,'probe_sword_plus_4');
+
+      // Derived tooltip must expose utility stats without dead navigation.
+      var tipProbe=planner.find(function(r){return r.name==='Primordial Weave Hood+4';});
+      if(tipProbe){
+        var tipItem=iwGearPlannerTooltipItem(tipProbe);
+        eq('derived tooltip Item Find display',tipItem.itemFind,8);
+        eq('derived tooltip Gather display',tipItem.dblGather,10);
+        var tipHtml=iwTipRender(tipItem);
+        ok('derived tooltip includes Item Find',tipHtml.indexOf('Item Find')!==-1);
+        ok('derived tooltip has no dead Full entry',tipHtml.indexOf('Full entry')===-1);
+        ok('derived tooltip has no empty href',tipHtml.indexOf('href=""')===-1);
+      }
+
+      // Simulate current/live data by inserting the derived +4 rows as if they
+      // came from the API. The candidate builder must add ZERO duplicates.
+      var simulatedLive=source.concat(derived.map(function(r){
+        var c=Object.assign({},r);
+        delete c._iwDerivedPlanner;
+        delete c._iwDerivedPlannerReason;
+        return c;
+      }));
+      var rebuilt=iwBuildGearPlannerCandidates(simulatedLive);
+      eq('live-like candidate count unchanged',rebuilt.length,simulatedLive.length);
+      eq('live-like derived duplicate count',Number(rebuilt._iwDerivedCount||0),0);
+
+      // Tailoring DEF-bearing set tiers remain current.
+      eq('T13 Tailoring set DEF',TAILORING_SET_BONUS[13].def,30);
+      eq('T23 Tailoring set DEF',TAILORING_SET_BONUS[23].def,45);
+      eq('T30 Tailoring set DEF',TAILORING_SET_BONUS[30].def,45);
+      eq('T34 Tailoring set DEF',TAILORING_SET_BONUS[34].def,60);
+      near('T13 set Defence goal contribution',
+           iwSetBonusGoalValue(TAILORING_SET_BONUS[13],'defence'),30);
+      near('T34 set Defence goal contribution',
+           iwSetBonusGoalValue(TAILORING_SET_BONUS[34],'defence'),60);
+
+      var blood4=planner.find(function(r){return r.name==='Bloodweave Hood+4';});
+      ok('Bloodweave Hood+4 derived',!!blood4);
+      if(blood4){
+        var bloodStats=iwParseGearStats(blood4);
+        // 10 base DEF + 30 * 4/15 = 18 exact.
+        near('Bloodweave Hood+4 exact DEF',bloodStats.def,18);
+        near('Bloodweave Hood+4 exact resist',bloodStats.fire,10*4/15);
+      }
+
+      // Equipped totals must add the active 4-piece T34 Tailoring set DEF
+      // exactly once, while preserving item-only slot stats.
+      (function(){
+        var savedProfile=window.IWProfile;
+        try{
+          window.IWProfile={displayName:'set-total-probe',equipped:{
+            helmet:{name:'Primordial Weave Hood+4'},
+            chest:{name:'Primordial Weave Robe+4'},
+            gloves:{name:'Primordial Weave Gloves+4'},
+            legs:{name:'Primordial Weave Leggings+4'}
+          }};
+          var eqp=iwReadEquippedSet();
+          ok('T34 equipped-set probe resolves',!!eqp);
+          if(eqp){
+            eq('T34 active set count',eqp.activeSetBonuses.length,1);
+            eq('T34 active set id',eqp.activeSetBonuses[0]&&eqp.activeSetBonuses[0].id,'tailoring:34');
+            near('T34 equipped set bonus DEF',eqp.setBonusTotals.def,60);
+            near('T34 aggregate DEF adds set once',eqp.totals.def-eqp.itemTotals.def,60);
+          }
+        } finally { window.IWProfile=savedProfile; }
+      })();
+
+      // Whole-loadout optimizer must remain internally consistent.
+      var load=iwBuildGoalLoadout(125,'defence');
+      ok('Defence whole-loadout exists',load&&load.slots);
+      if(load&&load.slots){
+        var active=(typeof iwActiveSetsForSlots==='function')
+          ? iwActiveSetsForSlots(load.slots,'defence') : [];
+        if(load.optimization && Array.isArray(load.optimization.activeSets)){
+          eq('active-set recount length',active.length,load.optimization.activeSets.length);
+        }
+      }
+
+      // DB-driven live Gear progression context still sees T34 at Combat 125.
+      var ctx=iwGearPlannerCombatTierContext(125);
+      ok('planner combat-tier context exists',ctx&&ctx.current);
+      if(ctx&&ctx.current) eq('Combat 125 current tier',ctx.current.tier,34);
+      var lowCtx=iwGearPlannerCombatTierContext(20);
+      ok('Combat 20 next DB tier exists',lowCtx&&lowCtx.next);
+      if(lowCtx&&lowCtx.next) eq('Combat 20 next restricted tier',lowCtx.next.tier,8);
+
+      // Previous regression layers.
+      var suites=[
+        ['A-G',window.iwAugust2026FinalSelfCheck],
+        ['Audit',window.iwFinalAuditSelfCheck],
+        ['Optimizer',window.iwSetOptimizerAndTaskTierSelfCheck],
+        ['Rounding',window.iwCharacterStatRoundingSelfCheck],
+        ['Sprite',window.iwPlus4SpriteBadgeCheck]
+      ];
+      suites.forEach(function(pair){
+        if(typeof pair[1]!=='function') return;
+        var r=pair[1]();
+        if(!Array.isArray(r)||r.length)
+          fail.push(pair[0]+' regression: '+String(r&&r.join?r.join(' | '):r));
+      });
+
+    }catch(e){
+      fail.push('Gear Planner current-data suite threw: '+(e&&e.message?e.message:String(e)));
+    }
+
+    if(fail.length&&typeof console!=='undefined')
+      console.warn('[Gear Planner current data] FAILED:',fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   v5.0 Gear import integrity regression — 2026-08-16
+   Guards live reinforcements, per-copy enchants, post-Jul-7 socket text,
+   explicit R&E plate tier selection, and plan/current-state separation.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwGearImportIntegritySelfCheck=function iwGearImportIntegritySelfCheck(){
+    var fail=[];
+    function ok(label,cond){if(!cond)fail.push(label);}
+    function eq(label,got,want){if(got!==want)fail.push(label+': got '+String(got)+', expected '+String(want));}
+    function near(label,got,want){if(Math.abs(Number(got)-Number(want))>1e-9)fail.push(label+': got '+String(got)+', expected '+String(want));}
+
+    var savedProfile=window.IWProfile;
+    var savedOverride=(typeof IW_RE_TIER_OVERRIDE!=='undefined')?IW_RE_TIER_OVERRIDE:null;
+    var savedSetting=(typeof IW_RE_TIER_SETTING!=='undefined')?IW_RE_TIER_SETTING:null;
+    var savedEnchantPlan={}; var savedPlatePlan={}; var savedSocketPlan={};
+    try{
+      Object.keys(IW_ENCHANT_PLAN||{}).forEach(function(k){savedEnchantPlan[k]=IW_ENCHANT_PLAN[k];});
+      Object.keys(IW_PLATE_PLAN||{}).forEach(function(k){savedPlatePlan[k]=IW_PLATE_PLAN[k];});
+      Object.keys(IW_SOCKET_PLAN||{}).forEach(function(k){savedSocketPlan[k]=Array.isArray(IW_SOCKET_PLAN[k])?IW_SOCKET_PLAN[k].slice():IW_SOCKET_PLAN[k];});
+
+      var a=iwParseSocketEffect('+16% 2x Gather Chance');
+      ok('post-Jul-7 socket text parses',!!a);
+      if(a){eq('2x Gather stat key',a.stat,'gather');near('2x Gather value',a.value,16);eq('2x Gather T21 inference',a.tier,21);}
+      var b=iwParseSocketEffect('+8% 2x-Gather Chance (gem)');
+      ok('legacy socket text still parses',!!b);
+      if(b){eq('legacy gather stat key',b.stat,'gather');near('legacy gather value',b.value,8);eq('legacy T8 inference',b.tier,8);}
+
+      // Exact 88-point socket probe: five +16% sockets plus one +8% socket.
+      // Plans are deliberately polluted to prove they are irrelevant to CURRENT totals.
+      IW_SOCKET_PLAN={helmet:[34,34],chest:[34],gloves:[34],legs:[34],boots:[34]};
+      IW_PLATE_PLAN={chest:34,legs:34,shield:34};
+      IW_ENCHANT_PLAN={helmet:34,gloves:34,boots:34,ring:34,weapon:34};
+      window.IWProfile={displayName:'gear-import-88-probe',skills:[{skillKey:'smithing',level:63}],
+        equipped:{
+          helmet:{key:'__probe_h',name:'__probe_h',socketState:'filled',socketEffectLine:'+16% 2x Gather Chance',socketState2:'none'},
+          chest:{key:'__probe_c',name:'__probe_c',socketState:'filled',socketEffectLine:'+16% 2x Gather Chance',socketState2:'none'},
+          gloves:{key:'__probe_g',name:'__probe_g',socketState:'filled',socketEffectLine:'+16% 2x Gather Chance',socketState2:'none'},
+          legs:{key:'__probe_l',name:'__probe_l',socketState:'filled',socketEffectLine:'+16% 2x Gather Chance',socketState2:'none'},
+          boots:{key:'__probe_b',name:'__probe_b',socketState:'filled',socketEffectLine:'+16% 2x Gather Chance',socketState2:'none'},
+          shield:{key:'__probe_s',name:'__probe_s',socketState:'filled',socketEffectLine:'+8% 2x Gather Chance',socketState2:'none'}
+        },itemEnchants:[],itemReinforcements:[]};
+      var eqp=iwReadEquippedSet();
+      ok('88-point socket probe resolves equipped set',!!eqp);
+      if(eqp){
+        near('live sockets restore all 88 gather points',eqp.totals.gather,88);
+        eq('planned plate/enchant state excluded from live sources',eqp.liveEnhancements.filter(function(x){return x.type!=='gem';}).length,0);
+      }
+
+      // Live plate: imported profile state beats any local plan.
+      window.IWProfile={equipped:{chest:{key:'kingssteel_chest_plus_3',name:'Kingssteel Chest+3'}},
+        skills:[{skillKey:'smithing',level:63}],itemReinforcements:[
+          {itemKey:'kingssteel_chest_plus_3',tier:19,actionsRemaining:95848}
+        ],itemEnchants:[]};
+      var lp=iwActivePlateForSlot('chest');
+      ok('live reinforcement resolves',!!lp);
+      if(lp){eq('live reinforcement tier',lp.tier,19);eq('legacy remaining actions preserved',lp.actionsRemaining,95848);near('live reinforcement DEF',lp.def,19);}
+
+      // Current per-copy equipped enchant fields are authoritative over the
+      // legacy itemKey-wide list.
+      window.IWProfile={equipped:{ring:{key:'__ench_probe',name:'__ench_probe',enchantTier:18,enchantExpiresAt:'2099-01-01T00:00:00.000Z'}},
+        itemEnchants:[{itemKey:'__ench_probe',tier:15,expiresAt:'2099-01-01T00:00:00.000Z'}]};
+      var direct=iwActiveEnchantForSlot('ring');
+      ok('per-copy equipped enchant resolves',!!direct);
+      if(direct) eq('per-copy enchant beats legacy row',direct.tier,18);
+
+      // An expired legacy row must not abort the search before a live row.
+      window.IWProfile={equipped:{ring:{key:'__ench_probe_2',name:'__ench_probe_2',enchantTier:null}},
+        itemEnchants:[
+          {itemKey:'__ench_probe_2',tier:15,expiresAt:'2020-01-01T00:00:00.000Z'},
+          {itemKey:'__ench_probe_2',tier:17,expiresAt:'2099-01-01T00:00:00.000Z'}
+        ]};
+      var later=iwActiveEnchantForSlot('ring');
+      ok('later live legacy enchant resolves after expired row',!!later);
+      if(later) eq('expired row does not mask live row',later.tier,17);
+
+      // Explicit R&E choice wins for a manually-added plate; absent explicit
+      // intent, Smithing 63 correctly falls back to T16.
+      window.IWProfile={skills:[{skillKey:'smithing',level:63}],equipped:{chest:{key:'__tier_probe',name:'__tier_probe'}}};
+      IW_RE_TIER_OVERRIDE=18; IW_RE_TIER_SETTING=null;
+      eq('manual plate honours explicit T18',iwPlateDefaultTier('chest'),18);
+      IW_RE_TIER_OVERRIDE=null; IW_RE_TIER_SETTING=null;
+      eq('manual plate Smithing-63 fallback remains T16',iwPlateDefaultTier('chest'),16);
+
+    }catch(e){ fail.push('Gear import integrity suite threw: '+(e&&e.message?e.message:String(e))); }
+    finally{
+      window.IWProfile=savedProfile;
+      IW_RE_TIER_OVERRIDE=savedOverride; IW_RE_TIER_SETTING=savedSetting;
+      IW_ENCHANT_PLAN=savedEnchantPlan; IW_PLATE_PLAN=savedPlatePlan; IW_SOCKET_PLAN=savedSocketPlan;
+    }
+    if(fail.length&&typeof console!=='undefined')console.warn('[Gear import integrity] FAILED:',fail.join(' | '));
+    return fail;
+  };
+
+  function run(){try{window.iwGearImportIntegritySelfCheck();}catch(e){console.warn('[Gear import integrity] threw:',e);}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(run,0);},{once:true});
+  else setTimeout(run,0);
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   v5.0 RELEASE CANDIDATE — consolidated release audit guard
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwReleaseCandidateSelfCheck=function(){
+    var fail=[];
+    function ok(label,cond){if(!cond)fail.push(label);}
+    try{
+      var suites=[
+        ['August base',window.iwAugust2026RegressionSelfCheck],
+        ['Live bridge',window.iwItemDataBridgeSelfCheck],
+        ['Work Order',window.iwWorkOrderPotionPayoutSelfCheck],
+        ['+4 equipment',window.iwPlus4EquipmentSelfCheck],
+        ['Tailoring',window.iwTailoringStageESelfCheck],
+        ['Skill boosts',window.iwSkillBoostStageFSelfCheck],
+        ['Silkbind',window.iwSilkbindStageGSelfCheck],
+        ['A-G integrated',window.iwAugust2026FinalSelfCheck],
+        ['Final audit',window.iwFinalAuditSelfCheck],
+        ['Optimizer/task',window.iwSetOptimizerAndTaskTierSelfCheck],
+        ['Stat rounding',window.iwCharacterStatRoundingSelfCheck],
+        ['+4 sprite',window.iwPlus4SpriteBadgeCheck],
+        ['Gear current data',window.iwGearPlannerCurrentDataSelfCheck],
+        ['Gear import integrity',window.iwGearImportIntegritySelfCheck]
+      ];
+      suites.forEach(function(pair){
+        if(typeof pair[1]!=='function')return;
+        var r=pair[1]();
+        if(!Array.isArray(r)||r.length)
+          fail.push(pair[0]+': '+String(r&&r.join?r.join(' | '):r));
+      });
+
+      var planner=iwGearPlannerItems();
+      var ids={},names={};
+      planner.forEach(function(r){
+        if(r&&r.id){ok('duplicate candidate id '+r.id,!ids[r.id]);ids[r.id]=1;}
+        if(r&&r.name){ok('duplicate candidate name '+r.name,!names[r.name]);names[r.name]=1;}
+      });
+      planner.filter(function(r){return r&&r._iwDerivedPlanner&&/ Sword\+4$/.test(r.name||'');})
+        .forEach(function(r){ok(r.name+' synthetic DEF must remain zero',Number(r.def||0)===0);});
+
+      var status=iwGearPlannerDataStatus();
+      if(status.source==='embedded'){
+        ok('embedded fallback derives +4',status.derivedPlus4===510);
+        ok('embedded candidate total',status.totalCandidates===4322);
+      }
+    }catch(e){fail.push('release suite threw: '+(e&&e.message?e.message:String(e)));}
+    if(fail.length&&typeof console!=='undefined')console.warn('[v5 release candidate] FAILED:',fail.join(' | '));
     return fail;
   };
 })();
