@@ -4152,7 +4152,7 @@
   /* ── Sprite layer stack inside each slot (v44.9) ── */
   /*
    * The atlas/manifest loader below paints the base item into
-   * .iw-gear-sprite-base, then paints the atlas' dedicated +1/+2/+3 (+4 when the manifest provides it)
+   * .iw-gear-sprite-base, then paints the atlas' dedicated +1/+2/+3/+4
    * artwork into .iw-gear-sprite-upgrade. The emoji stays underneath as
    * a resilient loading/error fallback and is hidden only after a real
    * manifest match has been painted.
@@ -5556,7 +5556,7 @@
   }
   /* Equipment tooltips reserve the marked top-right area for the same
      atlas sprite used by Gear, BIS, shopping and recommendations. The
-     extra room also contains +1/+2/+3 badges that straddle the sprite's
+     extra room also contains +1/+2/+3/+4 badges that straddle the sprite's
      lower-right corner, so neither layer can be clipped by #iw-tip. */
   .iw-tip-head.has-gear-art,
   .iw-tip-head.has-item-art {
@@ -6450,10 +6450,24 @@
     if(!host) return;
     ensureIwPanelStyles();
 
+    // Current live Character Stats policy (Aug-12 .540):
+    // aggregate stats retain fractional precision for game math, but their
+    // CHARACTER-SHEET DISPLAY is rounded to the nearest whole number.
+    // This is deliberately different from enhanced Tailoring ITEM tooltips,
+    // whose per-piece display values are individually rounded UP.
+    function iwAggregateDisplayWhole(value){
+      var n = Number(value);
+      return isFinite(n) ? Math.round(n) : 0;
+    }
+    window.iwAggregateDisplayWhole = iwAggregateDisplayWhole;
+
     function meterRow(icon, label, value, accent){
-      var v = Number(value) || 0;
-      var w = Math.max(0, Math.min(100, v));
-      var zero = v===0 ? ' zero' : '';
+      var raw = Number(value) || 0;
+      var v = iwAggregateDisplayWhole(raw);
+      // Keep the cosmetic meter proportional to the underlying precise value;
+      // only the printed character stat is rounded.
+      var w = Math.max(0, Math.min(100, raw));
+      var zero = raw===0 ? ' zero' : '';
       return '<div class="iwp-row" style="--racc:'+accent+'">'+
         '<div class="iwp-rowtop"><span class="iwp-rowlbl"><span class="ic">'+icon+'</span>'+label+'</span>'+
         '<span class="iwp-val'+zero+'">'+v+'%</span></div>'+
@@ -6465,8 +6479,9 @@
     // This reuses the same row chrome minus the meter so it still sits
     // flush with the percent rows above it.
     function flatRow(icon, label, value, accent){
-      var v = Number(value) || 0;
-      var zero = v===0 ? ' zero' : '';
+      var raw = Number(value) || 0;
+      var v = iwAggregateDisplayWhole(raw);
+      var zero = raw===0 ? ' zero' : '';
       return '<div class="iwp-row" style="--racc:'+accent+'">'+
         '<div class="iwp-rowtop"><span class="iwp-rowlbl"><span class="ic">'+icon+'</span>'+label+'</span>'+
         '<span class="iwp-val'+zero+'">+'+v+'</span></div></div>';
@@ -6495,8 +6510,9 @@
 
     // ── Resistances (elemental wards) ──
     function elem(emoji, label, value, color){
-      var v = Number(value)||0;
-      return '<div class="iwp-elem'+(v===0?' zero':'')+'" style="--e:'+color+'">'+
+      var raw = Number(value)||0;
+      var v = iwAggregateDisplayWhole(raw);
+      return '<div class="iwp-elem'+(raw===0?' zero':'')+'" style="--e:'+color+'">'+
         '<span class="e-emoji">'+emoji+'</span>'+
         '<span class="e-val">'+v+'</span>'+
         '<span class="e-lbl">'+label+'</span></div>';
@@ -14029,8 +14045,10 @@ function buildProgressionHero(current, next, combatLevel) {
 function iwReadEquippedSet(){
   var prof = window.IWProfile;
   if(!prof || !prof.equipped) return null;
-  var out = { slots:{}, totals:{atk:0,def:0,itemFind:0,goldFind:0,gather:0,
-                               fire:0,frost:0,lightning:0,xpPerTask:0,warfare:0},
+  var zeroTotals = function(){ return {atk:0,def:0,itemFind:0,goldFind:0,gather:0,
+    fire:0,frost:0,lightning:0,xpPerTask:0,warfare:0}; };
+  var out = { slots:{}, totals:zeroTotals(), itemTotals:zeroTotals(),
+              setBonusTotals:zeroTotals(), activeSetBonuses:[],
               displayName: prof.displayName || 'player' };
   SLOT_ORDER.forEach(function(slot){
     var it = prof.equipped[slot];
@@ -14044,8 +14062,35 @@ function iwReadEquippedSet(){
     // v42.7: plates are the second additive layer. Same no-op contract
     // as sockets, so an empty plate plan leaves every total unchanged.
     stats = iwApplyPlate(stats, slot);
-    Object.keys(out.totals).forEach(function(k){ out.totals[k]+= (stats[k]||0); });
+    Object.keys(out.itemTotals).forEach(function(k){ out.itemTotals[k]+= (stats[k]||0); });
     out.slots[slot] = { item: it, stats: stats, db: db };
+  });
+
+  // Set bonuses are loadout properties, not per-piece stats. Resolve them from
+  // the actual physical equipped rows and add the active bonuses ONCE to the
+  // aggregate totals. Individual slot stats intentionally remain item-only.
+  try{
+    if(typeof iwActiveSetsForSlots === 'function' && typeof iwSetBonusStats === 'function'){
+      var physical = {};
+      SLOT_ORDER.forEach(function(slot){
+        var c = out.slots[slot];
+        if(c && c.db) physical[slot] = {winner:c.db};
+      });
+      out.activeSetBonuses = iwActiveSetsForSlots(physical, 'balanced') || [];
+      out.activeSetBonuses.forEach(function(active){
+        var b = iwSetBonusStats(active && active.bonus);
+        Object.keys(out.setBonusTotals).forEach(function(k){
+          out.setBonusTotals[k] += Number(b && b[k] || 0);
+        });
+      });
+    }
+  }catch(e){
+    out.activeSetBonuses = [];
+    if(typeof console !== 'undefined') console.warn('[gear] active set total resolution skipped:',e);
+  }
+
+  Object.keys(out.totals).forEach(function(k){
+    out.totals[k] = Number(out.itemTotals[k]||0) + Number(out.setBonusTotals[k]||0);
   });
   return out;
 }
@@ -14059,7 +14104,7 @@ function iwReadEquippedSet(){
 
    Contract:
    • A worn name ending in +1/+2/+3/+4 resolves its BASE item cell.
-   • The dedicated +1/+2/+3 cells at the start of the atlas are layered
+   • The dedicated +1/+2/+3/+4 cells at the start of the atlas are layered
      over that base icon; upgraded duplicate item art is never required.
    • Emoji remain visible while loading, on network errors, and for true
      manifest misses. A failed sprite request can never blank the UI.
@@ -14072,7 +14117,7 @@ var IW_GEAR_SPRITES = (function () {
   // the dedicated GitHub asset repository so the toolkit remains compact and
   // the icon set can be updated independently of this HTML file.
   var GEAR_ASSET_BASE = 'https://raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/';
-  var GEAR_ASSET_VERSION = '2x-2026-08-01-indexfix1';
+  var GEAR_ASSET_VERSION = '2x-2026-08-16-plus4-badge1';
   var MANIFEST_URL = GEAR_ASSET_BASE + 'gear_icons_manifest.json?v=' + encodeURIComponent(GEAR_ASSET_VERSION);
   var ATLAS_URL = GEAR_ASSET_BASE + 'gear_icons_atlas.png?v=' + encodeURIComponent(GEAR_ASSET_VERSION);
 
@@ -14338,12 +14383,16 @@ var IW_GEAR_SPRITES = (function () {
       var key = normaliseName(entry.name);
       if (key && !iconIndex.has(key)) iconIndex.set(key, entry);
     });
-    // The existing atlas contract guarantees +1..+3 artwork. +4 was added
-    // after this atlas was built, so it is optional: hostInnerHtml already
-    // renders a styled "+4" text badge when no dedicated overlay exists.
+    // +1..+3 remain hard requirements for backwards compatibility. +4 is
+    // now part of the current atlas contract too, but stays a graceful
+    // fallback rather than taking down ALL gear sprites if a CDN/GitHub edge
+    // briefly serves a stale manifest during deployment.
     [1, 2, 3].forEach(function (level) {
       if (!upgradeIndex[level]) throw new Error('Sprite manifest is missing the +' + level + ' overlay icon.');
     });
+    if (!upgradeIndex[4] && typeof console !== 'undefined') {
+      console.warn('[gear sprites] Current manifest has no +4 overlay; +4 gear will use the text fallback until the updated atlas/manifest are available.');
+    }
   }
 
   function loadManifest() {
@@ -14419,8 +14468,11 @@ var IW_GEAR_SPRITES = (function () {
       error: lastError ? String(lastError.message || lastError) : null,
       manifestIcons: manifest && manifest.icons ? manifest.icons.length : 0,
       matchedItems: iconIndex.size,
+      plus4Overlay: !!upgradeIndex[4],
+      upgradeOverlays: [1,2,3,4].filter(function(level){ return !!upgradeIndex[level]; }),
       atlasUrl: ATLAS_URL,
-      manifestUrl: MANIFEST_URL
+      manifestUrl: MANIFEST_URL,
+      assetVersion: GEAR_ASSET_VERSION
     };
   }
 
@@ -14481,6 +14533,45 @@ var IW_GEAR_SPRITES = (function () {
   load().catch(function () {});
   return api;
 })();
+
+/* ═══════════════════════════════════════════════════════════════
+   +4 GEAR BADGE — sprite regression / deployment diagnostic
+   ───────────────────────────────────────────────────────────────
+   Static behavior is testable offline. The external-asset portion becomes
+   authoritative once the updated gear_icons_manifest.json + atlas are live.
+   ═══════════════════════════════════════════════════════════════ */
+window.iwPlus4SpriteBadgeCheck = function iwPlus4SpriteBadgeCheck(){
+  var fail = [];
+  try {
+    if (!window.IW_GEAR_SPRITES) return ['IW_GEAR_SPRITES missing'];
+    var parsed = IW_GEAR_SPRITES.splitItemName('Copper Sword+4');
+    if (!parsed || parsed.base !== 'Copper Sword' || parsed.upgrade !== 4)
+      fail.push('Copper Sword+4 parser did not resolve base + upgrade 4');
+
+    var html = IW_GEAR_SPRITES.markup('Copper Sword+4','⚔️');
+    if (String(html).indexOf('iw-gear-sprite-upgrade') < 0)
+      fail.push('+4 markup has no upgrade layer');
+    if (String(html).indexOf('>+4<') < 0)
+      fail.push('+4 fallback text missing from upgrade layer');
+
+    var st = IW_GEAR_SPRITES.getStatus();
+    if (st && st.state === 'ready' && st.plus4Overlay) {
+      var r = IW_GEAR_SPRITES.resolve('Copper Sword+4');
+      if (!r || !r.overlay || r.overlay.name !== '+4')
+        fail.push('ready sprite loader did not resolve the +4 overlay');
+      if (r && r.overlay) {
+        if (Number(r.overlay.row) !== 0 || Number(r.overlay.column) !== 3 ||
+            Number(r.overlay.x) !== 384 || Number(r.overlay.y) !== 0)
+          fail.push('+4 overlay coordinates are not row 0 / column 3 / x384 / y0');
+      }
+    }
+  } catch(e) {
+    fail.push('plus4 sprite check threw: '+(e&&e.message?e.message:String(e)));
+  }
+  if (fail.length && typeof console !== 'undefined')
+    console.warn('[+4 gear badge] FAILED:', fail.join(' | '));
+  return fail;
+};
 
 /* ═══════════════════════════════════════════════════════════════
    ITEM ICON ATLAS — external GitHub sprite loader (v4.8.4 preliminary)
@@ -15033,17 +15124,26 @@ function buildEquippedSetCard(equipped, combatLevel){
   COMBAT_TOTAL_SLOTS.forEach(function(s){
     var c = equipped.slots[s]; if(c){ combatAtk += c.stats.atk||0; combatDef += c.stats.def||0; }
   });
+  combatAtk += Number(equipped.setBonusTotals && equipped.setBonusTotals.atk || 0);
+  combatDef += Number(equipped.setBonusTotals && equipped.setBonusTotals.def || 0);
+  var displayWhole = (typeof window.iwAggregateDisplayWhole === 'function')
+    ? window.iwAggregateDisplayWhole
+    : function(value){ var n=Number(value); return isFinite(n)?Math.round(n):0; };
   var chips =
-    (t.itemFind?iwChip('Item Find', t.itemFind+'%'):'') +
-    (t.goldFind?iwChip('Gold Find', t.goldFind+'%'):'') +
-    (t.gather?iwChip('Gather', t.gather+'%'):'') +
-    (t.fire?iwChip('Fire', t.fire+'%'):'') +
-    (t.frost?iwChip('Frost', t.frost+'%'):'') +
-    (t.lightning?iwChip('Lightning', t.lightning+'%'):'') +
-    (t.xpPerTask?iwChip('XP/task', t.xpPerTask):'') +
-    (t.warfare?iwChip('Warfare', t.warfare):'');
+    (t.itemFind?iwChip('Item Find', displayWhole(t.itemFind)+'%'):'') +
+    (t.goldFind?iwChip('Gold Find', displayWhole(t.goldFind)+'%'):'') +
+    (t.gather?iwChip('Gather', displayWhole(t.gather)+'%'):'') +
+    (t.fire?iwChip('Fire', displayWhole(t.fire)+'%'):'') +
+    (t.frost?iwChip('Frost', displayWhole(t.frost)+'%'):'') +
+    (t.lightning?iwChip('Lightning', displayWhole(t.lightning)+'%'):'') +
+    (t.xpPerTask?iwChip('XP/task', displayWhole(t.xpPerTask)):'') +
+    (t.warfare?iwChip('Warfare', displayWhole(t.warfare)):'');
   var sockLine = iwSocketSummaryText()
     ? '<div class="gear-set-sub" style="color:var(--teal,#2ec4a0);margin-top:2px;">⬥ '+iwSocketSummaryText()+' (planned)</div>' : '';
+  var setLine = equipped.activeSetBonuses && equipped.activeSetBonuses.length
+    ? '<div class="gear-set-sub" style="color:var(--teal,#2ec4a0);margin-top:4px;">Active sets: '+
+      equipped.activeSetBonuses.map(function(a){return a.label+' ('+a.pieces+' pieces)';}).join(' · ')+'</div>'
+    : '';
   // v43.14: the tile grid (buildEquippedPips) moved to its own primary
   // panel at the top of the tab and is no longer duplicated here — this
   // card is now purely the numeric summary (totals + goal chips), which
@@ -15058,9 +15158,10 @@ function buildEquippedSetCard(equipped, combatLevel){
       '</div>'+
       '<div class="gear-set-sub">Summed across your equipped set ('+equipped.displayName+'). '+
         'The gear itself is at the top of this tab.</div>'+
-      '<div class="gear-xp-row"><span>Total ATK</span><span class="gear-xp-val">'+combatAtk+'</span></div>'+
-      '<div class="gear-xp-row"><span>Total DEF</span><span class="gear-xp-val">'+combatDef+'</span></div>'+
+      '<div class="gear-xp-row"><span>Total ATK</span><span class="gear-xp-val">'+displayWhole(combatAtk)+'</span></div>'+
+      '<div class="gear-xp-row"><span>Total DEF</span><span class="gear-xp-val">'+displayWhole(combatDef)+'</span></div>'+
       (chips?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">'+chips+'</div>':'')+
+      setLine+
       sockLine+
     '</div>';
 }
@@ -15404,6 +15505,216 @@ function iwGoalLabel(){
     lightning:'Lightning Resist',zonecombat:'Zone Combat (Warfare)'})[IW_GEAR_GOAL] || 'Attack';
 }
 
+// ═══════════════════════════════════════════════════════════════
+// GEAR PLANNER CURRENT-DATA CANDIDATE LAYER — 2026-08-16
+// ----------------------------------------------------------------
+// Live items.json is authoritative. The embedded fallback predates +4 gear,
+// though, so the Planner previously had no +4 rows to score at all.
+//
+// IMPORTANT BOUNDARY:
+//   • ITEM_DB / IDB_STATE remain the real imported/embedded item data.
+//   • This layer creates DERIVED +4 rows for Gear planning ONLY when the
+//     source has the demonstrable base → +1 → +2 → +3 upgrade family but
+//     lacks +4.
+//   • Item Lookup therefore does not falsely claim these rows came from the
+//     July payload.
+//   • As soon as live items.json provides a real +4 row, that exact row wins
+//     and no derived duplicate is created.
+// ═══════════════════════════════════════════════════════════════
+
+var _IW_GEAR_PLANNER_ITEMS = null, _IW_GEAR_PLANNER_ITEMS_REV = -1;
+var _IW_GEAR_PLANNER_DERIVED_COUNT = 0;
+
+function iwGearPlannerStandardDescription(row){
+  var parts = [];
+  if(Number(row.atk || 0) > 0) parts.push('ATK +' + row.atk);
+  if(Number(row.def || 0) > 0) parts.push('DEF +' + row.def);
+  if(row.req) parts.push(row.req);
+  if(Number(row.xpPerTask || 0) > 0) parts.push('XP +' + row.xpPerTask + '/task');
+  if(Number(row.dblGather || 0) > 0) parts.push(row.dblGather + '% chance to gather 2x');
+  // Some historical payload rows carry a stale sockets:1 field on Ring and
+  // Amulet. Never let that leak into a derived +4 description; the legal
+  // socket-slot contract is Weapon/Shield/Helmet/Chest/Gloves/Legs/Boots.
+  var socketSubs = ['Weapon slot','Shield slot','Helmet slot','Chest slot',
+                    'Gloves slot','Legs slot','Boots slot'];
+  if(socketSubs.indexOf(String(row.sub || '')) !== -1 && Number(row.sockets || 0) > 0)
+    parts.push(row.sockets + ' Socket' + (Number(row.sockets) === 1 ? '' : 's'));
+  return parts.join(' • ');
+}
+
+function iwGearPlannerDerivedPlus4(base, plus3){
+  if(!base || !plus3 || !base.name) return null;
+  var row = Object.assign({}, base);
+  row.name = String(base.name) + '+4';
+  var baseId = String(base.id || String(base.name).toLowerCase().replace(/[^a-z0-9]+/g,'_'))
+    .replace(/_+$/,'');
+  var p3id = String(plus3.id || '');
+  var derivedId = p3id ? p3id.replace(/_plus_3$/i, '_plus_4') : '';
+  // Future payloads are not required to keep the historical `_plus_3` ID
+  // suffix. Never reuse the +3 ID if that replacement did not actually fire.
+  if(!derivedId || derivedId === p3id) derivedId = baseId + '_plus_4';
+  row.id = derivedId;
+  row.price = ''; // do not invent current market/base-value data.
+  row._iwDerivedPlanner = true;
+  row._iwDerivedPlannerReason = 'missing +4 in active item snapshot';
+
+  if(iwIsTailoringArmourRecord(row)){
+    // Tailoring +4 is NOT Smithing-style +100% DEF. Its current payoff is
+    // exactly 4/15 of the tier's Tailoring set bonus, plus unchanged base DEF.
+    var shown = iwTailoringModeledStats(row, true);
+    if(!shown) return null;
+
+    ['atk','def','xpPerTask','dblGather','itemFind','goldFind','extraStats'].forEach(function(k){
+      delete row[k];
+    });
+    row.def = shown.def;
+    if(shown.atk > 0) row.atk = shown.atk;
+    if(shown.xpPerTask > 0) row.xpPerTask = shown.xpPerTask;
+    if(shown.gather > 0) row.dblGather = shown.gather;
+    if(shown.itemFind > 0) row.itemFind = shown.itemFind;
+    if(shown.goldFind > 0) row.goldFind = shown.goldFind;
+    if(shown.fire > 0 && shown.fire === shown.frost && shown.fire === shown.lightning)
+      row.extraStats = {all_resists:shown.fire};
+    row.desc = iwTailoringDisplayEffectText(row, shown);
+  } else {
+    // Standard Smithing/accessory/relic upgrade family. Only fields that
+    // actually exist on the base row are enhanced; this mirrors the existing
+    // +1/+2/+3 family instead of inventing new stats.
+    ['atk','def','xpPerTask','dblGather'].forEach(function(k){
+      var b = Number(base[k]);
+      var p3 = Number(plus3[k]);
+      if(!Number.isFinite(b)) return;
+      // A zero-valued normalized field is not evidence that enhancement grants
+      // that stat. Require either a positive base value or proof from the real
+      // +3 family that the stat is enhancement-bearing. This prevents Swords
+      // from accidentally gaining +4 DEF via iwGearUpgradeValue(0,4) => 4.
+      if(b > 0 || (Number.isFinite(p3) && p3 > 0)) row[k] = iwGearUpgradeValue(b, 4);
+      else row[k] = b;
+    });
+    row.desc = iwGearPlannerStandardDescription(row);
+  }
+  return row;
+}
+
+/**
+ * Pure candidate builder. Exposed separately so regressions can verify that a
+ * simulated current/live dataset containing +4 never receives duplicates.
+ */
+function iwBuildGearPlannerCandidates(sourceRows){
+  var rows = Array.isArray(sourceRows) ? sourceRows : [];
+  var out = rows.slice();
+  var byName = new Map();
+  rows.forEach(function(r){
+    if(r && r.name && !byName.has(r.name)) byName.set(r.name, r);
+  });
+
+  var derived = 0;
+  rows.forEach(function(base){
+    if(!base || base.cat !== 'Equipment' || !base.name) return;
+    if(/\+\d+$/.test(base.name)) return;
+    var p1 = byName.get(base.name + '+1');
+    var p2 = byName.get(base.name + '+2');
+    var p3 = byName.get(base.name + '+3');
+    var p4 = byName.get(base.name + '+4');
+
+    // Require the COMPLETE existing enhancement family. This prevents a
+    // coincidental "+3" named unique from being treated as upgradeable gear.
+    if(!p1 || !p2 || !p3 || p4) return;
+
+    var synthetic = iwGearPlannerDerivedPlus4(base, p3);
+    if(!synthetic) return;
+    out.push(synthetic);
+    byName.set(synthetic.name, synthetic);
+    derived++;
+  });
+
+  try { Object.defineProperty(out, '_iwDerivedCount', {value:derived, enumerable:false}); }
+  catch(e) { out._iwDerivedCount = derived; }
+  return out;
+}
+
+function iwGearPlannerItems(){
+  var rev = (typeof iwItemDataRevision === 'function') ? iwItemDataRevision() : 0;
+  if(_IW_GEAR_PLANNER_ITEMS && _IW_GEAR_PLANNER_ITEMS_REV === rev)
+    return _IW_GEAR_PLANNER_ITEMS;
+
+  var source = (typeof ITEM_DB !== 'undefined' && Array.isArray(ITEM_DB)) ? ITEM_DB : [];
+  var built = iwBuildGearPlannerCandidates(source);
+  _IW_GEAR_PLANNER_ITEMS = built;
+  _IW_GEAR_PLANNER_ITEMS_REV = rev;
+  _IW_GEAR_PLANNER_DERIVED_COUNT = Number(built._iwDerivedCount || 0);
+  return _IW_GEAR_PLANNER_ITEMS;
+}
+
+function iwGearPlannerDerivedCount(){
+  iwGearPlannerItems();
+  return _IW_GEAR_PLANNER_DERIVED_COUNT;
+}
+
+function iwGearPlannerDataStatus(){
+  var n = iwGearPlannerDerivedCount();
+  var source = '';
+  try { source = IDB_STATE && IDB_STATE.dataSource || ''; } catch(e){}
+  return {
+    source:source || 'embedded',
+    derivedPlus4:n,
+    totalCandidates:iwGearPlannerItems().length,
+    livePlus4:iwGearPlannerItems().filter(function(r){
+      return r && r.cat === 'Equipment' && /\+4$/.test(String(r.name||'')) && !r._iwDerivedPlanner;
+    }).length
+  };
+}
+
+
+function iwGearPlannerCombatTierContext(combatLevel){
+  var level = Math.max(0, Number(combatLevel)||0);
+  var byTier = {};
+  iwGearPlannerItems().forEach(function(r){
+    if(!r || r.cat !== 'Equipment' || r.sub !== 'Weapon slot') return;
+    if(/\+\d+$/.test(String(r.name||''))) return;
+    if(iwItemClass(r) !== 'metal') return;
+    var req = iwParseRequirement(r.req);
+    if(req.type !== 'combat' || !req.level) return;
+    var tier = Number(r.tier)||0;
+    if(!tier) return;
+    if(!byTier[tier]) byTier[tier] = {
+      tier:tier,
+      setName:(typeof TIER_NAMES !== 'undefined' && TIER_NAMES[tier]) ? TIER_NAMES[tier] : String(r.name).split(' ')[0],
+      combatLevel:Number(req.level)
+    };
+  });
+  var rows = Object.keys(byTier).map(function(k){return byTier[k];})
+    .sort(function(a,b){return a.combatLevel-b.combatLevel || a.tier-b.tier;});
+  var current=null,next=null;
+  rows.forEach(function(r){
+    if(r.combatLevel <= level) current=r;
+    else if(!next) next=r;
+  });
+  return {current:current,next:next,rows:rows};
+}
+window.iwGearPlannerCombatTierContext = iwGearPlannerCombatTierContext;
+
+// Minimal normalized shape used ONLY when a derived Planner item needs a
+// tooltip. It is explicitly labelled as a Planner fallback rather than a live
+// API record.
+function iwGearPlannerTooltipItem(row){
+  if(!row) return null;
+  return {
+    id:row.id, name:row.name, category:row.cat, tier:row.tier, sub:row.sub,
+    description:row.desc || '', requirements:row.req || '',
+    atk:row.atk, def:row.def, xpPerTask:row.xpPerTask, dblGather:row.dblGather,
+    itemFind:row.itemFind, goldFind:row.goldFind, warfare:row.warfare,
+    sockets:row.sockets, extraStats:row.extraStats,
+    acqType:'Upgrade',
+    acqSummary:'Planner-derived +4 fallback. Live items.json is authoritative when available.',
+    _iwDerivedPlanner:true
+  };
+}
+
+window.iwGearPlannerItems = iwGearPlannerItems;
+window.iwBuildGearPlannerCandidates = iwBuildGearPlannerCandidates;
+window.iwGearPlannerDataStatus = iwGearPlannerDataStatus;
+
 // Match an imported equipped item (has key/name/atk/def/xp) to a DB row so we
 // can read its parsed special stats. Falls back to the import's own numbers.
 function iwResolveDbItem(equippedItem){
@@ -15411,18 +15722,19 @@ function iwResolveDbItem(equippedItem){
   var byId = null, byName = null;
   try{
     if(typeof ITEM_DB !== 'undefined'){
+      var plannerRows = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
       // v4.8.4 gear fix: prefer the stable item key/id over display text.
       // Profile display names can lag canonical names (notably cloaks).
       var rawKey = equippedItem.id || equippedItem.item_id || equippedItem.key || '';
       var key = String(rawKey);
       if(/^loadout:/i.test(key)) key = key.split(':')[1] || '';
       if(key){
-        byId = ITEM_DB.find(function(r){
+        byId = plannerRows.find(function(r){
           return r.cat==='Equipment' && r.id && String(r.id).toLowerCase() === key.toLowerCase();
         }) || null;
       }
       if(!byId){
-        byName = ITEM_DB.find(function(r){
+        byName = plannerRows.find(function(r){
           return r.cat==='Equipment' && r.name && equippedItem.name &&
                  r.name.toLowerCase() === String(equippedItem.name).toLowerCase();
         }) || null;
@@ -15551,7 +15863,7 @@ function iwBestInSlot(slot, goal, combatLevel, equippedItem){
       result.wornScore = wornScore;
 
       var best=null, bestScore=-Infinity, bestCombat=-Infinity, bestTier=-Infinity;
-      ITEM_DB.forEach(function(r){
+      iwGearPlannerItems().forEach(function(r){
         if(r.cat!=='Equipment' || r.sub!==subMatch) return;
         // Equip gate: exclude anything the player cannot actually wear —
         // combat, any-skill AND profession gates all enforced (v38.8.5).
@@ -18542,7 +18854,7 @@ function iwEnumerateTailoringSets(combatLevel, goal){
 
   IW_TAILORING_ARMOUR_SLOTS.forEach(function(slot){
     var subMatch = slot.charAt(0).toUpperCase()+slot.slice(1)+' slot';
-    ITEM_DB.forEach(function(r){
+    iwGearPlannerItems().forEach(function(r){
       if(r.cat!=='Equipment' || r.sub!==subMatch) return;
       if(iwItemClass(r) !== 'tailoring') return;
       if(!iwCanEquip(r, clvl)) return;
@@ -19408,7 +19720,8 @@ function buildTaskGearIndex() {
   // never fed into XP/gather/DPS. Kept as a SEPARATE regex from fxRe so there
   // is zero chance of one of these values leaking into a formula branch.
   const procRe = /\+(\d+)%\s*(Enhance Chance|Brew Chance|Enchant Chance)/g;
-  TASK_GEAR_INDEX = ITEM_DB
+  const taskSource = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
+  TASK_GEAR_INDEX = taskSource
     .filter(r => r.cat === 'Equipment' && /slot$/.test(r.sub || ''))
     .map(r => {
       const slot   = (r.sub || '').replace(/ slot$/,'');
@@ -19868,7 +20181,7 @@ function taskGoalAlternatives(slot, combatLevel){
     // secondary stat", the only signal left that's actually informative.
     var goalStatExists = best.winnerScore > 0;
 
-    ITEM_DB.forEach(function(r){
+    iwGearPlannerItems().forEach(function(r){
       if (r.cat!=='Equipment' || r.sub!==subMatch) return;
       if (!iwCanEquip(r, combatLevel)) return;
       if (r === best.winner) return;                       // that's the pick itself
@@ -19981,7 +20294,8 @@ function iwAddNamedItemToLoadout(slotLabel, itemName){
     var combatLevel = appState && appState.combatLevel;
     if (!combatLevel || !itemName) return;
     var slotKey = iwSlotKeyFromLabel(slotLabel);
-    var w = (ITEM_DB || []).find(function(r){ return r.name === itemName; });
+    var plannerRows = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : (ITEM_DB || []);
+    var w = plannerRows.find(function(r){ return r.name === itemName; });
     if (!w) return;
 
     if (!window.IWProfile) window.IWProfile = {};
@@ -20749,6 +21063,11 @@ function iwInvalidateItemDerivedCaches(){
   try { _IW_ENCH_META = null; _IW_ENCH_META_REV = -1; } catch(e){}
   try { IW_ITEM_CLASS = null; IW_ITEM_CLASS_REV = -1; } catch(e){}
   try { TASK_GEAR_INDEX = null; TASK_GEAR_INDEX_REV = -1; } catch(e){}
+  try {
+    _IW_GEAR_PLANNER_ITEMS = null;
+    _IW_GEAR_PLANNER_ITEMS_REV = -1;
+    _IW_GEAR_PLANNER_DERIVED_COUNT = 0;
+  } catch(e){}
 }
 
 /**
@@ -21359,7 +21678,24 @@ function iwTipFindItem(ref) {
       }
       _iwTipNameMapSrc = items;
     }
-    return _iwTipNameMap.get(String(ref.name).toLowerCase()) || null;
+    var liveHit = _iwTipNameMap.get(String(ref.name).toLowerCase()) || null;
+    if(liveHit) return liveHit;
+    try {
+      var pr = iwGearPlannerItems().find(function(r){
+        return r && r._iwDerivedPlanner &&
+          String(r.name || '').toLowerCase() === String(ref.name).toLowerCase();
+      });
+      if(pr) return iwGearPlannerTooltipItem(pr);
+    } catch(e){}
+    return null;
+  }
+  if(ref.id){
+    try {
+      var byPlannerId = iwGearPlannerItems().find(function(r){
+        return r && r._iwDerivedPlanner && String(r.id || '') === String(ref.id);
+      });
+      if(byPlannerId) return iwGearPlannerTooltipItem(byPlannerId);
+    } catch(e){}
   }
   return null;
 }
@@ -21675,15 +22011,21 @@ function iwTipRender(item) {
   // the numbers are live.
   // 'embedded' is the build-time snapshot; anything else came from the
   // live API this session.
-  const stale = (IDB_STATE.dataSource === 'embedded')
-    ? '<span class="iw-tip-stale">offline data</span>' : '<span class="iw-tip-hint">Esc to close</span>';
+  const stale = item._iwDerivedPlanner
+    ? '<span class="iw-tip-stale">derived +4 fallback</span>'
+    : ((IDB_STATE.dataSource === 'embedded')
+      ? '<span class="iw-tip-stale">offline data</span>' : '<span class="iw-tip-hint">Esc to close</span>');
 
   // The item name is now the trigger, which on a search result card means
   // clicking it no longer opens that card. This is the way back: it works
   // from anywhere in the app, so a gear table can also jump straight to
   // an item's full entry — something no surface offered before.
-  const openBtn = '<button type="button" class="iw-tip-open" onclick="iwTipOpenEntry(\'' +
-    iwTipEsc(item.id) + '\')">Full entry \u2192</button>';
+  const openBtn = item._iwDerivedPlanner ? '' :
+    ('<button type="button" class="iw-tip-open" onclick="iwTipOpenEntry(\'' +
+      iwTipEsc(item.id) + '\')">Full entry \u2192</button>');
+  const wikiLink = item.wikiUrl
+    ? '<a class="iw-tip-link" href="' + esc(item.wikiUrl) + '" target="_blank" rel="noopener noreferrer">\uD83D\uDCD6 Wiki \u2197</a>'
+    : '';
 
   return '<div class="iw-tip-head' + (hasGearArt ? ' has-gear-art' : (hasItemArt ? ' has-item-art' : '')) + '">' +
       '<div class="iw-tip-icon">' + cat.icon + '</div>' +
@@ -21693,9 +22035,7 @@ function iwTipRender(item) {
     '</div>' +
     '<div class="iw-tip-body">' + effectSec + statsSec + iwTipAcquisition(item) + '</div>' +
     '<div class="iw-tip-foot">' +
-      openBtn +
-      '<a class="iw-tip-link" href="' + esc(item.wikiUrl) + '" target="_blank" rel="noopener noreferrer">\uD83D\uDCD6 Wiki \u2197</a>' +
-      stale +
+      openBtn + wikiLink + stale +
     '</div>';
 }
 
@@ -26068,11 +26408,31 @@ function syncCombatLevel(val) {
       items = GN_EQUIPMENT_FALLBACK;
     }
 
-    if (GN_EQUIPMENT_INDEX && GN_EQUIPMENT_INDEX_SRC === items) return GN_EQUIPMENT_INDEX;
-    GN_EQUIPMENT_INDEX_SRC = items;
-    GN_EQUIPMENT_INDEX = (items || []).filter(function(item) {
+    var plannerRev = (typeof iwItemDataRevision === 'function') ? iwItemDataRevision() : 0;
+    var indexSrcKey = String(plannerRev) + '|' + String(items && items.length || 0) + '|' +
+      String(typeof iwGearPlannerDerivedCount === 'function' ? iwGearPlannerDerivedCount() : 0);
+    if (GN_EQUIPMENT_INDEX && GN_EQUIPMENT_INDEX_SRC === indexSrcKey) return GN_EQUIPMENT_INDEX;
+    GN_EQUIPMENT_INDEX_SRC = indexSrcKey;
+
+    var normalized = (items || []).filter(function(item) {
       return item && item.category === 'Equipment' && !!gnSearchItemSlot(item);
-    });
+    }).slice();
+
+    // Search/theorycraft is part of Gear, so expose Planner-derived +4 rows
+    // there too. Item Lookup remains untouched.
+    try {
+      iwGearPlannerItems().forEach(function(r){
+        if(!r || !r._iwDerivedPlanner) return;
+        normalized.push({
+          id:r.id, name:r.name, category:r.cat, tier:r.tier, sub:r.sub,
+          description:r.desc, requirements:r.req,
+          atk:r.atk, def:r.def, xpPerTask:r.xpPerTask, dblGather:r.dblGather,
+          itemFind:r.itemFind, goldFind:r.goldFind, warfare:r.warfare,
+          extraStats:r.extraStats, sockets:r.sockets, _iwDerivedPlanner:true
+        });
+      });
+    } catch(e){}
+    GN_EQUIPMENT_INDEX = normalized;
     return GN_EQUIPMENT_INDEX;
   }
 
@@ -26166,7 +26526,9 @@ function syncCombatLevel(val) {
       return '<div class="gn-rec-option">' +
         '<div class="gn-rec-option-main">' +
           '<div class="gn-rec-option-name">' + itemHtml + '</div>' +
-          '<div class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) + '</div>' +
+          '<div class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) +
+            (item._iwDerivedPlanner ? ' · <span style="color:var(--text-3);">derived +4 fallback</span>' : '') +
+          '</div>' +
         '</div>' + button +
       '</div>';
     }).join('');
@@ -26443,26 +26805,38 @@ function syncCombatLevel(val) {
       var c = equipped.slots && equipped.slots[s];
       if (c) { combatAtk += c.stats.atk || 0; combatDef += c.stats.def || 0; }
     });
+    var setAtk = Number(equipped.setBonusTotals && equipped.setBonusTotals.atk || 0);
+    var setDef = Number(equipped.setBonusTotals && equipped.setBonusTotals.def || 0);
+    combatAtk += setAtk;
+    combatDef += setDef;
     // Full set totals (all 12 slots)
     var totalAtk = 0, totalDef = 0;
     GN_SLOT_ORDER.forEach(function(s) {
       var c = equipped.slots && equipped.slots[s];
       if (c) { totalAtk += c.stats.atk || 0; totalDef += c.stats.def || 0; }
     });
+    totalAtk += setAtk;
+    totalDef += setDef;
 
     function row(label, val, hl) {
       return '<div class="gn-stat-row"><span class="gn-stat-label">' + label +
              '</span><span class="gn-stat-value' + (hl ? ' highlight' : '') + '">' + val + '</span></div>';
+    }
+    function displayWhole(value) {
+      if (typeof window.iwAggregateDisplayWhole === 'function')
+        return window.iwAggregateDisplayWhole(value);
+      var n = Number(value);
+      return isFinite(n) ? Math.round(n) : 0;
     }
 
     var html = '';
 
     // ── Attack / Defence ──
     html += '<div class="gn-section-head">Attack &amp; Defence</div>';
-    html += row('Total ATK (combat slots)', combatAtk, combatAtk > 0);
-    html += row('Total DEF (combat slots)', combatDef, combatDef > 0);
-    html += row('ATK (all slots)',  totalAtk, false);
-    html += row('DEF (all slots)',  totalDef, false);
+    html += row('Total ATK (combat slots)', displayWhole(combatAtk), combatAtk > 0);
+    html += row('Total DEF (combat slots)', displayWhole(combatDef), combatDef > 0);
+    html += row('ATK (all slots)',  displayWhole(totalAtk), false);
+    html += row('DEF (all slots)',  displayWhole(totalDef), false);
 
     // ── Gear bonuses (toolkit model) ──
     // Keep this panel intentionally model-only. The imported profile's
@@ -26472,15 +26846,34 @@ function syncCombatLevel(val) {
     var hasAccessory = t.xpPerTask || t.itemFind || t.goldFind || t.gather ||
                        t.fire || t.frost || t.lightning || t.warfare;
     if (hasAccessory) {
-      html += '<div class="gn-section-head">Gear Bonuses</div>';
-      if (t.xpPerTask)  html += row('XP per Task',        '+' + t.xpPerTask, false);
-      if (t.itemFind)   html += row('Item Find',          '+' + t.itemFind  + '%', false);
-      if (t.goldFind)   html += row('Gold Find',          '+' + t.goldFind  + '%', false);
-      if (t.gather)     html += row('2x Gather Chance',   '+' + t.gather    + '%', false);
-      if (t.fire)       html += row('Fire Resist',        '+' + t.fire      + '%', false);
-      if (t.frost)      html += row('Frost Resist',       '+' + t.frost     + '%', false);
-      if (t.lightning)  html += row('Lightning Resist',   '+' + t.lightning + '%', false);
-      if (t.warfare)    html += row('Warfare',            '+' + t.warfare,         false);
+      html += '<div class="gn-section-head">Gear &amp; Set Bonuses</div>';
+      if (t.xpPerTask)  html += row('XP per Task',        '+' + displayWhole(t.xpPerTask), false);
+      if (t.itemFind)   html += row('Item Find',          '+' + displayWhole(t.itemFind)  + '%', false);
+      if (t.goldFind)   html += row('Gold Find',          '+' + displayWhole(t.goldFind)  + '%', false);
+      if (t.gather)     html += row('2x Gather Chance',   '+' + displayWhole(t.gather)    + '%', false);
+      if (t.fire)       html += row('Fire Resist',        '+' + displayWhole(t.fire)      + '%', false);
+      if (t.frost)      html += row('Frost Resist',       '+' + displayWhole(t.frost)     + '%', false);
+      if (t.lightning)  html += row('Lightning Resist',   '+' + displayWhole(t.lightning) + '%', false);
+      if (t.warfare)    html += row('Warfare',            '+' + displayWhole(t.warfare),         false);
+    }
+
+    if(equipped.activeSetBonuses && equipped.activeSetBonuses.length){
+      html += '<div class="gn-section-head">Active Set Bonuses</div>';
+      equipped.activeSetBonuses.forEach(function(active){
+        var bs = (typeof iwSetBonusStats === 'function') ? iwSetBonusStats(active.bonus) : {};
+        var bits = [];
+        if(bs.atk) bits.push('ATK +'+displayWhole(bs.atk));
+        if(bs.def) bits.push('DEF +'+displayWhole(bs.def));
+        if(bs.xpPerTask) bits.push('XP/task +'+displayWhole(bs.xpPerTask));
+        if(bs.itemFind) bits.push('Item Find +'+displayWhole(bs.itemFind)+'%');
+        if(bs.goldFind) bits.push('Gold Find +'+displayWhole(bs.goldFind)+'%');
+        if(bs.gather) bits.push('Gather +'+displayWhole(bs.gather)+'%');
+        if(bs.fire) bits.push('Fire +'+displayWhole(bs.fire)+'%');
+        if(bs.frost) bits.push('Frost +'+displayWhole(bs.frost)+'%');
+        if(bs.lightning) bits.push('Lightning +'+displayWhole(bs.lightning)+'%');
+        if(bs.warfare) bits.push('Warfare +'+displayWhole(bs.warfare));
+        html += row(active.label+' ('+active.pieces+' pieces)', bits.join(' · ') || 'Active', true);
+      });
     }
 
     // ── Enhancements ──
@@ -26800,20 +27193,34 @@ function syncCombatLevel(val) {
       return;
     }
 
-    var current = typeof getRecommendedGear === 'function' ? getRecommendedGear(GN_COMBAT_LV) : null;
-    var next = typeof getNextGearUpgrade === 'function' ? getNextGearUpgrade(GN_COMBAT_LV) : null;
+    var tierCtx = (typeof iwGearPlannerCombatTierContext === 'function')
+      ? iwGearPlannerCombatTierContext(GN_COMBAT_LV) : null;
+    var current = tierCtx && tierCtx.current
+      ? tierCtx.current
+      : (typeof getRecommendedGear === 'function' ? getRecommendedGear(GN_COMBAT_LV) : null);
+    var next = tierCtx && tierCtx.next
+      ? tierCtx.next
+      : (typeof getNextGearUpgrade === 'function' ? getNextGearUpgrade(GN_COMBAT_LV) : null);
     var progression = '<div class="gn-rec-progress">' +
       '<div class="gn-rec-progress-card">' +
-        '<span class="gn-rec-progress-label">Current tier</span>' +
+        '<span class="gn-rec-progress-label">Current combat tier</span>' +
         '<span class="gn-rec-progress-value">' + gnEsc(current ? current.setName + ' Set' : 'No tier set') + '</span>' +
         '<span class="gn-rec-progress-note">' + gnEsc(current ? 'Tier ' + current.tier + ' · Combat Lv ' + GN_COMBAT_LV : 'No recommendation available') + '</span>' +
       '</div>' +
       '<div class="gn-rec-progress-card">' +
-        '<span class="gn-rec-progress-label">Next tier</span>' +
+        '<span class="gn-rec-progress-label">Next combat tier</span>' +
         '<span class="gn-rec-progress-value">' + gnEsc(next ? next.setName + ' Set' : 'Maximum tier reached') + '</span>' +
         '<span class="gn-rec-progress-note">' + gnEsc(next ? 'Tier ' + next.tier + ' · Requires Combat Lv ' + next.combatLevel : 'No higher tier remains') + '</span>' +
       '</div>' +
     '</div>';
+
+    var plannerStatus = (typeof iwGearPlannerDataStatus === 'function') ? iwGearPlannerDataStatus() : null;
+    if(plannerStatus && plannerStatus.derivedPlus4 > 0){
+      progression += '<div class="gn-rec-empty" style="margin-top:8px;color:var(--text-3);">' +
+        'Planner fallback: ' + plannerStatus.derivedPlus4 +
+        ' missing +4 equipment variants are formula-derived from their verified base/+1/+2/+3 families. ' +
+        'Live items.json replaces them automatically when available.</div>';
+    }
 
     if (typeof taskGoalAlternatives !== 'function') {
       out.innerHTML = progression + '<div class="gn-rec-empty">Alternative recommendation data is unavailable.</div>';
@@ -29111,8 +29518,9 @@ function syncCombatLevel(val) {
   function iwBestMemberPick(desc, slot, combatLevel, goal){
     var best = null;
     if(typeof ITEM_DB === 'undefined') return null;
-    for(var i=0;i<ITEM_DB.length;i++){
-      var r = ITEM_DB[i];
+    var plannerItems = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
+    for(var i=0;i<plannerItems.length;i++){
+      var r = plannerItems[i];
       if(!r || r.cat !== 'Equipment' || iwItemSlotKey(r) !== slot) continue;
       if(!iwCanEquip(r, combatLevel)) continue;
       if(!iwRowCountsForSet(r, desc)) continue;
@@ -29513,8 +29921,9 @@ function syncCombatLevel(val) {
 
   function iwTaskIndexDbRow(indexRow){
     if(!indexRow || typeof ITEM_DB === 'undefined') return null;
-    for(var i=0;i<ITEM_DB.length;i++){
-      var r = ITEM_DB[i];
+    var taskRows = (typeof iwGearPlannerItems === 'function') ? iwGearPlannerItems() : ITEM_DB;
+    for(var i=0;i<taskRows.length;i++){
+      var r = taskRows[i];
       if(r && r.cat === 'Equipment' && r.name === indexRow.name) return r;
     }
     return null;
@@ -29743,19 +30152,26 @@ function syncCombatLevel(val) {
            opt.optimization && opt.optimization.bonusScore >= 12000);
       }
 
-      // Real embedded classic + Tailoring coexistence case. Gold Find at
-      // Combat 20 should beat isolated per-slot BIS by fitting 6 Gold classic
-      // members beside 4 Mythril-Silk Tailoring members in different slots.
-      var goldLoad=iwBuildGoalLoadout(20,'goldfind');
-      ok('Gold Find optimized loadout missing',!!goldLoad);
-      if(goldLoad && goldLoad.optimization){
-        var gs=goldLoad.optimization.activeSets||[];
-        ok('Gold classic set should activate in global optimizer',
-           gs.some(function(a){return a.id==='classic:4';}));
-        ok('Mythril Silk Tailoring set should coexist physically',
-           gs.some(function(a){return a.id==='tailoring:5';}));
-        ok('set-aware Gold Find result should strictly beat isolated BIS',
-           goldLoad.optimization.gain > 0);
+      // Classic + Tailoring coexistence case. Isolate this fixture from the
+      // user's imported profile: a real maxed profession profile legitimately
+      // changes the any-skill candidate ceiling and therefore this Combat-20
+      // expected loadout.
+      var savedProfileForGold=window.IWProfile;
+      window.IWProfile=null;
+      try{
+        var goldLoad=iwBuildGoalLoadout(20,'goldfind');
+        ok('Gold Find optimized loadout missing',!!goldLoad);
+        if(goldLoad && goldLoad.optimization){
+          var gs=goldLoad.optimization.activeSets||[];
+          ok('Gold classic set should activate in global optimizer',
+             gs.some(function(a){return a.id==='classic:4';}));
+          ok('Mythril Silk Tailoring set should coexist physically',
+             gs.some(function(a){return a.id==='tailoring:5';}));
+          ok('set-aware Gold Find result should strictly beat isolated BIS',
+             goldLoad.optimization.gain > 0);
+        }
+      } finally {
+        window.IWProfile=savedProfileForGold;
       }
 
       // Task Advisor: Combat 20 / Mining 66 must evaluate the Mining action
@@ -29800,6 +30216,332 @@ function syncCombatLevel(val) {
   // whole-loadout optimizer regression and is discovered by the Developer
   // self-check runner; running it automatically would duplicate the app's
   // existing startup regression work.
+})();
+</script>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   CHARACTER STAT DISPLAY ROUNDING — regression guard
+   Aggregate Character Stats: nearest whole number for display only.
+   Enhanced Tailoring item tooltip rounding remains its separate ceil rule.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  window.iwCharacterStatRoundingSelfCheck = function(){
+    var fail = [];
+    function eq(label, got, want){
+      if(got !== want) fail.push(label + ': got ' + String(got) + ', expected ' + String(want));
+    }
+    function display(v){
+      return (typeof window.iwAggregateDisplayWhole === 'function')
+        ? window.iwAggregateDisplayWhole(v)
+        : Math.round(Number(v)||0);
+    }
+
+    var xpA = 244.66666666666666;
+    var itemA = 27.333333333333336;
+    var xpB = 225.66666666666669;
+    var itemB = 15.333333333333334;
+
+    eq('244.666 XP/task display', display(xpA), 245);
+    eq('27.333 Item Find display', display(itemA), 27);
+    eq('225.666 XP/task display', display(xpB), 226);
+    eq('15.333 Item Find display', display(itemB), 15);
+    eq('44 Gold Find remains 44', display(44), 44);
+    eq('16 Gather remains 16', display(16), 16);
+
+    // The actual numeric inputs must remain exact; this is presentation only.
+    eq('XP source precision preserved', xpA, 244.66666666666666);
+    eq('Item Find source precision preserved', itemA, 27.333333333333336);
+
+    // Tailoring item presentation intentionally stays ceil-based, not this
+    // aggregate nearest-integer rule.
+    try {
+      if (typeof iwTailoringEnhancementStats === 'function') {
+        var raw = iwTailoringEnhancementStats(34, 4, false);
+        var shown = iwTailoringEnhancementStats(34, 4, true);
+        if (raw && shown && raw.xpPerTask > 0) {
+          eq('Tailoring item display is still ceil(raw XP)',
+             shown.xpPerTask, Math.ceil(raw.xpPerTask - 1e-12));
+        }
+      }
+    } catch(e) {
+      fail.push('Tailoring display-rule guard threw: ' + (e && e.message ? e.message : String(e)));
+    }
+
+    if(fail.length && typeof console !== 'undefined')
+      console.warn('[Character Stat Rounding] FAILED:', fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   GEAR PLANNER CURRENT-DATA FIX — regression suite
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  window.iwGearPlannerCurrentDataSelfCheck = function(){
+    var fail=[];
+    function ok(label,cond){ if(!cond) fail.push(label); }
+    function eq(label,got,want){
+      if(got!==want) fail.push(label+': got '+String(got)+', expected '+String(want));
+    }
+    function near(label,got,want,eps){
+      if(Math.abs(Number(got)-Number(want))>(eps||1e-9))
+        fail.push(label+': got '+String(got)+', expected '+String(want));
+    }
+
+    try{
+      var source=ITEM_DB.slice();
+      var sourceP4=source.filter(function(r){return r.cat==='Equipment'&&/\+4$/.test(String(r.name||''));});
+      var planner=iwBuildGearPlannerCandidates(source);
+      var derived=planner.filter(function(r){return r&&r._iwDerivedPlanner;});
+
+      // The July fallback has no +4; live data may. This branch tests the
+      // offline repair only when needed, while the pure duplicate test below
+      // always runs.
+      if(sourceP4.length===0){
+        eq('offline derived +4 family count',derived.length,510);
+        eq('planner total adds 510 candidates',planner.length,source.length+510);
+
+        var helm=planner.find(function(r){return r.name==='Primordite Helm+4';});
+        ok('Primordite Helm+4 derived',!!helm);
+        if(helm) eq('Primordite Helm+4 DEF',helm.def,70);
+
+        var ring=planner.find(function(r){return r.name==='Primordite Ring+4';});
+        ok('Primordite Ring+4 derived',!!ring);
+        if(ring){
+          eq('Primordite Ring+4 ATK',ring.atk,94);
+          eq('Primordite Ring+4 DEF',ring.def,68);
+          eq('Primordite Ring+4 XP/task',ring.xpPerTask,68);
+          eq('Primordite Ring+4 gather',ring.dblGather,136);
+        }
+
+        var hood=planner.find(function(r){return r.name==='Primordial Weave Hood+4';});
+        ok('Primordial Weave Hood+4 derived',!!hood);
+        if(hood){
+          var exact=iwParseGearStats(hood);
+          // Current Tailoring rule: 28 base DEF + (60 × 4/15) = 44.
+          near('Primordial Weave Hood+4 exact DEF',exact.def,44);
+          near('Primordial Weave Hood+4 XP/task',exact.xpPerTask,35*4/15);
+          near('Primordial Weave Hood+4 Gather',exact.gather,35*4/15);
+          near('Primordial Weave Hood+4 Item Find',exact.itemFind,28*4/15);
+          near('Primordial Weave Hood+4 each Resist',exact.fire,20*4/15);
+        }
+
+        var d=iwBestInSlot('helmet','defence',125,null);
+        ok('offline Defence BIS has winner',d&&d.winner);
+        if(d&&d.winner) eq('offline isolated Defence BIS uses +4',d.winner.name,'Primordite Helm+4');
+
+        var x=iwBestInSlot('trinket','xptask',125,null);
+        ok('offline XP/task trinket has winner',x&&x.winner);
+        if(x&&x.winner) ok('offline trinket can reach +4',/\+4$/.test(x.winner.name)||x.winnerScore>=68);
+
+        var copperSword4=planner.find(function(r){return r.name==='Copper Sword+4';});
+        ok('Copper Sword+4 derived',!!copperSword4);
+        if(copperSword4){
+          eq('Copper Sword+4 must not invent DEF',Number(copperSword4.def||0),0);
+          ok('Copper Sword+4 description must not claim DEF',!/DEF \+/.test(copperSword4.desc||''));
+        }
+        var copperRing4=planner.find(function(r){return r.name==='Copper Ring+4';});
+        if(copperRing4) ok('Ring +4 description must not claim socket',!/Socket/.test(copperRing4.desc||''));
+
+        // No standard synthetic +4 may introduce a positive structured stat
+        // that its real +3 family does not already carry.
+        derived.filter(function(r){return !iwIsTailoringArmourRecord(r);}).forEach(function(r){
+          var p3=source.find(function(x){return x.name===String(r.name).replace(/\+4$/,'+3');});
+          ['atk','def','xpPerTask','dblGather'].forEach(function(k){
+            if(Number(r[k]||0)>0 && !(Number(p3&&p3[k]||0)>0))
+              fail.push(r.name+' introduced unsupported '+k);
+          });
+        });
+
+        var task4=taskBaselineSet({gearTier:34,accessoryTier:34},4);
+        ok('Task baseline +4 weapon exists',task4&&task4.weapon);
+        if(task4&&task4.weapon) eq('Task baseline uses Primordite Sword+4',task4.weapon.name,'Primordite Sword+4');
+      }
+
+      // Candidate IDs/names must be unique, including fallback IDs.
+      (function(){
+        var names={},ids={};
+        planner.forEach(function(r){
+          if(r&&r.name){ if(names[r.name]) fail.push('duplicate planner name: '+r.name); names[r.name]=1; }
+          if(r&&r.id){ if(ids[r.id]) fail.push('duplicate planner id: '+r.id); ids[r.id]=1; }
+        });
+      })();
+      var idProbe=iwGearPlannerDerivedPlus4(
+        {id:'probe_sword',name:'Probe Sword',cat:'Equipment',sub:'Weapon slot',atk:10,def:0},
+        {id:'unexpected-third-id',name:'Probe Sword+3',cat:'Equipment',sub:'Weapon slot',atk:18,def:0}
+      );
+      if(idProbe) eq('nonstandard +3 id must get safe +4 id',idProbe.id,'probe_sword_plus_4');
+
+      // Derived tooltip must expose utility stats without dead navigation.
+      var tipProbe=planner.find(function(r){return r.name==='Primordial Weave Hood+4';});
+      if(tipProbe){
+        var tipItem=iwGearPlannerTooltipItem(tipProbe);
+        eq('derived tooltip Item Find display',tipItem.itemFind,8);
+        eq('derived tooltip Gather display',tipItem.dblGather,10);
+        var tipHtml=iwTipRender(tipItem);
+        ok('derived tooltip includes Item Find',tipHtml.indexOf('Item Find')!==-1);
+        ok('derived tooltip has no dead Full entry',tipHtml.indexOf('Full entry')===-1);
+        ok('derived tooltip has no empty href',tipHtml.indexOf('href=""')===-1);
+      }
+
+      // Simulate current/live data by inserting the derived +4 rows as if they
+      // came from the API. The candidate builder must add ZERO duplicates.
+      var simulatedLive=source.concat(derived.map(function(r){
+        var c=Object.assign({},r);
+        delete c._iwDerivedPlanner;
+        delete c._iwDerivedPlannerReason;
+        return c;
+      }));
+      var rebuilt=iwBuildGearPlannerCandidates(simulatedLive);
+      eq('live-like candidate count unchanged',rebuilt.length,simulatedLive.length);
+      eq('live-like derived duplicate count',Number(rebuilt._iwDerivedCount||0),0);
+
+      // Tailoring DEF-bearing set tiers remain current.
+      eq('T13 Tailoring set DEF',TAILORING_SET_BONUS[13].def,30);
+      eq('T23 Tailoring set DEF',TAILORING_SET_BONUS[23].def,45);
+      eq('T30 Tailoring set DEF',TAILORING_SET_BONUS[30].def,45);
+      eq('T34 Tailoring set DEF',TAILORING_SET_BONUS[34].def,60);
+      near('T13 set Defence goal contribution',
+           iwSetBonusGoalValue(TAILORING_SET_BONUS[13],'defence'),30);
+      near('T34 set Defence goal contribution',
+           iwSetBonusGoalValue(TAILORING_SET_BONUS[34],'defence'),60);
+
+      var blood4=planner.find(function(r){return r.name==='Bloodweave Hood+4';});
+      ok('Bloodweave Hood+4 derived',!!blood4);
+      if(blood4){
+        var bloodStats=iwParseGearStats(blood4);
+        // 10 base DEF + 30 * 4/15 = 18 exact.
+        near('Bloodweave Hood+4 exact DEF',bloodStats.def,18);
+        near('Bloodweave Hood+4 exact resist',bloodStats.fire,10*4/15);
+      }
+
+      // Equipped totals must add the active 4-piece T34 Tailoring set DEF
+      // exactly once, while preserving item-only slot stats.
+      (function(){
+        var savedProfile=window.IWProfile;
+        try{
+          window.IWProfile={displayName:'set-total-probe',equipped:{
+            helmet:{name:'Primordial Weave Hood+4'},
+            chest:{name:'Primordial Weave Robe+4'},
+            gloves:{name:'Primordial Weave Gloves+4'},
+            legs:{name:'Primordial Weave Leggings+4'}
+          }};
+          var eqp=iwReadEquippedSet();
+          ok('T34 equipped-set probe resolves',!!eqp);
+          if(eqp){
+            eq('T34 active set count',eqp.activeSetBonuses.length,1);
+            eq('T34 active set id',eqp.activeSetBonuses[0]&&eqp.activeSetBonuses[0].id,'tailoring:34');
+            near('T34 equipped set bonus DEF',eqp.setBonusTotals.def,60);
+            near('T34 aggregate DEF adds set once',eqp.totals.def-eqp.itemTotals.def,60);
+          }
+        } finally { window.IWProfile=savedProfile; }
+      })();
+
+      // Whole-loadout optimizer must remain internally consistent.
+      var load=iwBuildGoalLoadout(125,'defence');
+      ok('Defence whole-loadout exists',load&&load.slots);
+      if(load&&load.slots){
+        var active=(typeof iwActiveSetsForSlots==='function')
+          ? iwActiveSetsForSlots(load.slots,'defence') : [];
+        if(load.optimization && Array.isArray(load.optimization.activeSets)){
+          eq('active-set recount length',active.length,load.optimization.activeSets.length);
+        }
+      }
+
+      // DB-driven live Gear progression context still sees T34 at Combat 125.
+      var ctx=iwGearPlannerCombatTierContext(125);
+      ok('planner combat-tier context exists',ctx&&ctx.current);
+      if(ctx&&ctx.current) eq('Combat 125 current tier',ctx.current.tier,34);
+      var lowCtx=iwGearPlannerCombatTierContext(20);
+      ok('Combat 20 next DB tier exists',lowCtx&&lowCtx.next);
+      if(lowCtx&&lowCtx.next) eq('Combat 20 next restricted tier',lowCtx.next.tier,8);
+
+      // Previous regression layers.
+      var suites=[
+        ['A-G',window.iwAugust2026FinalSelfCheck],
+        ['Audit',window.iwFinalAuditSelfCheck],
+        ['Optimizer',window.iwSetOptimizerAndTaskTierSelfCheck],
+        ['Rounding',window.iwCharacterStatRoundingSelfCheck],
+        ['Sprite',window.iwPlus4SpriteBadgeCheck]
+      ];
+      suites.forEach(function(pair){
+        if(typeof pair[1]!=='function') return;
+        var r=pair[1]();
+        if(!Array.isArray(r)||r.length)
+          fail.push(pair[0]+' regression: '+String(r&&r.join?r.join(' | '):r));
+      });
+
+    }catch(e){
+      fail.push('Gear Planner current-data suite threw: '+(e&&e.message?e.message:String(e)));
+    }
+
+    if(fail.length&&typeof console!=='undefined')
+      console.warn('[Gear Planner current data] FAILED:',fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   v5.0 RELEASE CANDIDATE — consolidated release audit guard
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwReleaseCandidateSelfCheck=function(){
+    var fail=[];
+    function ok(label,cond){if(!cond)fail.push(label);}
+    try{
+      var suites=[
+        ['August base',window.iwAugust2026RegressionSelfCheck],
+        ['Live bridge',window.iwItemDataBridgeSelfCheck],
+        ['Work Order',window.iwWorkOrderPotionPayoutSelfCheck],
+        ['+4 equipment',window.iwPlus4EquipmentSelfCheck],
+        ['Tailoring',window.iwTailoringStageESelfCheck],
+        ['Skill boosts',window.iwSkillBoostStageFSelfCheck],
+        ['Silkbind',window.iwSilkbindStageGSelfCheck],
+        ['A-G integrated',window.iwAugust2026FinalSelfCheck],
+        ['Final audit',window.iwFinalAuditSelfCheck],
+        ['Optimizer/task',window.iwSetOptimizerAndTaskTierSelfCheck],
+        ['Stat rounding',window.iwCharacterStatRoundingSelfCheck],
+        ['+4 sprite',window.iwPlus4SpriteBadgeCheck],
+        ['Gear current data',window.iwGearPlannerCurrentDataSelfCheck]
+      ];
+      suites.forEach(function(pair){
+        if(typeof pair[1]!=='function')return;
+        var r=pair[1]();
+        if(!Array.isArray(r)||r.length)
+          fail.push(pair[0]+': '+String(r&&r.join?r.join(' | '):r));
+      });
+
+      var planner=iwGearPlannerItems();
+      var ids={},names={};
+      planner.forEach(function(r){
+        if(r&&r.id){ok('duplicate candidate id '+r.id,!ids[r.id]);ids[r.id]=1;}
+        if(r&&r.name){ok('duplicate candidate name '+r.name,!names[r.name]);names[r.name]=1;}
+      });
+      planner.filter(function(r){return r&&r._iwDerivedPlanner&&/ Sword\+4$/.test(r.name||'');})
+        .forEach(function(r){ok(r.name+' synthetic DEF must remain zero',Number(r.def||0)===0);});
+
+      var status=iwGearPlannerDataStatus();
+      if(status.source==='embedded'){
+        ok('embedded fallback derives +4',status.derivedPlus4===510);
+        ok('embedded candidate total',status.totalCandidates===4322);
+      }
+    }catch(e){fail.push('release suite threw: '+(e&&e.message?e.message:String(e)));}
+    if(fail.length&&typeof console!=='undefined')console.warn('[v5 release candidate] FAILED:',fail.join(' | '));
+    return fail;
+  };
 })();
 </script>
 
