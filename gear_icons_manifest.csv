@@ -2,1118 +2,1119 @@ name,index,row,column,x,y,width,height
 +1,0,0,0,0,0,128,128
 +2,1,0,1,128,0,128,128
 +3,2,0,2,256,0,128,128
-Copper Sword,3,1,0,0,128,128,128
-Copper Shield,4,1,1,128,128,128,128
-Copper Ring,5,1,2,256,128,128,128
-Copper Amulet,6,1,3,384,128,128,128
-Copper Relic,7,1,4,512,128,128,128
-Copper Helm,8,1,5,640,128,128,128
-Copper Chest,9,1,6,768,128,128,128
-Copper Gloves,10,1,7,896,128,128,128
-Copper Leggings,11,1,8,1024,128,128,128
-Copper Boots,12,1,9,1152,128,128,128
-Iron Sword,13,2,0,0,256,128,128
-Iron Shield,14,2,1,128,256,128,128
-Iron Ring,15,2,2,256,256,128,128
-Iron Amulet,16,2,3,384,256,128,128
-Iron Relic,17,2,4,512,256,128,128
-Iron Helm,18,2,5,640,256,128,128
-Iron Chest,19,2,6,768,256,128,128
-Iron Gloves,20,2,7,896,256,128,128
-Iron Leggings,21,2,8,1024,256,128,128
-Iron Boots,22,2,9,1152,256,128,128
-Silver Sword,23,3,0,0,384,128,128
-Silver Shield,24,3,1,128,384,128,128
-Silver Ring,25,3,2,256,384,128,128
-Silver Amulet,26,3,3,384,384,128,128
-Silver Relic,27,3,4,512,384,128,128
-Silver Helm,28,3,5,640,384,128,128
-Silver Chest,29,3,6,768,384,128,128
-Silver Gloves,30,3,7,896,384,128,128
-Silver Leggings,31,3,8,1024,384,128,128
-Silver Boots,32,3,9,1152,384,128,128
-Gold Sword,33,4,0,0,512,128,128
-Gold Shield,34,4,1,128,512,128,128
-Gold Ring,35,4,2,256,512,128,128
-Gold Amulet,36,4,3,384,512,128,128
-Gold Relic,37,4,4,512,512,128,128
-Gold Helm,38,4,5,640,512,128,128
-Gold Chest,39,4,6,768,512,128,128
-Gold Gloves,40,4,7,896,512,128,128
-Gold Leggings,41,4,8,1024,512,128,128
-Gold Boots,42,4,9,1152,512,128,128
-Mythril Sword,43,5,0,0,640,128,128
-Mythril Shield,44,5,1,128,640,128,128
-Mythril Ring,45,5,2,256,640,128,128
-Mythril Amulet,46,5,3,384,640,128,128
-Mythril Relic,47,5,4,512,640,128,128
-Mythril Helm,48,5,5,640,640,128,128
-Mythril Chest,49,5,6,768,640,128,128
-Mythril Gloves,50,5,7,896,640,128,128
-Mythril Leggings,51,5,8,1024,640,128,128
-Mythril Boots,52,5,9,1152,640,128,128
-Starsteel Sword,53,6,0,0,768,128,128
-Starsteel Shield,54,6,1,128,768,128,128
-Starsteel Ring,55,6,2,256,768,128,128
-Starsteel Amulet,56,6,3,384,768,128,128
-Starsteel Relic,57,6,4,512,768,128,128
-Starsteel Helm,58,6,5,640,768,128,128
-Starsteel Chest,59,6,6,768,768,128,128
-Starsteel Gloves,60,6,7,896,768,128,128
-Starsteel Leggings,61,6,8,1024,768,128,128
-Starsteel Boots,62,6,9,1152,768,128,128
-Obsidian Sword,63,7,0,0,896,128,128
-Obsidian Shield,64,7,1,128,896,128,128
-Obsidian Ring,65,7,2,256,896,128,128
-Obsidian Amulet,66,7,3,384,896,128,128
-Obsidian Relic,67,7,4,512,896,128,128
-Obsidian Helm,68,7,5,640,896,128,128
-Obsidian Chest,69,7,6,768,896,128,128
-Obsidian Gloves,70,7,7,896,896,128,128
-Obsidian Leggings,71,7,8,1024,896,128,128
-Obsidian Boots,72,7,9,1152,896,128,128
-Runite Sword,73,8,0,0,1024,128,128
-Runite Shield,74,8,1,128,1024,128,128
-Runite Ring,75,8,2,256,1024,128,128
-Runite Amulet,76,8,3,384,1024,128,128
-Runite Relic,77,8,4,512,1024,128,128
-Runite Helm,78,8,5,640,1024,128,128
-Runite Chest,79,8,6,768,1024,128,128
-Runite Gloves,80,8,7,896,1024,128,128
-Runite Leggings,81,8,8,1024,1024,128,128
-Runite Boots,82,8,9,1152,1024,128,128
-Dragonsteel Sword,83,9,0,0,1152,128,128
-Dragonsteel Shield,84,9,1,128,1152,128,128
-Dragonsteel Ring,85,9,2,256,1152,128,128
-Dragonsteel Amulet,86,9,3,384,1152,128,128
-Dragonsteel Relic,87,9,4,512,1152,128,128
-Dragonsteel Helm,88,9,5,640,1152,128,128
-Dragonsteel Chest,89,9,6,768,1152,128,128
-Dragonsteel Gloves,90,9,7,896,1152,128,128
-Dragonsteel Leggings,91,9,8,1024,1152,128,128
-Dragonsteel Boots,92,9,9,1152,1152,128,128
-Aethersteel Sword,93,10,0,0,1280,128,128
-Aethersteel Shield,94,10,1,128,1280,128,128
-Aethersteel Ring,95,10,2,256,1280,128,128
-Aethersteel Amulet,96,10,3,384,1280,128,128
-Aethersteel Relic,97,10,4,512,1280,128,128
-Aethersteel Helm,98,10,5,640,1280,128,128
-Aethersteel Chest,99,10,6,768,1280,128,128
-Aethersteel Gloves,100,10,7,896,1280,128,128
-Aethersteel Leggings,101,10,8,1024,1280,128,128
-Aethersteel Boots,102,10,9,1152,1280,128,128
-Voidiron Sword,103,11,0,0,1408,128,128
-Voidiron Shield,104,11,1,128,1408,128,128
-Voidiron Ring,105,11,2,256,1408,128,128
-Voidiron Amulet,106,11,3,384,1408,128,128
-Voidiron Relic,107,11,4,512,1408,128,128
-Voidiron Helm,108,11,5,640,1408,128,128
-Voidiron Chest,109,11,6,768,1408,128,128
-Voidiron Gloves,110,11,7,896,1408,128,128
-Voidiron Leggings,111,11,8,1024,1408,128,128
-Voidiron Boots,112,11,9,1152,1408,128,128
-Celestium Sword,113,12,0,0,1536,128,128
-Celestium Shield,114,12,1,128,1536,128,128
-Celestium Ring,115,12,2,256,1536,128,128
-Celestium Amulet,116,12,3,384,1536,128,128
-Celestium Relic,117,12,4,512,1536,128,128
-Celestium Helm,118,12,5,640,1536,128,128
-Celestium Chest,119,12,6,768,1536,128,128
-Celestium Gloves,120,12,7,896,1536,128,128
-Celestium Leggings,121,12,8,1024,1536,128,128
-Celestium Boots,122,12,9,1152,1536,128,128
-Bloodstone Sword,123,13,0,0,1664,128,128
-Bloodstone Shield,124,13,1,128,1664,128,128
-Bloodstone Ring,125,13,2,256,1664,128,128
-Bloodstone Amulet,126,13,3,384,1664,128,128
-Bloodstone Relic,127,13,4,512,1664,128,128
-Bloodstone Helm,128,13,5,640,1664,128,128
-Bloodstone Chest,129,13,6,768,1664,128,128
-Bloodstone Gloves,130,13,7,896,1664,128,128
-Bloodstone Leggings,131,13,8,1024,1664,128,128
-Bloodstone Boots,132,13,9,1152,1664,128,128
-Moonsteel Sword,133,14,0,0,1792,128,128
-Moonsteel Shield,134,14,1,128,1792,128,128
-Moonsteel Ring,135,14,2,256,1792,128,128
-Moonsteel Amulet,136,14,3,384,1792,128,128
-Moonsteel Relic,137,14,4,512,1792,128,128
-Moonsteel Helm,138,14,5,640,1792,128,128
-Moonsteel Chest,139,14,6,768,1792,128,128
-Moonsteel Gloves,140,14,7,896,1792,128,128
-Moonsteel Leggings,141,14,8,1024,1792,128,128
-Moonsteel Boots,142,14,9,1152,1792,128,128
-Sunforged Sword,143,15,0,0,1920,128,128
-Sunforged Shield,144,15,1,128,1920,128,128
-Sunforged Ring,145,15,2,256,1920,128,128
-Sunforged Amulet,146,15,3,384,1920,128,128
-Sunforged Relic,147,15,4,512,1920,128,128
-Sunforged Helm,148,15,5,640,1920,128,128
-Sunforged Chest,149,15,6,768,1920,128,128
-Sunforged Gloves,150,15,7,896,1920,128,128
-Sunforged Leggings,151,15,8,1024,1920,128,128
-Sunforged Boots,152,15,9,1152,1920,128,128
-Netherite Sword,153,16,0,0,2048,128,128
-Netherite Shield,154,16,1,128,2048,128,128
-Netherite Ring,155,16,2,256,2048,128,128
-Netherite Amulet,156,16,3,384,2048,128,128
-Netherite Relic,157,16,4,512,2048,128,128
-Netherite Helm,158,16,5,640,2048,128,128
-Netherite Chest,159,16,6,768,2048,128,128
-Netherite Gloves,160,16,7,896,2048,128,128
-Netherite Leggings,161,16,8,1024,2048,128,128
-Netherite Boots,162,16,9,1152,2048,128,128
-Stormglass Sword,163,17,0,0,2176,128,128
-Stormglass Shield,164,17,1,128,2176,128,128
-Stormglass Ring,165,17,2,256,2176,128,128
-Stormglass Amulet,166,17,3,384,2176,128,128
-Stormglass Relic,167,17,4,512,2176,128,128
-Stormglass Helm,168,17,5,640,2176,128,128
-Stormglass Chest,169,17,6,768,2176,128,128
-Stormglass Gloves,170,17,7,896,2176,128,128
-Stormglass Leggings,171,17,8,1024,2176,128,128
-Stormglass Boots,172,17,9,1152,2176,128,128
-Kingssteel Sword,173,18,0,0,2304,128,128
-Kingssteel Shield,174,18,1,128,2304,128,128
-Kingssteel Ring,175,18,2,256,2304,128,128
-Kingssteel Amulet,176,18,3,384,2304,128,128
-Kingssteel Relic,177,18,4,512,2304,128,128
-Kingssteel Helm,178,18,5,640,2304,128,128
-Kingssteel Chest,179,18,6,768,2304,128,128
-Kingssteel Gloves,180,18,7,896,2304,128,128
-Kingssteel Leggings,181,18,8,1024,2304,128,128
-Kingssteel Boots,182,18,9,1152,2304,128,128
-Eternium Sword,183,19,0,0,2432,128,128
-Eternium Shield,184,19,1,128,2432,128,128
-Eternium Ring,185,19,2,256,2432,128,128
-Eternium Amulet,186,19,3,384,2432,128,128
-Eternium Relic,187,19,4,512,2432,128,128
-Eternium Helm,188,19,5,640,2432,128,128
-Eternium Chest,189,19,6,768,2432,128,128
-Eternium Gloves,190,19,7,896,2432,128,128
-Eternium Leggings,191,19,8,1024,2432,128,128
-Eternium Boots,192,19,9,1152,2432,128,128
-Astralium Sword,193,20,0,0,2560,128,128
-Astralium Shield,194,20,1,128,2560,128,128
-Astralium Ring,195,20,2,256,2560,128,128
-Astralium Amulet,196,20,3,384,2560,128,128
-Astralium Relic,197,20,4,512,2560,128,128
-Astralium Helm,198,20,5,640,2560,128,128
-Astralium Chest,199,20,6,768,2560,128,128
-Astralium Gloves,200,20,7,896,2560,128,128
-Astralium Leggings,201,20,8,1024,2560,128,128
-Astralium Boots,202,20,9,1152,2560,128,128
-Gravite Sword,203,21,0,0,2688,128,128
-Gravite Shield,204,21,1,128,2688,128,128
-Gravite Ring,205,21,2,256,2688,128,128
-Gravite Amulet,206,21,3,384,2688,128,128
-Gravite Relic,207,21,4,512,2688,128,128
-Gravite Helm,208,21,5,640,2688,128,128
-Gravite Chest,209,21,6,768,2688,128,128
-Gravite Gloves,210,21,7,896,2688,128,128
-Gravite Leggings,211,21,8,1024,2688,128,128
-Gravite Boots,212,21,9,1152,2688,128,128
-Frostiron Sword,213,22,0,0,2816,128,128
-Frostiron Shield,214,22,1,128,2816,128,128
-Frostiron Ring,215,22,2,256,2816,128,128
-Frostiron Amulet,216,22,3,384,2816,128,128
-Frostiron Relic,217,22,4,512,2816,128,128
-Frostiron Helm,218,22,5,640,2816,128,128
-Frostiron Chest,219,22,6,768,2816,128,128
-Frostiron Gloves,220,22,7,896,2816,128,128
-Frostiron Leggings,221,22,8,1024,2816,128,128
-Frostiron Boots,222,22,9,1152,2816,128,128
-Dusksteel Sword,223,23,0,0,2944,128,128
-Dusksteel Shield,224,23,1,128,2944,128,128
-Dusksteel Ring,225,23,2,256,2944,128,128
-Dusksteel Amulet,226,23,3,384,2944,128,128
-Dusksteel Relic,227,23,4,512,2944,128,128
-Dusksteel Helm,228,23,5,640,2944,128,128
-Dusksteel Chest,229,23,6,768,2944,128,128
-Dusksteel Gloves,230,23,7,896,2944,128,128
-Dusksteel Leggings,231,23,8,1024,2944,128,128
-Dusksteel Boots,232,23,9,1152,2944,128,128
-Titanium Sword,233,24,0,0,3072,128,128
-Titanium Shield,234,24,1,128,3072,128,128
-Titanium Ring,235,24,2,256,3072,128,128
-Titanium Amulet,236,24,3,384,3072,128,128
-Titanium Relic,237,24,4,512,3072,128,128
-Titanium Helm,238,24,5,640,3072,128,128
-Titanium Chest,239,24,6,768,3072,128,128
-Titanium Gloves,240,24,7,896,3072,128,128
-Titanium Leggings,241,24,8,1024,3072,128,128
-Titanium Boots,242,24,9,1152,3072,128,128
-Skysteel Sword,243,25,0,0,3200,128,128
-Skysteel Shield,244,25,1,128,3200,128,128
-Skysteel Ring,245,25,2,256,3200,128,128
-Skysteel Amulet,246,25,3,384,3200,128,128
-Skysteel Relic,247,25,4,512,3200,128,128
-Skysteel Helm,248,25,5,640,3200,128,128
-Skysteel Chest,249,25,6,768,3200,128,128
-Skysteel Gloves,250,25,7,896,3200,128,128
-Skysteel Leggings,251,25,8,1024,3200,128,128
-Skysteel Boots,252,25,9,1152,3200,128,128
-Emberium Sword,253,26,0,0,3328,128,128
-Emberium Shield,254,26,1,128,3328,128,128
-Emberium Ring,255,26,2,256,3328,128,128
-Emberium Amulet,256,26,3,384,3328,128,128
-Emberium Relic,257,26,4,512,3328,128,128
-Emberium Helm,258,26,5,640,3328,128,128
-Emberium Chest,259,26,6,768,3328,128,128
-Emberium Gloves,260,26,7,896,3328,128,128
-Emberium Leggings,261,26,8,1024,3328,128,128
-Emberium Boots,262,26,9,1152,3328,128,128
-Soulsteel Sword,263,27,0,0,3456,128,128
-Soulsteel Shield,264,27,1,128,3456,128,128
-Soulsteel Ring,265,27,2,256,3456,128,128
-Soulsteel Amulet,266,27,3,384,3456,128,128
-Soulsteel Relic,267,27,4,512,3456,128,128
-Soulsteel Helm,268,27,5,640,3456,128,128
-Soulsteel Chest,269,27,6,768,3456,128,128
-Soulsteel Gloves,270,27,7,896,3456,128,128
-Soulsteel Leggings,271,27,8,1024,3456,128,128
-Soulsteel Boots,272,27,9,1152,3456,128,128
-Chronite Sword,273,28,0,0,3584,128,128
-Chronite Shield,274,28,1,128,3584,128,128
-Chronite Ring,275,28,2,256,3584,128,128
-Chronite Amulet,276,28,3,384,3584,128,128
-Chronite Relic,277,28,4,512,3584,128,128
-Chronite Helm,278,28,5,640,3584,128,128
-Chronite Chest,279,28,6,768,3584,128,128
-Chronite Gloves,280,28,7,896,3584,128,128
-Chronite Leggings,281,28,8,1024,3584,128,128
-Chronite Boots,282,28,9,1152,3584,128,128
-Worldforge Sword,283,29,0,0,3712,128,128
-Worldforge Shield,284,29,1,128,3712,128,128
-Worldforge Ring,285,29,2,256,3712,128,128
-Worldforge Amulet,286,29,3,384,3712,128,128
-Worldforge Relic,287,29,4,512,3712,128,128
-Worldforge Helm,288,29,5,640,3712,128,128
-Worldforge Chest,289,29,6,768,3712,128,128
-Worldforge Gloves,290,29,7,896,3712,128,128
-Worldforge Leggings,291,29,8,1024,3712,128,128
-Worldforge Boots,292,29,9,1152,3712,128,128
-Voidglass Sword,293,30,0,0,3840,128,128
-Voidglass Shield,294,30,1,128,3840,128,128
-Voidglass Ring,295,30,2,256,3840,128,128
-Voidglass Amulet,296,30,3,384,3840,128,128
-Voidglass Relic,297,30,4,512,3840,128,128
-Voidglass Helm,298,30,5,640,3840,128,128
-Voidglass Chest,299,30,6,768,3840,128,128
-Voidglass Gloves,300,30,7,896,3840,128,128
-Voidglass Leggings,301,30,8,1024,3840,128,128
-Voidglass Boots,302,30,9,1152,3840,128,128
-Thalassic Sword,303,31,0,0,3968,128,128
-Thalassic Shield,304,31,1,128,3968,128,128
-Thalassic Ring,305,31,2,256,3968,128,128
-Thalassic Amulet,306,31,3,384,3968,128,128
-Thalassic Relic,307,31,4,512,3968,128,128
-Thalassic Helm,308,31,5,640,3968,128,128
-Thalassic Chest,309,31,6,768,3968,128,128
-Thalassic Gloves,310,31,7,896,3968,128,128
-Thalassic Leggings,311,31,8,1024,3968,128,128
-Thalassic Boots,312,31,9,1152,3968,128,128
-Ashspire Sword,313,32,0,0,4096,128,128
-Ashspire Shield,314,32,1,128,4096,128,128
-Ashspire Ring,315,32,2,256,4096,128,128
-Ashspire Amulet,316,32,3,384,4096,128,128
-Ashspire Relic,317,32,4,512,4096,128,128
-Ashspire Helm,318,32,5,640,4096,128,128
-Ashspire Chest,319,32,6,768,4096,128,128
-Ashspire Gloves,320,32,7,896,4096,128,128
-Ashspire Leggings,321,32,8,1024,4096,128,128
-Ashspire Boots,322,32,9,1152,4096,128,128
-Glacirite Sword,323,33,0,0,4224,128,128
-Glacirite Shield,324,33,1,128,4224,128,128
-Glacirite Ring,325,33,2,256,4224,128,128
-Glacirite Amulet,326,33,3,384,4224,128,128
-Glacirite Relic,327,33,4,512,4224,128,128
-Glacirite Helm,328,33,5,640,4224,128,128
-Glacirite Chest,329,33,6,768,4224,128,128
-Glacirite Gloves,330,33,7,896,4224,128,128
-Glacirite Leggings,331,33,8,1024,4224,128,128
-Glacirite Boots,332,33,9,1152,4224,128,128
-Primordite Sword,333,34,0,0,4352,128,128
-Primordite Shield,334,34,1,128,4352,128,128
-Primordite Ring,335,34,2,256,4352,128,128
-Primordite Amulet,336,34,3,384,4352,128,128
-Primordite Relic,337,34,4,512,4352,128,128
-Primordite Helm,338,34,5,640,4352,128,128
-Primordite Chest,339,34,6,768,4352,128,128
-Primordite Gloves,340,34,7,896,4352,128,128
-Primordite Leggings,341,34,8,1024,4352,128,128
-Primordite Boots,342,34,9,1152,4352,128,128
-Cotton Hood,343,35,0,0,4480,128,128
-Cotton Robe,344,35,1,128,4480,128,128
-Cotton Gloves,345,35,2,256,4480,128,128
-Cotton Leggings,346,35,3,384,4480,128,128
-Cotton Boots,347,35,4,512,4480,128,128
-Flax Hood,348,36,0,0,4608,128,128
-Flax Robe,349,36,1,128,4608,128,128
-Flax Gloves,350,36,2,256,4608,128,128
-Flax Leggings,351,36,3,384,4608,128,128
-Flax Boots,352,36,4,512,4608,128,128
-Wool Hood,353,37,0,0,4736,128,128
-Wool Robe,354,37,1,128,4736,128,128
-Wool Gloves,355,37,2,256,4736,128,128
-Wool Leggings,356,37,3,384,4736,128,128
-Wool Boots,357,37,4,512,4736,128,128
-Silk Hood,358,38,0,0,4864,128,128
-Silk Robe,359,38,1,128,4864,128,128
-Silk Gloves,360,38,2,256,4864,128,128
-Silk Leggings,361,38,3,384,4864,128,128
-Silk Boots,362,38,4,512,4864,128,128
-Mythril Silk Hood,363,39,0,0,4992,128,128
-Mythril Silk Robe,364,39,1,128,4992,128,128
-Mythril Silk Gloves,365,39,2,256,4992,128,128
-Mythril Silk Leggings,366,39,3,384,4992,128,128
-Mythril Silk Boots,367,39,4,512,4992,128,128
-Starweave Hood,368,40,0,0,5120,128,128
-Starweave Robe,369,40,1,128,5120,128,128
-Starweave Gloves,370,40,2,256,5120,128,128
-Starweave Leggings,371,40,3,384,5120,128,128
-Starweave Boots,372,40,4,512,5120,128,128
-Shadowweave Hood,373,41,0,0,5248,128,128
-Shadowweave Robe,374,41,1,128,5248,128,128
-Shadowweave Gloves,375,41,2,256,5248,128,128
-Shadowweave Leggings,376,41,3,384,5248,128,128
-Shadowweave Boots,377,41,4,512,5248,128,128
-Runic Thread Hood,378,42,0,0,5376,128,128
-Runic Thread Robe,379,42,1,128,5376,128,128
-Runic Thread Gloves,380,42,2,256,5376,128,128
-Runic Thread Leggings,381,42,3,384,5376,128,128
-Runic Thread Boots,382,42,4,512,5376,128,128
-Dragonscale Silk Hood,383,43,0,0,5504,128,128
-Dragonscale Silk Robe,384,43,1,128,5504,128,128
-Dragonscale Silk Gloves,385,43,2,256,5504,128,128
-Dragonscale Silk Leggings,386,43,3,384,5504,128,128
-Dragonscale Silk Boots,387,43,4,512,5504,128,128
-Aether Silk Hood,388,44,0,0,5632,128,128
-Aether Silk Robe,389,44,1,128,5632,128,128
-Aether Silk Gloves,390,44,2,256,5632,128,128
-Aether Silk Leggings,391,44,3,384,5632,128,128
-Aether Silk Boots,392,44,4,512,5632,128,128
-Void Thread Hood,393,45,0,0,5760,128,128
-Void Thread Robe,394,45,1,128,5760,128,128
-Void Thread Gloves,395,45,2,256,5760,128,128
-Void Thread Leggings,396,45,3,384,5760,128,128
-Void Thread Boots,397,45,4,512,5760,128,128
-Celestial Silk Hood,398,46,0,0,5888,128,128
-Celestial Silk Robe,399,46,1,128,5888,128,128
-Celestial Silk Gloves,400,46,2,256,5888,128,128
-Celestial Silk Leggings,401,46,3,384,5888,128,128
-Celestial Silk Boots,402,46,4,512,5888,128,128
-Bloodweave Hood,403,47,0,0,6016,128,128
-Bloodweave Robe,404,47,1,128,6016,128,128
-Bloodweave Gloves,405,47,2,256,6016,128,128
-Bloodweave Leggings,406,47,3,384,6016,128,128
-Bloodweave Boots,407,47,4,512,6016,128,128
-Moonsilk Hood,408,48,0,0,6144,128,128
-Moonsilk Robe,409,48,1,128,6144,128,128
-Moonsilk Gloves,410,48,2,256,6144,128,128
-Moonsilk Leggings,411,48,3,384,6144,128,128
-Moonsilk Boots,412,48,4,512,6144,128,128
-Sunweave Hood,413,49,0,0,6272,128,128
-Sunweave Robe,414,49,1,128,6272,128,128
-Sunweave Gloves,415,49,2,256,6272,128,128
-Sunweave Leggings,416,49,3,384,6272,128,128
-Sunweave Boots,417,49,4,512,6272,128,128
-Netherweave Hood,418,50,0,0,6400,128,128
-Netherweave Robe,419,50,1,128,6400,128,128
-Netherweave Gloves,420,50,2,256,6400,128,128
-Netherweave Leggings,421,50,3,384,6400,128,128
-Netherweave Boots,422,50,4,512,6400,128,128
-Stormsilk Hood,423,51,0,0,6528,128,128
-Stormsilk Robe,424,51,1,128,6528,128,128
-Stormsilk Gloves,425,51,2,256,6528,128,128
-Stormsilk Leggings,426,51,3,384,6528,128,128
-Stormsilk Boots,427,51,4,512,6528,128,128
-Regal Silk Hood,428,52,0,0,6656,128,128
-Regal Silk Robe,429,52,1,128,6656,128,128
-Regal Silk Gloves,430,52,2,256,6656,128,128
-Regal Silk Leggings,431,52,3,384,6656,128,128
-Regal Silk Boots,432,52,4,512,6656,128,128
-Eternal Weave Hood,433,53,0,0,6784,128,128
-Eternal Weave Robe,434,53,1,128,6784,128,128
-Eternal Weave Gloves,435,53,2,256,6784,128,128
-Eternal Weave Leggings,436,53,3,384,6784,128,128
-Eternal Weave Boots,437,53,4,512,6784,128,128
-Astral Silk Hood,438,54,0,0,6912,128,128
-Astral Silk Robe,439,54,1,128,6912,128,128
-Astral Silk Gloves,440,54,2,256,6912,128,128
-Astral Silk Leggings,441,54,3,384,6912,128,128
-Astral Silk Boots,442,54,4,512,6912,128,128
-Gravity Weave Hood,443,55,0,0,7040,128,128
-Gravity Weave Robe,444,55,1,128,7040,128,128
-Gravity Weave Gloves,445,55,2,256,7040,128,128
-Gravity Weave Leggings,446,55,3,384,7040,128,128
-Gravity Weave Boots,447,55,4,512,7040,128,128
-Frostweave Hood,448,56,0,0,7168,128,128
-Frostweave Robe,449,56,1,128,7168,128,128
-Frostweave Gloves,450,56,2,256,7168,128,128
-Frostweave Leggings,451,56,3,384,7168,128,128
-Frostweave Boots,452,56,4,512,7168,128,128
-Duskweave Hood,453,57,0,0,7296,128,128
-Duskweave Robe,454,57,1,128,7296,128,128
-Duskweave Gloves,455,57,2,256,7296,128,128
-Duskweave Leggings,456,57,3,384,7296,128,128
-Duskweave Boots,457,57,4,512,7296,128,128
-Titanweave Hood,458,58,0,0,7424,128,128
-Titanweave Robe,459,58,1,128,7424,128,128
-Titanweave Gloves,460,58,2,256,7424,128,128
-Titanweave Leggings,461,58,3,384,7424,128,128
-Titanweave Boots,462,58,4,512,7424,128,128
-Skysilk Hood,463,59,0,0,7552,128,128
-Skysilk Robe,464,59,1,128,7552,128,128
-Skysilk Gloves,465,59,2,256,7552,128,128
-Skysilk Leggings,466,59,3,384,7552,128,128
-Skysilk Boots,467,59,4,512,7552,128,128
-Emberweave Hood,468,60,0,0,7680,128,128
-Emberweave Robe,469,60,1,128,7680,128,128
-Emberweave Gloves,470,60,2,256,7680,128,128
-Emberweave Leggings,471,60,3,384,7680,128,128
-Emberweave Boots,472,60,4,512,7680,128,128
-Soulweave Hood,473,61,0,0,7808,128,128
-Soulweave Robe,474,61,1,128,7808,128,128
-Soulweave Gloves,475,61,2,256,7808,128,128
-Soulweave Leggings,476,61,3,384,7808,128,128
-Soulweave Boots,477,61,4,512,7808,128,128
-Chronoweave Hood,478,62,0,0,7936,128,128
-Chronoweave Robe,479,62,1,128,7936,128,128
-Chronoweave Gloves,480,62,2,256,7936,128,128
-Chronoweave Leggings,481,62,3,384,7936,128,128
-Chronoweave Boots,482,62,4,512,7936,128,128
-Worldweave Hood,483,63,0,0,8064,128,128
-Worldweave Robe,484,63,1,128,8064,128,128
-Worldweave Gloves,485,63,2,256,8064,128,128
-Worldweave Leggings,486,63,3,384,8064,128,128
-Worldweave Boots,487,63,4,512,8064,128,128
-Voidglass Silk Hood,488,64,0,0,8192,128,128
-Voidglass Silk Robe,489,64,1,128,8192,128,128
-Voidglass Silk Gloves,490,64,2,256,8192,128,128
-Voidglass Silk Leggings,491,64,3,384,8192,128,128
-Voidglass Silk Boots,492,64,4,512,8192,128,128
-Abyssal Silk Hood,493,65,0,0,8320,128,128
-Abyssal Silk Robe,494,65,1,128,8320,128,128
-Abyssal Silk Gloves,495,65,2,256,8320,128,128
-Abyssal Silk Leggings,496,65,3,384,8320,128,128
-Abyssal Silk Boots,497,65,4,512,8320,128,128
-Ashweave Hood,498,66,0,0,8448,128,128
-Ashweave Robe,499,66,1,128,8448,128,128
-Ashweave Gloves,500,66,2,256,8448,128,128
-Ashweave Leggings,501,66,3,384,8448,128,128
-Ashweave Boots,502,66,4,512,8448,128,128
-Glacial Silk Hood,503,67,0,0,8576,128,128
-Glacial Silk Robe,504,67,1,128,8576,128,128
-Glacial Silk Gloves,505,67,2,256,8576,128,128
-Glacial Silk Leggings,506,67,3,384,8576,128,128
-Glacial Silk Boots,507,67,4,512,8576,128,128
-Primordial Weave Hood,508,68,0,0,8704,128,128
-Primordial Weave Robe,509,68,1,128,8704,128,128
-Primordial Weave Gloves,510,68,2,256,8704,128,128
-Primordial Weave Leggings,511,68,3,384,8704,128,128
-Primordial Weave Boots,512,68,4,512,8704,128,128
-Enchanted Belt Lv. 1,513,69,0,0,8832,128,128
-Enchanted Belt Lv. 2,514,69,1,128,8832,128,128
-Enchanted Belt Lv. 3,515,69,2,256,8832,128,128
-Enchanted Belt Lv. 4,516,69,3,384,8832,128,128
-Enchanted Belt Lv. 5,517,69,4,512,8832,128,128
-Enchanted Belt Lv. 6,518,69,5,640,8832,128,128
-Enchanted Belt Lv. 7,519,69,6,768,8832,128,128
-Enchanted Belt Lv. 8,520,69,7,896,8832,128,128
-Enchanted Belt Lv. 9,521,69,8,1024,8832,128,128
-Enchanted Belt Lv. 10,522,69,9,1152,8832,128,128
-Enchanted Belt Lv. 11,523,70,0,0,8960,128,128
-Enchanted Belt Lv. 12,524,70,1,128,8960,128,128
-Enchanted Belt Lv. 13,525,70,2,256,8960,128,128
-Enchanted Belt Lv. 14,526,70,3,384,8960,128,128
-Enchanted Belt Lv. 15,527,70,4,512,8960,128,128
-Enchanted Belt Lv. 16,528,70,5,640,8960,128,128
-Enchanted Belt Lv. 17,529,70,6,768,8960,128,128
-Enchanted Belt Lv. 18,530,70,7,896,8960,128,128
-Enchanted Belt Lv. 19,531,70,8,1024,8960,128,128
-Enchanted Belt Lv. 20,532,70,9,1152,8960,128,128
-Enchanted Belt Lv. 21,533,71,0,0,9088,128,128
-Enchanted Belt Lv. 22,534,71,1,128,9088,128,128
-Enchanted Belt Lv. 23,535,71,2,256,9088,128,128
-Enchanted Belt Lv. 24,536,71,3,384,9088,128,128
-Enchanted Belt Lv. 25,537,71,4,512,9088,128,128
-Enchanted Belt Lv. 26,538,71,5,640,9088,128,128
-Enchanted Belt Lv. 27,539,71,6,768,9088,128,128
-Enchanted Belt Lv. 28,540,71,7,896,9088,128,128
-Enchanted Belt Lv. 29,541,71,8,1024,9088,128,128
-Enchanted Belt Lv. 30,542,71,9,1152,9088,128,128
-Enchanted Belt Lv. 31,543,72,0,0,9216,128,128
-Enchanted Belt Lv. 32,544,72,1,128,9216,128,128
-Enchanted Belt Lv. 33,545,72,2,256,9216,128,128
-Enchanted Belt Lv. 34,546,72,3,384,9216,128,128
-Enchanted Belt Lv. 35,547,72,4,512,9216,128,128
-Enchanted Belt Lv. 36,548,72,5,640,9216,128,128
-Enchanted Belt Lv. 37,549,72,6,768,9216,128,128
-Enchanted Belt Lv. 38,550,72,7,896,9216,128,128
-Enchanted Belt Lv. 39,551,72,8,1024,9216,128,128
-Enchanted Belt Lv. 40,552,72,9,1152,9216,128,128
-Gilded Cotton Cloak of Fortune,553,73,0,0,9344,128,128
-Gilded Cotton Cloak of the Harvest,554,73,1,128,9344,128,128
-Gilded Cotton Cloak of Insight,555,73,2,256,9344,128,128
-Fortunate Cotton Cloak of the Harvest,556,73,3,384,9344,128,128
-Fortunate Cotton Cloak of Insight,557,73,4,512,9344,128,128
-Nimble Cotton Cloak of Insight,558,73,5,640,9344,128,128
-Gilded Flax Cloak of Fortune,559,74,0,0,9472,128,128
-Gilded Flax Cloak of the Harvest,560,74,1,128,9472,128,128
-Gilded Flax Cloak of Insight,561,74,2,256,9472,128,128
-Fortunate Flax Cloak of the Harvest,562,74,3,384,9472,128,128
-Fortunate Flax Cloak of Insight,563,74,4,512,9472,128,128
-Nimble Flax Cloak of Insight,564,74,5,640,9472,128,128
-Gilded Wool Cloak of Fortune,565,75,0,0,9600,128,128
-Gilded Wool Cloak of the Harvest,566,75,1,128,9600,128,128
-Gilded Wool Cloak of Insight,567,75,2,256,9600,128,128
-Fortunate Wool Cloak of the Harvest,568,75,3,384,9600,128,128
-Fortunate Wool Cloak of Insight,569,75,4,512,9600,128,128
-Nimble Wool Cloak of Insight,570,75,5,640,9600,128,128
-Gilded Silk Cloak of Fortune,571,76,0,0,9728,128,128
-Gilded Silk Cloak of the Harvest,572,76,1,128,9728,128,128
-Gilded Silk Cloak of Insight,573,76,2,256,9728,128,128
-Fortunate Silk Cloak of the Harvest,574,76,3,384,9728,128,128
-Fortunate Silk Cloak of Insight,575,76,4,512,9728,128,128
-Nimble Silk Cloak of Insight,576,76,5,640,9728,128,128
-Gilded Mythril Silk Cloak of Fortune,577,77,0,0,9856,128,128
-Gilded Mythril Silk Cloak of the Harvest,578,77,1,128,9856,128,128
-Gilded Mythril Silk Cloak of Insight,579,77,2,256,9856,128,128
-Fortunate Mythril Silk Cloak of the Harvest,580,77,3,384,9856,128,128
-Fortunate Mythril Silk Cloak of Insight,581,77,4,512,9856,128,128
-Nimble Mythril Silk Cloak of Insight,582,77,5,640,9856,128,128
-Gilded Starweave Cloak of Fortune,583,78,0,0,9984,128,128
-Gilded Starweave Cloak of the Harvest,584,78,1,128,9984,128,128
-Gilded Starweave Cloak of Insight,585,78,2,256,9984,128,128
-Fortunate Starweave Cloak of the Harvest,586,78,3,384,9984,128,128
-Fortunate Starweave Cloak of Insight,587,78,4,512,9984,128,128
-Nimble Starweave Cloak of Insight,588,78,5,640,9984,128,128
-Gilded Shadowweave Cloak of Fortune,589,79,0,0,10112,128,128
-Gilded Shadowweave Cloak of the Harvest,590,79,1,128,10112,128,128
-Gilded Shadowweave Cloak of Insight,591,79,2,256,10112,128,128
-Fortunate Shadowweave Cloak of the Harvest,592,79,3,384,10112,128,128
-Fortunate Shadowweave Cloak of Insight,593,79,4,512,10112,128,128
-Nimble Shadowweave Cloak of Insight,594,79,5,640,10112,128,128
-Gilded Runic Thread Cloak of Fortune,595,80,0,0,10240,128,128
-Gilded Runic Thread Cloak of the Harvest,596,80,1,128,10240,128,128
-Gilded Runic Thread Cloak of Insight,597,80,2,256,10240,128,128
-Fortunate Runic Thread Cloak of the Harvest,598,80,3,384,10240,128,128
-Fortunate Runic Thread Cloak of Insight,599,80,4,512,10240,128,128
-Nimble Runic Thread Cloak of Insight,600,80,5,640,10240,128,128
-Gilded Dragonscale Silk Cloak of Fortune,601,81,0,0,10368,128,128
-Gilded Dragonscale Silk Cloak of the Harvest,602,81,1,128,10368,128,128
-Gilded Dragonscale Silk Cloak of Insight,603,81,2,256,10368,128,128
-Fortunate Dragonscale Silk Cloak of the Harvest,604,81,3,384,10368,128,128
-Fortunate Dragonscale Silk Cloak of Insight,605,81,4,512,10368,128,128
-Nimble Dragonscale Silk Cloak of Insight,606,81,5,640,10368,128,128
-Gilded Aether Silk Cloak of Fortune,607,82,0,0,10496,128,128
-Gilded Aether Silk Cloak of the Harvest,608,82,1,128,10496,128,128
-Gilded Aether Silk Cloak of Insight,609,82,2,256,10496,128,128
-Fortunate Aether Silk Cloak of the Harvest,610,82,3,384,10496,128,128
-Fortunate Aether Silk Cloak of Insight,611,82,4,512,10496,128,128
-Nimble Aether Silk Cloak of Insight,612,82,5,640,10496,128,128
-Gilded Void Thread Cloak of Fortune,613,83,0,0,10624,128,128
-Gilded Void Thread Cloak of the Harvest,614,83,1,128,10624,128,128
-Gilded Void Thread Cloak of Insight,615,83,2,256,10624,128,128
-Fortunate Void Thread Cloak of the Harvest,616,83,3,384,10624,128,128
-Fortunate Void Thread Cloak of Insight,617,83,4,512,10624,128,128
-Nimble Void Thread Cloak of Insight,618,83,5,640,10624,128,128
-Gilded Celestial Silk Cloak of Fortune,619,84,0,0,10752,128,128
-Gilded Celestial Silk Cloak of the Harvest,620,84,1,128,10752,128,128
-Gilded Celestial Silk Cloak of Insight,621,84,2,256,10752,128,128
-Fortunate Celestial Silk Cloak of the Harvest,622,84,3,384,10752,128,128
-Fortunate Celestial Silk Cloak of Insight,623,84,4,512,10752,128,128
-Nimble Celestial Silk Cloak of Insight,624,84,5,640,10752,128,128
-Gilded Bloodweave Cloak of Fortune,625,85,0,0,10880,128,128
-Gilded Bloodweave Cloak of the Harvest,626,85,1,128,10880,128,128
-Gilded Bloodweave Cloak of Insight,627,85,2,256,10880,128,128
-Fortunate Bloodweave Cloak of the Harvest,628,85,3,384,10880,128,128
-Fortunate Bloodweave Cloak of Insight,629,85,4,512,10880,128,128
-Nimble Bloodweave Cloak of Insight,630,85,5,640,10880,128,128
-Gilded Moonsilk Cloak of Fortune,631,86,0,0,11008,128,128
-Gilded Moonsilk Cloak of the Harvest,632,86,1,128,11008,128,128
-Gilded Moonsilk Cloak of Insight,633,86,2,256,11008,128,128
-Fortunate Moonsilk Cloak of the Harvest,634,86,3,384,11008,128,128
-Fortunate Moonsilk Cloak of Insight,635,86,4,512,11008,128,128
-Nimble Moonsilk Cloak of Insight,636,86,5,640,11008,128,128
-Gilded Sunweave Cloak of Fortune,637,87,0,0,11136,128,128
-Gilded Sunweave Cloak of the Harvest,638,87,1,128,11136,128,128
-Gilded Sunweave Cloak of Insight,639,87,2,256,11136,128,128
-Fortunate Sunweave Cloak of the Harvest,640,87,3,384,11136,128,128
-Fortunate Sunweave Cloak of Insight,641,87,4,512,11136,128,128
-Nimble Sunweave Cloak of Insight,642,87,5,640,11136,128,128
-Gilded Netherweave Cloak of Fortune,643,88,0,0,11264,128,128
-Gilded Netherweave Cloak of the Harvest,644,88,1,128,11264,128,128
-Gilded Netherweave Cloak of Insight,645,88,2,256,11264,128,128
-Fortunate Netherweave Cloak of the Harvest,646,88,3,384,11264,128,128
-Fortunate Netherweave Cloak of Insight,647,88,4,512,11264,128,128
-Nimble Netherweave Cloak of Insight,648,88,5,640,11264,128,128
-Gilded Stormsilk Cloak of Fortune,649,89,0,0,11392,128,128
-Gilded Stormsilk Cloak of the Harvest,650,89,1,128,11392,128,128
-Gilded Stormsilk Cloak of Insight,651,89,2,256,11392,128,128
-Fortunate Stormsilk Cloak of the Harvest,652,89,3,384,11392,128,128
-Fortunate Stormsilk Cloak of Insight,653,89,4,512,11392,128,128
-Nimble Stormsilk Cloak of Insight,654,89,5,640,11392,128,128
-Gilded Regal Silk Cloak of Fortune,655,90,0,0,11520,128,128
-Gilded Regal Silk Cloak of the Harvest,656,90,1,128,11520,128,128
-Gilded Regal Silk Cloak of Insight,657,90,2,256,11520,128,128
-Fortunate Regal Silk Cloak of the Harvest,658,90,3,384,11520,128,128
-Fortunate Regal Silk Cloak of Insight,659,90,4,512,11520,128,128
-Nimble Regal Silk Cloak of Insight,660,90,5,640,11520,128,128
-Gilded Eternal Weave Cloak of Fortune,661,91,0,0,11648,128,128
-Gilded Eternal Weave Cloak of the Harvest,662,91,1,128,11648,128,128
-Gilded Eternal Weave Cloak of Insight,663,91,2,256,11648,128,128
-Fortunate Eternal Weave Cloak of the Harvest,664,91,3,384,11648,128,128
-Fortunate Eternal Weave Cloak of Insight,665,91,4,512,11648,128,128
-Nimble Eternal Weave Cloak of Insight,666,91,5,640,11648,128,128
-Gilded Astral Silk Cloak of Fortune,667,92,0,0,11776,128,128
-Gilded Astral Silk Cloak of the Harvest,668,92,1,128,11776,128,128
-Gilded Astral Silk Cloak of Insight,669,92,2,256,11776,128,128
-Fortunate Astral Silk Cloak of the Harvest,670,92,3,384,11776,128,128
-Fortunate Astral Silk Cloak of Insight,671,92,4,512,11776,128,128
-Nimble Astral Silk Cloak of Insight,672,92,5,640,11776,128,128
-Gilded Gravity Weave Cloak of Fortune,673,93,0,0,11904,128,128
-Gilded Gravity Weave Cloak of the Harvest,674,93,1,128,11904,128,128
-Gilded Gravity Weave Cloak of Insight,675,93,2,256,11904,128,128
-Fortunate Gravity Weave Cloak of the Harvest,676,93,3,384,11904,128,128
-Fortunate Gravity Weave Cloak of Insight,677,93,4,512,11904,128,128
-Nimble Gravity Weave Cloak of Insight,678,93,5,640,11904,128,128
-Gilded Frostweave Cloak of Fortune,679,94,0,0,12032,128,128
-Gilded Frostweave Cloak of the Harvest,680,94,1,128,12032,128,128
-Gilded Frostweave Cloak of Insight,681,94,2,256,12032,128,128
-Fortunate Frostweave Cloak of the Harvest,682,94,3,384,12032,128,128
-Fortunate Frostweave Cloak of Insight,683,94,4,512,12032,128,128
-Nimble Frostweave Cloak of Insight,684,94,5,640,12032,128,128
-Gilded Duskweave Cloak of Fortune,685,95,0,0,12160,128,128
-Gilded Duskweave Cloak of the Harvest,686,95,1,128,12160,128,128
-Gilded Duskweave Cloak of Insight,687,95,2,256,12160,128,128
-Fortunate Duskweave Cloak of the Harvest,688,95,3,384,12160,128,128
-Fortunate Duskweave Cloak of Insight,689,95,4,512,12160,128,128
-Nimble Duskweave Cloak of Insight,690,95,5,640,12160,128,128
-Gilded Titanweave Cloak of Fortune,691,96,0,0,12288,128,128
-Gilded Titanweave Cloak of the Harvest,692,96,1,128,12288,128,128
-Gilded Titanweave Cloak of Insight,693,96,2,256,12288,128,128
-Fortunate Titanweave Cloak of the Harvest,694,96,3,384,12288,128,128
-Fortunate Titanweave Cloak of Insight,695,96,4,512,12288,128,128
-Nimble Titanweave Cloak of Insight,696,96,5,640,12288,128,128
-Gilded Skysilk Cloak of Fortune,697,97,0,0,12416,128,128
-Gilded Skysilk Cloak of the Harvest,698,97,1,128,12416,128,128
-Gilded Skysilk Cloak of Insight,699,97,2,256,12416,128,128
-Fortunate Skysilk Cloak of the Harvest,700,97,3,384,12416,128,128
-Fortunate Skysilk Cloak of Insight,701,97,4,512,12416,128,128
-Nimble Skysilk Cloak of Insight,702,97,5,640,12416,128,128
-Gilded Emberweave Cloak of Fortune,703,98,0,0,12544,128,128
-Gilded Emberweave Cloak of the Harvest,704,98,1,128,12544,128,128
-Gilded Emberweave Cloak of Insight,705,98,2,256,12544,128,128
-Fortunate Emberweave Cloak of the Harvest,706,98,3,384,12544,128,128
-Fortunate Emberweave Cloak of Insight,707,98,4,512,12544,128,128
-Nimble Emberweave Cloak of Insight,708,98,5,640,12544,128,128
-Gilded Soulweave Cloak of Fortune,709,99,0,0,12672,128,128
-Gilded Soulweave Cloak of the Harvest,710,99,1,128,12672,128,128
-Gilded Soulweave Cloak of Insight,711,99,2,256,12672,128,128
-Fortunate Soulweave Cloak of the Harvest,712,99,3,384,12672,128,128
-Fortunate Soulweave Cloak of Insight,713,99,4,512,12672,128,128
-Nimble Soulweave Cloak of Insight,714,99,5,640,12672,128,128
-Gilded Chronoweave Cloak of Fortune,715,100,0,0,12800,128,128
-Gilded Chronoweave Cloak of the Harvest,716,100,1,128,12800,128,128
-Gilded Chronoweave Cloak of Insight,717,100,2,256,12800,128,128
-Fortunate Chronoweave Cloak of the Harvest,718,100,3,384,12800,128,128
-Fortunate Chronoweave Cloak of Insight,719,100,4,512,12800,128,128
-Nimble Chronoweave Cloak of Insight,720,100,5,640,12800,128,128
-Gilded Worldweave Cloak of Fortune,721,101,0,0,12928,128,128
-Gilded Worldweave Cloak of the Harvest,722,101,1,128,12928,128,128
-Gilded Worldweave Cloak of Insight,723,101,2,256,12928,128,128
-Fortunate Worldweave Cloak of the Harvest,724,101,3,384,12928,128,128
-Fortunate Worldweave Cloak of Insight,725,101,4,512,12928,128,128
-Nimble Worldweave Cloak of Insight,726,101,5,640,12928,128,128
-Gilded Voidglass Silk Cloak of Fortune,727,102,0,0,13056,128,128
-Gilded Voidglass Silk Cloak of the Harvest,728,102,1,128,13056,128,128
-Gilded Voidglass Silk Cloak of Insight,729,102,2,256,13056,128,128
-Fortunate Voidglass Silk Cloak of the Harvest,730,102,3,384,13056,128,128
-Fortunate Voidglass Silk Cloak of Insight,731,102,4,512,13056,128,128
-Nimble Voidglass Silk Cloak of Insight,732,102,5,640,13056,128,128
-Gilded Abyssal Silk Cloak of Fortune,733,103,0,0,13184,128,128
-Gilded Abyssal Silk Cloak of the Harvest,734,103,1,128,13184,128,128
-Gilded Abyssal Silk Cloak of Insight,735,103,2,256,13184,128,128
-Fortunate Abyssal Silk Cloak of the Harvest,736,103,3,384,13184,128,128
-Fortunate Abyssal Silk Cloak of Insight,737,103,4,512,13184,128,128
-Nimble Abyssal Silk Cloak of Insight,738,103,5,640,13184,128,128
-Gilded Ashweave Cloak of Fortune,739,104,0,0,13312,128,128
-Gilded Ashweave Cloak of the Harvest,740,104,1,128,13312,128,128
-Gilded Ashweave Cloak of Insight,741,104,2,256,13312,128,128
-Fortunate Ashweave Cloak of the Harvest,742,104,3,384,13312,128,128
-Fortunate Ashweave Cloak of Insight,743,104,4,512,13312,128,128
-Nimble Ashweave Cloak of Insight,744,104,5,640,13312,128,128
-Gilded Glacial Silk Cloak of Fortune,745,105,0,0,13440,128,128
-Gilded Glacial Silk Cloak of the Harvest,746,105,1,128,13440,128,128
-Gilded Glacial Silk Cloak of Insight,747,105,2,256,13440,128,128
-Fortunate Glacial Silk Cloak of the Harvest,748,105,3,384,13440,128,128
-Fortunate Glacial Silk Cloak of Insight,749,105,4,512,13440,128,128
-Nimble Glacial Silk Cloak of Insight,750,105,5,640,13440,128,128
-Gilded Primordial Weave Cloak of Fortune,751,106,0,0,13568,128,128
-Gilded Primordial Weave Cloak of the Harvest,752,106,1,128,13568,128,128
-Gilded Primordial Weave Cloak of Insight,753,106,2,256,13568,128,128
-Fortunate Primordial Weave Cloak of the Harvest,754,106,3,384,13568,128,128
-Fortunate Primordial Weave Cloak of Insight,755,106,4,512,13568,128,128
-Nimble Primordial Weave Cloak of Insight,756,106,5,640,13568,128,128
-Miner's Gloves,757,107,0,0,13696,128,128
-Herbalist's Gloves,758,107,1,128,13696,128,128
-Blacksmith's Gloves,759,107,2,256,13696,128,128
-Alchemist's Gloves,760,107,3,384,13696,128,128
-Jewelcrafter's Gloves,761,107,4,512,13696,128,128
-Spellcrafter's Gloves,762,107,5,640,13696,128,128
-Tailor's Gloves,763,107,6,768,13696,128,128
-Invisibility Ring,764,107,7,896,13696,128,128
-Prospector's Pick,765,107,8,1024,13696,128,128
-Forager's Sickle,766,107,9,1152,13696,128,128
-Journeyman's Hammer,767,108,0,0,13824,128,128
-Weaver's Needle,768,108,1,128,13824,128,128
-Alchemist's Volatile Flask,769,108,2,256,13824,128,128
-Jeweler's Chisel,770,108,3,384,13824,128,128
-Spellcrafter's Runestaff,771,108,4,512,13824,128,128
-Prospector's Buckler,772,108,5,640,13824,128,128
-Forager's Guard,773,108,6,768,13824,128,128
-Journeyman's Bulwark,774,108,7,896,13824,128,128
-Weaver's Ward,775,108,8,1024,13824,128,128
-Alchemist's Reagent Satchel,776,108,9,1152,13824,128,128
-Jeweler's Strongbox,777,109,0,0,13952,128,128
-Spellcrafter's Ward,778,109,1,128,13952,128,128
-Cutpurse's Signet,779,109,2,256,13952,128,128
-Bounty Hunter's Gauntlets,780,109,3,384,13952,128,128
-Marauder's Warboots,781,109,4,512,13952,128,128
-Plunderer's Bulwark,782,109,5,640,13952,128,128
-Highwayman's Blade,783,109,6,768,13952,128,128
-Worldbreaker,784,109,7,896,13952,128,128
-Soulforged Blade,785,109,8,1024,13952,128,128
-Wanderer's Token,786,109,9,1152,13952,128,128
-Ruby Ring of Attack,787,110,0,0,14080,128,128
-Ruby Ring of Defense,788,110,1,128,14080,128,128
-Ruby Ring of Experience,789,110,2,256,14080,128,128
-Ruby Ring of Gathering,790,110,3,384,14080,128,128
-Ruby Amulet of Attack,791,110,4,512,14080,128,128
-Ruby Amulet of Defense,792,110,5,640,14080,128,128
-Ruby Amulet of Experience,793,110,6,768,14080,128,128
-Ruby Amulet of Gathering,794,110,7,896,14080,128,128
-Garnet Ring of Attack,795,111,0,0,14208,128,128
-Garnet Ring of Defense,796,111,1,128,14208,128,128
-Garnet Ring of Experience,797,111,2,256,14208,128,128
-Garnet Ring of Gathering,798,111,3,384,14208,128,128
-Garnet Amulet of Attack,799,111,4,512,14208,128,128
-Garnet Amulet of Defense,800,111,5,640,14208,128,128
-Garnet Amulet of Experience,801,111,6,768,14208,128,128
-Garnet Amulet of Gathering,802,111,7,896,14208,128,128
-Amethyst Ring of Attack,803,112,0,0,14336,128,128
-Amethyst Ring of Defense,804,112,1,128,14336,128,128
-Amethyst Ring of Experience,805,112,2,256,14336,128,128
-Amethyst Ring of Gathering,806,112,3,384,14336,128,128
-Amethyst Amulet of Attack,807,112,4,512,14336,128,128
-Amethyst Amulet of Defense,808,112,5,640,14336,128,128
-Amethyst Amulet of Experience,809,112,6,768,14336,128,128
-Amethyst Amulet of Gathering,810,112,7,896,14336,128,128
-Topaz Ring of Attack,811,113,0,0,14464,128,128
-Topaz Ring of Defense,812,113,1,128,14464,128,128
-Topaz Ring of Experience,813,113,2,256,14464,128,128
-Topaz Ring of Gathering,814,113,3,384,14464,128,128
-Topaz Amulet of Attack,815,113,4,512,14464,128,128
-Topaz Amulet of Defense,816,113,5,640,14464,128,128
-Topaz Amulet of Experience,817,113,6,768,14464,128,128
-Topaz Amulet of Gathering,818,113,7,896,14464,128,128
-Peridot Ring of Attack,819,114,0,0,14592,128,128
-Peridot Ring of Defense,820,114,1,128,14592,128,128
-Peridot Ring of Experience,821,114,2,256,14592,128,128
-Peridot Ring of Gathering,822,114,3,384,14592,128,128
-Peridot Amulet of Attack,823,114,4,512,14592,128,128
-Peridot Amulet of Defense,824,114,5,640,14592,128,128
-Peridot Amulet of Experience,825,114,6,768,14592,128,128
-Peridot Amulet of Gathering,826,114,7,896,14592,128,128
-Aquamarine Ring of Attack,827,115,0,0,14720,128,128
-Aquamarine Ring of Defense,828,115,1,128,14720,128,128
-Aquamarine Ring of Experience,829,115,2,256,14720,128,128
-Aquamarine Ring of Gathering,830,115,3,384,14720,128,128
-Aquamarine Amulet of Attack,831,115,4,512,14720,128,128
-Aquamarine Amulet of Defense,832,115,5,640,14720,128,128
-Aquamarine Amulet of Experience,833,115,6,768,14720,128,128
-Aquamarine Amulet of Gathering,834,115,7,896,14720,128,128
-Onyx Ring of Attack,835,116,0,0,14848,128,128
-Onyx Ring of Defense,836,116,1,128,14848,128,128
-Onyx Ring of Experience,837,116,2,256,14848,128,128
-Onyx Ring of Gathering,838,116,3,384,14848,128,128
-Onyx Amulet of Attack,839,116,4,512,14848,128,128
-Onyx Amulet of Defense,840,116,5,640,14848,128,128
-Onyx Amulet of Experience,841,116,6,768,14848,128,128
-Onyx Amulet of Gathering,842,116,7,896,14848,128,128
-Jade Ring of Attack,843,117,0,0,14976,128,128
-Jade Ring of Defense,844,117,1,128,14976,128,128
-Jade Ring of Experience,845,117,2,256,14976,128,128
-Jade Ring of Gathering,846,117,3,384,14976,128,128
-Jade Amulet of Attack,847,117,4,512,14976,128,128
-Jade Amulet of Defense,848,117,5,640,14976,128,128
-Jade Amulet of Experience,849,117,6,768,14976,128,128
-Jade Amulet of Gathering,850,117,7,896,14976,128,128
-Sapphire Ring of Attack,851,118,0,0,15104,128,128
-Sapphire Ring of Defense,852,118,1,128,15104,128,128
-Sapphire Ring of Experience,853,118,2,256,15104,128,128
-Sapphire Ring of Gathering,854,118,3,384,15104,128,128
-Sapphire Amulet of Attack,855,118,4,512,15104,128,128
-Sapphire Amulet of Defense,856,118,5,640,15104,128,128
-Sapphire Amulet of Experience,857,118,6,768,15104,128,128
-Sapphire Amulet of Gathering,858,118,7,896,15104,128,128
-Opal Ring of Attack,859,119,0,0,15232,128,128
-Opal Ring of Defense,860,119,1,128,15232,128,128
-Opal Ring of Experience,861,119,2,256,15232,128,128
-Opal Ring of Gathering,862,119,3,384,15232,128,128
-Opal Amulet of Attack,863,119,4,512,15232,128,128
-Opal Amulet of Defense,864,119,5,640,15232,128,128
-Opal Amulet of Experience,865,119,6,768,15232,128,128
-Opal Amulet of Gathering,866,119,7,896,15232,128,128
-Alexandrite Ring of Attack,867,120,0,0,15360,128,128
-Alexandrite Ring of Defense,868,120,1,128,15360,128,128
-Alexandrite Ring of Experience,869,120,2,256,15360,128,128
-Alexandrite Ring of Gathering,870,120,3,384,15360,128,128
-Alexandrite Amulet of Attack,871,120,4,512,15360,128,128
-Alexandrite Amulet of Defense,872,120,5,640,15360,128,128
-Alexandrite Amulet of Experience,873,120,6,768,15360,128,128
-Alexandrite Amulet of Gathering,874,120,7,896,15360,128,128
-Citrine Ring of Attack,875,121,0,0,15488,128,128
-Citrine Ring of Defense,876,121,1,128,15488,128,128
-Citrine Ring of Experience,877,121,2,256,15488,128,128
-Citrine Ring of Gathering,878,121,3,384,15488,128,128
-Citrine Amulet of Attack,879,121,4,512,15488,128,128
-Citrine Amulet of Defense,880,121,5,640,15488,128,128
-Citrine Amulet of Experience,881,121,6,768,15488,128,128
-Citrine Amulet of Gathering,882,121,7,896,15488,128,128
-Spinel Ring of Attack,883,122,0,0,15616,128,128
-Spinel Ring of Defense,884,122,1,128,15616,128,128
-Spinel Ring of Experience,885,122,2,256,15616,128,128
-Spinel Ring of Gathering,886,122,3,384,15616,128,128
-Spinel Amulet of Attack,887,122,4,512,15616,128,128
-Spinel Amulet of Defense,888,122,5,640,15616,128,128
-Spinel Amulet of Experience,889,122,6,768,15616,128,128
-Spinel Amulet of Gathering,890,122,7,896,15616,128,128
-Moonstone Ring of Attack,891,123,0,0,15744,128,128
-Moonstone Ring of Defense,892,123,1,128,15744,128,128
-Moonstone Ring of Experience,893,123,2,256,15744,128,128
-Moonstone Ring of Gathering,894,123,3,384,15744,128,128
-Moonstone Amulet of Attack,895,123,4,512,15744,128,128
-Moonstone Amulet of Defense,896,123,5,640,15744,128,128
-Moonstone Amulet of Experience,897,123,6,768,15744,128,128
-Moonstone Amulet of Gathering,898,123,7,896,15744,128,128
-Sunstone Ring of Attack,899,124,0,0,15872,128,128
-Sunstone Ring of Defense,900,124,1,128,15872,128,128
-Sunstone Ring of Experience,901,124,2,256,15872,128,128
-Sunstone Ring of Gathering,902,124,3,384,15872,128,128
-Sunstone Amulet of Attack,903,124,4,512,15872,128,128
-Sunstone Amulet of Defense,904,124,5,640,15872,128,128
-Sunstone Amulet of Experience,905,124,6,768,15872,128,128
-Sunstone Amulet of Gathering,906,124,7,896,15872,128,128
-Tanzanite Ring of Attack,907,125,0,0,16000,128,128
-Tanzanite Ring of Defense,908,125,1,128,16000,128,128
-Tanzanite Ring of Experience,909,125,2,256,16000,128,128
-Tanzanite Ring of Gathering,910,125,3,384,16000,128,128
-Tanzanite Amulet of Attack,911,125,4,512,16000,128,128
-Tanzanite Amulet of Defense,912,125,5,640,16000,128,128
-Tanzanite Amulet of Experience,913,125,6,768,16000,128,128
-Tanzanite Amulet of Gathering,914,125,7,896,16000,128,128
-Tourmaline Ring of Attack,915,126,0,0,16128,128,128
-Tourmaline Ring of Defense,916,126,1,128,16128,128,128
-Tourmaline Ring of Experience,917,126,2,256,16128,128,128
-Tourmaline Ring of Gathering,918,126,3,384,16128,128,128
-Tourmaline Amulet of Attack,919,126,4,512,16128,128,128
-Tourmaline Amulet of Defense,920,126,5,640,16128,128,128
-Tourmaline Amulet of Experience,921,126,6,768,16128,128,128
-Tourmaline Amulet of Gathering,922,126,7,896,16128,128,128
-Zircon Ring of Attack,923,127,0,0,16256,128,128
-Zircon Ring of Defense,924,127,1,128,16256,128,128
-Zircon Ring of Experience,925,127,2,256,16256,128,128
-Zircon Ring of Gathering,926,127,3,384,16256,128,128
-Zircon Amulet of Attack,927,127,4,512,16256,128,128
-Zircon Amulet of Defense,928,127,5,640,16256,128,128
-Zircon Amulet of Experience,929,127,6,768,16256,128,128
-Zircon Amulet of Gathering,930,127,7,896,16256,128,128
-Lapis Ring of Attack,931,128,0,0,16384,128,128
-Lapis Ring of Defense,932,128,1,128,16384,128,128
-Lapis Ring of Experience,933,128,2,256,16384,128,128
-Lapis Ring of Gathering,934,128,3,384,16384,128,128
-Lapis Amulet of Attack,935,128,4,512,16384,128,128
-Lapis Amulet of Defense,936,128,5,640,16384,128,128
-Lapis Amulet of Experience,937,128,6,768,16384,128,128
-Lapis Amulet of Gathering,938,128,7,896,16384,128,128
-Labradorite Ring of Attack,939,129,0,0,16512,128,128
-Labradorite Ring of Defense,940,129,1,128,16512,128,128
-Labradorite Ring of Experience,941,129,2,256,16512,128,128
-Labradorite Ring of Gathering,942,129,3,384,16512,128,128
-Labradorite Amulet of Attack,943,129,4,512,16512,128,128
-Labradorite Amulet of Defense,944,129,5,640,16512,128,128
-Labradorite Amulet of Experience,945,129,6,768,16512,128,128
-Labradorite Amulet of Gathering,946,129,7,896,16512,128,128
-Malachite Ring of Attack,947,130,0,0,16640,128,128
-Malachite Ring of Defense,948,130,1,128,16640,128,128
-Malachite Ring of Experience,949,130,2,256,16640,128,128
-Malachite Ring of Gathering,950,130,3,384,16640,128,128
-Malachite Amulet of Attack,951,130,4,512,16640,128,128
-Malachite Amulet of Defense,952,130,5,640,16640,128,128
-Malachite Amulet of Experience,953,130,6,768,16640,128,128
-Malachite Amulet of Gathering,954,130,7,896,16640,128,128
-Howlite Ring of Attack,955,131,0,0,16768,128,128
-Howlite Ring of Defense,956,131,1,128,16768,128,128
-Howlite Ring of Experience,957,131,2,256,16768,128,128
-Howlite Ring of Gathering,958,131,3,384,16768,128,128
-Howlite Amulet of Attack,959,131,4,512,16768,128,128
-Howlite Amulet of Defense,960,131,5,640,16768,128,128
-Howlite Amulet of Experience,961,131,6,768,16768,128,128
-Howlite Amulet of Gathering,962,131,7,896,16768,128,128
-Shadow Pearl Ring of Attack,963,132,0,0,16896,128,128
-Shadow Pearl Ring of Defense,964,132,1,128,16896,128,128
-Shadow Pearl Ring of Experience,965,132,2,256,16896,128,128
-Shadow Pearl Ring of Gathering,966,132,3,384,16896,128,128
-Shadow Pearl Amulet of Attack,967,132,4,512,16896,128,128
-Shadow Pearl Amulet of Defense,968,132,5,640,16896,128,128
-Shadow Pearl Amulet of Experience,969,132,6,768,16896,128,128
-Shadow Pearl Amulet of Gathering,970,132,7,896,16896,128,128
-Celestite Ring of Attack,971,133,0,0,17024,128,128
-Celestite Ring of Defense,972,133,1,128,17024,128,128
-Celestite Ring of Experience,973,133,2,256,17024,128,128
-Celestite Ring of Gathering,974,133,3,384,17024,128,128
-Celestite Amulet of Attack,975,133,4,512,17024,128,128
-Celestite Amulet of Defense,976,133,5,640,17024,128,128
-Celestite Amulet of Experience,977,133,6,768,17024,128,128
-Celestite Amulet of Gathering,978,133,7,896,17024,128,128
-Azurite Ring of Attack,979,134,0,0,17152,128,128
-Azurite Ring of Defense,980,134,1,128,17152,128,128
-Azurite Ring of Experience,981,134,2,256,17152,128,128
-Azurite Ring of Gathering,982,134,3,384,17152,128,128
-Azurite Amulet of Attack,983,134,4,512,17152,128,128
-Azurite Amulet of Defense,984,134,5,640,17152,128,128
-Azurite Amulet of Experience,985,134,6,768,17152,128,128
-Azurite Amulet of Gathering,986,134,7,896,17152,128,128
-Cinnabar Ring of Attack,987,135,0,0,17280,128,128
-Cinnabar Ring of Defense,988,135,1,128,17280,128,128
-Cinnabar Ring of Experience,989,135,2,256,17280,128,128
-Cinnabar Ring of Gathering,990,135,3,384,17280,128,128
-Cinnabar Amulet of Attack,991,135,4,512,17280,128,128
-Cinnabar Amulet of Defense,992,135,5,640,17280,128,128
-Cinnabar Amulet of Experience,993,135,6,768,17280,128,128
-Cinnabar Amulet of Gathering,994,135,7,896,17280,128,128
-Phantom Quartz Ring of Attack,995,136,0,0,17408,128,128
-Phantom Quartz Ring of Defense,996,136,1,128,17408,128,128
-Phantom Quartz Ring of Experience,997,136,2,256,17408,128,128
-Phantom Quartz Ring of Gathering,998,136,3,384,17408,128,128
-Phantom Quartz Amulet of Attack,999,136,4,512,17408,128,128
-Phantom Quartz Amulet of Defense,1000,136,5,640,17408,128,128
-Phantom Quartz Amulet of Experience,1001,136,6,768,17408,128,128
-Phantom Quartz Amulet of Gathering,1002,136,7,896,17408,128,128
-Sphene Ring of Attack,1003,137,0,0,17536,128,128
-Sphene Ring of Defense,1004,137,1,128,17536,128,128
-Sphene Ring of Experience,1005,137,2,256,17536,128,128
-Sphene Ring of Gathering,1006,137,3,384,17536,128,128
-Sphene Amulet of Attack,1007,137,4,512,17536,128,128
-Sphene Amulet of Defense,1008,137,5,640,17536,128,128
-Sphene Amulet of Experience,1009,137,6,768,17536,128,128
-Sphene Amulet of Gathering,1010,137,7,896,17536,128,128
-Heliodor Ring of Attack,1011,138,0,0,17664,128,128
-Heliodor Ring of Defense,1012,138,1,128,17664,128,128
-Heliodor Ring of Experience,1013,138,2,256,17664,128,128
-Heliodor Ring of Gathering,1014,138,3,384,17664,128,128
-Heliodor Amulet of Attack,1015,138,4,512,17664,128,128
-Heliodor Amulet of Defense,1016,138,5,640,17664,128,128
-Heliodor Amulet of Experience,1017,138,6,768,17664,128,128
-Heliodor Amulet of Gathering,1018,138,7,896,17664,128,128
-Void Crystal Ring of Attack,1019,139,0,0,17792,128,128
-Void Crystal Ring of Defense,1020,139,1,128,17792,128,128
-Void Crystal Ring of Experience,1021,139,2,256,17792,128,128
-Void Crystal Ring of Gathering,1022,139,3,384,17792,128,128
-Void Crystal Amulet of Attack,1023,139,4,512,17792,128,128
-Void Crystal Amulet of Defense,1024,139,5,640,17792,128,128
-Void Crystal Amulet of Experience,1025,139,6,768,17792,128,128
-Void Crystal Amulet of Gathering,1026,139,7,896,17792,128,128
-Abyssal Pearl Ring of Attack,1027,140,0,0,17920,128,128
-Abyssal Pearl Ring of Defense,1028,140,1,128,17920,128,128
-Abyssal Pearl Ring of Experience,1029,140,2,256,17920,128,128
-Abyssal Pearl Ring of Gathering,1030,140,3,384,17920,128,128
-Abyssal Pearl Amulet of Attack,1031,140,4,512,17920,128,128
-Abyssal Pearl Amulet of Defense,1032,140,5,640,17920,128,128
-Abyssal Pearl Amulet of Experience,1033,140,6,768,17920,128,128
-Abyssal Pearl Amulet of Gathering,1034,140,7,896,17920,128,128
-Pyrope Ring of Attack,1035,141,0,0,18048,128,128
-Pyrope Ring of Defense,1036,141,1,128,18048,128,128
-Pyrope Ring of Experience,1037,141,2,256,18048,128,128
-Pyrope Ring of Gathering,1038,141,3,384,18048,128,128
-Pyrope Amulet of Attack,1039,141,4,512,18048,128,128
-Pyrope Amulet of Defense,1040,141,5,640,18048,128,128
-Pyrope Amulet of Experience,1041,141,6,768,18048,128,128
-Pyrope Amulet of Gathering,1042,141,7,896,18048,128,128
-Glacial Diamond Ring of Attack,1043,142,0,0,18176,128,128
-Glacial Diamond Ring of Defense,1044,142,1,128,18176,128,128
-Glacial Diamond Ring of Experience,1045,142,2,256,18176,128,128
-Glacial Diamond Ring of Gathering,1046,142,3,384,18176,128,128
-Glacial Diamond Amulet of Attack,1047,142,4,512,18176,128,128
-Glacial Diamond Amulet of Defense,1048,142,5,640,18176,128,128
-Glacial Diamond Amulet of Experience,1049,142,6,768,18176,128,128
-Glacial Diamond Amulet of Gathering,1050,142,7,896,18176,128,128
-Primordial Gem Ring of Attack,1051,143,0,0,18304,128,128
-Primordial Gem Ring of Defense,1052,143,1,128,18304,128,128
-Primordial Gem Ring of Experience,1053,143,2,256,18304,128,128
-Primordial Gem Ring of Gathering,1054,143,3,384,18304,128,128
-Primordial Gem Amulet of Attack,1055,143,4,512,18304,128,128
-Primordial Gem Amulet of Defense,1056,143,5,640,18304,128,128
-Primordial Gem Amulet of Experience,1057,143,6,768,18304,128,128
-Primordial Gem Amulet of Gathering,1058,143,7,896,18304,128,128
-Forager's Totem,1059,144,0,0,18432,128,128
-Scholar's Seal,1060,144,1,128,18432,128,128
-Gilded Sigil,1061,144,2,256,18432,128,128
-Hunter's Eye,1062,144,3,384,18432,128,128
-Arcane Effigy,1063,144,4,512,18432,128,128
-Dreadguard's Vambrace,1064,144,5,640,18432,128,128
-Nethergate Hauberk,1065,144,6,768,18432,128,128
-Warden's Faceplate,1066,144,7,896,18432,128,128
-Chasm Treads,1067,144,8,1024,18432,128,128
-Dreadguard Signet,1068,144,9,1152,18432,128,128
-Tempest's Aegis,1069,145,0,0,18560,128,128
-Shardweave Leggings,1070,145,1,128,18560,128,128
-Stormcaller's Mantle,1071,145,2,256,18560,128,128
-Glass Striker,1072,145,3,384,18560,128,128
-Eye of the Tempest,1073,145,4,512,18560,128,128
-Fallen Crown,1074,145,5,640,18560,128,128
-Overlord's Pauldrons,1075,145,6,768,18560,128,128
-Citadel Greaves,1076,145,7,896,18560,128,128
-Kingsfall Choker,1077,145,8,1024,18560,128,128
-Sovereign's Mark,1078,145,9,1152,18560,128,128
-Timeworn Bracers,1079,146,0,0,18688,128,128
-Verge Walker's Treads,1080,146,1,128,18688,128,128
-Ancient's Vestment,1081,146,2,256,18688,128,128
-Eternal Edge,1082,146,3,384,18688,128,128
-Ancient Circlet,1083,146,4,512,18688,128,128
-Astral Cowl,1084,146,5,640,18688,128,128
-Crucible Plate,1085,146,6,768,18688,128,128
-Starweave Gauntlets,1086,146,7,896,18688,128,128
-Prism Band,1087,146,8,1024,18688,128,128
-Astral Waystone,1088,146,9,1152,18688,128,128
-Cindersteel Warblade,1089,147,0,0,18816,128,128
-Warlord's Bulwark,1090,147,1,128,18816,128,128
-Cinderthrone Striders,1091,147,2,256,18816,128,128
-Ashforge Gauntlets,1092,147,3,384,18816,128,128
-Throne-Ash Signet,1093,147,4,512,18816,128,128
-Frostveil Spire,1094,147,5,640,18816,128,128
-Hoarfrost Mantle,1095,147,6,768,18816,128,128
-Rimeguard Legplates,1096,147,7,896,18816,128,128
-Ancient's Reagent Coil,1097,147,8,1024,18816,128,128
-Veilbound Torc,1098,147,9,1152,18816,128,128
-Stormforged Cleaver,1099,148,0,0,18944,128,128
-Astral Aegis,1100,148,1,128,18944,128,128
-Stormforged Visor,1101,148,2,256,18944,128,128
-Runewright's Grips,1102,148,3,384,18944,128,128
-Stormcore Pendant,1103,148,4,512,18944,128,128
-Gravemaw Maul,1104,148,5,640,18944,128,128
-Juggernaut's Casque,1105,148,6,768,18944,128,128
-Juggernaut Hauberk,1106,148,7,896,18944,128,128
-Juggernaut's Grip,1107,148,8,1024,18944,128,128
-Rivetplate Greaves,1108,148,9,1152,18944,128,128
-Gravewalk Sabatons,1109,149,0,0,19072,128,128
-Gravitic Loop,1110,149,1,128,19072,128,128
-Conqueror's Blade,1111,149,2,256,19072,128,128
-Conqueror's Aegis,1112,149,3,384,19072,128,128
-Conqueror's Helm,1113,149,4,512,19072,128,128
-Conqueror's Plate,1114,149,5,640,19072,128,128
-Conqueror's Gauntlets,1115,149,6,768,19072,128,128
-Conqueror's Legguards,1116,149,7,896,19072,128,128
-Conqueror's Warboots,1117,149,8,1024,19072,128,128
++4,3,0,3,384,0,128,128
+Copper Sword,4,1,0,0,128,128,128
+Copper Shield,5,1,1,128,128,128,128
+Copper Ring,6,1,2,256,128,128,128
+Copper Amulet,7,1,3,384,128,128,128
+Copper Relic,8,1,4,512,128,128,128
+Copper Helm,9,1,5,640,128,128,128
+Copper Chest,10,1,6,768,128,128,128
+Copper Gloves,11,1,7,896,128,128,128
+Copper Leggings,12,1,8,1024,128,128,128
+Copper Boots,13,1,9,1152,128,128,128
+Iron Sword,14,2,0,0,256,128,128
+Iron Shield,15,2,1,128,256,128,128
+Iron Ring,16,2,2,256,256,128,128
+Iron Amulet,17,2,3,384,256,128,128
+Iron Relic,18,2,4,512,256,128,128
+Iron Helm,19,2,5,640,256,128,128
+Iron Chest,20,2,6,768,256,128,128
+Iron Gloves,21,2,7,896,256,128,128
+Iron Leggings,22,2,8,1024,256,128,128
+Iron Boots,23,2,9,1152,256,128,128
+Silver Sword,24,3,0,0,384,128,128
+Silver Shield,25,3,1,128,384,128,128
+Silver Ring,26,3,2,256,384,128,128
+Silver Amulet,27,3,3,384,384,128,128
+Silver Relic,28,3,4,512,384,128,128
+Silver Helm,29,3,5,640,384,128,128
+Silver Chest,30,3,6,768,384,128,128
+Silver Gloves,31,3,7,896,384,128,128
+Silver Leggings,32,3,8,1024,384,128,128
+Silver Boots,33,3,9,1152,384,128,128
+Gold Sword,34,4,0,0,512,128,128
+Gold Shield,35,4,1,128,512,128,128
+Gold Ring,36,4,2,256,512,128,128
+Gold Amulet,37,4,3,384,512,128,128
+Gold Relic,38,4,4,512,512,128,128
+Gold Helm,39,4,5,640,512,128,128
+Gold Chest,40,4,6,768,512,128,128
+Gold Gloves,41,4,7,896,512,128,128
+Gold Leggings,42,4,8,1024,512,128,128
+Gold Boots,43,4,9,1152,512,128,128
+Mythril Sword,44,5,0,0,640,128,128
+Mythril Shield,45,5,1,128,640,128,128
+Mythril Ring,46,5,2,256,640,128,128
+Mythril Amulet,47,5,3,384,640,128,128
+Mythril Relic,48,5,4,512,640,128,128
+Mythril Helm,49,5,5,640,640,128,128
+Mythril Chest,50,5,6,768,640,128,128
+Mythril Gloves,51,5,7,896,640,128,128
+Mythril Leggings,52,5,8,1024,640,128,128
+Mythril Boots,53,5,9,1152,640,128,128
+Starsteel Sword,54,6,0,0,768,128,128
+Starsteel Shield,55,6,1,128,768,128,128
+Starsteel Ring,56,6,2,256,768,128,128
+Starsteel Amulet,57,6,3,384,768,128,128
+Starsteel Relic,58,6,4,512,768,128,128
+Starsteel Helm,59,6,5,640,768,128,128
+Starsteel Chest,60,6,6,768,768,128,128
+Starsteel Gloves,61,6,7,896,768,128,128
+Starsteel Leggings,62,6,8,1024,768,128,128
+Starsteel Boots,63,6,9,1152,768,128,128
+Obsidian Sword,64,7,0,0,896,128,128
+Obsidian Shield,65,7,1,128,896,128,128
+Obsidian Ring,66,7,2,256,896,128,128
+Obsidian Amulet,67,7,3,384,896,128,128
+Obsidian Relic,68,7,4,512,896,128,128
+Obsidian Helm,69,7,5,640,896,128,128
+Obsidian Chest,70,7,6,768,896,128,128
+Obsidian Gloves,71,7,7,896,896,128,128
+Obsidian Leggings,72,7,8,1024,896,128,128
+Obsidian Boots,73,7,9,1152,896,128,128
+Runite Sword,74,8,0,0,1024,128,128
+Runite Shield,75,8,1,128,1024,128,128
+Runite Ring,76,8,2,256,1024,128,128
+Runite Amulet,77,8,3,384,1024,128,128
+Runite Relic,78,8,4,512,1024,128,128
+Runite Helm,79,8,5,640,1024,128,128
+Runite Chest,80,8,6,768,1024,128,128
+Runite Gloves,81,8,7,896,1024,128,128
+Runite Leggings,82,8,8,1024,1024,128,128
+Runite Boots,83,8,9,1152,1024,128,128
+Dragonsteel Sword,84,9,0,0,1152,128,128
+Dragonsteel Shield,85,9,1,128,1152,128,128
+Dragonsteel Ring,86,9,2,256,1152,128,128
+Dragonsteel Amulet,87,9,3,384,1152,128,128
+Dragonsteel Relic,88,9,4,512,1152,128,128
+Dragonsteel Helm,89,9,5,640,1152,128,128
+Dragonsteel Chest,90,9,6,768,1152,128,128
+Dragonsteel Gloves,91,9,7,896,1152,128,128
+Dragonsteel Leggings,92,9,8,1024,1152,128,128
+Dragonsteel Boots,93,9,9,1152,1152,128,128
+Aethersteel Sword,94,10,0,0,1280,128,128
+Aethersteel Shield,95,10,1,128,1280,128,128
+Aethersteel Ring,96,10,2,256,1280,128,128
+Aethersteel Amulet,97,10,3,384,1280,128,128
+Aethersteel Relic,98,10,4,512,1280,128,128
+Aethersteel Helm,99,10,5,640,1280,128,128
+Aethersteel Chest,100,10,6,768,1280,128,128
+Aethersteel Gloves,101,10,7,896,1280,128,128
+Aethersteel Leggings,102,10,8,1024,1280,128,128
+Aethersteel Boots,103,10,9,1152,1280,128,128
+Voidiron Sword,104,11,0,0,1408,128,128
+Voidiron Shield,105,11,1,128,1408,128,128
+Voidiron Ring,106,11,2,256,1408,128,128
+Voidiron Amulet,107,11,3,384,1408,128,128
+Voidiron Relic,108,11,4,512,1408,128,128
+Voidiron Helm,109,11,5,640,1408,128,128
+Voidiron Chest,110,11,6,768,1408,128,128
+Voidiron Gloves,111,11,7,896,1408,128,128
+Voidiron Leggings,112,11,8,1024,1408,128,128
+Voidiron Boots,113,11,9,1152,1408,128,128
+Celestium Sword,114,12,0,0,1536,128,128
+Celestium Shield,115,12,1,128,1536,128,128
+Celestium Ring,116,12,2,256,1536,128,128
+Celestium Amulet,117,12,3,384,1536,128,128
+Celestium Relic,118,12,4,512,1536,128,128
+Celestium Helm,119,12,5,640,1536,128,128
+Celestium Chest,120,12,6,768,1536,128,128
+Celestium Gloves,121,12,7,896,1536,128,128
+Celestium Leggings,122,12,8,1024,1536,128,128
+Celestium Boots,123,12,9,1152,1536,128,128
+Bloodstone Sword,124,13,0,0,1664,128,128
+Bloodstone Shield,125,13,1,128,1664,128,128
+Bloodstone Ring,126,13,2,256,1664,128,128
+Bloodstone Amulet,127,13,3,384,1664,128,128
+Bloodstone Relic,128,13,4,512,1664,128,128
+Bloodstone Helm,129,13,5,640,1664,128,128
+Bloodstone Chest,130,13,6,768,1664,128,128
+Bloodstone Gloves,131,13,7,896,1664,128,128
+Bloodstone Leggings,132,13,8,1024,1664,128,128
+Bloodstone Boots,133,13,9,1152,1664,128,128
+Moonsteel Sword,134,14,0,0,1792,128,128
+Moonsteel Shield,135,14,1,128,1792,128,128
+Moonsteel Ring,136,14,2,256,1792,128,128
+Moonsteel Amulet,137,14,3,384,1792,128,128
+Moonsteel Relic,138,14,4,512,1792,128,128
+Moonsteel Helm,139,14,5,640,1792,128,128
+Moonsteel Chest,140,14,6,768,1792,128,128
+Moonsteel Gloves,141,14,7,896,1792,128,128
+Moonsteel Leggings,142,14,8,1024,1792,128,128
+Moonsteel Boots,143,14,9,1152,1792,128,128
+Sunforged Sword,144,15,0,0,1920,128,128
+Sunforged Shield,145,15,1,128,1920,128,128
+Sunforged Ring,146,15,2,256,1920,128,128
+Sunforged Amulet,147,15,3,384,1920,128,128
+Sunforged Relic,148,15,4,512,1920,128,128
+Sunforged Helm,149,15,5,640,1920,128,128
+Sunforged Chest,150,15,6,768,1920,128,128
+Sunforged Gloves,151,15,7,896,1920,128,128
+Sunforged Leggings,152,15,8,1024,1920,128,128
+Sunforged Boots,153,15,9,1152,1920,128,128
+Netherite Sword,154,16,0,0,2048,128,128
+Netherite Shield,155,16,1,128,2048,128,128
+Netherite Ring,156,16,2,256,2048,128,128
+Netherite Amulet,157,16,3,384,2048,128,128
+Netherite Relic,158,16,4,512,2048,128,128
+Netherite Helm,159,16,5,640,2048,128,128
+Netherite Chest,160,16,6,768,2048,128,128
+Netherite Gloves,161,16,7,896,2048,128,128
+Netherite Leggings,162,16,8,1024,2048,128,128
+Netherite Boots,163,16,9,1152,2048,128,128
+Stormglass Sword,164,17,0,0,2176,128,128
+Stormglass Shield,165,17,1,128,2176,128,128
+Stormglass Ring,166,17,2,256,2176,128,128
+Stormglass Amulet,167,17,3,384,2176,128,128
+Stormglass Relic,168,17,4,512,2176,128,128
+Stormglass Helm,169,17,5,640,2176,128,128
+Stormglass Chest,170,17,6,768,2176,128,128
+Stormglass Gloves,171,17,7,896,2176,128,128
+Stormglass Leggings,172,17,8,1024,2176,128,128
+Stormglass Boots,173,17,9,1152,2176,128,128
+Kingssteel Sword,174,18,0,0,2304,128,128
+Kingssteel Shield,175,18,1,128,2304,128,128
+Kingssteel Ring,176,18,2,256,2304,128,128
+Kingssteel Amulet,177,18,3,384,2304,128,128
+Kingssteel Relic,178,18,4,512,2304,128,128
+Kingssteel Helm,179,18,5,640,2304,128,128
+Kingssteel Chest,180,18,6,768,2304,128,128
+Kingssteel Gloves,181,18,7,896,2304,128,128
+Kingssteel Leggings,182,18,8,1024,2304,128,128
+Kingssteel Boots,183,18,9,1152,2304,128,128
+Eternium Sword,184,19,0,0,2432,128,128
+Eternium Shield,185,19,1,128,2432,128,128
+Eternium Ring,186,19,2,256,2432,128,128
+Eternium Amulet,187,19,3,384,2432,128,128
+Eternium Relic,188,19,4,512,2432,128,128
+Eternium Helm,189,19,5,640,2432,128,128
+Eternium Chest,190,19,6,768,2432,128,128
+Eternium Gloves,191,19,7,896,2432,128,128
+Eternium Leggings,192,19,8,1024,2432,128,128
+Eternium Boots,193,19,9,1152,2432,128,128
+Astralium Sword,194,20,0,0,2560,128,128
+Astralium Shield,195,20,1,128,2560,128,128
+Astralium Ring,196,20,2,256,2560,128,128
+Astralium Amulet,197,20,3,384,2560,128,128
+Astralium Relic,198,20,4,512,2560,128,128
+Astralium Helm,199,20,5,640,2560,128,128
+Astralium Chest,200,20,6,768,2560,128,128
+Astralium Gloves,201,20,7,896,2560,128,128
+Astralium Leggings,202,20,8,1024,2560,128,128
+Astralium Boots,203,20,9,1152,2560,128,128
+Gravite Sword,204,21,0,0,2688,128,128
+Gravite Shield,205,21,1,128,2688,128,128
+Gravite Ring,206,21,2,256,2688,128,128
+Gravite Amulet,207,21,3,384,2688,128,128
+Gravite Relic,208,21,4,512,2688,128,128
+Gravite Helm,209,21,5,640,2688,128,128
+Gravite Chest,210,21,6,768,2688,128,128
+Gravite Gloves,211,21,7,896,2688,128,128
+Gravite Leggings,212,21,8,1024,2688,128,128
+Gravite Boots,213,21,9,1152,2688,128,128
+Frostiron Sword,214,22,0,0,2816,128,128
+Frostiron Shield,215,22,1,128,2816,128,128
+Frostiron Ring,216,22,2,256,2816,128,128
+Frostiron Amulet,217,22,3,384,2816,128,128
+Frostiron Relic,218,22,4,512,2816,128,128
+Frostiron Helm,219,22,5,640,2816,128,128
+Frostiron Chest,220,22,6,768,2816,128,128
+Frostiron Gloves,221,22,7,896,2816,128,128
+Frostiron Leggings,222,22,8,1024,2816,128,128
+Frostiron Boots,223,22,9,1152,2816,128,128
+Dusksteel Sword,224,23,0,0,2944,128,128
+Dusksteel Shield,225,23,1,128,2944,128,128
+Dusksteel Ring,226,23,2,256,2944,128,128
+Dusksteel Amulet,227,23,3,384,2944,128,128
+Dusksteel Relic,228,23,4,512,2944,128,128
+Dusksteel Helm,229,23,5,640,2944,128,128
+Dusksteel Chest,230,23,6,768,2944,128,128
+Dusksteel Gloves,231,23,7,896,2944,128,128
+Dusksteel Leggings,232,23,8,1024,2944,128,128
+Dusksteel Boots,233,23,9,1152,2944,128,128
+Titanium Sword,234,24,0,0,3072,128,128
+Titanium Shield,235,24,1,128,3072,128,128
+Titanium Ring,236,24,2,256,3072,128,128
+Titanium Amulet,237,24,3,384,3072,128,128
+Titanium Relic,238,24,4,512,3072,128,128
+Titanium Helm,239,24,5,640,3072,128,128
+Titanium Chest,240,24,6,768,3072,128,128
+Titanium Gloves,241,24,7,896,3072,128,128
+Titanium Leggings,242,24,8,1024,3072,128,128
+Titanium Boots,243,24,9,1152,3072,128,128
+Skysteel Sword,244,25,0,0,3200,128,128
+Skysteel Shield,245,25,1,128,3200,128,128
+Skysteel Ring,246,25,2,256,3200,128,128
+Skysteel Amulet,247,25,3,384,3200,128,128
+Skysteel Relic,248,25,4,512,3200,128,128
+Skysteel Helm,249,25,5,640,3200,128,128
+Skysteel Chest,250,25,6,768,3200,128,128
+Skysteel Gloves,251,25,7,896,3200,128,128
+Skysteel Leggings,252,25,8,1024,3200,128,128
+Skysteel Boots,253,25,9,1152,3200,128,128
+Emberium Sword,254,26,0,0,3328,128,128
+Emberium Shield,255,26,1,128,3328,128,128
+Emberium Ring,256,26,2,256,3328,128,128
+Emberium Amulet,257,26,3,384,3328,128,128
+Emberium Relic,258,26,4,512,3328,128,128
+Emberium Helm,259,26,5,640,3328,128,128
+Emberium Chest,260,26,6,768,3328,128,128
+Emberium Gloves,261,26,7,896,3328,128,128
+Emberium Leggings,262,26,8,1024,3328,128,128
+Emberium Boots,263,26,9,1152,3328,128,128
+Soulsteel Sword,264,27,0,0,3456,128,128
+Soulsteel Shield,265,27,1,128,3456,128,128
+Soulsteel Ring,266,27,2,256,3456,128,128
+Soulsteel Amulet,267,27,3,384,3456,128,128
+Soulsteel Relic,268,27,4,512,3456,128,128
+Soulsteel Helm,269,27,5,640,3456,128,128
+Soulsteel Chest,270,27,6,768,3456,128,128
+Soulsteel Gloves,271,27,7,896,3456,128,128
+Soulsteel Leggings,272,27,8,1024,3456,128,128
+Soulsteel Boots,273,27,9,1152,3456,128,128
+Chronite Sword,274,28,0,0,3584,128,128
+Chronite Shield,275,28,1,128,3584,128,128
+Chronite Ring,276,28,2,256,3584,128,128
+Chronite Amulet,277,28,3,384,3584,128,128
+Chronite Relic,278,28,4,512,3584,128,128
+Chronite Helm,279,28,5,640,3584,128,128
+Chronite Chest,280,28,6,768,3584,128,128
+Chronite Gloves,281,28,7,896,3584,128,128
+Chronite Leggings,282,28,8,1024,3584,128,128
+Chronite Boots,283,28,9,1152,3584,128,128
+Worldforge Sword,284,29,0,0,3712,128,128
+Worldforge Shield,285,29,1,128,3712,128,128
+Worldforge Ring,286,29,2,256,3712,128,128
+Worldforge Amulet,287,29,3,384,3712,128,128
+Worldforge Relic,288,29,4,512,3712,128,128
+Worldforge Helm,289,29,5,640,3712,128,128
+Worldforge Chest,290,29,6,768,3712,128,128
+Worldforge Gloves,291,29,7,896,3712,128,128
+Worldforge Leggings,292,29,8,1024,3712,128,128
+Worldforge Boots,293,29,9,1152,3712,128,128
+Voidglass Sword,294,30,0,0,3840,128,128
+Voidglass Shield,295,30,1,128,3840,128,128
+Voidglass Ring,296,30,2,256,3840,128,128
+Voidglass Amulet,297,30,3,384,3840,128,128
+Voidglass Relic,298,30,4,512,3840,128,128
+Voidglass Helm,299,30,5,640,3840,128,128
+Voidglass Chest,300,30,6,768,3840,128,128
+Voidglass Gloves,301,30,7,896,3840,128,128
+Voidglass Leggings,302,30,8,1024,3840,128,128
+Voidglass Boots,303,30,9,1152,3840,128,128
+Thalassic Sword,304,31,0,0,3968,128,128
+Thalassic Shield,305,31,1,128,3968,128,128
+Thalassic Ring,306,31,2,256,3968,128,128
+Thalassic Amulet,307,31,3,384,3968,128,128
+Thalassic Relic,308,31,4,512,3968,128,128
+Thalassic Helm,309,31,5,640,3968,128,128
+Thalassic Chest,310,31,6,768,3968,128,128
+Thalassic Gloves,311,31,7,896,3968,128,128
+Thalassic Leggings,312,31,8,1024,3968,128,128
+Thalassic Boots,313,31,9,1152,3968,128,128
+Ashspire Sword,314,32,0,0,4096,128,128
+Ashspire Shield,315,32,1,128,4096,128,128
+Ashspire Ring,316,32,2,256,4096,128,128
+Ashspire Amulet,317,32,3,384,4096,128,128
+Ashspire Relic,318,32,4,512,4096,128,128
+Ashspire Helm,319,32,5,640,4096,128,128
+Ashspire Chest,320,32,6,768,4096,128,128
+Ashspire Gloves,321,32,7,896,4096,128,128
+Ashspire Leggings,322,32,8,1024,4096,128,128
+Ashspire Boots,323,32,9,1152,4096,128,128
+Glacirite Sword,324,33,0,0,4224,128,128
+Glacirite Shield,325,33,1,128,4224,128,128
+Glacirite Ring,326,33,2,256,4224,128,128
+Glacirite Amulet,327,33,3,384,4224,128,128
+Glacirite Relic,328,33,4,512,4224,128,128
+Glacirite Helm,329,33,5,640,4224,128,128
+Glacirite Chest,330,33,6,768,4224,128,128
+Glacirite Gloves,331,33,7,896,4224,128,128
+Glacirite Leggings,332,33,8,1024,4224,128,128
+Glacirite Boots,333,33,9,1152,4224,128,128
+Primordite Sword,334,34,0,0,4352,128,128
+Primordite Shield,335,34,1,128,4352,128,128
+Primordite Ring,336,34,2,256,4352,128,128
+Primordite Amulet,337,34,3,384,4352,128,128
+Primordite Relic,338,34,4,512,4352,128,128
+Primordite Helm,339,34,5,640,4352,128,128
+Primordite Chest,340,34,6,768,4352,128,128
+Primordite Gloves,341,34,7,896,4352,128,128
+Primordite Leggings,342,34,8,1024,4352,128,128
+Primordite Boots,343,34,9,1152,4352,128,128
+Cotton Hood,344,35,0,0,4480,128,128
+Cotton Robe,345,35,1,128,4480,128,128
+Cotton Gloves,346,35,2,256,4480,128,128
+Cotton Leggings,347,35,3,384,4480,128,128
+Cotton Boots,348,35,4,512,4480,128,128
+Flax Hood,349,36,0,0,4608,128,128
+Flax Robe,350,36,1,128,4608,128,128
+Flax Gloves,351,36,2,256,4608,128,128
+Flax Leggings,352,36,3,384,4608,128,128
+Flax Boots,353,36,4,512,4608,128,128
+Wool Hood,354,37,0,0,4736,128,128
+Wool Robe,355,37,1,128,4736,128,128
+Wool Gloves,356,37,2,256,4736,128,128
+Wool Leggings,357,37,3,384,4736,128,128
+Wool Boots,358,37,4,512,4736,128,128
+Silk Hood,359,38,0,0,4864,128,128
+Silk Robe,360,38,1,128,4864,128,128
+Silk Gloves,361,38,2,256,4864,128,128
+Silk Leggings,362,38,3,384,4864,128,128
+Silk Boots,363,38,4,512,4864,128,128
+Mythril Silk Hood,364,39,0,0,4992,128,128
+Mythril Silk Robe,365,39,1,128,4992,128,128
+Mythril Silk Gloves,366,39,2,256,4992,128,128
+Mythril Silk Leggings,367,39,3,384,4992,128,128
+Mythril Silk Boots,368,39,4,512,4992,128,128
+Starweave Hood,369,40,0,0,5120,128,128
+Starweave Robe,370,40,1,128,5120,128,128
+Starweave Gloves,371,40,2,256,5120,128,128
+Starweave Leggings,372,40,3,384,5120,128,128
+Starweave Boots,373,40,4,512,5120,128,128
+Shadowweave Hood,374,41,0,0,5248,128,128
+Shadowweave Robe,375,41,1,128,5248,128,128
+Shadowweave Gloves,376,41,2,256,5248,128,128
+Shadowweave Leggings,377,41,3,384,5248,128,128
+Shadowweave Boots,378,41,4,512,5248,128,128
+Runic Thread Hood,379,42,0,0,5376,128,128
+Runic Thread Robe,380,42,1,128,5376,128,128
+Runic Thread Gloves,381,42,2,256,5376,128,128
+Runic Thread Leggings,382,42,3,384,5376,128,128
+Runic Thread Boots,383,42,4,512,5376,128,128
+Dragonscale Silk Hood,384,43,0,0,5504,128,128
+Dragonscale Silk Robe,385,43,1,128,5504,128,128
+Dragonscale Silk Gloves,386,43,2,256,5504,128,128
+Dragonscale Silk Leggings,387,43,3,384,5504,128,128
+Dragonscale Silk Boots,388,43,4,512,5504,128,128
+Aether Silk Hood,389,44,0,0,5632,128,128
+Aether Silk Robe,390,44,1,128,5632,128,128
+Aether Silk Gloves,391,44,2,256,5632,128,128
+Aether Silk Leggings,392,44,3,384,5632,128,128
+Aether Silk Boots,393,44,4,512,5632,128,128
+Void Thread Hood,394,45,0,0,5760,128,128
+Void Thread Robe,395,45,1,128,5760,128,128
+Void Thread Gloves,396,45,2,256,5760,128,128
+Void Thread Leggings,397,45,3,384,5760,128,128
+Void Thread Boots,398,45,4,512,5760,128,128
+Celestial Silk Hood,399,46,0,0,5888,128,128
+Celestial Silk Robe,400,46,1,128,5888,128,128
+Celestial Silk Gloves,401,46,2,256,5888,128,128
+Celestial Silk Leggings,402,46,3,384,5888,128,128
+Celestial Silk Boots,403,46,4,512,5888,128,128
+Bloodweave Hood,404,47,0,0,6016,128,128
+Bloodweave Robe,405,47,1,128,6016,128,128
+Bloodweave Gloves,406,47,2,256,6016,128,128
+Bloodweave Leggings,407,47,3,384,6016,128,128
+Bloodweave Boots,408,47,4,512,6016,128,128
+Moonsilk Hood,409,48,0,0,6144,128,128
+Moonsilk Robe,410,48,1,128,6144,128,128
+Moonsilk Gloves,411,48,2,256,6144,128,128
+Moonsilk Leggings,412,48,3,384,6144,128,128
+Moonsilk Boots,413,48,4,512,6144,128,128
+Sunweave Hood,414,49,0,0,6272,128,128
+Sunweave Robe,415,49,1,128,6272,128,128
+Sunweave Gloves,416,49,2,256,6272,128,128
+Sunweave Leggings,417,49,3,384,6272,128,128
+Sunweave Boots,418,49,4,512,6272,128,128
+Netherweave Hood,419,50,0,0,6400,128,128
+Netherweave Robe,420,50,1,128,6400,128,128
+Netherweave Gloves,421,50,2,256,6400,128,128
+Netherweave Leggings,422,50,3,384,6400,128,128
+Netherweave Boots,423,50,4,512,6400,128,128
+Stormsilk Hood,424,51,0,0,6528,128,128
+Stormsilk Robe,425,51,1,128,6528,128,128
+Stormsilk Gloves,426,51,2,256,6528,128,128
+Stormsilk Leggings,427,51,3,384,6528,128,128
+Stormsilk Boots,428,51,4,512,6528,128,128
+Regal Silk Hood,429,52,0,0,6656,128,128
+Regal Silk Robe,430,52,1,128,6656,128,128
+Regal Silk Gloves,431,52,2,256,6656,128,128
+Regal Silk Leggings,432,52,3,384,6656,128,128
+Regal Silk Boots,433,52,4,512,6656,128,128
+Eternal Weave Hood,434,53,0,0,6784,128,128
+Eternal Weave Robe,435,53,1,128,6784,128,128
+Eternal Weave Gloves,436,53,2,256,6784,128,128
+Eternal Weave Leggings,437,53,3,384,6784,128,128
+Eternal Weave Boots,438,53,4,512,6784,128,128
+Astral Silk Hood,439,54,0,0,6912,128,128
+Astral Silk Robe,440,54,1,128,6912,128,128
+Astral Silk Gloves,441,54,2,256,6912,128,128
+Astral Silk Leggings,442,54,3,384,6912,128,128
+Astral Silk Boots,443,54,4,512,6912,128,128
+Gravity Weave Hood,444,55,0,0,7040,128,128
+Gravity Weave Robe,445,55,1,128,7040,128,128
+Gravity Weave Gloves,446,55,2,256,7040,128,128
+Gravity Weave Leggings,447,55,3,384,7040,128,128
+Gravity Weave Boots,448,55,4,512,7040,128,128
+Frostweave Hood,449,56,0,0,7168,128,128
+Frostweave Robe,450,56,1,128,7168,128,128
+Frostweave Gloves,451,56,2,256,7168,128,128
+Frostweave Leggings,452,56,3,384,7168,128,128
+Frostweave Boots,453,56,4,512,7168,128,128
+Duskweave Hood,454,57,0,0,7296,128,128
+Duskweave Robe,455,57,1,128,7296,128,128
+Duskweave Gloves,456,57,2,256,7296,128,128
+Duskweave Leggings,457,57,3,384,7296,128,128
+Duskweave Boots,458,57,4,512,7296,128,128
+Titanweave Hood,459,58,0,0,7424,128,128
+Titanweave Robe,460,58,1,128,7424,128,128
+Titanweave Gloves,461,58,2,256,7424,128,128
+Titanweave Leggings,462,58,3,384,7424,128,128
+Titanweave Boots,463,58,4,512,7424,128,128
+Skysilk Hood,464,59,0,0,7552,128,128
+Skysilk Robe,465,59,1,128,7552,128,128
+Skysilk Gloves,466,59,2,256,7552,128,128
+Skysilk Leggings,467,59,3,384,7552,128,128
+Skysilk Boots,468,59,4,512,7552,128,128
+Emberweave Hood,469,60,0,0,7680,128,128
+Emberweave Robe,470,60,1,128,7680,128,128
+Emberweave Gloves,471,60,2,256,7680,128,128
+Emberweave Leggings,472,60,3,384,7680,128,128
+Emberweave Boots,473,60,4,512,7680,128,128
+Soulweave Hood,474,61,0,0,7808,128,128
+Soulweave Robe,475,61,1,128,7808,128,128
+Soulweave Gloves,476,61,2,256,7808,128,128
+Soulweave Leggings,477,61,3,384,7808,128,128
+Soulweave Boots,478,61,4,512,7808,128,128
+Chronoweave Hood,479,62,0,0,7936,128,128
+Chronoweave Robe,480,62,1,128,7936,128,128
+Chronoweave Gloves,481,62,2,256,7936,128,128
+Chronoweave Leggings,482,62,3,384,7936,128,128
+Chronoweave Boots,483,62,4,512,7936,128,128
+Worldweave Hood,484,63,0,0,8064,128,128
+Worldweave Robe,485,63,1,128,8064,128,128
+Worldweave Gloves,486,63,2,256,8064,128,128
+Worldweave Leggings,487,63,3,384,8064,128,128
+Worldweave Boots,488,63,4,512,8064,128,128
+Voidglass Silk Hood,489,64,0,0,8192,128,128
+Voidglass Silk Robe,490,64,1,128,8192,128,128
+Voidglass Silk Gloves,491,64,2,256,8192,128,128
+Voidglass Silk Leggings,492,64,3,384,8192,128,128
+Voidglass Silk Boots,493,64,4,512,8192,128,128
+Abyssal Silk Hood,494,65,0,0,8320,128,128
+Abyssal Silk Robe,495,65,1,128,8320,128,128
+Abyssal Silk Gloves,496,65,2,256,8320,128,128
+Abyssal Silk Leggings,497,65,3,384,8320,128,128
+Abyssal Silk Boots,498,65,4,512,8320,128,128
+Ashweave Hood,499,66,0,0,8448,128,128
+Ashweave Robe,500,66,1,128,8448,128,128
+Ashweave Gloves,501,66,2,256,8448,128,128
+Ashweave Leggings,502,66,3,384,8448,128,128
+Ashweave Boots,503,66,4,512,8448,128,128
+Glacial Silk Hood,504,67,0,0,8576,128,128
+Glacial Silk Robe,505,67,1,128,8576,128,128
+Glacial Silk Gloves,506,67,2,256,8576,128,128
+Glacial Silk Leggings,507,67,3,384,8576,128,128
+Glacial Silk Boots,508,67,4,512,8576,128,128
+Primordial Weave Hood,509,68,0,0,8704,128,128
+Primordial Weave Robe,510,68,1,128,8704,128,128
+Primordial Weave Gloves,511,68,2,256,8704,128,128
+Primordial Weave Leggings,512,68,3,384,8704,128,128
+Primordial Weave Boots,513,68,4,512,8704,128,128
+Enchanted Belt Lv. 1,514,69,0,0,8832,128,128
+Enchanted Belt Lv. 2,515,69,1,128,8832,128,128
+Enchanted Belt Lv. 3,516,69,2,256,8832,128,128
+Enchanted Belt Lv. 4,517,69,3,384,8832,128,128
+Enchanted Belt Lv. 5,518,69,4,512,8832,128,128
+Enchanted Belt Lv. 6,519,69,5,640,8832,128,128
+Enchanted Belt Lv. 7,520,69,6,768,8832,128,128
+Enchanted Belt Lv. 8,521,69,7,896,8832,128,128
+Enchanted Belt Lv. 9,522,69,8,1024,8832,128,128
+Enchanted Belt Lv. 10,523,69,9,1152,8832,128,128
+Enchanted Belt Lv. 11,524,70,0,0,8960,128,128
+Enchanted Belt Lv. 12,525,70,1,128,8960,128,128
+Enchanted Belt Lv. 13,526,70,2,256,8960,128,128
+Enchanted Belt Lv. 14,527,70,3,384,8960,128,128
+Enchanted Belt Lv. 15,528,70,4,512,8960,128,128
+Enchanted Belt Lv. 16,529,70,5,640,8960,128,128
+Enchanted Belt Lv. 17,530,70,6,768,8960,128,128
+Enchanted Belt Lv. 18,531,70,7,896,8960,128,128
+Enchanted Belt Lv. 19,532,70,8,1024,8960,128,128
+Enchanted Belt Lv. 20,533,70,9,1152,8960,128,128
+Enchanted Belt Lv. 21,534,71,0,0,9088,128,128
+Enchanted Belt Lv. 22,535,71,1,128,9088,128,128
+Enchanted Belt Lv. 23,536,71,2,256,9088,128,128
+Enchanted Belt Lv. 24,537,71,3,384,9088,128,128
+Enchanted Belt Lv. 25,538,71,4,512,9088,128,128
+Enchanted Belt Lv. 26,539,71,5,640,9088,128,128
+Enchanted Belt Lv. 27,540,71,6,768,9088,128,128
+Enchanted Belt Lv. 28,541,71,7,896,9088,128,128
+Enchanted Belt Lv. 29,542,71,8,1024,9088,128,128
+Enchanted Belt Lv. 30,543,71,9,1152,9088,128,128
+Enchanted Belt Lv. 31,544,72,0,0,9216,128,128
+Enchanted Belt Lv. 32,545,72,1,128,9216,128,128
+Enchanted Belt Lv. 33,546,72,2,256,9216,128,128
+Enchanted Belt Lv. 34,547,72,3,384,9216,128,128
+Enchanted Belt Lv. 35,548,72,4,512,9216,128,128
+Enchanted Belt Lv. 36,549,72,5,640,9216,128,128
+Enchanted Belt Lv. 37,550,72,6,768,9216,128,128
+Enchanted Belt Lv. 38,551,72,7,896,9216,128,128
+Enchanted Belt Lv. 39,552,72,8,1024,9216,128,128
+Enchanted Belt Lv. 40,553,72,9,1152,9216,128,128
+Gilded Cotton Cloak of Fortune,554,73,0,0,9344,128,128
+Gilded Cotton Cloak of the Harvest,555,73,1,128,9344,128,128
+Gilded Cotton Cloak of Insight,556,73,2,256,9344,128,128
+Fortunate Cotton Cloak of the Harvest,557,73,3,384,9344,128,128
+Fortunate Cotton Cloak of Insight,558,73,4,512,9344,128,128
+Nimble Cotton Cloak of Insight,559,73,5,640,9344,128,128
+Gilded Flax Cloak of Fortune,560,74,0,0,9472,128,128
+Gilded Flax Cloak of the Harvest,561,74,1,128,9472,128,128
+Gilded Flax Cloak of Insight,562,74,2,256,9472,128,128
+Fortunate Flax Cloak of the Harvest,563,74,3,384,9472,128,128
+Fortunate Flax Cloak of Insight,564,74,4,512,9472,128,128
+Nimble Flax Cloak of Insight,565,74,5,640,9472,128,128
+Gilded Wool Cloak of Fortune,566,75,0,0,9600,128,128
+Gilded Wool Cloak of the Harvest,567,75,1,128,9600,128,128
+Gilded Wool Cloak of Insight,568,75,2,256,9600,128,128
+Fortunate Wool Cloak of the Harvest,569,75,3,384,9600,128,128
+Fortunate Wool Cloak of Insight,570,75,4,512,9600,128,128
+Nimble Wool Cloak of Insight,571,75,5,640,9600,128,128
+Gilded Silk Cloak of Fortune,572,76,0,0,9728,128,128
+Gilded Silk Cloak of the Harvest,573,76,1,128,9728,128,128
+Gilded Silk Cloak of Insight,574,76,2,256,9728,128,128
+Fortunate Silk Cloak of the Harvest,575,76,3,384,9728,128,128
+Fortunate Silk Cloak of Insight,576,76,4,512,9728,128,128
+Nimble Silk Cloak of Insight,577,76,5,640,9728,128,128
+Gilded Mythril Silk Cloak of Fortune,578,77,0,0,9856,128,128
+Gilded Mythril Silk Cloak of the Harvest,579,77,1,128,9856,128,128
+Gilded Mythril Silk Cloak of Insight,580,77,2,256,9856,128,128
+Fortunate Mythril Silk Cloak of the Harvest,581,77,3,384,9856,128,128
+Fortunate Mythril Silk Cloak of Insight,582,77,4,512,9856,128,128
+Nimble Mythril Silk Cloak of Insight,583,77,5,640,9856,128,128
+Gilded Starweave Cloak of Fortune,584,78,0,0,9984,128,128
+Gilded Starweave Cloak of the Harvest,585,78,1,128,9984,128,128
+Gilded Starweave Cloak of Insight,586,78,2,256,9984,128,128
+Fortunate Starweave Cloak of the Harvest,587,78,3,384,9984,128,128
+Fortunate Starweave Cloak of Insight,588,78,4,512,9984,128,128
+Nimble Starweave Cloak of Insight,589,78,5,640,9984,128,128
+Gilded Shadowweave Cloak of Fortune,590,79,0,0,10112,128,128
+Gilded Shadowweave Cloak of the Harvest,591,79,1,128,10112,128,128
+Gilded Shadowweave Cloak of Insight,592,79,2,256,10112,128,128
+Fortunate Shadowweave Cloak of the Harvest,593,79,3,384,10112,128,128
+Fortunate Shadowweave Cloak of Insight,594,79,4,512,10112,128,128
+Nimble Shadowweave Cloak of Insight,595,79,5,640,10112,128,128
+Gilded Runic Thread Cloak of Fortune,596,80,0,0,10240,128,128
+Gilded Runic Thread Cloak of the Harvest,597,80,1,128,10240,128,128
+Gilded Runic Thread Cloak of Insight,598,80,2,256,10240,128,128
+Fortunate Runic Thread Cloak of the Harvest,599,80,3,384,10240,128,128
+Fortunate Runic Thread Cloak of Insight,600,80,4,512,10240,128,128
+Nimble Runic Thread Cloak of Insight,601,80,5,640,10240,128,128
+Gilded Dragonscale Silk Cloak of Fortune,602,81,0,0,10368,128,128
+Gilded Dragonscale Silk Cloak of the Harvest,603,81,1,128,10368,128,128
+Gilded Dragonscale Silk Cloak of Insight,604,81,2,256,10368,128,128
+Fortunate Dragonscale Silk Cloak of the Harvest,605,81,3,384,10368,128,128
+Fortunate Dragonscale Silk Cloak of Insight,606,81,4,512,10368,128,128
+Nimble Dragonscale Silk Cloak of Insight,607,81,5,640,10368,128,128
+Gilded Aether Silk Cloak of Fortune,608,82,0,0,10496,128,128
+Gilded Aether Silk Cloak of the Harvest,609,82,1,128,10496,128,128
+Gilded Aether Silk Cloak of Insight,610,82,2,256,10496,128,128
+Fortunate Aether Silk Cloak of the Harvest,611,82,3,384,10496,128,128
+Fortunate Aether Silk Cloak of Insight,612,82,4,512,10496,128,128
+Nimble Aether Silk Cloak of Insight,613,82,5,640,10496,128,128
+Gilded Void Thread Cloak of Fortune,614,83,0,0,10624,128,128
+Gilded Void Thread Cloak of the Harvest,615,83,1,128,10624,128,128
+Gilded Void Thread Cloak of Insight,616,83,2,256,10624,128,128
+Fortunate Void Thread Cloak of the Harvest,617,83,3,384,10624,128,128
+Fortunate Void Thread Cloak of Insight,618,83,4,512,10624,128,128
+Nimble Void Thread Cloak of Insight,619,83,5,640,10624,128,128
+Gilded Celestial Silk Cloak of Fortune,620,84,0,0,10752,128,128
+Gilded Celestial Silk Cloak of the Harvest,621,84,1,128,10752,128,128
+Gilded Celestial Silk Cloak of Insight,622,84,2,256,10752,128,128
+Fortunate Celestial Silk Cloak of the Harvest,623,84,3,384,10752,128,128
+Fortunate Celestial Silk Cloak of Insight,624,84,4,512,10752,128,128
+Nimble Celestial Silk Cloak of Insight,625,84,5,640,10752,128,128
+Gilded Bloodweave Cloak of Fortune,626,85,0,0,10880,128,128
+Gilded Bloodweave Cloak of the Harvest,627,85,1,128,10880,128,128
+Gilded Bloodweave Cloak of Insight,628,85,2,256,10880,128,128
+Fortunate Bloodweave Cloak of the Harvest,629,85,3,384,10880,128,128
+Fortunate Bloodweave Cloak of Insight,630,85,4,512,10880,128,128
+Nimble Bloodweave Cloak of Insight,631,85,5,640,10880,128,128
+Gilded Moonsilk Cloak of Fortune,632,86,0,0,11008,128,128
+Gilded Moonsilk Cloak of the Harvest,633,86,1,128,11008,128,128
+Gilded Moonsilk Cloak of Insight,634,86,2,256,11008,128,128
+Fortunate Moonsilk Cloak of the Harvest,635,86,3,384,11008,128,128
+Fortunate Moonsilk Cloak of Insight,636,86,4,512,11008,128,128
+Nimble Moonsilk Cloak of Insight,637,86,5,640,11008,128,128
+Gilded Sunweave Cloak of Fortune,638,87,0,0,11136,128,128
+Gilded Sunweave Cloak of the Harvest,639,87,1,128,11136,128,128
+Gilded Sunweave Cloak of Insight,640,87,2,256,11136,128,128
+Fortunate Sunweave Cloak of the Harvest,641,87,3,384,11136,128,128
+Fortunate Sunweave Cloak of Insight,642,87,4,512,11136,128,128
+Nimble Sunweave Cloak of Insight,643,87,5,640,11136,128,128
+Gilded Netherweave Cloak of Fortune,644,88,0,0,11264,128,128
+Gilded Netherweave Cloak of the Harvest,645,88,1,128,11264,128,128
+Gilded Netherweave Cloak of Insight,646,88,2,256,11264,128,128
+Fortunate Netherweave Cloak of the Harvest,647,88,3,384,11264,128,128
+Fortunate Netherweave Cloak of Insight,648,88,4,512,11264,128,128
+Nimble Netherweave Cloak of Insight,649,88,5,640,11264,128,128
+Gilded Stormsilk Cloak of Fortune,650,89,0,0,11392,128,128
+Gilded Stormsilk Cloak of the Harvest,651,89,1,128,11392,128,128
+Gilded Stormsilk Cloak of Insight,652,89,2,256,11392,128,128
+Fortunate Stormsilk Cloak of the Harvest,653,89,3,384,11392,128,128
+Fortunate Stormsilk Cloak of Insight,654,89,4,512,11392,128,128
+Nimble Stormsilk Cloak of Insight,655,89,5,640,11392,128,128
+Gilded Regal Silk Cloak of Fortune,656,90,0,0,11520,128,128
+Gilded Regal Silk Cloak of the Harvest,657,90,1,128,11520,128,128
+Gilded Regal Silk Cloak of Insight,658,90,2,256,11520,128,128
+Fortunate Regal Silk Cloak of the Harvest,659,90,3,384,11520,128,128
+Fortunate Regal Silk Cloak of Insight,660,90,4,512,11520,128,128
+Nimble Regal Silk Cloak of Insight,661,90,5,640,11520,128,128
+Gilded Eternal Weave Cloak of Fortune,662,91,0,0,11648,128,128
+Gilded Eternal Weave Cloak of the Harvest,663,91,1,128,11648,128,128
+Gilded Eternal Weave Cloak of Insight,664,91,2,256,11648,128,128
+Fortunate Eternal Weave Cloak of the Harvest,665,91,3,384,11648,128,128
+Fortunate Eternal Weave Cloak of Insight,666,91,4,512,11648,128,128
+Nimble Eternal Weave Cloak of Insight,667,91,5,640,11648,128,128
+Gilded Astral Silk Cloak of Fortune,668,92,0,0,11776,128,128
+Gilded Astral Silk Cloak of the Harvest,669,92,1,128,11776,128,128
+Gilded Astral Silk Cloak of Insight,670,92,2,256,11776,128,128
+Fortunate Astral Silk Cloak of the Harvest,671,92,3,384,11776,128,128
+Fortunate Astral Silk Cloak of Insight,672,92,4,512,11776,128,128
+Nimble Astral Silk Cloak of Insight,673,92,5,640,11776,128,128
+Gilded Gravity Weave Cloak of Fortune,674,93,0,0,11904,128,128
+Gilded Gravity Weave Cloak of the Harvest,675,93,1,128,11904,128,128
+Gilded Gravity Weave Cloak of Insight,676,93,2,256,11904,128,128
+Fortunate Gravity Weave Cloak of the Harvest,677,93,3,384,11904,128,128
+Fortunate Gravity Weave Cloak of Insight,678,93,4,512,11904,128,128
+Nimble Gravity Weave Cloak of Insight,679,93,5,640,11904,128,128
+Gilded Frostweave Cloak of Fortune,680,94,0,0,12032,128,128
+Gilded Frostweave Cloak of the Harvest,681,94,1,128,12032,128,128
+Gilded Frostweave Cloak of Insight,682,94,2,256,12032,128,128
+Fortunate Frostweave Cloak of the Harvest,683,94,3,384,12032,128,128
+Fortunate Frostweave Cloak of Insight,684,94,4,512,12032,128,128
+Nimble Frostweave Cloak of Insight,685,94,5,640,12032,128,128
+Gilded Duskweave Cloak of Fortune,686,95,0,0,12160,128,128
+Gilded Duskweave Cloak of the Harvest,687,95,1,128,12160,128,128
+Gilded Duskweave Cloak of Insight,688,95,2,256,12160,128,128
+Fortunate Duskweave Cloak of the Harvest,689,95,3,384,12160,128,128
+Fortunate Duskweave Cloak of Insight,690,95,4,512,12160,128,128
+Nimble Duskweave Cloak of Insight,691,95,5,640,12160,128,128
+Gilded Titanweave Cloak of Fortune,692,96,0,0,12288,128,128
+Gilded Titanweave Cloak of the Harvest,693,96,1,128,12288,128,128
+Gilded Titanweave Cloak of Insight,694,96,2,256,12288,128,128
+Fortunate Titanweave Cloak of the Harvest,695,96,3,384,12288,128,128
+Fortunate Titanweave Cloak of Insight,696,96,4,512,12288,128,128
+Nimble Titanweave Cloak of Insight,697,96,5,640,12288,128,128
+Gilded Skysilk Cloak of Fortune,698,97,0,0,12416,128,128
+Gilded Skysilk Cloak of the Harvest,699,97,1,128,12416,128,128
+Gilded Skysilk Cloak of Insight,700,97,2,256,12416,128,128
+Fortunate Skysilk Cloak of the Harvest,701,97,3,384,12416,128,128
+Fortunate Skysilk Cloak of Insight,702,97,4,512,12416,128,128
+Nimble Skysilk Cloak of Insight,703,97,5,640,12416,128,128
+Gilded Emberweave Cloak of Fortune,704,98,0,0,12544,128,128
+Gilded Emberweave Cloak of the Harvest,705,98,1,128,12544,128,128
+Gilded Emberweave Cloak of Insight,706,98,2,256,12544,128,128
+Fortunate Emberweave Cloak of the Harvest,707,98,3,384,12544,128,128
+Fortunate Emberweave Cloak of Insight,708,98,4,512,12544,128,128
+Nimble Emberweave Cloak of Insight,709,98,5,640,12544,128,128
+Gilded Soulweave Cloak of Fortune,710,99,0,0,12672,128,128
+Gilded Soulweave Cloak of the Harvest,711,99,1,128,12672,128,128
+Gilded Soulweave Cloak of Insight,712,99,2,256,12672,128,128
+Fortunate Soulweave Cloak of the Harvest,713,99,3,384,12672,128,128
+Fortunate Soulweave Cloak of Insight,714,99,4,512,12672,128,128
+Nimble Soulweave Cloak of Insight,715,99,5,640,12672,128,128
+Gilded Chronoweave Cloak of Fortune,716,100,0,0,12800,128,128
+Gilded Chronoweave Cloak of the Harvest,717,100,1,128,12800,128,128
+Gilded Chronoweave Cloak of Insight,718,100,2,256,12800,128,128
+Fortunate Chronoweave Cloak of the Harvest,719,100,3,384,12800,128,128
+Fortunate Chronoweave Cloak of Insight,720,100,4,512,12800,128,128
+Nimble Chronoweave Cloak of Insight,721,100,5,640,12800,128,128
+Gilded Worldweave Cloak of Fortune,722,101,0,0,12928,128,128
+Gilded Worldweave Cloak of the Harvest,723,101,1,128,12928,128,128
+Gilded Worldweave Cloak of Insight,724,101,2,256,12928,128,128
+Fortunate Worldweave Cloak of the Harvest,725,101,3,384,12928,128,128
+Fortunate Worldweave Cloak of Insight,726,101,4,512,12928,128,128
+Nimble Worldweave Cloak of Insight,727,101,5,640,12928,128,128
+Gilded Voidglass Silk Cloak of Fortune,728,102,0,0,13056,128,128
+Gilded Voidglass Silk Cloak of the Harvest,729,102,1,128,13056,128,128
+Gilded Voidglass Silk Cloak of Insight,730,102,2,256,13056,128,128
+Fortunate Voidglass Silk Cloak of the Harvest,731,102,3,384,13056,128,128
+Fortunate Voidglass Silk Cloak of Insight,732,102,4,512,13056,128,128
+Nimble Voidglass Silk Cloak of Insight,733,102,5,640,13056,128,128
+Gilded Abyssal Silk Cloak of Fortune,734,103,0,0,13184,128,128
+Gilded Abyssal Silk Cloak of the Harvest,735,103,1,128,13184,128,128
+Gilded Abyssal Silk Cloak of Insight,736,103,2,256,13184,128,128
+Fortunate Abyssal Silk Cloak of the Harvest,737,103,3,384,13184,128,128
+Fortunate Abyssal Silk Cloak of Insight,738,103,4,512,13184,128,128
+Nimble Abyssal Silk Cloak of Insight,739,103,5,640,13184,128,128
+Gilded Ashweave Cloak of Fortune,740,104,0,0,13312,128,128
+Gilded Ashweave Cloak of the Harvest,741,104,1,128,13312,128,128
+Gilded Ashweave Cloak of Insight,742,104,2,256,13312,128,128
+Fortunate Ashweave Cloak of the Harvest,743,104,3,384,13312,128,128
+Fortunate Ashweave Cloak of Insight,744,104,4,512,13312,128,128
+Nimble Ashweave Cloak of Insight,745,104,5,640,13312,128,128
+Gilded Glacial Silk Cloak of Fortune,746,105,0,0,13440,128,128
+Gilded Glacial Silk Cloak of the Harvest,747,105,1,128,13440,128,128
+Gilded Glacial Silk Cloak of Insight,748,105,2,256,13440,128,128
+Fortunate Glacial Silk Cloak of the Harvest,749,105,3,384,13440,128,128
+Fortunate Glacial Silk Cloak of Insight,750,105,4,512,13440,128,128
+Nimble Glacial Silk Cloak of Insight,751,105,5,640,13440,128,128
+Gilded Primordial Weave Cloak of Fortune,752,106,0,0,13568,128,128
+Gilded Primordial Weave Cloak of the Harvest,753,106,1,128,13568,128,128
+Gilded Primordial Weave Cloak of Insight,754,106,2,256,13568,128,128
+Fortunate Primordial Weave Cloak of the Harvest,755,106,3,384,13568,128,128
+Fortunate Primordial Weave Cloak of Insight,756,106,4,512,13568,128,128
+Nimble Primordial Weave Cloak of Insight,757,106,5,640,13568,128,128
+Miner's Gloves,758,107,0,0,13696,128,128
+Herbalist's Gloves,759,107,1,128,13696,128,128
+Blacksmith's Gloves,760,107,2,256,13696,128,128
+Alchemist's Gloves,761,107,3,384,13696,128,128
+Jewelcrafter's Gloves,762,107,4,512,13696,128,128
+Spellcrafter's Gloves,763,107,5,640,13696,128,128
+Tailor's Gloves,764,107,6,768,13696,128,128
+Invisibility Ring,765,107,7,896,13696,128,128
+Prospector's Pick,766,107,8,1024,13696,128,128
+Forager's Sickle,767,107,9,1152,13696,128,128
+Journeyman's Hammer,768,108,0,0,13824,128,128
+Weaver's Needle,769,108,1,128,13824,128,128
+Alchemist's Volatile Flask,770,108,2,256,13824,128,128
+Jeweler's Chisel,771,108,3,384,13824,128,128
+Spellcrafter's Runestaff,772,108,4,512,13824,128,128
+Prospector's Buckler,773,108,5,640,13824,128,128
+Forager's Guard,774,108,6,768,13824,128,128
+Journeyman's Bulwark,775,108,7,896,13824,128,128
+Weaver's Ward,776,108,8,1024,13824,128,128
+Alchemist's Reagent Satchel,777,108,9,1152,13824,128,128
+Jeweler's Strongbox,778,109,0,0,13952,128,128
+Spellcrafter's Ward,779,109,1,128,13952,128,128
+Cutpurse's Signet,780,109,2,256,13952,128,128
+Bounty Hunter's Gauntlets,781,109,3,384,13952,128,128
+Marauder's Warboots,782,109,4,512,13952,128,128
+Plunderer's Bulwark,783,109,5,640,13952,128,128
+Highwayman's Blade,784,109,6,768,13952,128,128
+Worldbreaker,785,109,7,896,13952,128,128
+Soulforged Blade,786,109,8,1024,13952,128,128
+Wanderer's Token,787,109,9,1152,13952,128,128
+Ruby Ring of Attack,788,110,0,0,14080,128,128
+Ruby Ring of Defense,789,110,1,128,14080,128,128
+Ruby Ring of Experience,790,110,2,256,14080,128,128
+Ruby Ring of Gathering,791,110,3,384,14080,128,128
+Ruby Amulet of Attack,792,110,4,512,14080,128,128
+Ruby Amulet of Defense,793,110,5,640,14080,128,128
+Ruby Amulet of Experience,794,110,6,768,14080,128,128
+Ruby Amulet of Gathering,795,110,7,896,14080,128,128
+Garnet Ring of Attack,796,111,0,0,14208,128,128
+Garnet Ring of Defense,797,111,1,128,14208,128,128
+Garnet Ring of Experience,798,111,2,256,14208,128,128
+Garnet Ring of Gathering,799,111,3,384,14208,128,128
+Garnet Amulet of Attack,800,111,4,512,14208,128,128
+Garnet Amulet of Defense,801,111,5,640,14208,128,128
+Garnet Amulet of Experience,802,111,6,768,14208,128,128
+Garnet Amulet of Gathering,803,111,7,896,14208,128,128
+Amethyst Ring of Attack,804,112,0,0,14336,128,128
+Amethyst Ring of Defense,805,112,1,128,14336,128,128
+Amethyst Ring of Experience,806,112,2,256,14336,128,128
+Amethyst Ring of Gathering,807,112,3,384,14336,128,128
+Amethyst Amulet of Attack,808,112,4,512,14336,128,128
+Amethyst Amulet of Defense,809,112,5,640,14336,128,128
+Amethyst Amulet of Experience,810,112,6,768,14336,128,128
+Amethyst Amulet of Gathering,811,112,7,896,14336,128,128
+Topaz Ring of Attack,812,113,0,0,14464,128,128
+Topaz Ring of Defense,813,113,1,128,14464,128,128
+Topaz Ring of Experience,814,113,2,256,14464,128,128
+Topaz Ring of Gathering,815,113,3,384,14464,128,128
+Topaz Amulet of Attack,816,113,4,512,14464,128,128
+Topaz Amulet of Defense,817,113,5,640,14464,128,128
+Topaz Amulet of Experience,818,113,6,768,14464,128,128
+Topaz Amulet of Gathering,819,113,7,896,14464,128,128
+Peridot Ring of Attack,820,114,0,0,14592,128,128
+Peridot Ring of Defense,821,114,1,128,14592,128,128
+Peridot Ring of Experience,822,114,2,256,14592,128,128
+Peridot Ring of Gathering,823,114,3,384,14592,128,128
+Peridot Amulet of Attack,824,114,4,512,14592,128,128
+Peridot Amulet of Defense,825,114,5,640,14592,128,128
+Peridot Amulet of Experience,826,114,6,768,14592,128,128
+Peridot Amulet of Gathering,827,114,7,896,14592,128,128
+Aquamarine Ring of Attack,828,115,0,0,14720,128,128
+Aquamarine Ring of Defense,829,115,1,128,14720,128,128
+Aquamarine Ring of Experience,830,115,2,256,14720,128,128
+Aquamarine Ring of Gathering,831,115,3,384,14720,128,128
+Aquamarine Amulet of Attack,832,115,4,512,14720,128,128
+Aquamarine Amulet of Defense,833,115,5,640,14720,128,128
+Aquamarine Amulet of Experience,834,115,6,768,14720,128,128
+Aquamarine Amulet of Gathering,835,115,7,896,14720,128,128
+Onyx Ring of Attack,836,116,0,0,14848,128,128
+Onyx Ring of Defense,837,116,1,128,14848,128,128
+Onyx Ring of Experience,838,116,2,256,14848,128,128
+Onyx Ring of Gathering,839,116,3,384,14848,128,128
+Onyx Amulet of Attack,840,116,4,512,14848,128,128
+Onyx Amulet of Defense,841,116,5,640,14848,128,128
+Onyx Amulet of Experience,842,116,6,768,14848,128,128
+Onyx Amulet of Gathering,843,116,7,896,14848,128,128
+Jade Ring of Attack,844,117,0,0,14976,128,128
+Jade Ring of Defense,845,117,1,128,14976,128,128
+Jade Ring of Experience,846,117,2,256,14976,128,128
+Jade Ring of Gathering,847,117,3,384,14976,128,128
+Jade Amulet of Attack,848,117,4,512,14976,128,128
+Jade Amulet of Defense,849,117,5,640,14976,128,128
+Jade Amulet of Experience,850,117,6,768,14976,128,128
+Jade Amulet of Gathering,851,117,7,896,14976,128,128
+Sapphire Ring of Attack,852,118,0,0,15104,128,128
+Sapphire Ring of Defense,853,118,1,128,15104,128,128
+Sapphire Ring of Experience,854,118,2,256,15104,128,128
+Sapphire Ring of Gathering,855,118,3,384,15104,128,128
+Sapphire Amulet of Attack,856,118,4,512,15104,128,128
+Sapphire Amulet of Defense,857,118,5,640,15104,128,128
+Sapphire Amulet of Experience,858,118,6,768,15104,128,128
+Sapphire Amulet of Gathering,859,118,7,896,15104,128,128
+Opal Ring of Attack,860,119,0,0,15232,128,128
+Opal Ring of Defense,861,119,1,128,15232,128,128
+Opal Ring of Experience,862,119,2,256,15232,128,128
+Opal Ring of Gathering,863,119,3,384,15232,128,128
+Opal Amulet of Attack,864,119,4,512,15232,128,128
+Opal Amulet of Defense,865,119,5,640,15232,128,128
+Opal Amulet of Experience,866,119,6,768,15232,128,128
+Opal Amulet of Gathering,867,119,7,896,15232,128,128
+Alexandrite Ring of Attack,868,120,0,0,15360,128,128
+Alexandrite Ring of Defense,869,120,1,128,15360,128,128
+Alexandrite Ring of Experience,870,120,2,256,15360,128,128
+Alexandrite Ring of Gathering,871,120,3,384,15360,128,128
+Alexandrite Amulet of Attack,872,120,4,512,15360,128,128
+Alexandrite Amulet of Defense,873,120,5,640,15360,128,128
+Alexandrite Amulet of Experience,874,120,6,768,15360,128,128
+Alexandrite Amulet of Gathering,875,120,7,896,15360,128,128
+Citrine Ring of Attack,876,121,0,0,15488,128,128
+Citrine Ring of Defense,877,121,1,128,15488,128,128
+Citrine Ring of Experience,878,121,2,256,15488,128,128
+Citrine Ring of Gathering,879,121,3,384,15488,128,128
+Citrine Amulet of Attack,880,121,4,512,15488,128,128
+Citrine Amulet of Defense,881,121,5,640,15488,128,128
+Citrine Amulet of Experience,882,121,6,768,15488,128,128
+Citrine Amulet of Gathering,883,121,7,896,15488,128,128
+Spinel Ring of Attack,884,122,0,0,15616,128,128
+Spinel Ring of Defense,885,122,1,128,15616,128,128
+Spinel Ring of Experience,886,122,2,256,15616,128,128
+Spinel Ring of Gathering,887,122,3,384,15616,128,128
+Spinel Amulet of Attack,888,122,4,512,15616,128,128
+Spinel Amulet of Defense,889,122,5,640,15616,128,128
+Spinel Amulet of Experience,890,122,6,768,15616,128,128
+Spinel Amulet of Gathering,891,122,7,896,15616,128,128
+Moonstone Ring of Attack,892,123,0,0,15744,128,128
+Moonstone Ring of Defense,893,123,1,128,15744,128,128
+Moonstone Ring of Experience,894,123,2,256,15744,128,128
+Moonstone Ring of Gathering,895,123,3,384,15744,128,128
+Moonstone Amulet of Attack,896,123,4,512,15744,128,128
+Moonstone Amulet of Defense,897,123,5,640,15744,128,128
+Moonstone Amulet of Experience,898,123,6,768,15744,128,128
+Moonstone Amulet of Gathering,899,123,7,896,15744,128,128
+Sunstone Ring of Attack,900,124,0,0,15872,128,128
+Sunstone Ring of Defense,901,124,1,128,15872,128,128
+Sunstone Ring of Experience,902,124,2,256,15872,128,128
+Sunstone Ring of Gathering,903,124,3,384,15872,128,128
+Sunstone Amulet of Attack,904,124,4,512,15872,128,128
+Sunstone Amulet of Defense,905,124,5,640,15872,128,128
+Sunstone Amulet of Experience,906,124,6,768,15872,128,128
+Sunstone Amulet of Gathering,907,124,7,896,15872,128,128
+Tanzanite Ring of Attack,908,125,0,0,16000,128,128
+Tanzanite Ring of Defense,909,125,1,128,16000,128,128
+Tanzanite Ring of Experience,910,125,2,256,16000,128,128
+Tanzanite Ring of Gathering,911,125,3,384,16000,128,128
+Tanzanite Amulet of Attack,912,125,4,512,16000,128,128
+Tanzanite Amulet of Defense,913,125,5,640,16000,128,128
+Tanzanite Amulet of Experience,914,125,6,768,16000,128,128
+Tanzanite Amulet of Gathering,915,125,7,896,16000,128,128
+Tourmaline Ring of Attack,916,126,0,0,16128,128,128
+Tourmaline Ring of Defense,917,126,1,128,16128,128,128
+Tourmaline Ring of Experience,918,126,2,256,16128,128,128
+Tourmaline Ring of Gathering,919,126,3,384,16128,128,128
+Tourmaline Amulet of Attack,920,126,4,512,16128,128,128
+Tourmaline Amulet of Defense,921,126,5,640,16128,128,128
+Tourmaline Amulet of Experience,922,126,6,768,16128,128,128
+Tourmaline Amulet of Gathering,923,126,7,896,16128,128,128
+Zircon Ring of Attack,924,127,0,0,16256,128,128
+Zircon Ring of Defense,925,127,1,128,16256,128,128
+Zircon Ring of Experience,926,127,2,256,16256,128,128
+Zircon Ring of Gathering,927,127,3,384,16256,128,128
+Zircon Amulet of Attack,928,127,4,512,16256,128,128
+Zircon Amulet of Defense,929,127,5,640,16256,128,128
+Zircon Amulet of Experience,930,127,6,768,16256,128,128
+Zircon Amulet of Gathering,931,127,7,896,16256,128,128
+Lapis Ring of Attack,932,128,0,0,16384,128,128
+Lapis Ring of Defense,933,128,1,128,16384,128,128
+Lapis Ring of Experience,934,128,2,256,16384,128,128
+Lapis Ring of Gathering,935,128,3,384,16384,128,128
+Lapis Amulet of Attack,936,128,4,512,16384,128,128
+Lapis Amulet of Defense,937,128,5,640,16384,128,128
+Lapis Amulet of Experience,938,128,6,768,16384,128,128
+Lapis Amulet of Gathering,939,128,7,896,16384,128,128
+Labradorite Ring of Attack,940,129,0,0,16512,128,128
+Labradorite Ring of Defense,941,129,1,128,16512,128,128
+Labradorite Ring of Experience,942,129,2,256,16512,128,128
+Labradorite Ring of Gathering,943,129,3,384,16512,128,128
+Labradorite Amulet of Attack,944,129,4,512,16512,128,128
+Labradorite Amulet of Defense,945,129,5,640,16512,128,128
+Labradorite Amulet of Experience,946,129,6,768,16512,128,128
+Labradorite Amulet of Gathering,947,129,7,896,16512,128,128
+Malachite Ring of Attack,948,130,0,0,16640,128,128
+Malachite Ring of Defense,949,130,1,128,16640,128,128
+Malachite Ring of Experience,950,130,2,256,16640,128,128
+Malachite Ring of Gathering,951,130,3,384,16640,128,128
+Malachite Amulet of Attack,952,130,4,512,16640,128,128
+Malachite Amulet of Defense,953,130,5,640,16640,128,128
+Malachite Amulet of Experience,954,130,6,768,16640,128,128
+Malachite Amulet of Gathering,955,130,7,896,16640,128,128
+Howlite Ring of Attack,956,131,0,0,16768,128,128
+Howlite Ring of Defense,957,131,1,128,16768,128,128
+Howlite Ring of Experience,958,131,2,256,16768,128,128
+Howlite Ring of Gathering,959,131,3,384,16768,128,128
+Howlite Amulet of Attack,960,131,4,512,16768,128,128
+Howlite Amulet of Defense,961,131,5,640,16768,128,128
+Howlite Amulet of Experience,962,131,6,768,16768,128,128
+Howlite Amulet of Gathering,963,131,7,896,16768,128,128
+Shadow Pearl Ring of Attack,964,132,0,0,16896,128,128
+Shadow Pearl Ring of Defense,965,132,1,128,16896,128,128
+Shadow Pearl Ring of Experience,966,132,2,256,16896,128,128
+Shadow Pearl Ring of Gathering,967,132,3,384,16896,128,128
+Shadow Pearl Amulet of Attack,968,132,4,512,16896,128,128
+Shadow Pearl Amulet of Defense,969,132,5,640,16896,128,128
+Shadow Pearl Amulet of Experience,970,132,6,768,16896,128,128
+Shadow Pearl Amulet of Gathering,971,132,7,896,16896,128,128
+Celestite Ring of Attack,972,133,0,0,17024,128,128
+Celestite Ring of Defense,973,133,1,128,17024,128,128
+Celestite Ring of Experience,974,133,2,256,17024,128,128
+Celestite Ring of Gathering,975,133,3,384,17024,128,128
+Celestite Amulet of Attack,976,133,4,512,17024,128,128
+Celestite Amulet of Defense,977,133,5,640,17024,128,128
+Celestite Amulet of Experience,978,133,6,768,17024,128,128
+Celestite Amulet of Gathering,979,133,7,896,17024,128,128
+Azurite Ring of Attack,980,134,0,0,17152,128,128
+Azurite Ring of Defense,981,134,1,128,17152,128,128
+Azurite Ring of Experience,982,134,2,256,17152,128,128
+Azurite Ring of Gathering,983,134,3,384,17152,128,128
+Azurite Amulet of Attack,984,134,4,512,17152,128,128
+Azurite Amulet of Defense,985,134,5,640,17152,128,128
+Azurite Amulet of Experience,986,134,6,768,17152,128,128
+Azurite Amulet of Gathering,987,134,7,896,17152,128,128
+Cinnabar Ring of Attack,988,135,0,0,17280,128,128
+Cinnabar Ring of Defense,989,135,1,128,17280,128,128
+Cinnabar Ring of Experience,990,135,2,256,17280,128,128
+Cinnabar Ring of Gathering,991,135,3,384,17280,128,128
+Cinnabar Amulet of Attack,992,135,4,512,17280,128,128
+Cinnabar Amulet of Defense,993,135,5,640,17280,128,128
+Cinnabar Amulet of Experience,994,135,6,768,17280,128,128
+Cinnabar Amulet of Gathering,995,135,7,896,17280,128,128
+Phantom Quartz Ring of Attack,996,136,0,0,17408,128,128
+Phantom Quartz Ring of Defense,997,136,1,128,17408,128,128
+Phantom Quartz Ring of Experience,998,136,2,256,17408,128,128
+Phantom Quartz Ring of Gathering,999,136,3,384,17408,128,128
+Phantom Quartz Amulet of Attack,1000,136,4,512,17408,128,128
+Phantom Quartz Amulet of Defense,1001,136,5,640,17408,128,128
+Phantom Quartz Amulet of Experience,1002,136,6,768,17408,128,128
+Phantom Quartz Amulet of Gathering,1003,136,7,896,17408,128,128
+Sphene Ring of Attack,1004,137,0,0,17536,128,128
+Sphene Ring of Defense,1005,137,1,128,17536,128,128
+Sphene Ring of Experience,1006,137,2,256,17536,128,128
+Sphene Ring of Gathering,1007,137,3,384,17536,128,128
+Sphene Amulet of Attack,1008,137,4,512,17536,128,128
+Sphene Amulet of Defense,1009,137,5,640,17536,128,128
+Sphene Amulet of Experience,1010,137,6,768,17536,128,128
+Sphene Amulet of Gathering,1011,137,7,896,17536,128,128
+Heliodor Ring of Attack,1012,138,0,0,17664,128,128
+Heliodor Ring of Defense,1013,138,1,128,17664,128,128
+Heliodor Ring of Experience,1014,138,2,256,17664,128,128
+Heliodor Ring of Gathering,1015,138,3,384,17664,128,128
+Heliodor Amulet of Attack,1016,138,4,512,17664,128,128
+Heliodor Amulet of Defense,1017,138,5,640,17664,128,128
+Heliodor Amulet of Experience,1018,138,6,768,17664,128,128
+Heliodor Amulet of Gathering,1019,138,7,896,17664,128,128
+Void Crystal Ring of Attack,1020,139,0,0,17792,128,128
+Void Crystal Ring of Defense,1021,139,1,128,17792,128,128
+Void Crystal Ring of Experience,1022,139,2,256,17792,128,128
+Void Crystal Ring of Gathering,1023,139,3,384,17792,128,128
+Void Crystal Amulet of Attack,1024,139,4,512,17792,128,128
+Void Crystal Amulet of Defense,1025,139,5,640,17792,128,128
+Void Crystal Amulet of Experience,1026,139,6,768,17792,128,128
+Void Crystal Amulet of Gathering,1027,139,7,896,17792,128,128
+Abyssal Pearl Ring of Attack,1028,140,0,0,17920,128,128
+Abyssal Pearl Ring of Defense,1029,140,1,128,17920,128,128
+Abyssal Pearl Ring of Experience,1030,140,2,256,17920,128,128
+Abyssal Pearl Ring of Gathering,1031,140,3,384,17920,128,128
+Abyssal Pearl Amulet of Attack,1032,140,4,512,17920,128,128
+Abyssal Pearl Amulet of Defense,1033,140,5,640,17920,128,128
+Abyssal Pearl Amulet of Experience,1034,140,6,768,17920,128,128
+Abyssal Pearl Amulet of Gathering,1035,140,7,896,17920,128,128
+Pyrope Ring of Attack,1036,141,0,0,18048,128,128
+Pyrope Ring of Defense,1037,141,1,128,18048,128,128
+Pyrope Ring of Experience,1038,141,2,256,18048,128,128
+Pyrope Ring of Gathering,1039,141,3,384,18048,128,128
+Pyrope Amulet of Attack,1040,141,4,512,18048,128,128
+Pyrope Amulet of Defense,1041,141,5,640,18048,128,128
+Pyrope Amulet of Experience,1042,141,6,768,18048,128,128
+Pyrope Amulet of Gathering,1043,141,7,896,18048,128,128
+Glacial Diamond Ring of Attack,1044,142,0,0,18176,128,128
+Glacial Diamond Ring of Defense,1045,142,1,128,18176,128,128
+Glacial Diamond Ring of Experience,1046,142,2,256,18176,128,128
+Glacial Diamond Ring of Gathering,1047,142,3,384,18176,128,128
+Glacial Diamond Amulet of Attack,1048,142,4,512,18176,128,128
+Glacial Diamond Amulet of Defense,1049,142,5,640,18176,128,128
+Glacial Diamond Amulet of Experience,1050,142,6,768,18176,128,128
+Glacial Diamond Amulet of Gathering,1051,142,7,896,18176,128,128
+Primordial Gem Ring of Attack,1052,143,0,0,18304,128,128
+Primordial Gem Ring of Defense,1053,143,1,128,18304,128,128
+Primordial Gem Ring of Experience,1054,143,2,256,18304,128,128
+Primordial Gem Ring of Gathering,1055,143,3,384,18304,128,128
+Primordial Gem Amulet of Attack,1056,143,4,512,18304,128,128
+Primordial Gem Amulet of Defense,1057,143,5,640,18304,128,128
+Primordial Gem Amulet of Experience,1058,143,6,768,18304,128,128
+Primordial Gem Amulet of Gathering,1059,143,7,896,18304,128,128
+Forager's Totem,1060,144,0,0,18432,128,128
+Scholar's Seal,1061,144,1,128,18432,128,128
+Gilded Sigil,1062,144,2,256,18432,128,128
+Hunter's Eye,1063,144,3,384,18432,128,128
+Arcane Effigy,1064,144,4,512,18432,128,128
+Dreadguard's Vambrace,1065,144,5,640,18432,128,128
+Nethergate Hauberk,1066,144,6,768,18432,128,128
+Warden's Faceplate,1067,144,7,896,18432,128,128
+Chasm Treads,1068,144,8,1024,18432,128,128
+Dreadguard Signet,1069,144,9,1152,18432,128,128
+Tempest's Aegis,1070,145,0,0,18560,128,128
+Shardweave Leggings,1071,145,1,128,18560,128,128
+Stormcaller's Mantle,1072,145,2,256,18560,128,128
+Glass Striker,1073,145,3,384,18560,128,128
+Eye of the Tempest,1074,145,4,512,18560,128,128
+Fallen Crown,1075,145,5,640,18560,128,128
+Overlord's Pauldrons,1076,145,6,768,18560,128,128
+Citadel Greaves,1077,145,7,896,18560,128,128
+Kingsfall Choker,1078,145,8,1024,18560,128,128
+Sovereign's Mark,1079,145,9,1152,18560,128,128
+Timeworn Bracers,1080,146,0,0,18688,128,128
+Verge Walker's Treads,1081,146,1,128,18688,128,128
+Ancient's Vestment,1082,146,2,256,18688,128,128
+Eternal Edge,1083,146,3,384,18688,128,128
+Ancient Circlet,1084,146,4,512,18688,128,128
+Astral Cowl,1085,146,5,640,18688,128,128
+Crucible Plate,1086,146,6,768,18688,128,128
+Starweave Gauntlets,1087,146,7,896,18688,128,128
+Prism Band,1088,146,8,1024,18688,128,128
+Astral Waystone,1089,146,9,1152,18688,128,128
+Cindersteel Warblade,1090,147,0,0,18816,128,128
+Warlord's Bulwark,1091,147,1,128,18816,128,128
+Cinderthrone Striders,1092,147,2,256,18816,128,128
+Ashforge Gauntlets,1093,147,3,384,18816,128,128
+Throne-Ash Signet,1094,147,4,512,18816,128,128
+Frostveil Spire,1095,147,5,640,18816,128,128
+Hoarfrost Mantle,1096,147,6,768,18816,128,128
+Rimeguard Legplates,1097,147,7,896,18816,128,128
+Ancient's Reagent Coil,1098,147,8,1024,18816,128,128
+Veilbound Torc,1099,147,9,1152,18816,128,128
+Stormforged Cleaver,1100,148,0,0,18944,128,128
+Astral Aegis,1101,148,1,128,18944,128,128
+Stormforged Visor,1102,148,2,256,18944,128,128
+Runewright's Grips,1103,148,3,384,18944,128,128
+Stormcore Pendant,1104,148,4,512,18944,128,128
+Gravemaw Maul,1105,148,5,640,18944,128,128
+Juggernaut's Casque,1106,148,6,768,18944,128,128
+Juggernaut Hauberk,1107,148,7,896,18944,128,128
+Juggernaut's Grip,1108,148,8,1024,18944,128,128
+Rivetplate Greaves,1109,148,9,1152,18944,128,128
+Gravewalk Sabatons,1110,149,0,0,19072,128,128
+Gravitic Loop,1111,149,1,128,19072,128,128
+Conqueror's Blade,1112,149,2,256,19072,128,128
+Conqueror's Aegis,1113,149,3,384,19072,128,128
+Conqueror's Helm,1114,149,4,512,19072,128,128
+Conqueror's Plate,1115,149,5,640,19072,128,128
+Conqueror's Gauntlets,1116,149,6,768,19072,128,128
+Conqueror's Legguards,1117,149,7,896,19072,128,128
+Conqueror's Warboots,1118,149,8,1024,19072,128,128
