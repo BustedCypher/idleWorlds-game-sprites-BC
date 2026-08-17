@@ -963,6 +963,56 @@
   }
   .tab-badge.show { display: block; }
 
+  /* ── Community Tools expandable nav group (v5.2) ──
+     Work Orders + Jewelry live under one parent entry without changing
+     either calculator's pane or data model. */
+  .community-tools-nav {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .community-tools-toggle .community-chevron {
+    margin-left: auto;
+    color: var(--text3);
+    font-size: 11px;
+    line-height: 1;
+    transition: transform .18s ease, color .18s ease;
+  }
+  .community-tools-nav.open > .community-tools-toggle .community-chevron {
+    transform: rotate(180deg);
+    color: var(--brass);
+  }
+  .community-tools-menu {
+    display: grid;
+    gap: 3px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: max-height .2s ease, opacity .16s ease;
+  }
+  .community-tools-nav.open > .community-tools-menu {
+    max-height: 140px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .rail .community-tool-child {
+    padding: 8px 10px 8px 30px;
+    font-size: 12.5px;
+    color: var(--text3);
+  }
+  .rail .community-tool-child .tab-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 14px;
+  }
+  .rail .community-tool-child.active {
+    color: var(--text);
+  }
+
   /* Rail footer bits
      v41.3 — the rail is 232px wide, the narrowest column in the app, and
      the XP-boost card used to lay its icon, skill name and bonus pill on
@@ -1038,6 +1088,79 @@
     width: 20px; height: 3px; border-radius: 0 0 3px 3px;
   }
   .botnav .tab-badge { top: 5px; right: calc(50% - 16px); }
+
+  /* The mobile Community Tools parent occupies one bottom-nav slot; its
+     children open in a theme-aware popover above the nav instead of adding
+     more bottom-nav buttons or horizontal scrolling. */
+  .botnav .community-tools-nav {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    display: block;
+  }
+  .botnav .community-tools-toggle { height: 100%; }
+  .botnav .community-tools-toggle .community-chevron {
+    position: absolute;
+    top: 5px;
+    right: calc(50% - 19px);
+    margin: 0;
+    font-size: 8px;
+  }
+  .botnav .community-tools-menu {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 11px);
+    width: min(270px, calc(100vw - 24px));
+    max-height: 180px;
+    padding: 7px;
+    gap: 5px;
+    opacity: 0;
+    visibility: hidden;
+    overflow: visible;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    background: linear-gradient(180deg, var(--surface-hi), var(--surface));
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+  }
+  .botnav .community-tools-nav.open > .community-tools-menu {
+    max-height: 180px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+  .botnav .community-tool-child {
+    width: 100%;
+    min-height: 44px;
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 13px;
+    border: 1px solid transparent;
+  }
+  .botnav .community-tool-child .tab-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 17px;
+  }
+  .botnav .community-tool-child .tab-label {
+    font-size: 12.5px;
+  }
+  .botnav .community-tool-child.active::before {
+    left: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 22px;
+    border-radius: 0 3px 3px 0;
+  }
 
   @media (min-width: 1060px) {
     .rail { display: flex; }
@@ -5743,7 +5866,138 @@
   document.documentElement.setAttribute('data-theme', t);
 })();
 </script>
-<style id="iw-panel-styles">#iw-info-panels{display:none;gap:10px;flex-wrap:wrap;margin:12px 0 0;}.iwp-card{position:relative;flex:1 1 190px;min-width:180px;border-radius:12px;padding:12px 13px 11px;background:linear-gradient(180deg,var(--surface-hi,#1c1e23),var(--surface,#141519));border:1px solid var(--border2,#343740);box-shadow:var(--inset-top,none);overflow:hidden;transition:border-color .16s ease,background .16s ease;animation:iwp-in .3s ease both;}.iwp-card:hover{border-color:var(--text3,#4e566d);}.iwp-card::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;background:var(--acc,#2ec4a0);opacity:.6;}.iwp-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--border,#2a2f42);position:relative;z-index:1;}.iwp-emoji{font-size:16px;line-height:1;}.iwp-title{font:700 11px 'Inter',sans-serif;letter-spacing:.6px;color:var(--text,#e8ecf5);text-transform:uppercase;}.iwp-row{margin:9px 0;position:relative;z-index:1;}.iwp-rowtop{display:flex;align-items:center;justify-content:space-between;gap:8px;}.iwp-rowlbl{display:flex;align-items:center;gap:6px;font:600 12px 'Inter',sans-serif;color:var(--text2,#8b93b0);}.iwp-val{font:700 14px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);letter-spacing:-.2px;}.iwp-val.zero{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));font-weight:600;}.iwp-meter{position:relative;height:5px;margin-top:6px;border-radius:99px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);overflow:hidden;}.iwp-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--racc,#2ec4a0);opacity:.85;transition:width .45s cubic-bezier(.2,.7,.2,1);}[data-theme="light"] .iwp-fill,[data-theme="office"] .iwp-fill{background:color-mix(in srgb,var(--racc,#2ec4a0) 45%,var(--text,#252218));opacity:1;}.iwp-elems{display:flex;gap:7px;position:relative;z-index:1;}.iwp-elem{flex:1;text-align:center;border-radius:9px;padding:8px 4px 6px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);}.iwp-elem .e-emoji{font-size:17px;line-height:1;}.iwp-elem .e-val{display:block;margin-top:4px;font:700 15px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);}.iwp-elem.zero{background:var(--surface-2,#15161a);}.iwp-elem.zero .e-val{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}.iwp-elem.zero .e-emoji{opacity:.45;}.iwp-elem .e-lbl{display:block;margin-top:3px;font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.6px;color:var(--text3,#4e566d);}.iwp-team{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}.iwp-crest{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);}.iwp-teamsub{font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3,#4e566d);}.iwp-teamname{font:700 16px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);margin-top:2px;}@keyframes iwp-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}@media (prefers-reduced-motion:reduce){.iwp-card{animation:none;}.iwp-fill{transition:none;}}</style></head>
+<style id="iw-panel-styles">#iw-info-panels{display:none;gap:10px;flex-wrap:wrap;margin:12px 0 0;}.iwp-card{position:relative;flex:1 1 190px;min-width:180px;border-radius:12px;padding:12px 13px 11px;background:linear-gradient(180deg,var(--surface-hi,#1c1e23),var(--surface,#141519));border:1px solid var(--border2,#343740);box-shadow:var(--inset-top,none);overflow:hidden;transition:border-color .16s ease,background .16s ease;animation:iwp-in .3s ease both;}.iwp-card:hover{border-color:var(--text3,#4e566d);}.iwp-card::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;background:var(--acc,#2ec4a0);opacity:.6;}.iwp-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--border,#2a2f42);position:relative;z-index:1;}.iwp-emoji{font-size:16px;line-height:1;}.iwp-title{font:700 11px 'Inter',sans-serif;letter-spacing:.6px;color:var(--text,#e8ecf5);text-transform:uppercase;}.iwp-row{margin:9px 0;position:relative;z-index:1;}.iwp-rowtop{display:flex;align-items:center;justify-content:space-between;gap:8px;}.iwp-rowlbl{display:flex;align-items:center;gap:6px;font:600 12px 'Inter',sans-serif;color:var(--text2,#8b93b0);}.iwp-val{font:700 14px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);letter-spacing:-.2px;}.iwp-val.zero{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));font-weight:600;}.iwp-meter{position:relative;height:5px;margin-top:6px;border-radius:99px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);overflow:hidden;}.iwp-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--racc,#2ec4a0);opacity:.85;transition:width .45s cubic-bezier(.2,.7,.2,1);}[data-theme="light"] .iwp-fill,[data-theme="office"] .iwp-fill{background:color-mix(in srgb,var(--racc,#2ec4a0) 45%,var(--text,#252218));opacity:1;}.iwp-elems{display:flex;gap:7px;position:relative;z-index:1;}.iwp-elem{flex:1;text-align:center;border-radius:9px;padding:8px 4px 6px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);}.iwp-elem .e-emoji{font-size:17px;line-height:1;}.iwp-elem .e-val{display:block;margin-top:4px;font:700 15px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);}.iwp-elem.zero{background:var(--surface-2,#15161a);}.iwp-elem.zero .e-val{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}.iwp-elem.zero .e-emoji{opacity:.45;}.iwp-elem .e-lbl{display:block;margin-top:3px;font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.6px;color:var(--text3,#4e566d);}.iwp-team{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}.iwp-crest{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);}.iwp-teamsub{font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3,#4e566d);}.iwp-teamname{font:700 16px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);margin-top:2px;}@keyframes iwp-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}@media (prefers-reduced-motion:reduce){.iwp-card{animation:none;}.iwp-fill{transition:none;}}</style>
+<style id="iw-jewelry-prospecting-styles">
+/* v5.2 — Jewelry Prospecting tool. Uses only shared theme tokens. */
+#tab-jewelry{min-width:0;max-width:100%}
+#tab-jewelry *{box-sizing:border-box}
+.jpc-intro-note{
+  display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;
+  border:1px solid var(--border);border-radius:var(--r-sm);background:var(--sunken);
+  color:var(--text2);font-size:12px;line-height:1.55
+}
+.jpc-intro-note strong{color:var(--text)}
+.jpc-controls{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:14px}
+.jpc-controls>*{min-width:0}
+.jpc-recipe-wrap{display:grid;gap:8px}
+.jpc-selected{
+  min-width:0;padding:10px 11px;border:1px solid var(--border);border-radius:var(--r-sm);
+  background:var(--sunken);color:var(--text2);font-size:12px;line-height:1.45;overflow-wrap:anywhere
+}
+.jpc-selected .iw-item-ref{vertical-align:middle}
+.jpc-profile-card{
+  min-width:0;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);
+  background:var(--sunken);display:flex;flex-direction:column;justify-content:center;gap:5px
+}
+.jpc-profile-kicker{
+  color:var(--text3);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase
+}
+.jpc-profile-main{color:var(--text);font-size:14px;font-weight:750;overflow-wrap:anywhere}
+.jpc-profile-sub{color:var(--text3);font-size:11px;line-height:1.4}
+.jpc-settings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.jpc-setting{
+  min-width:0;padding:12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface)
+}
+.jpc-setting-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.jpc-setting-title{color:var(--text);font-size:11px;font-weight:750}
+.jpc-override{
+  display:inline-flex!important;align-items:center;gap:5px;margin:0!important;color:var(--text3)!important;
+  font-size:10px!important;font-weight:650!important;white-space:nowrap;cursor:pointer
+}
+.jpc-override input{width:14px!important;height:14px!important;margin:0;accent-color:var(--accent)}
+.jpc-source{min-height:29px;margin-bottom:7px;color:var(--text3);font-size:10px;line-height:1.35}
+.jpc-setting input,.jpc-setting select,#jpc-recipe{
+  width:100%;max-width:100%;min-width:0
+}
+.jpc-setting input:disabled,.jpc-setting select:disabled{opacity:.7;cursor:not-allowed}
+.jpc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.jpc-reset{
+  appearance:none;border:1px solid var(--border2);border-radius:var(--r-sm);background:var(--surface);
+  color:var(--text2);padding:8px 11px;font:inherit;font-size:11px;font-weight:700;cursor:pointer
+}
+.jpc-reset:hover{border-color:var(--accent);color:var(--text)}
+.jpc-error{
+  display:none;margin:14px 0 0;padding:11px 13px;border:1px solid var(--negative,var(--border2));
+  border-radius:var(--r-sm);background:var(--sunken);color:var(--negative,var(--text));font-size:12px;line-height:1.45
+}
+.jpc-outputs{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:12px;min-width:0}
+.jpc-outputs-label{
+  color:var(--text3);font-size:9px;font-weight:750;letter-spacing:.08em;text-transform:uppercase
+}
+.jpc-summary{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px
+}
+.jpc-metric{
+  min-width:0;padding:13px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);
+  overflow:hidden
+}
+.jpc-metric.jpc-primary{
+  border-color:color-mix(in srgb,var(--accent) 45%,var(--border));
+  background:color-mix(in srgb,var(--accent) 8%,var(--surface))
+}
+.jpc-metric-label{
+  color:var(--text3);font-size:9px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;line-height:1.25
+}
+.jpc-metric-value{
+  margin-top:6px;color:var(--text);font-family:var(--mono);font-size:clamp(15px,2.7vw,21px);
+  font-weight:800;line-height:1.1;overflow-wrap:anywhere
+}
+.jpc-primary .jpc-metric-value{color:var(--brass)}
+.jpc-metric-sub{margin-top:4px;color:var(--text3);font-size:10px;line-height:1.35}
+.jpc-detail-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:20px 0 9px
+}
+.jpc-detail-head h3{margin:0;color:var(--text);font-size:14px}
+.jpc-detail-head span{color:var(--text3);font-size:10px;text-align:right}
+.jpc-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.jpc-detail-card{
+  min-width:0;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);overflow:hidden
+}
+.jpc-detail-title{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 12px;border-bottom:1px solid var(--border);
+  background:var(--sunken);min-width:0
+}
+.jpc-detail-title-main{min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px;color:var(--text);font-weight:750}
+.jpc-qty{
+  flex:0 0 auto;border:1px solid var(--border2);border-radius:99px;padding:3px 7px;color:var(--text2);
+  font-family:var(--mono);font-size:10px
+}
+.jpc-from{
+  padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text3);font-size:10px;line-height:1.4;
+  overflow-wrap:anywhere
+}
+.jpc-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.jpc-stat{min-width:0;padding:10px 12px;border-top:1px solid var(--border)}
+.jpc-stat:nth-child(odd){border-right:1px solid var(--border)}
+.jpc-stat:nth-child(-n+2){border-top:0}
+.jpc-stat-label{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.05em;line-height:1.25}
+.jpc-stat-value{
+  margin-top:4px;color:var(--text);font-family:var(--mono);font-size:13px;font-weight:750;line-height:1.25;
+  overflow-wrap:anywhere
+}
+.jpc-footnote{margin-top:12px;color:var(--text3);font-size:10px;line-height:1.5}
+@media(max-width:760px){
+  .jpc-controls{grid-template-columns:1fr}
+  .jpc-settings{grid-template-columns:1fr}
+  .jpc-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .jpc-detail-grid{grid-template-columns:1fr}
+  .jpc-detail-head{align-items:flex-start;flex-direction:column}
+  .jpc-detail-head span{text-align:left}
+}
+@media(max-width:520px){
+  /* Six top-level bottom-nav entries share the phone width without scrolling. */
+  .botnav > .tab-btn .tab-label,.botnav > .community-tools-nav > .community-tools-toggle .tab-label{font-size:9px;letter-spacing:-.01em}
+  .botnav > .tab-btn,.botnav > .community-tools-nav > .community-tools-toggle{padding-left:1px;padding-right:1px}
+}
+@media(max-width:420px){
+  .jpc-summary{grid-template-columns:1fr}
+  .jpc-stat-grid{grid-template-columns:1fr}
+  .jpc-stat{border-right:0!important;border-top:1px solid var(--border)!important}
+  .jpc-stat:first-child{border-top:0!important}
+}
+</style>
+
+</head>
 <body class="mode-simple">
 
 <div class="grain" aria-hidden="true"></div>
@@ -5797,10 +6051,23 @@
       <span class="tab-label">Gear</span>
       <span class="tab-badge" id="badge-gear" style="background:var(--orange);"></span>
     </button>
-    <button class="tab-btn" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
-      <span class="tab-icon" aria-hidden="true">📜</span>
-      <span class="tab-label">Work Orders</span>
-    </button>
+    <div class="community-tools-nav" data-community-nav="desktop">
+      <button type="button" class="tab-btn community-tools-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="community-tools-desktop" onclick="toggleCommunityTools(event)">
+        <span class="tab-icon" aria-hidden="true">🧰</span>
+        <span class="tab-label">Community Tools</span>
+        <span class="community-chevron" aria-hidden="true">▾</span>
+      </button>
+      <div class="community-tools-menu" id="community-tools-desktop">
+        <button class="tab-btn community-tool-child" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
+          <span class="tab-icon" aria-hidden="true">📜</span>
+          <span class="tab-label">Work Order Calculator</span>
+        </button>
+        <button class="tab-btn community-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
+          <span class="tab-icon" aria-hidden="true">💎</span>
+          <span class="tab-label">Jewelry Calculator</span>
+        </button>
+      </div>
+    </div>
     <button class="tab-btn" data-tab="database" role="tab" aria-selected="false" aria-controls="tab-database" onclick="switchTab(&#39;database&#39;)">
       <span class="tab-icon" aria-hidden="true">📦</span>
       <span class="tab-label">Items</span>
@@ -7374,6 +7641,101 @@
     </section>
   </div>
 
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TAB — JEWELRY PROSPECTING
+       Profile-driven ore / time / Work Order expected-value model.
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="tab-jewelry" role="tabpanel" aria-label="Jewelry Prospecting Calculator">
+    <div class="pane-head">
+      <div class="pane-eyebrow">Jewelcrafting prospecting</div>
+      <h2 class="pane-title">Jewelry Prospecting Calculator</h2>
+      <p class="pane-sub">Estimate the ore, mining actions, prospecting attempts and time needed to obtain the gems for a ring or amulet, using your imported character stats by default.</p>
+    </div>
+
+    <div class="jpc-intro-note" role="note">
+      <span aria-hidden="true">💎</span>
+      <div><strong>Profile-aware by default.</strong> Your effective Jewelcrafting level chooses the starting ring tier. Item Find, 2x Gather Chance and Housing come from your player import; enable <strong>Custom</strong> beside any value to override it for this calculator only.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="dot purple"></span>Jewelry &amp; player setup</div>
+      <div class="panel-body">
+        <div class="jpc-controls">
+          <div class="field jpc-recipe-wrap">
+            <label for="jpc-recipe">Jewelry item</label>
+            <select id="jpc-recipe" aria-describedby="jpc-selected"></select>
+            <span class="field-helper">Defaults to a ring at the highest tier your current Jewelcrafting level can make.</span>
+            <div class="jpc-selected" id="jpc-selected">Loading recipe…</div>
+          </div>
+          <div class="jpc-profile-card" id="jpc-profile-card">
+            <div class="jpc-profile-kicker">Player import</div>
+            <div class="jpc-profile-main" id="jpc-profile-main">No profile imported</div>
+            <div class="jpc-profile-sub" id="jpc-profile-sub">Import a player on Start to auto-fill this tool.</div>
+          </div>
+        </div>
+
+        <div class="jpc-settings">
+          <div class="jpc-setting">
+            <div class="jpc-setting-top">
+              <span class="jpc-setting-title">Item Find %</span>
+              <label class="jpc-override"><input type="checkbox" id="jpc-itemfind-custom">Custom</label>
+            </div>
+            <div class="jpc-source" id="jpc-itemfind-source">Profile value</div>
+            <input id="jpc-itemfind" type="number" inputmode="numeric" min="0" step="1" value="0" disabled aria-label="Item Find percent">
+          </div>
+          <div class="jpc-setting">
+            <div class="jpc-setting-top">
+              <span class="jpc-setting-title">2x Gather Chance %</span>
+              <label class="jpc-override"><input type="checkbox" id="jpc-gather-custom">Custom</label>
+            </div>
+            <div class="jpc-source" id="jpc-gather-source">Profile value</div>
+            <input id="jpc-gather" type="number" inputmode="numeric" min="0" step="1" value="0" disabled aria-label="2x Gather Chance percent">
+          </div>
+          <div class="jpc-setting">
+            <div class="jpc-setting-top">
+              <span class="jpc-setting-title">Housing level</span>
+              <label class="jpc-override"><input type="checkbox" id="jpc-house-custom">Custom</label>
+            </div>
+            <div class="jpc-source" id="jpc-house-source">Profile value</div>
+            <select id="jpc-house" disabled aria-label="Housing level">
+              <option value="0">T0 · None</option>
+              <option value="1">T1 · Camp</option>
+              <option value="2">T2 · Cottage</option>
+              <option value="3">T3 · Villa</option>
+              <option value="4">T4 · Manor</option>
+              <option value="5">T5 · Citadel</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="jpc-actions">
+          <button type="button" class="jpc-reset" id="jpc-use-profile">Use profile values &amp; tier</button>
+        </div>
+        <div class="jpc-error" id="jpc-error" role="alert"></div>
+        <div class="jpc-outputs" id="jpc-outputs"></div>
+      </div>
+    </div>
+
+    <div class="jpc-summary" aria-label="Calculation summary">
+      <div class="jpc-metric"><div class="jpc-metric-label">Prospecting attempts</div><div class="jpc-metric-value" id="jpc-sum-attempts">0</div><div class="jpc-metric-sub">expected attempts</div></div>
+      <div class="jpc-metric"><div class="jpc-metric-label">Ore required</div><div class="jpc-metric-value" id="jpc-sum-ore">0</div><div class="jpc-metric-sub">2 ore per prospect</div></div>
+      <div class="jpc-metric"><div class="jpc-metric-label">Mining actions</div><div class="jpc-metric-value" id="jpc-sum-mining">0</div><div class="jpc-metric-sub" id="jpc-sum-yield">1 avg ore/action</div></div>
+      <div class="jpc-metric jpc-primary"><div class="jpc-metric-label">Raw ore Work Order value</div><div class="jpc-metric-value" id="jpc-sum-value">0g</div><div class="jpc-metric-sub">authoritative item payouts</div></div>
+      <div class="jpc-metric"><div class="jpc-metric-label">Gathering time</div><div class="jpc-metric-value" id="jpc-sum-gather-time">0s</div><div class="jpc-metric-sub" id="jpc-sum-action-sec">10s per action</div></div>
+      <div class="jpc-metric"><div class="jpc-metric-label">Prospecting time</div><div class="jpc-metric-value" id="jpc-sum-prospect-time">0s</div><div class="jpc-metric-sub">same Housing timing</div></div>
+      <div class="jpc-metric jpc-primary"><div class="jpc-metric-label">Grand total time</div><div class="jpc-metric-value" id="jpc-sum-total-time">0s</div><div class="jpc-metric-sub">gather + prospect</div></div>
+      <div class="jpc-metric"><div class="jpc-metric-label">Recipe tier</div><div class="jpc-metric-value" id="jpc-sum-tier">T1</div><div class="jpc-metric-sub" id="jpc-sum-jc">Jewelcrafting level unknown</div></div>
+    </div>
+
+    <div class="jpc-detail-head">
+      <h3>Gem-by-gem requirements</h3>
+      <span>Expected-value estimates; calculations keep full precision and only the displayed values are rounded.</span>
+    </div>
+    <div class="jpc-detail-grid" id="jpc-details"></div>
+    <div class="jpc-footnote">Item Find increases each gem's prospecting chance multiplicatively. 2x Gather Chance increases average ore obtained per mining action. Work Order gold is read from the current item database and is not reconstructed by this calculator.</div>
+  </div>
+
   <!-- ═══════════════════════════════════════════
        TAB 2 — PLANNER
   ════════════════════════════════════════════ -->
@@ -8016,10 +8378,23 @@
       <span class="tab-label">Gear</span>
       <span class="tab-badge" data-badge="badge-gear" style="background:var(--orange);"></span>
     </button>
-    <button class="tab-btn" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
-      <span class="tab-icon" aria-hidden="true">📜</span>
-      <span class="tab-label">Orders</span>
-    </button>
+    <div class="community-tools-nav" data-community-nav="mobile">
+      <button type="button" class="tab-btn community-tools-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="community-tools-mobile" aria-label="Community Tools" onclick="toggleCommunityTools(event)">
+        <span class="tab-icon" aria-hidden="true">🧰</span>
+        <span class="tab-label">Community</span>
+        <span class="community-chevron" aria-hidden="true">▾</span>
+      </button>
+      <div class="community-tools-menu" id="community-tools-mobile">
+        <button class="tab-btn community-tool-child" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
+          <span class="tab-icon" aria-hidden="true">📜</span>
+          <span class="tab-label">Work Order Calculator</span>
+        </button>
+        <button class="tab-btn community-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
+          <span class="tab-icon" aria-hidden="true">💎</span>
+          <span class="tab-label">Jewelry Calculator</span>
+        </button>
+      </div>
+    </div>
     <button class="tab-btn" data-tab="database" role="tab" aria-selected="false" aria-controls="tab-database" onclick="switchTab(&#39;database&#39;)">
       <span class="tab-icon" aria-hidden="true">📦</span>
       <span class="tab-label">Items</span>
@@ -24118,6 +24493,406 @@ renderDailyBonus();   // paint Today's Skill Bonus on both tabs at load
 // schedule, and this repaints it once the live data lands.
 syncDailyBoostFromWiki();
 
+
+// ═══════════════════════════════════════════════════════════════
+// JEWELRY PROSPECTING CALCULATOR (v5.2 integration)
+// Uses shared gem/ore/tier data, imported profile stats, item tooltips,
+// shared Housing timing, and items.json Work Order payouts.
+// ═══════════════════════════════════════════════════════════════
+(function iwJewelryProspectingModule(){
+  'use strict';
+
+  var initialized = false;
+  var userPickedRecipe = false;
+  var HOUSE_NAMES = {0:'None',1:'Camp',2:'Cottage',3:'Villa',4:'Manor',5:'Citadel'};
+  var VARIANTS = ['Attack','Experience','Gathering'];
+
+  function el(id){ return document.getElementById(id); }
+  function whole(n){
+    var v = Number(n);
+    if(!Number.isFinite(v)) return '—';
+    return Math.round(v).toLocaleString();
+  }
+  function pctWhole(n){
+    var v = Number(n);
+    return Number.isFinite(v) ? (Math.round(v).toLocaleString() + '%') : '—';
+  }
+  function duration(seconds){
+    var s = Math.max(0, Math.round(Number(seconds) || 0));
+    var d = Math.floor(s/86400); s %= 86400;
+    var h = Math.floor(s/3600); s %= 3600;
+    var m = Math.floor(s/60); s %= 60;
+    var out = [];
+    if(d) out.push(d+'d');
+    if(h || d) out.push(h+'h');
+    if(m || h || d) out.push(m+'m');
+    if(!d && !h) out.push(s+'s');
+    return out.join(' ');
+  }
+  function firstNumber(){
+    for(var i=0;i<arguments.length;i++){
+      var v=arguments[i];
+      if(v!==null && v!==undefined && v!=='' && Number.isFinite(Number(v))) return Number(v);
+    }
+    return null;
+  }
+  function esc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function itemByName(name){
+    try{
+      if(typeof iwTipFindItem==='function'){
+        var hit=iwTipFindItem({name:name});
+        if(hit) return hit;
+      }
+      if(typeof IDB_STATE!=='undefined' && IDB_STATE && Array.isArray(IDB_STATE.items)){
+        var want=String(name||'').toLowerCase();
+        for(var i=0;i<IDB_STATE.items.length;i++){
+          var r=IDB_STATE.items[i];
+          if(r && String(r.name||'').toLowerCase()===want) return r;
+        }
+      }
+    }catch(e){}
+    return null;
+  }
+  function itemRef(name){
+    try{
+      if(typeof iwItemRefIfKnown==='function') return iwItemRefIfKnown(name);
+    }catch(e){}
+    return esc(name);
+  }
+  function gemTierByName(name){
+    for(var t=1;t<=34;t++) if(GEM_NAMES[t]===name) return t;
+    return null;
+  }
+  function profileSnapshot(){
+    var p=window.IWProfile || null;
+    var stats=p ? (p.combatStats||p.combat_stats||{}) : {};
+    var bonuses=p ? (p.bonuses||{}) : {};
+    var base=null, effective=null, equipmentBonus=0;
+    try{
+      if(p && typeof iwSkillLevels==='function'){
+        var st=iwSkillLevels('jewelcrafting',{profile:p});
+        base=st && st.baseLevel!=null ? Number(st.baseLevel) : null;
+        effective=st && st.effectiveLevel!=null ? Number(st.effectiveLevel) : base;
+        equipmentBonus=st && st.equipmentBonus ? Number(st.equipmentBonus) : 0;
+      }else if(p && typeof iwJcLevel==='function'){
+        base=Number(iwJcLevel());
+        effective=base;
+      }
+    }catch(e){}
+    if(!Number.isFinite(base)) base=null;
+    if(!Number.isFinite(effective)) effective=base;
+    if(!Number.isFinite(equipmentBonus)) equipmentBonus=0;
+    return {
+      profile:p,
+      name:p && (p.displayName||p.username||p.name) || '',
+      baseLevel:base,
+      effectiveLevel:effective,
+      equipmentBonus:equipmentBonus,
+      itemFind:firstNumber(stats.itemFindPercent,stats.item_find_percent,bonuses.item_find_percent),
+      gather:firstNumber(stats.doubleGatherChancePercent,stats.double_gather_chance_percent,bonuses.double_gather_percent),
+      housing:firstNumber(p&&p.housingTier,p&&p.account_status&&p.account_status.housing_tier)
+    };
+  }
+  function profileTier(snap){
+    var lv=snap && snap.effectiveLevel;
+    if(!Number.isFinite(lv)) return 1;
+    try{
+      if(typeof maxTierForLevel==='function') return Math.max(1,Math.min(34,maxTierForLevel(lv)));
+    }catch(e){}
+    return Math.max(1,Math.min(34,Math.floor((lv-1)/4)+1));
+  }
+  function currentRecipe(){
+    var s=el('jpc-recipe');
+    if(!s || !s.value) return {tier:1,type:'Ring'};
+    var a=s.value.split('|');
+    return {tier:Math.max(1,Math.min(34,parseInt(a[0],10)||1)),type:a[1]==='Amulet'?'Amulet':'Ring'};
+  }
+  function populateRecipe(){
+    var s=el('jpc-recipe');
+    if(!s || s.options.length) return;
+    for(var t=1;t<=34;t++){
+      ['Ring','Amulet'].forEach(function(type){
+        var o=document.createElement('option');
+        o.value=t+'|'+type;
+        o.textContent='Tier '+t+' · '+type;
+        s.appendChild(o);
+      });
+    }
+  }
+  function setCustomEnabled(key,on){
+    var field=el('jpc-'+key);
+    if(field) field.disabled=!on;
+  }
+  function applyProfile(forceTier){
+    var s=profileSnapshot();
+    var has=!!s.profile;
+
+    if(el('jpc-profile-main')) el('jpc-profile-main').textContent=has ? ('Profile: '+(s.name||'Imported player')) : 'No profile imported';
+    if(el('jpc-profile-sub')){
+      if(s.effectiveLevel!=null){
+        var txt='Jewelcrafting Lv '+whole(s.effectiveLevel);
+        if(s.equipmentBonus>0 && s.baseLevel!=null) txt+=' (base '+whole(s.baseLevel)+' + '+whole(s.equipmentBonus)+' gear)';
+        txt+=' · default Tier '+profileTier(s)+' Ring';
+        el('jpc-profile-sub').textContent=txt;
+      }else{
+        el('jpc-profile-sub').textContent=has ? 'Jewelcrafting level was not found in this profile.' : 'Import a player on Start to auto-fill this tool.';
+      }
+    }
+
+    var fields=[
+      {key:'itemfind',value:s.itemFind,label:'Item Find'},
+      {key:'gather',value:s.gather,label:'2x Gather Chance'}
+    ];
+    fields.forEach(function(f){
+      var cb=el('jpc-'+f.key+'-custom'), input=el('jpc-'+f.key), source=el('jpc-'+f.key+'-source');
+      var custom=!!(cb&&cb.checked);
+      if(!custom && input) input.value=String(Math.max(0,Math.round(f.value==null?0:f.value)));
+      if(source){
+        source.textContent=custom
+          ? 'Custom override · profile unchanged'
+          : (f.value==null ? 'No imported value · using 0%' : ('Player import · '+pctWhole(f.value)));
+      }
+      setCustomEnabled(f.key,custom);
+    });
+
+    var hcb=el('jpc-house-custom'), h=el('jpc-house'), hs=el('jpc-house-source');
+    var hcustom=!!(hcb&&hcb.checked);
+    var hv=Math.max(0,Math.min(5,Math.round(s.housing==null?0:s.housing)));
+    if(!hcustom && h) h.value=String(hv);
+    if(hs){
+      hs.textContent=hcustom
+        ? 'Custom override · profile unchanged'
+        : (s.housing==null ? 'No imported value · using T0' : ('Player import · T'+hv+' '+HOUSE_NAMES[hv]));
+    }
+    setCustomEnabled('house',hcustom);
+
+    if(forceTier || !userPickedRecipe){
+      var r=el('jpc-recipe');
+      if(r) r.value=profileTier(s)+'|Ring';
+    }
+  }
+  function usedNumber(key){
+    var input=el('jpc-'+key);
+    var n=input ? Number(input.value) : 0;
+    return Number.isFinite(n) ? Math.max(0,Math.round(n)) : null;
+  }
+  function usedHouse(){
+    var h=el('jpc-house'), n=h?Number(h.value):0;
+    return Number.isFinite(n)?Math.max(0,Math.min(5,Math.round(n))):0;
+  }
+  function showError(msg){
+    var box=el('jpc-error');
+    if(!box) return;
+    box.textContent=msg||'';
+    box.style.display=msg?'block':'none';
+  }
+  function outputItemNames(recipe){
+    var gem=GEM_NAMES[recipe.tier]||'';
+    return VARIANTS.map(function(v){return gem+' '+recipe.type+' of '+v;});
+  }
+  function renderSelected(recipe,snap){
+    var gem=GEM_NAMES[recipe.tier]||'Unknown gem';
+    var sel=el('jpc-selected');
+    if(sel){
+      sel.innerHTML='<strong>Tier '+recipe.tier+' '+recipe.type+' recipe</strong> · primary gem '+itemRef(gem)+
+        ' · requires '+(recipe.type==='Amulet'?'2':'1')+' of each gem in its recipe chain.';
+    }
+    var out=el('jpc-outputs');
+    if(out){
+      out.innerHTML='<span class="jpc-outputs-label">Possible crafted outputs</span>'+
+        outputItemNames(recipe).map(function(n){return itemRef(n);}).join('');
+    }
+    if(el('jpc-sum-tier')) el('jpc-sum-tier').textContent='T'+recipe.tier;
+    if(el('jpc-sum-jc')){
+      el('jpc-sum-jc').textContent=snap.effectiveLevel==null
+        ? 'Jewelcrafting level unknown'
+        : ('JC Lv '+whole(snap.effectiveLevel)+(recipe.tier===profileTier(snap)?' · profile tier':''));
+    }
+  }
+  function calculate(){
+    if(!initialized) return;
+    var recipe=currentRecipe();
+    var itemFind=usedNumber('itemfind');
+    var gather=usedNumber('gather');
+    var housing=usedHouse();
+    if(itemFind==null || gather==null){
+      showError('Item Find and 2x Gather Chance must be valid whole numbers.');
+      return;
+    }
+    showError('');
+
+    var snap=profileSnapshot();
+    renderSelected(recipe,snap);
+
+    var secondsPerAction;
+    try{ secondsPerAction=(typeof actionSeconds==='function')?Number(actionSeconds(10,housing)):Math.max(5,10-housing); }
+    catch(e){ secondsPerAction=Math.max(5,10-housing); }
+    if(!Number.isFinite(secondsPerAction)||secondsPerAction<=0) secondsPerAction=Math.max(5,10-housing);
+
+    var orePerMining=1+gather/100;
+    var chain;
+    try{ chain=(typeof getGemChain==='function')?getGemChain(recipe.tier):[]; }catch(e){ chain=[]; }
+    if(!Array.isArray(chain)||!chain.length){
+      showError('The shared Jewelcrafting recipe chain is unavailable.');
+      return;
+    }
+
+    var qty=recipe.type==='Amulet'?2:1;
+    var totals={attempts:0,ore:0,mining:0,value:0,gatherTime:0,prospectTime:0};
+    var cards=[];
+    for(var i=0;i<chain.length;i++){
+      var gemName=chain[i], gt=gemTierByName(gemName);
+      var oreName=gt?ORE_NAMES[gt]:null;
+      var oreItem=oreName?itemByName(oreName):null;
+      if(!gt || !oreName || !oreItem || !Number.isFinite(Number(oreItem.workOrderGold))){
+        showError('Missing authoritative Work Order payout data for '+(oreName||gemName)+'. Refresh the item database or check the current items.json source.');
+        if(el('jpc-details')) el('jpc-details').innerHTML='';
+        return;
+      }
+
+      var baseChance=(typeof getGemDropChance==='function')?Number(getGemDropChance(gt)):(1/(100*gt));
+      var adjustedChance=baseChance*(1+itemFind/100);
+      if(!(adjustedChance>0)){
+        showError('The adjusted prospecting chance is invalid.');
+        return;
+      }
+      var attempts=qty/adjustedChance;
+      var oreRequired=attempts*2;
+      var mining=oreRequired/orePerMining;
+      var gatheringTime=mining*secondsPerAction;
+      var prospectingTime=attempts*secondsPerAction;
+      var woValue=oreRequired*Number(oreItem.workOrderGold);
+
+      totals.attempts+=attempts; totals.ore+=oreRequired; totals.mining+=mining;
+      totals.value+=woValue; totals.gatherTime+=gatheringTime; totals.prospectTime+=prospectingTime;
+
+      cards.push(
+        '<article class="jpc-detail-card">'+
+          '<div class="jpc-detail-title"><div class="jpc-detail-title-main">'+itemRef(gemName)+'</div><span class="jpc-qty">Need '+qty+'</span></div>'+
+          '<div class="jpc-from">Prospect from '+itemRef(oreName)+' · Tier '+gt+'</div>'+
+          '<div class="jpc-stat-grid">'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Base chance</div><div class="jpc-stat-value">1 in '+whole(1/baseChance)+'</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">With Item Find</div><div class="jpc-stat-value">1 in '+whole(1/adjustedChance)+'</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Prospect attempts</div><div class="jpc-stat-value">'+whole(attempts)+'</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Ore required</div><div class="jpc-stat-value">'+whole(oreRequired)+'</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Mining actions</div><div class="jpc-stat-value">'+whole(mining)+'</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Ore WO value</div><div class="jpc-stat-value">'+whole(woValue)+'g</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Gather time</div><div class="jpc-stat-value">'+duration(gatheringTime)+'</div></div>'+
+            '<div class="jpc-stat"><div class="jpc-stat-label">Prospect time</div><div class="jpc-stat-value">'+duration(prospectingTime)+'</div></div>'+
+          '</div>'+
+        '</article>'
+      );
+    }
+
+    if(el('jpc-details')) el('jpc-details').innerHTML=cards.join('');
+    if(el('jpc-sum-attempts')) el('jpc-sum-attempts').textContent=whole(totals.attempts);
+    if(el('jpc-sum-ore')) el('jpc-sum-ore').textContent=whole(totals.ore);
+    if(el('jpc-sum-mining')) el('jpc-sum-mining').textContent=whole(totals.mining);
+    if(el('jpc-sum-yield')) el('jpc-sum-yield').textContent=whole(orePerMining)+' avg ore/action';
+    if(el('jpc-sum-value')) el('jpc-sum-value').textContent=whole(totals.value)+'g';
+    if(el('jpc-sum-gather-time')) el('jpc-sum-gather-time').textContent=duration(totals.gatherTime);
+    if(el('jpc-sum-prospect-time')) el('jpc-sum-prospect-time').textContent=duration(totals.prospectTime);
+    if(el('jpc-sum-total-time')) el('jpc-sum-total-time').textContent=duration(totals.gatherTime+totals.prospectTime);
+    if(el('jpc-sum-action-sec')) el('jpc-sum-action-sec').textContent=whole(secondsPerAction)+'s per action';
+  }
+  function bindCustom(key){
+    var cb=el('jpc-'+key+'-custom'), field=el('jpc-'+key);
+    if(cb){
+      cb.addEventListener('change',function(){
+        setCustomEnabled(key,cb.checked);
+        applyProfile(false);
+        calculate();
+        if(cb.checked && field) field.focus();
+      });
+    }
+    if(field){
+      field.addEventListener(field.tagName==='SELECT'?'change':'input',calculate);
+      if(field.tagName!=='SELECT') field.addEventListener('change',function(){
+        var n=Number(field.value);
+        if(Number.isFinite(n)) field.value=String(Math.max(0,Math.round(n)));
+        calculate();
+      });
+    }
+  }
+  function init(){
+    if(initialized || !el('jpc-recipe')) return;
+    initialized=true;
+    populateRecipe();
+    applyProfile(false);
+
+    el('jpc-recipe').addEventListener('change',function(){userPickedRecipe=true;calculate();});
+    bindCustom('itemfind');
+    bindCustom('gather');
+    bindCustom('house');
+
+    var reset=el('jpc-use-profile');
+    if(reset) reset.addEventListener('click',function(){
+      ['itemfind','gather','house'].forEach(function(k){
+        var cb=el('jpc-'+k+'-custom'); if(cb) cb.checked=false;
+        setCustomEnabled(k,false);
+      });
+      userPickedRecipe=false;
+      applyProfile(true);
+      calculate();
+    });
+    calculate();
+  }
+
+  function selfCheck(){
+    var fail=[];
+    try{
+      if(typeof maxTierForLevel==='function' && maxTierForLevel(66)!==17) fail.push('JC Lv66 should default to Tier 17');
+      for(var t=1;t<=34;t++){
+        var gem=GEM_NAMES[t], ore=ORE_NAMES[t];
+        if(!gem) fail.push('missing gem tier '+t);
+        if(!ore) fail.push('missing ore tier '+t);
+        var gi=gem&&itemByName(gem), oi=ore&&itemByName(ore);
+        if(!gi) fail.push('tooltip item missing: '+gem);
+        if(!oi) fail.push('tooltip item missing: '+ore);
+        if(oi && !Number.isFinite(Number(oi.workOrderGold))) fail.push('Work Order payout missing: '+ore);
+        ['Ring','Amulet'].forEach(function(type){
+          VARIANTS.forEach(function(v){
+            var name=gem+' '+type+' of '+v;
+            if(gem && !itemByName(name)) fail.push('tooltip output missing: '+name);
+          });
+        });
+        var chain=(typeof getGemChain==='function')?getGemChain(t):[];
+        var expected=Math.floor((t-1)/5)+1;
+        if(!Array.isArray(chain)||chain.length!==expected) fail.push('recipe chain mismatch at tier '+t);
+      }
+    }catch(e){ fail.push(String(e&&e.message||e)); }
+    return fail;
+  }
+  window.iwJewelrySelfCheck=selfCheck;
+
+  window.iwJewelryEnter=function(){
+    init();
+    applyProfile(false);
+    calculate();
+  };
+
+  window.addEventListener('iw:profile',function(){
+    init();
+    applyProfile(false);
+    calculate();
+  });
+  window.addEventListener('iw:profile-refreshed',function(){
+    init();
+    applyProfile(false);
+    calculate();
+  });
+  window.addEventListener('iw:item-data',function(){
+    if(initialized) calculate();
+  });
+
+  // Item DB and tooltip engine are already initialised before this module.
+  init();
+})();
+
 // ═══════════════════════════════════════════════════════════════
 // TAB CONTROLLER
 // ═══════════════════════════════════════════════════════════════
@@ -24136,15 +24911,58 @@ syncDailyBoostFromWiki();
  *  - Gear tab: syncs the combat-level-gear input from appState.
  *  - Clears badge dots when a tab is visited.
  */
+function iwSetCommunityToolsOpen(open, scope) {
+  document.querySelectorAll('.community-tools-nav').forEach(group => {
+    if (scope && group.dataset.communityNav !== scope) return;
+    group.classList.toggle('open', !!open);
+    const toggle = group.querySelector('.community-tools-toggle');
+    if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+}
+
+function toggleCommunityTools(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const group = event && event.currentTarget ? event.currentTarget.closest('.community-tools-nav') : null;
+  const open = !(group && group.classList.contains('open'));
+  const scope = group ? group.dataset.communityNav : null;
+  iwSetCommunityToolsOpen(open, scope);
+}
+window.toggleCommunityTools = toggleCommunityTools;
+
+// Close the mobile popover when the user taps elsewhere or presses Escape.
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('.community-tools-nav')) iwSetCommunityToolsOpen(false, 'mobile');
+});
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') iwSetCommunityToolsOpen(false, 'mobile');
+});
+
 function switchTab(name) {
   if (name === 'gear') name = 'gear-new';
 
-  // Update buttons
-  document.querySelectorAll('.tab-btn').forEach(btn => {
+  // Update real tab buttons. The Community Tools parent is an expandable
+  // navigation control, not a content pane, so it has no data-tab contract.
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
     const isActive = btn.dataset.tab === name;
     btn.classList.toggle('active', isActive);
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
+
+  const isCommunityTool = name === 'work-order' || name === 'jewelry';
+  document.querySelectorAll('.community-tools-toggle').forEach(btn => {
+    btn.classList.toggle('active', isCommunityTool);
+  });
+  if (isCommunityTool) {
+    // Keep the desktop group visibly expanded around the active child, but
+    // close the mobile popover after selection so it never covers results.
+    iwSetCommunityToolsOpen(true, 'desktop');
+    iwSetCommunityToolsOpen(false, 'mobile');
+  } else {
+    iwSetCommunityToolsOpen(false, 'mobile');
+  }
 
   // Update panes
   document.querySelectorAll('.tab-pane').forEach(pane => {
@@ -24152,7 +24970,7 @@ function switchTab(name) {
   });
 
   // Per-tab side effects
-  if (name === 'calculator' || name === 'planner' || name === 'gear-new' || name === 'database') {
+  if (name === 'calculator' || name === 'planner' || name === 'gear-new' || name === 'database' || name === 'work-order' || name === 'jewelry') {
     // v43.9: feeds the Start page's "Pick a tool" checklist row — see
     // iwMarkToolVisited(). Guarded because this file's IIFEs load in a
     // specific order and switchTab can theoretically fire before that
@@ -24171,6 +24989,11 @@ function switchTab(name) {
     // Initialise on first entry, then refresh house auto-fill + results.
     // Guarded: the wo- module is a separate IIFE that may not have run yet.
     if (typeof window.iwWorkOrderEnter === 'function') window.iwWorkOrderEnter();
+  }
+
+  if (name === 'jewelry') {
+    // Refresh imported stats and item-data-driven payouts on entry.
+    if (typeof window.iwJewelryEnter === 'function') window.iwJewelryEnter();
   }
 
   if (name === 'gear-new') {
