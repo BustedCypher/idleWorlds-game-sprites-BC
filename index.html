@@ -3,8 +3,45 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v5.2</title>
+<title>IdleWorlds Toolkit v5.3.1</title>
 <!-- 2026-08-18 item sync: embedded items.json updated to 4,349 records; 537 Equipment additions wired to Gear and the live corrected atlas. -->
+<!-- v5.3.1 Compatibility-view stat widening (2026-08-24):
+     ITEM_DB — the compact VIEW that every legacy Gear/Planner consumer reads —
+     carried only atk/def/xpPerTask/dblGather/sockets. itemFind, goldFind,
+     warfare, hp and extraStats were present on the normalized records and
+     silently dropped on the way across, so 309 items that advertise Item Find
+     in their own effect text exposed no structured value to anything reading
+     ITEM_DB. Tooltips render a stat row only when the field is defined, so the
+     Item Find / Gold Find / HP / Warfare rows just never appeared, directly
+     under an effect line that named them. Scoring was unaffected: iwItemStats
+     already re-scrapes those two numbers out of the description, which is why
+     this stayed invisible. Both the bootstrap map and iwCompatItemRow now
+     carry the full set, under the same absent-vs-zero rule as the other stats.
+
+     Two self-check fixtures updated in the same pass. They asserted
+     derivedPlus4===510 and totalCandidates===4322 — true only while the item
+     payload had no real +4 equipment and the planner synthesised all 510. The
+     2026-08-18 sync ships them as real records, so derivation correctly no
+     longer fires and the counts moved to 0/4349. The assertions now check the
+     invariant that actually matters (510 +4 rows exist, however they arrive)
+     rather than which of the two paths supplied them. -->
+<!-- v5.3 Live-data + import-repaint fixes (2026-08-24):
+     1. items.json and the daily-XP-boost wiki page were fetched from the
+        ABSOLUTE origin https://idleworlds.com/. That origin returns 200 but
+        sends no Access-Control-Allow-Origin header, so every browser
+        discarded the response and the toolkit silently ran on the embedded
+        4,349-record snapshot forever. Both now try the SAME-ORIGIN path
+        first — the identical trick /api/player-profile already relies on —
+        and fall back to the absolute URL so file:// and forks still work.
+     2. Importing a profile rebuilt the character panel 6-8 times, which is
+        the visible "stutter": each rebuild replaces .panel-body.innerHTML
+        and re-animates every meter from 0%. applyProfile() dispatches
+        synthetic change events on housing-tier/race-select/combat-level,
+        and schedule() was bound to change on exactly those controls — so
+        the import re-entered its own repaint scheduler once per field,
+        resetting the 300ms debounce each time. schedule() is now purely
+        trailing, and applyProfile() holds a re-entrancy guard for the
+        duration of its field writes. One import = one repaint. -->
 <!-- v5.2 Work Order data-source update: exact work_order_turn_in_gold values now come from the authoritative items.json data path. -->
 <!-- v5.1 Gear planner hotfix: the Reinforcement & Enchantment Tier dropdown now re-tiers EXISTING enhancements only.
      It preserves each slot's current/planned enhancement type and presence: plates stay plates, enchants stay enchants,
@@ -67,7 +104,7 @@
      • Removed accumulated duplicate static potion options; population is now idempotent.
      ═══════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════════════
-     IDLEWORLDS TOOLKIT — v5.2
+     IDLEWORLDS TOOLKIT — v5.3.1
 
      Release history now lives in CHANGELOG.md beside this file. It was
      previously inlined here as a ~123 KB comment; the text is unchanged,
@@ -6018,7 +6055,7 @@
     <div class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div class="brandsub">Fan-made companion</div>
   </div>
-  <span class="ver-pill">v5.2</span>
+  <span class="ver-pill">v5.3.1</span>
   <div class="appbar-spacer"></div>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span class="tab-icon" aria-hidden="true">⚙️</span>
@@ -6481,7 +6518,48 @@
   }
 
   // ── The core: silently apply a profile to the calculator ──────
+  /* v5.3 — GUARDED WRAPPER. See the note on schedule() in the character
+     panel module. applyProfileCore() writes a dozen form fields, and
+     setInput/setRace/setHousing each dispatch synthetic 'input'/'change'
+     events so the engine's own handlers stay authoritative. Those same
+     events re-enter the character panel's repaint scheduler, which is why
+     one import used to rebuild the panel six-to-eight times.
+
+     The flag says "these events are mine, they are not user intent".
+     Cleared in a finally so a throw mid-import cannot wedge the panel
+     into never repainting again; the single settle paint is queued
+     afterwards either way. */
   function applyProfile(profile){
+    if(!profile) return;
+    var prev = window.__iwApplyingProfile;
+    window.__iwApplyingProfile = true;
+    try{
+      return applyProfileCore(profile);
+    } finally {
+      window.__iwApplyingProfile = prev || false;
+      if(!window.__iwApplyingProfile){
+        var settleStats = profile.combatStats || {};
+        var paintPanels = function(){
+          try{ renderInfoPanels(profile, settleStats); }catch(e){}
+        };
+        try{
+          if(typeof window.iwScheduleCharacterRepaint === 'function'){
+            // The rebuild repopulates the info panels on its own, so no
+            // explicit pass is needed here — see the note in paint().
+            window.iwScheduleCharacterRepaint();
+          } else {
+            /* The character panel module is defined LATER in this file than
+               the import module, so on the restore-from-storage path neither
+               hook exists yet. That is fine and always has been: the module's
+               own init paints once it evaluates. Paint what we can now. */
+            setTimeout(paintPanels, 0);
+          }
+        }catch(e){}
+      }
+    }
+  }
+
+  function applyProfileCore(profile){
     if(!profile) return;
     var stats = profile.combatStats || {};
     var skillIx = indexSkills(profile);
@@ -6549,23 +6627,15 @@
       }
     }catch(e){}
 
-    // Build/rebuild the character panel first because that renderer replaces
-    // .panel-body.innerHTML, including the stat-card mount.
-    try{
-      if(typeof window.iwRenderCharacter === 'function')
-        window.iwRenderCharacter();
-    }catch(e){}
-    renderInfoPanels(profile, stats);
-
-    // A final queued repaint protects against race/housing/input change
-    // handlers that redraw the character panel later in the same event turn.
-    setTimeout(function(){
-      try{
-        if(typeof window.iwRenderCharacter === 'function')
-          window.iwRenderCharacter();
-        renderInfoPanels(profile, profile.combatStats || stats || {});
-      }catch(e){}
-    }, 0);
+    // v5.3 — the settle paint is the WRAPPER's job now, not this
+    // function's. This used to render the character panel here, render
+    // the info panels, and then queue a second pass of both on the next
+    // turn. The queued pass existed because race/housing/input change
+    // handlers redraw the panel later in the same event turn — with those
+    // handlers suppressed for the duration of the import (see the guard in
+    // applyProfile), there is nothing left to race against, and the
+    // wrapper sequences rebuild-then-panels exactly once. Painting here as
+    // well would just be the first of the flashes we are removing.
 
     // Reconcile persistent planning state against LIVE imported enhancements
     // before repainting Gear. Unscoped same-slot plans are stale and are cleared;
@@ -9952,9 +10022,21 @@ function getActiveDailyBonus(nowDate) {
 // ═══════════════════════════════════════════════════════════════
 const DAILY_BONUS_SYNC = {
   url: 'https://idleworlds.com/wiki/daily-xp-boost',
-  // Same-origin fetches work directly; from file:// or another host
-  // the browser blocks it, so we retry through a CORS reader.
+  // v5.3 — the same-origin path goes FIRST, for the same reason as
+  // items.json: idleworlds.com serves this page with no CORS header, so
+  // the direct absolute fetch has never once succeeded from the toolkit's
+  // own domain. It always burned a request, failed, and fell through to
+  // a third-party reader. If this host rewrites /wiki/daily-xp-boost the
+  // way it already rewrites /api/player-profile, step one just works and
+  // the external readers stop being load-bearing.
+  //
+  // Order: same-origin → direct → r.jina.ai → allorigins. The two
+  // readers stay as the last resort for file:// and for forks with no
+  // rewrite; failure is still soft everywhere (built-in rotation stands).
   proxies: [
+    u => { try { return /^https?:$/.test(location.protocol)
+                 ? new URL(u, location.origin).pathname : null; }
+           catch (e) { return null; } },
     u => u,
     u => 'https://r.jina.ai/' + u,
     u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
@@ -10082,7 +10164,11 @@ function applyLiveDailyBoost(parsed) {
 async function syncDailyBoostFromWiki() {
   for (const build of DAILY_BONUS_SYNC.proxies) {
     try {
-      const res = await fetch(build(DAILY_BONUS_SYNC.url), { cache: 'no-store' });
+      // v5.3: a builder may return null to say "not applicable here"
+      // (the same-origin builder does, from file://). Skip, don't fetch.
+      const target = build(DAILY_BONUS_SYNC.url);
+      if (!target) continue;
+      const res = await fetch(target, { cache: 'no-store' });
       if (!res.ok) continue;
       const parsed = parseDailyBoostPage(await res.text());
       if (!parsed) continue;
@@ -11836,8 +11922,14 @@ function iwRefreshSkillBoostUi(replan) {
     try {
       if (typeof window.iwRenderPlannerSkills === 'function') window.iwRenderPlannerSkills();
     } catch(e) {}
+    /* v5.3: through the scheduler, not straight to the renderer. This runs
+       from an iw:profile listener, so on import it landed a full extra
+       panel rebuild on top of the import's own. Coalesced now. */
     try {
-      if (typeof window.iwRenderCharacter === 'function') window.iwRenderCharacter();
+      if (typeof window.iwScheduleCharacterRepaint === 'function')
+        window.iwScheduleCharacterRepaint();
+      else if (typeof window.iwRenderCharacter === 'function')
+        window.iwRenderCharacter();
     } catch(e) {}
 
     if (replan && group &&
@@ -22031,16 +22123,54 @@ const ITEM_DB = iwEmbeddedItems().map(function (r) {
   };
   if (r.atk               != null) row.atk       = r.atk;
   if (r.def               != null) row.def       = r.def;
+  if (r.hp                != null) row.hp        = r.hp;
   if (r.xp_per_task       != null) row.xpPerTask = r.xp_per_task;
   if (r.double_gather_pct != null) row.dblGather = r.double_gather_pct;
+  // v5.3.1 — see the note on iwCompatItemRow. Kept in step with that
+  // function so the bootstrap view and the synchronised view agree; this
+  // one is replaced in place by idbApplyItems() moments later, but a
+  // narrower bootstrap would still show as a flicker of missing stats.
+  if (r.item_find_pct     != null) row.itemFind  = r.item_find_pct;
+  if (r.gold_find_pct     != null) row.goldFind  = r.gold_find_pct;
+  if (r.warfare           != null) row.warfare   = r.warfare;
   if (r.sockets           != null) row.sockets   = r.sockets;
   return row;
 });
 
 // One normalized IDB record → the exact compact shape legacy consumers use.
-// Keep this deliberately narrow in Stage B: synchronization must not smuggle
-// new scoring behaviour into the compatibility layer. Later stages can extend
-// the authoritative normalized stat model explicitly and test that change.
+//
+// Stage B kept this deliberately narrow — atk/def/xpPerTask/dblGather/sockets
+// only — so that synchronising the view could not smuggle new scoring
+// behaviour into the compatibility layer, and left widening it to "a later
+// stage that extends the model explicitly and tests the change". v5.3.1 is
+// that stage, for five fields the normalized records already carry and this
+// view silently dropped:
+//
+//   itemFind   309 records      goldFind  266 records
+//   hp          50 records      warfare     9 records
+//   extraStats  80 records
+//
+// The cost of the omission was invisible because it split cleanly in two.
+// SCORING never noticed: iwItemStats() re-derives itemFind/goldFind with a
+// regex over the description text, so gear ranking by Item Find has always
+// worked. DISPLAY did notice: iwTipRender prints a stat row only when the
+// field is !== undefined, so every ITEM_DB-sourced tooltip omitted Item Find,
+// Gold Find, HP and Warfare rows — sitting directly above an effect line that
+// spelled out "+8% item find". iwGearPlannerTooltipItem copies these fields
+// straight through with no text fallback of its own, which is where the
+// Gear Planner self-check caught it.
+//
+// extraStats (80 records: elemental wards, craft procs) is deliberately NOT
+// included. Unlike the four above it is not a plain passthrough — it is read
+// by structuredExtraResist() inside iwItemStats, so carrying it across would
+// change which resist number Gear SCORING uses, not merely what a tooltip
+// prints. That is a real behaviour change and belongs in its own patch with
+// its own before/after on the resist scoring paths. The visible consequence
+// of leaving it out is that planner tooltips still omit the "All Resists"
+// chip; the effect text beneath still states it.
+//
+// The absent-vs-zero contract is preserved exactly: `!== undefined`, never a
+// `|| 0` default. A real 0 still crosses as 0; a missing field stays missing.
 function iwCompatItemRow(item){
   const row = {
     id:    item && item.id,
@@ -22052,11 +22182,15 @@ function iwCompatItemRow(item){
     req:   (item && item.requirements) || '',
     price: (!item || item.baseValue == null) ? '' : (item.baseValue + 'g'),
   };
-  if (item && item.atk       !== undefined) row.atk       = item.atk;
-  if (item && item.def       !== undefined) row.def       = item.def;
-  if (item && item.xpPerTask !== undefined) row.xpPerTask = item.xpPerTask;
-  if (item && item.dblGather !== undefined) row.dblGather = item.dblGather;
-  if (item && item.sockets   !== undefined) row.sockets   = item.sockets;
+  if (item && item.atk        !== undefined) row.atk        = item.atk;
+  if (item && item.def        !== undefined) row.def        = item.def;
+  if (item && item.hp         !== undefined) row.hp         = item.hp;
+  if (item && item.xpPerTask  !== undefined) row.xpPerTask  = item.xpPerTask;
+  if (item && item.dblGather  !== undefined) row.dblGather  = item.dblGather;
+  if (item && item.itemFind   !== undefined) row.itemFind   = item.itemFind;
+  if (item && item.goldFind   !== undefined) row.goldFind   = item.goldFind;
+  if (item && item.warfare    !== undefined) row.warfare    = item.warfare;
+  if (item && item.sockets    !== undefined) row.sockets    = item.sockets;
   return row;
 }
 
@@ -24114,7 +24248,37 @@ function idbCurrentPool() {
 // place when it lands. v40.14 removed the localStorage tier that used to
 // sit between them — it cost 2.77 MB of a ~5 MB quota shared with the
 // user's profile, and bought a difference measured in milliseconds.
+// v5.3 — SAME-ORIGIN FIRST, ABSOLUTE SECOND.
+//
+// This used to be the absolute URL only. idleworlds.com answers
+// /items.json with HTTP 200 and NO Access-Control-Allow-Origin header,
+// so from any other host the browser reads the 200, finds no CORS
+// permission, and throws the response away. The toolkit then fell back
+// to the embedded snapshot on every single page load and told nobody
+// except the console — which is how it ended up serving a frozen
+// 4,349-record table while the live one had moved on.
+//
+// The fix is the trick /api/player-profile has always relied on: ask
+// OUR OWN origin first. When the toolkit is served over http(s), the
+// host can rewrite /items.json to the game (add the rewrite alongside
+// the existing /api/player-profile one) and the fetch is same-origin,
+// so CORS never enters into it. If that 404s — no rewrite configured,
+// a fork, someone's local copy — we fall through to the absolute URL,
+// which still works when the page IS on idleworlds.com and still fails
+// harmlessly everywhere else. from file:// we skip straight to it.
+//
+// IDB_API_URL stays exported as the *canonical* address for UI copy and
+// the Developer panel; IDB_API_CANDIDATES is what the fetch walks.
 const IDB_API_URL = 'https://idleworlds.com/items.json';
+
+function idbApiCandidates() {
+  const list = [];
+  try {
+    if (/^https?:$/.test(location.protocol)) list.push('/items.json');
+  } catch (e) {}
+  list.push(IDB_API_URL);
+  return list;
+}
 
 /**
  * idbFromApi(r) — one API record → one internal record.
@@ -24311,21 +24475,46 @@ function idbImportApiJson(text) {
  */
 function idbRefreshFromApi() {
   if (typeof fetch !== 'function') return Promise.resolve(false);
-  return fetch(IDB_API_URL, { cache: 'no-cache' })
-    .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-    .then(obj => {
-      const items = idbParseApiPayload(obj);
+
+  const urls = idbApiCandidates();
+
+  // Sequential, not Promise.any: the same-origin path is the PREFERRED
+  // answer, not merely the fastest one. Racing them would sometimes
+  // apply the absolute-URL result on a host where both happen to work,
+  // which is the case we are trying to stop relying on.
+  const attempt = (i, firstErr) => {
+    if (i >= urls.length) return Promise.reject(firstErr || new Error('no candidate URL'));
+    return fetch(urls[i], { cache: 'no-cache' })
+      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+      .then(obj => {
+        // A rewrite that quietly serves index.html instead of proxying
+        // returns 200 with HTML; res.json() throws on that, so it lands
+        // in the catch below and we move on to the next candidate. A
+        // JSON body that simply isn't the item table is caught here.
+        const items = idbParseApiPayload(obj);
+        if (!items || !items.length) throw new Error('empty or unrecognised payload');
+        return { items: items, url: urls[i] };
+      })
+      .catch(err => attempt(i + 1, firstErr || err));
+  };
+
+  return attempt(0, null)
+    .then(hit => {
       // Not cached to localStorage — see the note in loadItemDatabase.
-      idbApplyItems(items, 'api');
+      idbApplyItems(hit.items, 'api');
       IDB_STATE.apiError = null;
-      if (window.IW_DEBUG) console.debug('[itemdb] live API: ' + items.length + ' items');
+      IDB_STATE.apiUrlUsed = hit.url;
+      if (window.IW_DEBUG)
+        console.debug('[itemdb] live API: ' + hit.items.length + ' items via ' + hit.url);
       return true;
     })
     .catch(err => {
       IDB_STATE.apiError = String(err && err.message || err);
+      IDB_STATE.apiUrlUsed = null;
       console.warn('[itemdb] live API unavailable (' + IDB_STATE.apiError +
-        '). Using ' + IDB_STATE.dataSource + '. If this is a CORS block, use ' +
-        'Developer → Import items.json to load a downloaded copy.');
+        '); tried ' + urls.join(', ') + '. Using ' + IDB_STATE.dataSource +
+        '. A same-origin /items.json rewrite on this host is the real fix; ' +
+        'meanwhile use Developer → Import items.json to load a downloaded copy.');
       return false;
     });
 }
@@ -24362,6 +24551,7 @@ function loadItemDatabase() {
 const IDB_STATE = {
   items:[],idMap:new Map(),index:null,ready:false,dataSource:'builtin',
   apiGeneratedAt:null, apiError:null,   // v40.2 — live item API
+  apiUrlUsed:null,                      // v5.3 — which candidate URL actually answered
   itemDataRevision:0, compatSyncError:null, // Stage B — normalized/legacy bridge health
   query:'',activeCategory:'all',activeTier:'all',currentPage:1,lastResults:[],selectedId:null,
   dropdownFocusIdx:-1,_debounceTimer:null,
@@ -26894,14 +27084,74 @@ function syncCombatLevel(val) {
   };
 
   /* The profile arrives before the import has finished filling the race,
-     housing and combat controls this panel reads its facts from, so every
-     trigger paints twice: now, and once the dust settles. */
+     housing and combat controls this panel reads its facts from — so this
+     has to repaint AFTER the dust settles, not during.
+
+     v5.3 — WHY THIS IS TRAILING-ONLY NOW.
+     It used to paint synchronously on every trigger AND arm a 300ms
+     trailing paint. That looked like a reasonable leading-edge debounce,
+     but the triggers are not independent: applyProfile() dispatches
+     synthetic 'change' events on housing-tier, race-select and
+     combat-level (see setInput/setRace/setHousing in the import module),
+     and this function is bound to 'change' on exactly those three
+     controls. So one import re-entered its own scheduler four times, each
+     re-entry painting immediately and pushing the trailing paint another
+     300ms out. Six to eight full rebuilds per import, spread over most of
+     a second — and since iwRenderCharacter() replaces .panel-body.innerHTML
+     and renderInfoPanels() then re-animates every meter from 0%, the user
+     saw the stat cards flash and re-flash while the UI stayed unusable.
+
+     Dropping the leading paint costs nothing real: the panel is either
+     already showing the previous profile (so there is something to look
+     at) or hidden pending first import (so there is nothing to flash).
+     One import now settles into exactly one repaint.
+
+     The guard below is the other half: while applyProfile() is mid-write,
+     its synthetic events are suppressed outright rather than merely
+     debounced, so the trailing timer is armed once and never reset. */
+  /* One place that knows the correct paint ORDER: rebuild the panel, then
+     repaint the info panels into the mount the rebuild just recreated.
+     iwRenderCharacter() replaces .panel-body.innerHTML, so a rebuild on its
+     own silently blanks the stat cards — which is what happened before
+     v5.3 whenever race or housing changed after an import. */
+  function paint(after) {
+    // iwRenderCharacter() replaces .panel-body.innerHTML and then calls
+    // window.iwRenderInfoPanels() itself to repopulate the stat-card mount
+    // it just destroyed (see the bridge call at the end of that function).
+    // So this is ONE call, not two: adding a second info-panel pass here
+    // would rebuild the same cards and re-run their fill animation.
+    try { window.iwRenderCharacter(); } catch (e) {}
+    if (typeof after === 'function') { try { after(); } catch (e) {} }
+  }
+
   var pending = null;
   function schedule() {
-    try { window.iwRenderCharacter(); } catch (e) {}
+    if (window.__iwApplyingProfile) return;   // import will fire its own settle
     clearTimeout(pending);
-    pending = setTimeout(function () { try { window.iwRenderCharacter(); } catch (e) {} }, 300);
+    pending = setTimeout(function () { pending = null; paint(); }, 120);
   }
+
+  /* Called by applyProfile() once its field writes are done. Collapses the
+     whole import into a single paint on the next frame.
+
+     The optional callback runs immediately AFTER the rebuild, in the same
+     turn. That ordering is not a nicety: iwRenderCharacter() replaces
+     .panel-body.innerHTML, which destroys the stat-card mount, so anything
+     that paints into that mount (renderInfoPanels) must run after it or be
+     silently wiped. Passing it in is the only way a caller can be sure —
+     two independent setTimeout(0)s fire in queue order, which is the
+     opposite of what the import needs. */
+  window.iwScheduleCharacterRepaint = function (after) {
+    /* 32ms, not 0. Several iw:profile listeners defer their own work with
+       setTimeout(…, 0) — iwRefreshSkillBoostUi is the notable one, and it
+       asks for a repaint at the end. A 0ms settle fires BEFORE that chain
+       drains, so the import painted once and then again ~25ms later: two
+       rebuilds, close enough together to read as a flicker. A short
+       trailing window swallows the whole macrotask chain into one paint
+       and is still well inside a frame's worth of latency. */
+    clearTimeout(pending);
+    pending = setTimeout(function () { pending = null; paint(after); }, 32);
+  };
 
   window.addEventListener('iw:profile', schedule);
   window.addEventListener('iw:equipment', schedule);
@@ -26910,7 +27160,12 @@ function syncCombatLevel(val) {
     var el = $(id);
     if (el) el.addEventListener('change', schedule);
   });
-  schedule();
+
+  /* v5.3 — first paint is immediate, not debounced. On the restore path
+     this module evaluates AFTER the profile has already been rehydrated
+     and applied, so there is real content waiting; deferring it by the
+     debounce interval would just add a visible blank frame. */
+  paint();
 })();
 
 /* ═══════════════════════════════════════════════════════════════
@@ -27381,11 +27636,12 @@ function syncCombatLevel(val) {
       } },
 
     { key: '_apirefresh', type: 'action', dev: true, label: 'Live item API',
-      help: 'Re-fetch items.json from idleworlds.com now. The current source is shown in the item count tooltip on the Database tab.',
+      help: 'Re-fetch items.json now — same-origin /items.json first, then idleworlds.com. The current source is shown in the item count tooltip on the Database tab.',
       button: 'Refresh', run: function () {
         idbRefreshFromApi().then(function (ok) {
           alert(ok
-            ? 'Live API loaded: ' + IDB_STATE.items.length.toLocaleString() + ' items.'
+            ? 'Live API loaded: ' + IDB_STATE.items.length.toLocaleString() + ' items.\n\n' +
+              'Source: ' + (IDB_STATE.apiUrlUsed || 'unknown') + '.'
             : 'Could not reach the API (' + (IDB_STATE.apiError || 'unknown') + ').\n\n' +
               'Still using: ' + IDB_STATE.dataSource + '.\n\n' +
               'If this file is opened from disk, the browser may be blocking the ' +
@@ -30155,9 +30411,18 @@ function syncCombatLevel(val) {
         eq('normalized→compat row mismatches', mismatch, 0);
       }
 
-      // The Stage B converter must reproduce the PRE-STAGE-B embedded compact
-      // contract exactly. This protects the initial/offline path from accidental
+      // The Stage B converter must reproduce the embedded compact contract
+      // exactly. This protects the initial/offline path from accidental
       // formatting/stat changes while allowing later live refreshes to flow in.
+      //
+      // v5.3.1: legacyRow below is an INDEPENDENT restatement of the compact
+      // shape — that independence is the whole point, since a test that just
+      // called iwCompatItemRow would assert nothing. So when that shape is
+      // widened deliberately, this copy has to be widened with it, or the
+      // guard reports every row as drift (it early-exits at >5, which is why
+      // the failure reads "got 6" regardless of how many rows really differ).
+      // The four fields added here are the plain numeric passthroughs;
+      // extraStats is intentionally absent from both sides.
       if(typeof iwEmbeddedItems === 'function' && typeof idbFromApi === 'function'){
         var raw = iwEmbeddedItems();
         var legacyMismatch = 0;
@@ -30168,8 +30433,12 @@ function syncCombatLevel(val) {
             price:(r.base_value==null)?'':(r.base_value+'g') };
           if(r.atk               != null) row.atk       = r.atk;
           if(r.def               != null) row.def       = r.def;
+          if(r.hp                != null) row.hp        = r.hp;
           if(r.xp_per_task       != null) row.xpPerTask = r.xp_per_task;
           if(r.double_gather_pct != null) row.dblGather = r.double_gather_pct;
+          if(r.item_find_pct     != null) row.itemFind  = r.item_find_pct;
+          if(r.gold_find_pct     != null) row.goldFind  = r.gold_find_pct;
+          if(r.warfare           != null) row.warfare   = r.warfare;
           if(r.sockets           != null) row.sockets   = r.sockets;
           return row;
         }
@@ -32342,8 +32611,27 @@ function syncCombatLevel(val) {
 
       var status=iwGearPlannerDataStatus();
       if(status.source==='embedded'){
-        ok('embedded fallback derives +4',status.derivedPlus4===510);
-        ok('embedded candidate total',status.totalCandidates===4322);
+        /* v5.3.1 — these used to assert derivedPlus4===510 and
+           totalCandidates===4322. Both were true only while the item payload
+           shipped NO real +4 equipment and the planner synthesised all 510 of
+           them. The 2026-08-18 sync publishes them as real records, so
+           iwBuildGearPlannerCandidates correctly declines to derive (it skips
+           any family that already has a +4) and the counts became 0 and 4349.
+           Pinning the old numbers made a correct data upgrade look like a
+           regression, and would have kept failing on every future payload.
+
+           What actually needs to hold is that the planner can see 510 +4 rows
+           and that it never double-counts them — which is exactly what the
+           duplicate-name/id sweep above already guards. Assert the invariant,
+           not the route: derived + live is the full set, whichever path
+           supplied it, and derivation must never fire for a family that
+           already has a real +4. */
+        ok('+4 equipment fully represented',
+           (status.derivedPlus4 + status.livePlus4) === 510);
+        ok('candidate total is source rows plus derived only',
+           status.totalCandidates === (ITEM_DB.length + status.derivedPlus4));
+        ok('no synthetic +4 when a real one exists',
+           status.livePlus4 === 510 ? status.derivedPlus4 === 0 : true);
       }
     }catch(e){fail.push('release suite threw: '+(e&&e.message?e.message:String(e)));}
     if(fail.length&&typeof console!=='undefined')console.warn('[v5 release candidate] FAILED:',fail.join(' | '));
