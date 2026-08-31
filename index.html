@@ -10838,7 +10838,15 @@ function setGatherChance(pct) {
   var inp = document.getElementById('gather-chance');
   var row = document.getElementById('row-gather');
   if (!cb || !inp) return;
-  inp.value = pct;
+  // #gather-chance is step="1". The API can hand back a fractional percent
+  // (e.g. 332.33), which previously landed in the box verbatim. Rounding
+  // HERE rather than at the call site covers every programmatic writer —
+  // profile import and IWStore restore both route through this function —
+  // and matches what the in-game Character Stats screen displays. A value
+  // the user types by hand is untouched; this only normalises what the app
+  // writes for them.
+  var rounded = Math.round(Number(pct));
+  inp.value = Number.isFinite(rounded) ? rounded : pct;
   cb.checked = true;
   if (row) row.classList.add('active');
   if (box) { box.style.borderColor='var(--teal)'; box.style.background='var(--teal)'; box.style.color='#0f1117'; }
@@ -30193,8 +30201,9 @@ function syncCombatLevel(val) {
     // in-game Character Stats screen shows. The API can return a fractional
     // percent, which previously landed in the box verbatim.
     if(gather!=null)setVal('wo-gather',Math.max(0,Math.round(gather)));
-    if(brew!=null)setVal('wo-brew',Math.max(0,Math.min(100,brew)));
-    if(goldFind!=null)setVal('wo-gold',Math.max(0,goldFind));
+    // Both step="1", same rounding rule as wo-gather / wo-house above.
+    if(brew!=null)setVal('wo-brew',Math.max(0,Math.min(100,Math.round(brew))));
+    if(goldFind!=null)setVal('wo-gold',Math.max(0,Math.round(goldFind)));
     if(state){
       var who=prof.displayName||prof.username||prof.name||'profile';
       state.textContent='Profile: '+who;
