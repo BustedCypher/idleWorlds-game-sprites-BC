@@ -9174,6 +9174,53 @@ for(let t=1;t<=34;t++) JEWEL_AMULET_XP[t] = JEWEL_RING_XP[t] * 3;
 // Jewelcrafting skill group (all 4 leaves), matching how RACE_BONUS gates.
 const JEWELCRAFT_XP_EVENT_PCT = 100;
 
+// 2026-07-20 patch note: "Players with Spellcrafting level 70 or below now
+// earn +20% Spellcrafting XP from all sources (recipes and mana harvesting),
+// on top of any other active bonuses. No end date set."
+//
+// "ON TOP OF any other active bonuses" is literal, and this is the one place
+// in the engine where that matters: this is a SEPARATE MULTIPLICATIVE layer
+// applied to the finished figure, NOT another line in the additive percent
+// stack the way JEWELCRAFT_XP_EVENT_PCT above is. The two readings are far
+// apart and a live Harvest Mana sample settles it — base 144, T4/Manor,
+// flats +217, daily +20%, additive stack 45% (Goblin gives no Spellcrafting
+// race bonus), gather 432.33% => 4 guaranteed / 5 max resources:
+//   folded into the additive stack (45% -> 65%) ... 1570 / 1855  WRONG
+//   separate x1.20 layer ..................... 1656 / 1956  matches live
+//
+// Applies to the whole Spellcrafting group — "all sources (recipes and mana
+// harvesting)" covers every spell_* leaf, not just spell_harvest.
+const SPELLCRAFT_CATCHUP_PCT = 20;
+const SPELLCRAFT_CATCHUP_MAX_LEVEL = 70;
+
+/** True for the Spellcrafting group key or any of its spell_* leaf keys. */
+function iwIsSpellcraftingKey(key) {
+  const k = String(key == null ? '' : key);
+  return k === 'spellcrafting' || k.indexOf('spell_') === 0;
+}
+
+/**
+ * iwSpellcraftCatchupMult(skillKey, level) → 1.2 or 1.
+ *
+ * `level` is the SPELLCRAFTING level being evaluated, not Combat and not a
+ * tier. Callers that know it pass it explicitly (the Calculator's From-level,
+ * the Planner's per-bracket level); those that don't fall back to the
+ * imported profile.
+ *
+ * When the level cannot be determined at all this returns 1 (no bonus)
+ * rather than guessing from an unrelated stat: silently inflating every
+ * Spellcrafting figure by 20% for a player who is actually above 70 is a
+ * worse failure than omitting a bonus we cannot prove applies.
+ */
+function iwSpellcraftCatchupMult(skillKey, level) {
+  if (!iwIsSpellcraftingKey(skillKey)) return 1;
+  const lvl = Number(level);
+  if (level == null || !Number.isFinite(lvl)) return 1;
+  return lvl <= SPELLCRAFT_CATCHUP_MAX_LEVEL
+    ? 1 + SPELLCRAFT_CATCHUP_PCT / 100
+    : 1;
+}
+
 // Gather actions: 2 × round(skillXp × 1.1)
 const MINING_XP = {}, GATHERING_XP = {};
 for(let t=1;t<=34;t++){
@@ -11216,7 +11263,12 @@ function calculate() {
   const dailyBonus    = dailyInfo.applies ? baseWithFlats * (dailyInfo.bonus / 100) : 0;
   const jcEventPct    = (activeSkill === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   const totalPct      = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + jcEventPct;
-  const actionXP      = Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100));
+  // Spellcrafting catch-up — a MULTIPLIER on the finished figure, not part of
+  // totalPct (see SPELLCRAFT_CATCHUP_PCT). `a` is the From-level field, which
+  // for a Spellcrafting plan IS the player's Spellcrafting level — the same
+  // field the combat dampening above reads for the Combat level.
+  const scCatchup     = iwSpellcraftCatchupMult(activeSkill, a);
+  const actionXP      = Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100) * scCatchup);
 
   // Per-action XP shown to the user = guaranteed-resource XP (no partial).
   const effectiveXP        = actionXP;
@@ -11233,7 +11285,7 @@ function calculate() {
   const maxGatherBaseXP  = baseXP * maxResources;
   const maxBaseWithFlats = maxGatherBaseXP + flatBonus;
   const maxDailyBonus    = dailyInfo.applies ? maxBaseWithFlats * (dailyInfo.bonus / 100) : 0;
-  const maxGatherXP      = Math.round((maxBaseWithFlats + maxDailyBonus) * (1 + totalPct / 100));
+  const maxGatherXP      = Math.round((maxBaseWithFlats + maxDailyBonus) * (1 + totalPct / 100) * scCatchup);
   // Only meaningful when it exceeds the guaranteed figure (i.e. a real partial).
   const showMaxGather    = isGatherAction && maxResources > guaranteedResources;
 
@@ -12107,9 +12159,18 @@ function efficiencyGrade(xpPerSec) {
  *                   rounded here; the whole formula rounds once, at final.
  *   totalPct      = zcTeam + zcLeaderboard + server + race + newPlayer
  *                   + (JEWELCRAFT_XP_EVENT_PCT for Jewelcrafting actions)
- *   final         = round((baseWithFlats + dailyBonus) × (1 + totalPct/100))
+ *   scCatchup     = SPELLCRAFT_CATCHUP multiplier — applied OUTSIDE the
+ *                   percent stack, see its constant
+ *   final         = round((baseWithFlats + dailyBonus) × (1 + totalPct/100)
+ *                         × scCatchup)
+ *
+ * `level` is optional and is the SPELLCRAFTING level for the bracket being
+ * evaluated. The Planner passes its per-bracket level so a plan crossing
+ * Lv70 switches the catch-up off at exactly the right step; callers with no
+ * level context (e.g. the label-only call in renderPlan, or the Silkbind
+ * tailor_cloak estimate) omit it and fall back to the imported profile.
  */
-function getEffectiveXPParams(skill) {
+function getEffectiveXPParams(skill, level) {
   const g = id => document.getElementById(id);
   const activeSkill = appState.selectedSkillGroup || '';
 
@@ -12158,6 +12219,15 @@ function getEffectiveXPParams(skill) {
   const jcEventPct  = (activeSkill === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   const totalPct    = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + jcEventPct;
 
+  // Spellcrafting catch-up — a separate multiplier, NOT part of totalPct.
+  // Keyed off the specific leaf/skill being evaluated when one was passed
+  // (so a Tailoring leaf inside a Spellcrafting plan is correctly excluded),
+  // falling back to the planner's group. Level comes from the caller's
+  // bracket, or the imported profile when the caller has no level context.
+  const scLevel     = (level != null) ? level
+                    : ((typeof iwSpellcraftingLevel === 'function') ? iwSpellcraftingLevel() : null);
+  const scCatchup   = iwSpellcraftCatchupMult(skill || plannerGroup, scLevel);
+
   // Gather: per-action XP counts ONLY guaranteed whole resources (the
   // fractional chance is excluded so it cannot skew the figure). At
   // 240% total gather → 2 guaranteed resources. resourcesPerAction keeps
@@ -12203,7 +12273,7 @@ function getEffectiveXPParams(skill) {
     const baseWithFlats = gatherBaseXP + xpBuffBonus * df;
     const dailyBonus = dailyInfo.applies
       ? baseWithFlats * (dailyInfo.bonus / 100) : 0;
-    return Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100));
+    return Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100) * scCatchup);
   };
 
   const apply = (baseXP, actionTime, resources) => {
@@ -12225,6 +12295,9 @@ function getEffectiveXPParams(skill) {
   if (serverPct > 0)    parts.push(`server +${serverPct}%`);
   if (newPlayerPct > 0) parts.push(`new player +${newPlayerPct}%`);
   if (dailyInfo.applies) parts.push(`daily bonus +${dailyInfo.bonus}%`);
+  // Shown last of the percent entries because it multiplies the finished
+  // figure rather than joining the additive stack above it.
+  if (scCatchup > 1) parts.push(`Spellcrafting catch-up +${SPELLCRAFT_CATCHUP_PCT}%`);
   if (xpBuffBonus > 0)  parts.push(`flat +${xpBuffBonus} XP/10s`);
   if (gatherEnabled && gatherPct > 0 && expectedResources > 1) parts.push(`×${expectedTxt} avg per gather`);
 
@@ -12510,7 +12583,7 @@ const SAME_SKILL_INPUT = {
 };
 
 // ───────────────────────────────────────────────────────────────
-// evaluateCraftLoop(leaf, tier)
+// evaluateCraftLoop(leaf, tier, level)   [level: optional, see getEffectiveXPParams]
 // ───────────────────────────────────────────────────────────────
 /**
  * For a craft action whose inputs are produced by a same-skill action,
@@ -12529,7 +12602,7 @@ const SAME_SKILL_INPUT = {
  * All XP is run through the same effective-XP buff chain as everything
  * else, so the numbers stay consistent with the Calculator tab.
  */
-function evaluateCraftLoop(leaf, tier) {
+function evaluateCraftLoop(leaf, tier, level) {
   const dep = SAME_SKILL_INPUT[leaf];
   if (!dep) return null;
   const HT = plannerHousingTier();   // v38.9.10: shared by both branches
@@ -12555,7 +12628,7 @@ function evaluateCraftLoop(leaf, tier) {
     if (!chain.length) return null;
     const perGem = (leaf === 'jewel_amulet') ? 2 : 1;  // gems needed per gem tier
 
-    const eff = getEffectiveXPParams(leaf);
+    const eff = getEffectiveXPParams(leaf, level);
     const craftXp = eff.apply(craftAction.xp, craftAction.time);
     // v38.9.10: apply() takes BASE time (it housing-reduces df itself);
     // elapsed time must be the housing-reduced duration.
@@ -12641,7 +12714,7 @@ function evaluateCraftLoop(leaf, tier) {
   const inputPerCraft = craftAction.cost || 0;     // units consumed per craft
   if (inputPerCraft <= 0) return null;
 
-  const eff = getEffectiveXPParams(leaf);
+  const eff = getEffectiveXPParams(leaf, level);
   const craftXp = eff.apply(craftAction.xp, craftAction.time);
 
   // Most producers (smelt/weave) output exactly one required input per action.
@@ -12651,7 +12724,7 @@ function evaluateCraftLoop(leaf, tier) {
   const producerYield = dep.gatherProducer ? iwGatherYield() : 1;
   const barsPerCraft = inputPerCraft / Math.max(1, producerYield); // compatibility field = producer actions/craft
 
-  const producerEff = dep.gatherProducer ? getEffectiveXPParams(dep.producer) : eff;
+  const producerEff = dep.gatherProducer ? getEffectiveXPParams(dep.producer, level) : eff;
   const smeltXp = dep.gatherProducer
     ? producerEff.apply(smeltAction.xp, smeltAction.time, producerEff.guaranteedResources)
     : producerEff.apply(smeltAction.xp, smeltAction.time);
@@ -12752,11 +12825,11 @@ function producerVocab(leaf, producerName) {
  *   grade        — efficiencyGrade(ehpPerSec)
  * }
  */
-function calculateBracketEfficiency(skill, tier) {
+function calculateBracketEfficiency(skill, tier, level) {
   const actions = getActions(tier, skill);
   if (!actions.length) return [];
 
-  const eff = getEffectiveXPParams(skill);
+  const eff = getEffectiveXPParams(skill, level);
   const isGather = GATHER_SKILLS.has(skill);
   const dep = upstreamTimePerInput(skill, tier);
 
@@ -12808,7 +12881,7 @@ function calculateBracketEfficiency(skill, tier) {
       // ── Multi-step fix: if this craft's inputs come from a same-skill
       // action (smithing), rank it as a COMBINED LOOP so the producer
       // (smelt) XP counts toward the skill, not just as a time penalty.
-      const loop = evaluateCraftLoop(skill, tier);
+      const loop = evaluateCraftLoop(skill, tier, level);
       if (loop) {
         cand.loop       = loop;
         cand.ehpPerSec  = loop.ehpPerSec;            // honest ranking metric
@@ -12842,7 +12915,7 @@ function calculateBracketEfficiency(skill, tier) {
 }
 
 // ───────────────────────────────────────────────────────────────
-// chooseBestAction(group, tier)  — evaluate the FULL action space
+// chooseBestAction(group, tier, level)  — evaluate the FULL action space
 // ───────────────────────────────────────────────────────────────
 /**
  * The optimizer's core selection step.  Given a parent skill GROUP
@@ -12862,11 +12935,11 @@ function calculateBracketEfficiency(skill, tier) {
  *   runnerUp  : second-best candidate or null,
  * }
  */
-function chooseBestAction(group, tier) {
+function chooseBestAction(group, tier, level) {
   const leaves = SKILL_GROUP_ACTIONS[group] || [];
   const all = [];
   for (const leaf of leaves) {
-    const cands = calculateBracketEfficiency(leaf, tier);
+    const cands = calculateBracketEfficiency(leaf, tier, level);
     for (const c of cands) {
       c.leaf = leaf;                       // remember which action family
       all.push(c);
@@ -13031,6 +13104,16 @@ function generateSkillPlan() {
       if (boostedUnlock > startLevel && boostedUnlock < targetLevel) tierBreaks.add(boostedUnlock);
     }
   }
+  // Spellcrafting catch-up (+20% at Lv<=70) changes the rate mid-plan, and
+  // the level after the threshold is NOT a tier unlock — TIER_LVL steps
+  // 69 -> 73 — so without an explicit break a single bracket would span both
+  // sides of it and bill the whole range at one rate. Splitting here keeps
+  // every bracket entirely on one side, which is what makes gating on the
+  // bracket's own fromLvl exact.
+  if (group === 'spellcrafting') {
+    const scBreak = SPELLCRAFT_CATCHUP_MAX_LEVEL + 1;
+    if (scBreak > startLevel && scBreak < targetLevel) tierBreaks.add(scBreak);
+  }
   tierBreaks.add(targetLevel);
   const boundaries = [...tierBreaks].sort((a, b) => a - b);
 
@@ -13045,8 +13128,10 @@ function generateSkillPlan() {
     const skillBonusHelped = equipmentBonus > 0 && tier > baseTier;
 
     // Evaluate the FULL action space of the skill at this tier and pick
-    // the best by dependency-aware EHP.
-    const choice = chooseBestAction(group, tier);
+    // the best by dependency-aware EHP. fromLvl is passed so level-gated
+    // bonuses (Spellcrafting catch-up) resolve per bracket rather than once
+    // for the whole plan.
+    const choice = chooseBestAction(group, tier, fromLvl);
     const best   = choice.candidate;
     if (!best) continue;
 
@@ -21219,6 +21304,13 @@ function taskBonusEnv(taskKey) {
                + (g('new-player-promo') && g('new-player-promo').checked ? 25 : 0)
                + racePct + jcEventPct,
     dailyApplies: dailyInfo.applies, dailyPct: dailyInfo.applies ? dailyInfo.bonus : 0,
+    // Spellcrafting catch-up multiplier (NOT part of totalPct). The Task
+    // Advisor scores the player's CURRENT state, so the level comes from the
+    // imported profile; with no import it resolves to 1 and is simply absent.
+    scCatchup: iwSpellcraftCatchupMult(
+      group,
+      (typeof iwSpellcraftingLevel === 'function') ? iwSpellcraftingLevel() : null
+    ),
   };
 }
 
@@ -21229,7 +21321,7 @@ function taskXPPerAction(baseXP, time, gearFlat, gatherPct, env, isGather) {
   const baseWithFlats = baseXP * res + (env.potionFlat + env.bossFlat + gearFlat) * df;
   // NOT rounded here — see the single-final-round note on calculate().
   const daily = env.dailyApplies ? baseWithFlats * (env.dailyPct / 100) : 0;
-  return Math.round((baseWithFlats + daily) * (1 + env.totalPct / 100));
+  return Math.round((baseWithFlats + daily) * (1 + env.totalPct / 100) * (env.scCatchup || 1));
 }
 
 // ── Representative action for a task at a tier ────────────────
