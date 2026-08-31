@@ -30475,6 +30475,29 @@ function syncCombatLevel(val) {
 
   window.IW_AUG2026_STAGE = 'A';
 
+  /* ── Startup gate for the self-check suites ────────────────────────
+     Each stage re-runs every earlier stage to prove it is still green,
+     and nothing is memoised, so auto-running all of them cost 63 suite
+     bodies per page load — Stage A alone ran 32 times. Stage B further
+     calls iwInvalidateItemDerivedCaches() on each pass, so the engine's
+     derived caches were being wiped 16 times during startup, leaving it
+     cold exactly when the user starts clicking.
+
+     NOTHING about the suites themselves changed. Every suite remains
+     re-runnable from Settings > Developer and from the console, and the
+     runner still auto-discovers them by their SelfCheck name suffix.
+     Only the automatic DOMContentLoaded runs are gated.
+
+     Turn the automatic runs back on with either:
+       • ?selfcheck=1 in the URL (one page load), or
+       • localStorage.setItem('iwSelfCheckAutoV1','1') (persistent)
+     When enabled, startup behaviour is identical to before this gate. */
+  window.iwShouldAutoRunSelfChecks = function iwShouldAutoRunSelfChecks(){
+    try { if(/[?&]selfcheck=1(?:&|$)/.test(location.search)) return true; } catch(e){}
+    try { if(localStorage.getItem('iwSelfCheckAutoV1') === '1') return true; } catch(e){}
+    return false;
+  };
+
   window.iwAugust2026RegressionSelfCheck = function iwAugust2026RegressionSelfCheck(){
     var fail = [];
     function ok(label, condition){ if(!condition) fail.push(label); }
@@ -30590,6 +30613,7 @@ function syncCombatLevel(val) {
   // Silent startup gate. The same function remains re-runnable from
   // Settings > Developer because its exported name ends in SelfCheck.
   function runStageA(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try { window.iwAugust2026RegressionSelfCheck(); }
     catch(e){ if(typeof console !== 'undefined') console.warn('[August 2026 Stage A regression] threw:', e); }
   }
@@ -30718,6 +30742,7 @@ function syncCombatLevel(val) {
   };
 
   function runStageB(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try { window.iwItemDataBridgeSelfCheck(); }
     catch(e){ if(typeof console !== 'undefined') console.warn('[August 2026 Stage B item-data bridge] threw:', e); }
   }
@@ -30813,6 +30838,7 @@ function syncCombatLevel(val) {
   };
 
   function runStageC(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try { window.iwWorkOrderPotionPayoutSelfCheck(); }
     catch(e){ if(typeof console!=='undefined') console.warn('[August 2026 Stage C Work Orders] threw:',e); }
   }
@@ -30942,6 +30968,7 @@ function syncCombatLevel(val) {
   };
 
   function runStageD(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try { window.iwPlus4EquipmentSelfCheck(); }
     catch(e){ if(typeof console!=='undefined') console.warn('[August 2026 Stage D +4 Equipment] threw:', e); }
   }
@@ -31108,6 +31135,7 @@ function syncCombatLevel(val) {
   };
 
   function run(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try{ window.iwTailoringStageESelfCheck(); }
     catch(e){ if(typeof console!=='undefined') console.warn('[August 2026 Stage E Tailoring] threw:',e); }
   }
@@ -31250,6 +31278,7 @@ function syncCombatLevel(val) {
   };
 
   function run(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try{ window.iwSkillBoostStageFSelfCheck(); }
     catch(e){ if(typeof console!=='undefined') console.warn('[August 2026 Stage F skill boosts] threw:',e); }
   }
@@ -31423,6 +31452,7 @@ function syncCombatLevel(val) {
   };
 
   function run(){
+    if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks())) return;
     try { window.iwAugust2026FinalSelfCheck(); }
     catch(e){ if(typeof console!=='undefined') console.warn('[August 2026 FINAL] threw:',e); }
   }
@@ -32787,7 +32817,7 @@ function syncCombatLevel(val) {
     return fail;
   };
 
-  function run(){try{window.iwGearImportIntegritySelfCheck();}catch(e){console.warn('[Gear import integrity] threw:',e);}}
+  function run(){if(!(window.iwShouldAutoRunSelfChecks && window.iwShouldAutoRunSelfChecks()))return;try{window.iwGearImportIntegritySelfCheck();}catch(e){console.warn('[Gear import integrity] threw:',e);}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(run,0);},{once:true});
   else setTimeout(run,0);
 })();
