@@ -25655,7 +25655,7 @@ function syncCombatLevel(val) {
   .wo-subtab-panel { display:none; }
   .wo-subtab-panel.wo-active { display:block; }
   .wo-best-panel { margin-bottom:14px; }
-  .wo-best { display:grid; grid-template-columns:minmax(180px,1.45fr) repeat(4,minmax(110px,1fr)); gap:10px; align-items:stretch; }
+  .wo-best { display:grid; grid-template-columns:minmax(170px,1.3fr) repeat(5,minmax(104px,1fr)); gap:10px; align-items:stretch; }
   .wo-best-head { display:flex; flex-direction:column; justify-content:center; padding:4px 4px 4px 0; }
   .wo-best-head h3 { margin:3px 0 4px; font-family:var(--display); font-size:20px; font-weight:650; color:var(--accent); line-height:1.15; }
   .wo-best-head .wo-best-sub { color:var(--text-3); font-size:12px; line-height:1.4; }
@@ -30189,7 +30189,10 @@ function syncCombatLevel(val) {
     var brew=firstNumber(stats.bonusBrewChancePercent, stats.bonus_brew_chance_percent, bonuses.bonus_brew_percent);
     var goldFind=firstNumber(stats.goldFindPercent, stats.gold_find_percent, bonuses.gold_find_percent);
     if(housing!=null)setVal('wo-house',Math.max(0,Math.min(5,Math.round(housing))));
-    if(gather!=null)setVal('wo-gather',Math.max(0,gather));
+    // Round to match the field's own step="1" and the whole-number value the
+    // in-game Character Stats screen shows. The API can return a fractional
+    // percent, which previously landed in the box verbatim.
+    if(gather!=null)setVal('wo-gather',Math.max(0,Math.round(gather)));
     if(brew!=null)setVal('wo-brew',Math.max(0,Math.min(100,brew)));
     if(goldFind!=null)setVal('wo-gold',Math.max(0,goldFind));
     if(state){
@@ -30252,6 +30255,30 @@ function syncCombatLevel(val) {
     }).filter(Boolean);
   }
 
+  // ── Theoretical gather output over a full session ────────────────────
+  // Deliberately independent of which benchmark wins above: this is "if you
+  // spent the whole 24h gathering, at your rate", so it does not move when
+  // the best order changes. Only Housing (action speed) and gather % feed it.
+  //
+  //   avg        = 1 + gp/100 — expected resources per action. This is the
+  //                SAME expected-value model gatherYield already uses in
+  //                calc(), and it agrees exactly with the Calculator tab's
+  //                guaranteedResources + partialChance at every input.
+  //   guaranteed = floor(avg) — the whole resources EVERY action is certain
+  //                to yield, matching the Calculator's floor((gp+100)/100):
+  //                you start at 1 and gain one more per full 100%
+  //                (300% -> 4). The fractional remainder is a chance, never
+  //                a guarantee, so it is excluded here and appears only in
+  //                the average.
+  function gatherPerDay() {
+    var houseEl=document.getElementById('wo-house'); if(!houseEl) return null;
+    var gp=valid('wo-gather'); if(gp===null) return null;
+    var t=actionSec(10,+houseEl.value);
+    if(!(t>0)) return null;
+    var actions=SESSION/t, avg=1+gp/100;
+    return { actions:actions, avg:actions*avg, guaranteed:actions*Math.floor(avg) };
+  }
+
   function render() {
     var r=calc(); if(!r||!r.length)return;
     var ranked=r.slice().sort(function(a,b){return b.final-a.final;});
@@ -30262,7 +30289,14 @@ function syncCombatLevel(val) {
         '<div class="metric"><div class="metric-lbl">Gold / 24h</div><div class="metric-val">'+gold(best.final)+'</div></div>'+ 
         '<div class="metric"><div class="metric-lbl">Complete orders</div><div class="metric-val">'+fmt(best.n,0)+'</div></div>'+ 
         '<div class="metric"><div class="metric-lbl">Gold / order</div><div class="metric-val">'+gold(best.orderFinal)+'</div></div>'+ 
-        '<div class="metric"><div class="metric-lbl">Time / order</div><div class="metric-val">'+clock(best.orderSec)+'</div></div>';
+        '<div class="metric"><div class="metric-lbl">Time / order</div><div class="metric-val">'+clock(best.orderSec)+'</div></div>'+
+        (function(){
+          var g=gatherPerDay();
+          if(!g) return '';
+          return '<div class="metric"><div class="metric-lbl">Resources / day</div>'+
+                 '<div class="metric-val">'+fmt(g.avg,0)+'</div>'+
+                 '<div class="metric-sub">'+fmt(g.guaranteed,0)+' guaranteed resources</div></div>';
+        })();
     }
 
     var body=document.getElementById('wo-body');
