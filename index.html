@@ -6573,7 +6573,12 @@
     // instead of the zone XP after a profile import.
     var xpPerTask = (stats.xpTaskBonus!=null) ? stats.xpTaskBonus
                     : (profile.bonuses && profile.bonuses.xp_per_task!=null ? profile.bonuses.xp_per_task : null);
-    if(xpPerTask!=null) setInput('xp-per-task', xpPerTask);
+    // The API can return this as a fractional value; the field is a whole
+    // number (step=1) and calculate()/getEffectiveXPParams() read it with
+    // parseInt(), which TRUNCATES rather than rounds — round to nearest
+    // here, once, at the source, so the field and every downstream reader
+    // agree on the same integer.
+    if(xpPerTask!=null) setInput('xp-per-task', Math.round(Number(xpPerTask)));
 
     // Housing tier (flat: profile.housingTier).
     var housing = (profile.housingTier!=null) ? profile.housingTier
@@ -8991,8 +8996,13 @@ function getGemChain(t) {
   return chain; // e.g. t=16 -> ['Tanzanite','Alexandrite','Aquamarine','Ruby']
 }
 
-// Prospect XP — verified from wiki: skillXp × 3
-// Prospecting: live recipe XP = round(skillXp × 3.6).
+// Prospect XP — live recipe XP = round(skillXp × 3.6). This table is
+// deliberately NOT doubled by the 2026-08-22 Jewelcrafting XP event — see
+// JEWELCRAFT_XP_EVENT_PCT below. A live Prospecting tooltip at T18 reads
+// "Base reward: +338 jewelcrafting XP/task", which is exactly
+// round(skillXpForTier(18)=94 × 3.6) = 338 — confirming the RECIPE value
+// stays undoubled and the event applies further downstream, as a bonus-
+// stack percent, not here.
 const JEWEL_PROSPECT_XP_MULTIPLIER = 3.6;
 const JEWEL_PROSPECT_XP = {};
 for(let t=1;t<=34;t++) JEWEL_PROSPECT_XP[t] = Math.round(skillXpForTier(t) * JEWEL_PROSPECT_XP_MULTIPLIER);
@@ -9097,8 +9107,12 @@ function setGemAllTiers(v){
   iwRefreshGearTab();
 }
 
-// Cut-gem XP — live recipe values are the former linear curve ×1.2:
+// Cut-gem XP — live recipe values are the linear curve ×1.2:
 //   round((54*t + 18) × 1.2), giving T1=86, T2=151, T34=2225.
+// Deliberately NOT doubled here by the 2026-08-22 Jewelcrafting XP event —
+// same reasoning as JEWEL_PROSPECT_XP_MULTIPLIER above: the event stacks as
+// a percent bonus downstream (JEWELCRAFT_XP_EVENT_PCT), not baked into the
+// recipe table.
 // Deliberately not derived from skillXpForTier(); this recipe remains linear.
 const CUT_GEM_XP_MULTIPLIER = 1.2;
 const CUT_GEM_XP = {};
@@ -9132,8 +9146,11 @@ function gemTiersForStat(stat) {
     .sort((a, b) => a - b);
 }
 
-// Ring XP — live recipe values are the former linear curve ×1.2, rounded.
+// Ring XP — live recipe values are the linear curve ×1.2, rounded.
 // Samples: T1=130, T2=216, T5=475, T6=562.
+// Deliberately NOT doubled by the 2026-08-22 Jewelcrafting XP event — same
+// reasoning as CUT_GEM_XP_MULTIPLIER above. Amulet XP below scales
+// automatically since it derives from JEWEL_RING_XP.
 const JEWELCRAFT_XP_MULTIPLIER = 1.2;
 const JEWEL_RING_XP = {};
 for(let t=1;t<=34;t++) JEWEL_RING_XP[t] = Math.round((108 + (t-1)*72) * JEWELCRAFT_XP_MULTIPLIER);
@@ -9141,6 +9158,21 @@ for(let t=1;t<=34;t++) JEWEL_RING_XP[t] = Math.round((108 + (t-1)*72) * JEWELCRA
 // Amulet XP is exactly three times the already-rounded live ring XP.
 const JEWEL_AMULET_XP = {};
 for(let t=1;t<=34;t++) JEWEL_AMULET_XP[t] = JEWEL_RING_XP[t] * 3;
+
+// 2026-08-22 patch note: "Jewelcrafting XP is doubled server-wide...
+// prospecting, cutting gems, and crafting rings/amulets all grant +100%
+// XP." Framed as a 2-week event but never reverted — treated as permanent.
+// Live evidence shows this is NOT baked into the recipe tables above: a
+// live Prospecting tooltip at T18 reads "Base reward: +338 jewelcrafting
+// XP/task", exactly JEWEL_PROSPECT_XP[18] undoubled. Instead it stacks as
+// its own line in the SAME additive percent group as daily/server/ZC/race
+// — confirmed against a live sample (T18 base 338, Goblin race, ZC 61-80
+// +10%, Server +25%, Daily Jewelcrafting+Spellcrafting +20%, this event
+// +100% => totalPct 140%, exactly 1607 XP/action once dailyBonus is NOT
+// pre-rounded before the final multiply — see calculate() /
+// getEffectiveXPParams() / taskXPPerAction()). Gated on the whole
+// Jewelcrafting skill group (all 4 leaves), matching how RACE_BONUS gates.
+const JEWELCRAFT_XP_EVENT_PCT = 100;
 
 // Gather actions: 2 × round(skillXp × 1.1)
 const MINING_XP = {}, GATHERING_XP = {};
@@ -10586,6 +10618,19 @@ function showLookupResult(skill, tier) {
   }
 
   const a = actions[0];
+
+  // 2026-08 balance patch: Prospecting XP no longer depends on the tier of
+  // ore/gem being prospected — it always grants XP for the player's CURRENT
+  // effective Jewelcrafting tier. getActions() stays a pure (tier, skill)
+  // lookup (the Planner already passes it the current bracket tier, which
+  // IS that effective tier, so it needs no change there); this Calculator
+  // lookup is the one place a user can pick a tier independent of the
+  // "From level" they entered, so the override belongs here.
+  if (skill === 'jewel_prospect') {
+    const curLevel = parseInt(document.getElementById('lvl-a').value) || 1;
+    a.xp = JEWEL_PROSPECT_XP[maxTierForLevel(curLevel)] || a.xp;
+  }
+
   appState.selectedAction = a;
 
   document.getElementById('lr-skill').textContent = SKILL_LABELS[skill] || skill;
@@ -11141,8 +11186,17 @@ function calculate() {
   //   flatBonus        = xpBuffBonus × durationFactor   (loops = 1)
   //   gatherBaseXP     = baseXP × guaranteedResources   (guaranteed only)
   //   baseWithFlats    = gatherBaseXP + flatBonus
-  //   dailyBonus       = round(baseWithFlats × bonus%)  [if skill matches today]
+  //   dailyBonus       = baseWithFlats × bonus%   [if skill matches today]
+  //   NOT rounded here — live evidently rounds the whole formula ONCE, at
+  //   the very end. Confirmed against a live Jewelcrafting sample where the
+  //   pre-round total (1607.04) is required to land on the observed 1607;
+  //   rounding dailyBonus first overshoots to 1608. This is a general fix,
+  //   not Jewelcrafting-specific — every skill's daily bonus was carrying
+  //   the same sub-1-XP error, just too small to surface until this event's
+  //   +100% amplified it into a visible whole point.
   //   totalPercent     = zcTeam + zcLeaderboard + server + race + newPlayer
+  //                      + (JEWELCRAFT_XP_EVENT_PCT when this is a
+  //                      Jewelcrafting action — see its own comment)
   //   finalXp          = round((baseWithFlats + dailyBonus) × (1 + total%/100))
   const df            = getDurationFactor(actionTime, housingTier);
   const xpBuffBonus   = potionFlat + worldBossFlat + equipFlat;
@@ -11159,8 +11213,9 @@ function calculate() {
 
   const gatherBaseXP  = effectiveBase * guaranteedResources;
   const baseWithFlats = gatherBaseXP + flatBonus;
-  const dailyBonus    = dailyInfo.applies ? Math.round(baseWithFlats * (dailyInfo.bonus / 100)) : 0;
-  const totalPct      = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct;
+  const dailyBonus    = dailyInfo.applies ? baseWithFlats * (dailyInfo.bonus / 100) : 0;
+  const jcEventPct    = (activeSkill === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
+  const totalPct      = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + jcEventPct;
   const actionXP      = Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100));
 
   // Per-action XP shown to the user = guaranteed-resource XP (no partial).
@@ -11177,7 +11232,7 @@ function calculate() {
   const maxResources = isGatherAction ? (guaranteedResources + (partialChance > 0 ? 1 : 0)) : 1;
   const maxGatherBaseXP  = baseXP * maxResources;
   const maxBaseWithFlats = maxGatherBaseXP + flatBonus;
-  const maxDailyBonus    = dailyInfo.applies ? Math.round(maxBaseWithFlats * (dailyInfo.bonus / 100)) : 0;
+  const maxDailyBonus    = dailyInfo.applies ? maxBaseWithFlats * (dailyInfo.bonus / 100) : 0;
   const maxGatherXP      = Math.round((maxBaseWithFlats + maxDailyBonus) * (1 + totalPct / 100));
   // Only meaningful when it exceeds the guaranteed figure (i.e. a real partial).
   const showMaxGather    = isGatherAction && maxResources > guaranteedResources;
@@ -12048,8 +12103,10 @@ function efficiencyGrade(xpPerSec) {
  *   gatherBaseXP  = baseXP × resources           (guaranteed only)
  *   xpBuffBonus   = potionFlat + worldBossFlat + equipFlat
  *   baseWithFlats = gatherBaseXP + xpBuffBonus × df
- *   dailyBonus    = round(baseWithFlats × bonus%) [if skill matches today]
+ *   dailyBonus    = baseWithFlats × bonus% [if skill matches today] — NOT
+ *                   rounded here; the whole formula rounds once, at final.
  *   totalPct      = zcTeam + zcLeaderboard + server + race + newPlayer
+ *                   + (JEWELCRAFT_XP_EVENT_PCT for Jewelcrafting actions)
  *   final         = round((baseWithFlats + dailyBonus) × (1 + totalPct/100))
  */
 function getEffectiveXPParams(skill) {
@@ -12096,7 +12153,10 @@ function getEffectiveXPParams(skill) {
   const plannerGroup = resolveSkillGroup() || appState.selectedSkillGroup || '';
   const dailyInfo    = dailyBonusAppliesTo(plannerGroup);
 
-  const totalPct    = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct;
+  // Gated the same way racePct above is (on `activeSkill`, matching this
+  // function's own existing convention rather than plannerGroup).
+  const jcEventPct  = (activeSkill === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
+  const totalPct    = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + jcEventPct;
 
   // Gather: per-action XP counts ONLY guaranteed whole resources (the
   // fractional chance is excluded so it cannot skew the figure). At
@@ -12142,7 +12202,7 @@ function getEffectiveXPParams(skill) {
     const gatherBaseXP = baseXP * res;
     const baseWithFlats = gatherBaseXP + xpBuffBonus * df;
     const dailyBonus = dailyInfo.applies
-      ? Math.round(baseWithFlats * (dailyInfo.bonus / 100)) : 0;
+      ? baseWithFlats * (dailyInfo.bonus / 100) : 0;
     return Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100));
   };
 
@@ -12511,11 +12571,17 @@ function evaluateCraftLoop(leaf, tier) {
     let expectedAttempts = 0;
     let prospectXpTotal  = 0;
     for (const g of gemTiers) {
-      const attemptsForOne = 1 / getGemDropChance(g);   // = 100 * g
+      const attemptsForOne = 1 / getGemDropChance(g);   // = 100 * g — drop odds stay per-gem-tier
       const attempts = attemptsForOne * perGem;          // gems needed at this tier
       expectedAttempts += attempts;
-      // Prospect XP is earned every attempt, at that gem tier.
-      const pXp = eff.apply(JEWEL_PROSPECT_XP[g], 10);  // BASE time for df
+      // 2026-08 balance patch: prospecting now always grants XP for the
+      // player's CURRENT effective Jewelcrafting tier, not the tier of the
+      // material being prospected. `t` is the bracket this loop is being
+      // evaluated for, which IS that current effective tier (generateSkillPlan
+      // derives it via maxTierForLevel/maxTierForLevelWithBonus before calling
+      // in) — so every attempt in the chain, including the lower-tier gems
+      // needed for a high-tier ring/amulet, earns JEWEL_PROSPECT_XP[t].
+      const pXp = eff.apply(JEWEL_PROSPECT_XP[t], 10);  // BASE time for df
       prospectXpTotal += attempts * pXp;
     }
     expectedAttempts = Math.round(expectedAttempts);
@@ -17449,6 +17515,18 @@ function iwJcLevel(){
   return null;
 }
 
+// 2026-08 balance patch: prospecting always grants Jewelcrafting XP for the
+// player's CURRENT effective tier (maxTierForLevel of their JC level), not
+// the tier of the material actually being prospected. Same fallback chain as
+// iwEnchantDefaultTier: JC level, then Combat Level as a general level proxy,
+// then Tier 1 when neither is known.
+function iwProspectXpTier(){
+  var lvl = iwJcLevel();
+  if (lvl == null) { try { lvl = appState && appState.combatLevel; } catch(e){} }
+  if (lvl == null) return 1;
+  return maxTierForLevel(lvl);
+}
+
 // Return only socket-plan entries that physically exist on the CURRENT item.
 // This is essential when a user plans 2 gems on Tailoring armour and later
 // equips a 1-socket Smithing piece in the same slot: the saved second value may
@@ -19285,6 +19363,15 @@ function iwCraftBillHtml(){
   if(!tiers.length) return '';
 
   var MINING_TIME = 10, SMELT_TIME = 10, PROSPECT_TIME = 10;
+  // 2026-08 balance patch: every prospect attempt earns XP for the player's
+  // CURRENT effective Jewelcrafting tier, not the tier of gem being socketed
+  // — same fixed rate whether this bill is buying a T2 gem or a T30 one.
+  var prospectXpTier = (typeof iwProspectXpTier === 'function') ? iwProspectXpTier() : 1;
+  // This bill deliberately does NOT stack player buffs (no daily/ZC/server/
+  // race/event) — it's a raw recipe-cost estimate, matching how live's own
+  // tooltip reports "Base reward" as the undoubled recipe value. Do not add
+  // JEWELCRAFT_XP_EVENT_PCT here; that would double-apply once this feeds
+  // any UI that separately shows the player's actual boosted rate.
   var rows = '', totTime = 0, totXp = 0, totGold = 0, goldComplete = true;
   tiers.forEach(function(t){
     var n = counts[t];
@@ -19294,7 +19381,7 @@ function iwCraftBillHtml(){
     var barT = n * (SMELT_TIME + oresPerBar(t) * MINING_TIME);
     var time = prospectT + cutT + barT;
     var jcXp = n * CUT_GEM_XP[t] +
-               attempts * (typeof JEWEL_PROSPECT_XP!=='undefined' ? (JEWEL_PROSPECT_XP[t]||0) : 0);
+               attempts * (typeof JEWEL_PROSPECT_XP!=='undefined' ? (JEWEL_PROSPECT_XP[prospectXpTier]||0) : 0);
     var barPrice = iwItemPrice(TIER_NAMES[t] + ' Bar');
     var gemPrice = iwItemPrice(GEM_NAMES[t]);
     var gold = (barPrice!=null && gemPrice!=null) ? n * (barPrice + gemPrice) : null;
@@ -21119,6 +21206,9 @@ function taskBonusEnv(taskKey) {
   else if (RACE_BONUS[race] && RACE_BONUS[race].includes(group)) racePct = 5;
 
   const dailyInfo = dailyBonusAppliesTo(group);
+  // Jewelcrafting XP event (JEWELCRAFT_XP_EVENT_PCT) — same +100% stacking
+  // bonus as calculate()/getEffectiveXPParams(), gated on the task's group.
+  const jcEventPct = (group === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   return {
     potionFlat : (typeof getPotionFlat === 'function') ? getPotionFlat() : 0,
     bossFlat   : g('boss-active') && g('boss-active').checked ? 24 : 0,
@@ -21127,7 +21217,7 @@ function taskBonusEnv(taskKey) {
                + (parseInt(g('zc-leaderboard') ? g('zc-leaderboard').value : 0) || 0)
                + (g('server-bonus') && g('server-bonus').checked ? 25 : 0)
                + (g('new-player-promo') && g('new-player-promo').checked ? 25 : 0)
-               + racePct,
+               + racePct + jcEventPct,
     dailyApplies: dailyInfo.applies, dailyPct: dailyInfo.applies ? dailyInfo.bonus : 0,
   };
 }
@@ -21137,7 +21227,8 @@ function taskXPPerAction(baseXP, time, gearFlat, gatherPct, env, isGather) {
   const df  = getDurationFactor(time, env.housing);
   const res = isGather ? Math.max(1, Math.floor(gatherPct / 100)) : 1;
   const baseWithFlats = baseXP * res + (env.potionFlat + env.bossFlat + gearFlat) * df;
-  const daily = env.dailyApplies ? Math.round(baseWithFlats * (env.dailyPct / 100)) : 0;
+  // NOT rounded here — see the single-final-round note on calculate().
+  const daily = env.dailyApplies ? baseWithFlats * (env.dailyPct / 100) : 0;
   return Math.round((baseWithFlats + daily) * (1 + env.totalPct / 100));
 }
 
