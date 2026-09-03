@@ -15375,10 +15375,26 @@ function iwReadEquippedSet(){
       }
     }
 
+    // Cloak Upgrade — randomised per-copy stat lines from upgrading a cloak.
+    // A cloak takes neither a plate nor a timed enchant, so this is applied
+    // unconditionally (not an else-branch) and folds in ONCE, before the
+    // itemTotals sum below, exactly like a live enchant.
+    var cloakUpgrade = (typeof iwCloakUpgradeForSlot === 'function') ? iwCloakUpgradeForSlot(slot) : null;
+    if(cloakUpgrade){
+      cloakUpgrade.stats.forEach(function(ln){
+        if(!ln || !ln.stat || !isFinite(ln.value) || ln.value === 0) return;
+        stats[ln.stat] = (stats[ln.stat] || 0) + ln.value;
+        out.liveEnhancements.push({
+          type:'cloakUpgrade', slot:slot, stat:ln.stat, value:ln.value, pct:!!ln.pct,
+          tier:cloakUpgrade.tier, kind:'cloak upgrade', text:ln.text
+        });
+      });
+    }
+
     Object.keys(out.itemTotals).forEach(function(k){ out.itemTotals[k]+= (stats[k]||0); });
     out.slots[slot] = { item: it, stats: stats, baseStats: baseStats, db: db,
                         liveSockets: liveSockets, livePlate: livePlate,
-                        liveEnchant: liveEnchant };
+                        liveEnchant: liveEnchant, cloakUpgrade: cloakUpgrade };
   });
 
   // Set bonuses are loadout properties, not per-piece stats. Resolve them from
@@ -15453,9 +15469,13 @@ function buildEquippedPips(equipped){
     var xpt = cell ? cell.stats.xpPerTask : null;
     // v42.1: a worn cloak has no ATK/DEF and may have no XP either (four
     // of its six variants don't), so fall through to the utility affixes
-    // rather than printing "—" over a real bonus. Only reached when the
-    // piece has no ATK and no DEF, so no existing row changes.
-    var util = cell && !atk && !def
+    // rather than printing "—" over a real bonus.
+    // v5.4.1: a Cloak Upgrade can now put real DEF on a cloak, so the old
+    // "no ATK and no DEF" gate would hide the cloak's utility line the
+    // moment it is upgraded. The cloak slot therefore always shows utility
+    // affixes alongside whatever DEF the upgrade added.
+    var isCloakSlot = slotKey === 'cloak';
+    var util = cell && (isCloakSlot || (!atk && !def))
       ? iwCloakAffixParts({ xpPerTask: cell.stats.xpPerTask || 0,
                             gather:    cell.stats.gather    || 0,
                             itemFind:  cell.stats.itemFind  || 0,
@@ -15468,7 +15488,7 @@ function buildEquippedPips(equipped){
       var parts = [];
       if(atk) parts.push('ATK '+atk);
       if(def) parts.push('DEF '+def);
-      if(!atk && !def) parts = parts.concat(util);
+      if((!atk && !def) || isCloakSlot) parts = parts.concat(util);
       statHtml = parts.length
         ? '<div class="gear-slot-bonus">'+parts.join('<br>')+'</div>'
         : '<div class="gear-slot-bonus dim">—</div>';
@@ -15483,6 +15503,15 @@ function buildEquippedPips(equipped){
     // its affordance are the same element now.
     var nm  = cell && cell.item && cell.item.name ? cell.item.name : '';
     var spriteNm = cell && cell.db && cell.db.name ? cell.db.name : nm;
+    // A Cloak Upgrade drives the "+N" sprite overlay the way a "+4" name
+    // suffix does for reinforced gear. splitItemName only understands +1..+4,
+    // so guard the range — a higher suffix would corrupt the sprite key and
+    // break the base-art lookup. Skip if the name already ends in +1..+4.
+    var cellCloakUp = cell && cell.cloakUpgrade;
+    if (cellCloakUp && cellCloakUp.tier >= 1 && cellCloakUp.tier <= 4 &&
+        !/\+[1-4]$/.test(String(spriteNm || ''))) {
+      spriteNm = String(spriteNm || '') + '+' + cellCloakUp.tier;
+    }
     var itm = cell && cell.item ? cell.item : null;
     var nameHtml;
     if (itm && (itm.id || nm)) {
@@ -15528,6 +15557,27 @@ function buildEquippedPips(equipped){
     //    The DB models each level as its own record, so the name is the
     //    authoritative source here — not gearEnchantLevel, which is the
     //    planner's what-if toggle rather than what the player is wearing.
+    // Cloak Upgrade (2026-09 patch): a cloak name carries no "+N", so the
+    // tier and its two RANDOMISED stat lines come from the profile. One
+    // badge per randomised line makes the granted stat visible without
+    // hovering; the +N icon overlay is applied to the sprite markup below.
+    var cloakUp = (typeof iwCloakUpgradeForSlot === 'function') ? iwCloakUpgradeForSlot(slotKey) : null;
+    if(cloakUp){
+      var cloakUpTitle = iwTipEsc('Cloak Upgrade tier ' + cloakUp.tier +
+        ' — randomised permanent stats gained by upgrading this cloak' +
+        (cloakUp.lines.length ? ': ' + cloakUp.lines.join(' · ') : '') + '.');
+      if(cloakUp.lines.length){
+        cloakUp.lines.forEach(function(lineText){
+          buffs.push('<span class="gbuff gbuff-up" title="'+cloakUpTitle+'">'+
+            '<span class="gbuff-ic">✧</span><span class="gbuff-kind">Upgrade +'+cloakUp.tier+'</span>'+
+            iwTipEsc(String(lineText).replace(/\s*\(upgrade\)\s*$/i,''))+'</span>');
+        });
+      } else {
+        buffs.push('<span class="gbuff gbuff-up" title="'+cloakUpTitle+'">'+
+          '<span class="gbuff-ic">✧</span>+'+cloakUp.tier+'</span>');
+      }
+    }
+
     var upM = /\+([1-4])$/.exec(nm || '');
     if(upM){
       buffs.push('<span class="gbuff gbuff-up" title="Upgrade Orb level — permanent, baked into the stats above">'+
@@ -18515,6 +18565,76 @@ function iwActiveEnchantForSlot(slot){
 function iwEnchantLabel(en){
   if(!en) return '';
   return '+' + en.value + (en.pct ? '%' : '') + ' ' + en.kind;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// CLOAK UPGRADE (2026-09 patch)
+// ──────────────────────────────────────────────────────────────────
+// Upgrading a cloak raises cloakUpgradeTier and grants up to two RANDOMISED
+// stat lines, delivered pre-formatted as cloakUpgradeLine / cloakUpgradeLine2
+// with an "(upgrade)" suffix (e.g. "+12 DEF (upgrade)", "+3% 2x Gather Chance
+// (upgrade)"). It is per-copy live state — parallel to a socket gem or a
+// timed enchant — and is NOT in the item DB row and NOT in statLines.
+//
+// Every equipped slot now carries these three fields in the profile schema;
+// only a cloak is populated. The model folds the parsed stats into current
+// gear exactly like a live enchant, so totals track the game's own
+// combatStats aggregate (which already includes the upgrade) without double
+// counting. The calculator and character panel read combatStats directly and
+// are unaffected.
+var IW_CLOAK_UPGRADE_STAT = {
+  'atk':'atk', 'attack':'atk',
+  'def':'def', 'defense':'def', 'defence':'def',
+  'hp':'hp', 'health':'hp',
+  'xp':'xpPerTask', 'xp/task':'xpPerTask', 'xp per task':'xpPerTask',
+  '2x gather chance':'gather', '2x-gather chance':'gather', '2x gather':'gather',
+  'double gather chance':'gather', 'gather chance':'gather', 'gather':'gather',
+  'item find':'itemFind', 'gold find':'goldFind',
+  'fire resist':'fire', 'frost resist':'frost', 'lightning resist':'lightning',
+  'warfare':'warfare'
+};
+
+/**
+ * iwParseCloakUpgradeLine("+12 DEF (upgrade)")
+ *   → { stat:'def', value:12, pct:false, text:'+12 DEF (upgrade)' }
+ * Unknown labels resolve stat:null so the raw text still shows in the UI
+ * while contributing nothing to totals (better than silently miscounting).
+ */
+function iwParseCloakUpgradeLine(line){
+  var s = String(line == null ? '' : line).trim();
+  if(!s) return null;
+  var m = /^([+-]?\d+(?:\.\d+)?)\s*(%?)\s*(.+?)\s*(?:\(upgrade\)\s*)?$/i.exec(s);
+  if(!m) return { stat:null, value:0, pct:false, text:s };
+  var label = m[3].replace(/\s+/g, ' ').trim().toLowerCase().replace(/\s*\(upgrade\)\s*$/,'');
+  return {
+    stat: IW_CLOAK_UPGRADE_STAT[label] || null,
+    value: Number(m[1]) || 0,
+    pct: m[2] === '%',
+    text: s
+  };
+}
+
+/**
+ * iwCloakUpgradeForSlot(slot) → { tier, lines:[raw…], stats:[parsed…] } or null.
+ * `slot` is any equipped slot key; only a cloak is expected to return non-null.
+ */
+function iwCloakUpgradeForSlot(slot){
+  try{
+    var prof = window.IWProfile;
+    var it = prof && prof.equipped && prof.equipped[slot];
+    if(!it) return null;
+    var tier = Number(it.cloakUpgradeTier);
+    if(!(tier > 0)) return null;
+    var lines = [it.cloakUpgradeLine, it.cloakUpgradeLine2]
+      .filter(function(x){ return x != null && String(x).trim() !== ''; })
+      .map(String);
+    return {
+      tier: tier,
+      lines: lines,
+      stats: lines.map(iwParseCloakUpgradeLine).filter(Boolean),
+      source: 'equipped-item'
+    };
+  }catch(e){ return null; }
 }
 
 // ──────────────────────────────────────────────────────────────────
@@ -28721,6 +28841,9 @@ function syncCombatLevel(val) {
       } else if(src.type === 'gem'){
         icon = '◆'; name = enhSlotLabel(src.slot) + ' · Gem, socket ' + (Number(src.socketIndex||0)+1);
         detail = (src.name || 'Socketed Gem') + ' · socketed in game' + (src.detail ? ' · ' + src.detail : '');
+      } else if(src.type === 'cloakUpgrade'){
+        icon = '✧'; name = enhSlotLabel(src.slot) + ' · Cloak Upgrade (tier ' + (src.tier != null ? src.tier : '?') + ')';
+        detail = 'Randomised stat from upgrading the cloak' + (src.text ? ' · ' + String(src.text).replace(/\s*\(upgrade\)\s*$/i,'') : '');
       }
       addEnhancement(src.stat, src.value, src.pct, {type:src.type||'live',icon:icon,name:name,detail:detail});
     });
@@ -32971,6 +33094,53 @@ function syncCombatLevel(val) {
       eq('opposite replacement remains enchant',IW_ENCHANT_PLAN.helmet,19);
       eq('opposite replacement does not recreate plate plan',!!IW_PLATE_PLAN.helmet,false);
       ok('opposite replacement preserves live plate removal intent',iwIsLiveEnhancementRemovalPlanned('helmet','plate'));
+
+      // ── Cloak Upgrade (2026-09 patch) ────────────────────────────
+      // Upgrading a cloak sets cloakUpgradeTier + up to two randomised stat
+      // lines. They are per-copy live state (not in the item DB, not in
+      // statLines) and must fold into the current-gear model EXACTLY ONCE,
+      // like a live enchant, so totals track the game's combatStats
+      // aggregate without double counting.
+      IW_ENCHANT_PLAN={}; IW_PLATE_PLAN={}; IW_SOCKET_PLAN={}; IW_ENHANCEMENT_REMOVAL_PLAN={};
+      window.IWProfile={id:'cloak-upgrade-probe',displayName:'cloak-upgrade-probe',
+        skills:[{skillKey:'jewelcrafting',level:70}],
+        equipped:{cloak:{key:'__cloak_upgrade_probe',name:'__cloak_upgrade_probe',variantId:'cu-copy',
+          statLines:['Requires Lv 61 (any skill)'],
+          cloakUpgradeTier:3,
+          cloakUpgradeLine:'+12 DEF (upgrade)',
+          cloakUpgradeLine2:'+3% 2x Gather Chance (upgrade)',
+          atk:null,def:null,hp:null,xp:null}},
+        itemReinforcements:[],itemEnchants:[]};
+      var cu=iwCloakUpgradeForSlot('cloak');
+      ok('cloak upgrade resolves from profile',!!cu);
+      if(cu){
+        eq('cloak upgrade tier',cu.tier,3);
+        eq('cloak upgrade keeps both randomised lines',cu.lines.length,2);
+        var cuDef=cu.stats.filter(function(s){return s.stat==='def';})[0];
+        var cuGat=cu.stats.filter(function(s){return s.stat==='gather';})[0];
+        ok('cloak upgrade parses a flat DEF line',!!cuDef && cuDef.value===12 && cuDef.pct===false);
+        ok('cloak upgrade parses a percent gather line',!!cuGat && cuGat.value===3 && cuGat.pct===true);
+      }
+      eq('non-cloak slot has no cloak upgrade',iwCloakUpgradeForSlot('helmet'),null);
+      // Differential double-count guard: measure totals with the upgrade,
+      // then with its fields nulled, and confirm the delta is exactly the
+      // upgrade's own numbers — never twice.
+      var cuWith=iwReadEquippedSet();
+      var cuSrc=(cuWith&&cuWith.liveEnhancements||[]).filter(function(x){return x.type==='cloakUpgrade';});
+      eq('cloak upgrade emits one live source per randomised stat',cuSrc.length,2);
+      eq('cloak upgrade sources carry the tier',cuSrc[0]&&cuSrc[0].tier,3);
+      var gWith=Number(cuWith&&cuWith.totals?cuWith.totals.gather:0);
+      var dWith=Number(cuWith&&cuWith.totals?cuWith.totals.def:0);
+      window.IWProfile.equipped.cloak.cloakUpgradeTier=null;
+      window.IWProfile.equipped.cloak.cloakUpgradeLine=null;
+      window.IWProfile.equipped.cloak.cloakUpgradeLine2=null;
+      var cuNone=iwReadEquippedSet();
+      var gNone=Number(cuNone&&cuNone.totals?cuNone.totals.gather:0);
+      var dNone=Number(cuNone&&cuNone.totals?cuNone.totals.def:0);
+      near('cloak upgrade adds its +3% gather exactly once',gWith-gNone,3);
+      near('cloak upgrade adds its +12 DEF exactly once',dWith-dNone,12);
+      eq('nulled cloak upgrade emits no live sources',
+         (cuNone&&cuNone.liveEnhancements||[]).filter(function(x){return x.type==='cloakUpgrade';}).length,0);
 
     }catch(e){ fail.push('Gear import integrity suite threw: '+(e&&e.message?e.message:String(e))); }
     finally{
