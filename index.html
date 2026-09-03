@@ -6,9 +6,10 @@
 <title>IdleWorlds Toolkit v5.4</title>
 <!-- v5.4 Woodcutting & Construction (2026-09-03):
      Two new skills added. Woodcutting is a third gathering skill, structurally
-     identical to Mining — its per-action XP is MINING_XP[t] verbatim (the game
-     gives mine_/chop_/gather_ the same expression; the toolkit's own 2x gather
-     display convention was NOT reopened, deliberately — see WOODCUT_XP).
+     like Mining, but its per-action XP is round(skillXp * 1.1) — the raw game
+     value, HALF of MINING_XP[t]. Chopping does not get the toolkit's historical
+     2x gather-display multiplier (confirmed against the vendor packet); see
+     WOODCUT_XP.
      Construction is a two-track crafting skill: Building Parts recipes are the
      real levelling loop, and their XP is DECOUPLED from the recipe tier — it is
      a pure function of effective Construction level and equals the existing
@@ -1776,6 +1777,11 @@
     box-shadow: var(--lift2);
   }
   .iw-dd.open .iw-dd-panel { display: block; }
+  /* Gear-goal dropdown: the button sits in a wrapping flex row and can be
+     squeezed narrow, but the open list must not wrap its labels. Hold the
+     panel to the widest option ("Zone Combat (Warfare)") plus breathing room. */
+  #gn-goal-dd .iw-dd-panel { min-width: max-content; }
+  #gn-goal-dd .iw-dd-opt { white-space: nowrap; padding-right: 20px; }
   .iw-dd-opt {
     appearance: none; cursor: pointer; width: 100%;
     display: flex; align-items: center; gap: 8px;
@@ -8635,11 +8641,12 @@ const ORE_NAMES = {
 // reproduces 100% of the 245 vendor-data rows checked against it; see suite
 // H (iwWoodcuttingConstructionSelfCheck) for the runtime assertions.
 //
-// Two things here are NOT new curves — they are existing toolkit tables
-// reached through a different key, which is why nothing was invented:
-//   • Woodcutting XP/action  === MINING_XP[t]   (same game expression;
-//     WOODCUT_XP itself is built later, next to MINING_XP's own definition
-//     — TDZ, MINING_XP does not exist yet at this point in the file).
+// Neither XP curve here is invented — both are the game's own expressions,
+// reached through skillXpForTier / SMELT_XP:
+//   • Woodcutting XP/action  === round(skillXp * 1.1)  (raw game value,
+//     = MINING_XP[t] / 2 — chopping does not get the toolkit's 2x gather
+//     multiplier). WOODCUT_XP is built later, next to MINING_XP's own
+//     definition — TDZ, skillXpForTier/MINING_XP do not exist here yet.
 //   • Building Parts XP      === SMELT_XP[T]    (T from EFFECTIVE level;
 //     SMELT_XP is likewise declared BELOW this point, so
 //     constructionPartsXpForLevel() below must stay a function that reads
@@ -9541,15 +9548,16 @@ for(let t=1;t<=34;t++){
   GATHERING_XP[t] = 2 * Math.round(skillXpForTier(t) * 1.1);
 }
 
-// Woodcutting: the game gives mine_/chop_/gather_ ONE shared expression
-// (round(skillXp * 1.1)), so WOODCUT_XP mirrors MINING_XP verbatim rather
-// than defining a parallel curve at half its value. This is placed here
-// (not with the rest of the Woodcutting/Construction block above) because
-// it needs MINING_XP, which does not exist yet up there — see the note left
-// at the top of that block. The toolkit's own 2x display convention for
-// every gather skill was deliberately NOT reopened by this change.
+// Woodcutting: per-action XP is round(skillXp * 1.1) — the raw game
+// expression, WITHOUT the toolkit's historical 2x gather-display multiplier
+// that MINING_XP / GATHERING_XP carry. Chopping wood does not get that
+// doubling in-game (verified against the woodcutting-construction vendor
+// packet, whose skill_xp_per_action column equals this exactly), so
+// WOODCUT_XP is deliberately half of MINING_XP[t], not a mirror of it.
+// Still placed here rather than in the Woodcutting/Construction block above
+// because skillXpForTier / MINING_XP are declared at this point, not there.
 const WOODCUT_XP = {};
-for (let t = 1; t <= 34; t++) WOODCUT_XP[t] = MINING_XP[t];
+for (let t = 1; t <= 34; t++) WOODCUT_XP[t] = Math.round(skillXpForTier(t) * 1.1);
 
 // Spellcrafting Harvest Mana — the live base curve was reduced by 20%
 // in patch 0.2.0+2026-07-20.443. Mining/Gathering keep the normal gather
@@ -33008,9 +33016,11 @@ function syncCombatLevel(val) {
       ok('construction is in IW_EFFECTIVE_SKILL_KEYS',
          IW_EFFECTIVE_SKILL_KEYS.indexOf('construction') >= 0);
 
-      // ── 2. Woodcutting mirrors Mining exactly ──
-      [1, 9, 18, 34].forEach(function(t){
-        eq('WOODCUT_XP T' + t + ' mirrors MINING_XP', WOODCUT_XP[t], MINING_XP[t]);
+      // ── 2. Woodcutting XP is the raw game value: round(skillXp*1.1),
+      //       i.e. HALF of MINING_XP (no 2x gather-display multiplier) ──
+      [[1,4],[9,44],[18,103],[34,209]].forEach(function(p){
+        eq('WOODCUT_XP T' + p[0] + ' is round(skillXp*1.1)', WOODCUT_XP[p[0]], p[1]);
+        eq('WOODCUT_XP T' + p[0] + ' is half MINING_XP', WOODCUT_XP[p[0]] * 2, MINING_XP[p[0]]);
       });
       eq('chop action count T18', getActions(18, 'woodcutting').length, 1);
       eq('chop label T18', getActions(18, 'woodcutting')[0].label, 'Chop Regal Timber');
