@@ -15310,7 +15310,8 @@ function iwReadEquippedSet(){
   var zeroTotals = function(){ return {atk:0,def:0,itemFind:0,goldFind:0,gather:0,
     fire:0,frost:0,lightning:0,xpPerTask:0,warfare:0}; };
   var out = { slots:{}, totals:zeroTotals(), itemTotals:zeroTotals(),
-              setBonusTotals:zeroTotals(), activeSetBonuses:[], liveEnhancements:[],
+              setBonusTotals:zeroTotals(), cloakUpgradeTotals:zeroTotals(),
+              activeSetBonuses:[], liveEnhancements:[],
               displayName: prof.displayName || 'player' };
 
   /* v5.0 Gear import integrity hotfix (2026-08-16)
@@ -15376,14 +15377,19 @@ function iwReadEquippedSet(){
     }
 
     // Cloak Upgrade — randomised per-copy stat lines from upgrading a cloak.
-    // A cloak takes neither a plate nor a timed enchant, so this is applied
-    // unconditionally (not an else-branch) and folds in ONCE, before the
-    // itemTotals sum below, exactly like a live enchant.
+    // Kept in its OWN accumulator: it is deliberately NOT merged into the
+    // per-slot item stats (so every "the item itself" view shows base stats
+    // plus a separate Upgrade +N badge/line, never silently baked-in
+    // numbers), and NOT into itemTotals (which stays "sum of per-slot item
+    // stats"). It IS added into out.totals below, so aggregate totals still
+    // track the game's own combatStats. A cloak takes neither a plate nor a
+    // timed enchant, so this is applied unconditionally, not as an else-branch.
     var cloakUpgrade = (typeof iwCloakUpgradeForSlot === 'function') ? iwCloakUpgradeForSlot(slot) : null;
     if(cloakUpgrade){
       cloakUpgrade.stats.forEach(function(ln){
         if(!ln || !ln.stat || !isFinite(ln.value) || ln.value === 0) return;
-        stats[ln.stat] = (stats[ln.stat] || 0) + ln.value;
+        if(Object.prototype.hasOwnProperty.call(out.cloakUpgradeTotals, ln.stat))
+          out.cloakUpgradeTotals[ln.stat] += ln.value;
         out.liveEnhancements.push({
           type:'cloakUpgrade', slot:slot, stat:ln.stat, value:ln.value, pct:!!ln.pct,
           tier:cloakUpgrade.tier, kind:'cloak upgrade', text:ln.text
@@ -15421,7 +15427,8 @@ function iwReadEquippedSet(){
   }
 
   Object.keys(out.totals).forEach(function(k){
-    out.totals[k] = Number(out.itemTotals[k]||0) + Number(out.setBonusTotals[k]||0);
+    out.totals[k] = Number(out.itemTotals[k]||0) + Number(out.setBonusTotals[k]||0) +
+                    Number(out.cloakUpgradeTotals[k]||0);
   });
   return out;
 }
@@ -15469,13 +15476,11 @@ function buildEquippedPips(equipped){
     var xpt = cell ? cell.stats.xpPerTask : null;
     // v42.1: a worn cloak has no ATK/DEF and may have no XP either (four
     // of its six variants don't), so fall through to the utility affixes
-    // rather than printing "—" over a real bonus.
-    // v5.4.1: a Cloak Upgrade can now put real DEF on a cloak, so the old
-    // "no ATK and no DEF" gate would hide the cloak's utility line the
-    // moment it is upgraded. The cloak slot therefore always shows utility
-    // affixes alongside whatever DEF the upgrade added.
-    var isCloakSlot = slotKey === 'cloak';
-    var util = cell && (isCloakSlot || (!atk && !def))
+    // rather than printing "—" over a real bonus. Only reached when the
+    // piece has no ATK and no DEF. A Cloak Upgrade's stats are aggregate-
+    // only (see iwReadEquippedSet) so cell.stats stays base here and this
+    // gate is unaffected; the upgrade shows as its own buff-rail badge.
+    var util = cell && !atk && !def
       ? iwCloakAffixParts({ xpPerTask: cell.stats.xpPerTask || 0,
                             gather:    cell.stats.gather    || 0,
                             itemFind:  cell.stats.itemFind  || 0,
@@ -15488,7 +15493,7 @@ function buildEquippedPips(equipped){
       var parts = [];
       if(atk) parts.push('ATK '+atk);
       if(def) parts.push('DEF '+def);
-      if((!atk && !def) || isCloakSlot) parts = parts.concat(util);
+      if(!atk && !def) parts = parts.concat(util);
       statHtml = parts.length
         ? '<div class="gear-slot-bonus">'+parts.join('<br>')+'</div>'
         : '<div class="gear-slot-bonus dim">—</div>';
@@ -28585,6 +28590,15 @@ function syncCombatLevel(val) {
       // v4.8.4 gear fix: use canonical DB naming for display/art when the
       // stable item identity resolves; fall back to the imported name.
       var displayName = cell && cell.db && cell.db.name ? cell.db.name : nm;
+      // A Cloak Upgrade carries no "+N" in the name, so append it (tiers 1-4
+      // only — the sprite loader understands no higher) for the icon overlay.
+      // The slot label keeps the plain name.
+      var spriteName = displayName;
+      var cellCloakUp = cell && cell.cloakUpgrade;
+      if (cellCloakUp && cellCloakUp.tier >= 1 && cellCloakUp.tier <= 4 &&
+          !/\+[1-4]$/.test(String(spriteName || ''))) {
+        spriteName = String(spriteName || '') + '+' + cellCloakUp.tier;
+      }
       // v4.6.5: show equipped item name in the slot label instead of generic slot name
       var labelEl = tile.querySelector('.gn-slot-label');
       if (labelEl) labelEl.textContent = displayName || (meta ? meta.label : slot);
@@ -28601,7 +28615,7 @@ function syncCombatLevel(val) {
         silhouetteEl.innerHTML = GN_SLOT_SVG[slot] || '';
       }
       if (layerEl) {
-        IW_GEAR_SPRITES.mount(layerEl, displayName, fallbackIcon);
+        IW_GEAR_SPRITES.mount(layerEl, spriteName, fallbackIcon);
 
         // ── Reinforcement plate frame (v44.5) ─────────────────
         // .gn-plate-frame is now a direct child of tile (the whole card),
@@ -28712,6 +28726,12 @@ function syncCombatLevel(val) {
     });
     totalAtk += setAtk;
     totalDef += setDef;
+    // Cloak Upgrade ATK/DEF is an off-item enhancement (kept out of per-slot
+    // stats), but it is real defence/attack the player has — include it in
+    // the all-slots totals, the same way a reinforcement plate's DEF counts.
+    // The combat-slots totals above deliberately exclude the cloak slot.
+    totalAtk += Number(equipped.cloakUpgradeTotals && equipped.cloakUpgradeTotals.atk || 0);
+    totalDef += Number(equipped.cloakUpgradeTotals && equipped.cloakUpgradeTotals.def || 0);
 
     function row(label, val, hl) {
       return '<div class="gn-stat-row"><span class="gn-stat-label">' + label +
@@ -29291,6 +29311,16 @@ function syncCombatLevel(val) {
           headerItem = iwTipFindItem({ id: headerItem.id, name: nm }) || headerItem;
         }
       } catch (e) {}
+      // A Cloak Upgrade carries no "+N" in the item name, so clone the header
+      // item with the tier appended (1-4 only) so iwTipRender's gear sprite
+      // shows the "+N" overlay, exactly as it does for reinforced gear.
+      try {
+        var hdrCloakUp = cell && cell.cloakUpgrade;
+        if (headerItem && hdrCloakUp && hdrCloakUp.tier >= 1 && hdrCloakUp.tier <= 4 &&
+            !/\+[1-4]$/.test(String(headerItem.name || ''))) {
+          headerItem = Object.assign({}, headerItem, { name: String(headerItem.name || '') + '+' + hdrCloakUp.tier });
+        }
+      } catch (e) {}
 
       if (nm && headerItem && typeof iwTipRender === 'function') {
         var scratch = document.createElement('div');
@@ -29349,6 +29379,16 @@ function syncCombatLevel(val) {
         if (cell.stats.lightning)statParts.push('Lightning Resist +' + ttStat('lightning') + '%');
         if (cell.stats.warfare)  statParts.push('Warfare +' + ttStat('warfare'));
         if (statParts.length) html += '<div class="gn-tt-stats-line">' + statParts.join(' &nbsp;·&nbsp; ') + '</div>';
+
+        // Cloak Upgrade stats are shown on their own line, attributed as
+        // upgrade stats — never merged into the base stat line above.
+        if (cell.cloakUpgrade && cell.cloakUpgrade.lines && cell.cloakUpgrade.lines.length) {
+          var upTxt = cell.cloakUpgrade.lines.map(function(l){
+            return gnEsc(String(l).replace(/\s*\(upgrade\)\s*$/i, ''));
+          }).join(' &nbsp;·&nbsp; ');
+          html += '<div class="gn-tt-stats-line" style="color:var(--accent,#8f7bff);">' +
+            '✧ Upgrade +' + gnEsc(cell.cloakUpgrade.tier) + ': ' + upTxt + '</div>';
+        }
       } else {
         html += '<div class="gn-tt-item-name empty">Nothing equipped</div>';
       }
@@ -29438,6 +29478,19 @@ function syncCombatLevel(val) {
           }
         }
 
+        // 2b. Cloak Upgrade — one non-interactive badge per randomised stat
+        //     line, so the granted stat and tier are visible here too.
+        var ttCloakUp = (typeof iwCloakUpgradeForSlot === 'function') ? iwCloakUpgradeForSlot(s) : null;
+        if (ttCloakUp && ttCloakUp.lines.length) {
+          var ttCloakUpTitle = iwTipEsc('Cloak Upgrade tier ' + ttCloakUp.tier +
+            ' — randomised permanent stats gained by upgrading this cloak: ' +
+            ttCloakUp.lines.join(' · ') + '.');
+          ttCloakUp.lines.forEach(function (lineText) {
+            buffs.push('<span class="gbuff gbuff-up" title="' + ttCloakUpTitle + '">' +
+              '<span class="gbuff-ic">✧</span><span class="gbuff-kind">Upgrade +' + ttCloakUp.tier + '</span>' +
+              iwTipEsc(String(lineText).replace(/\s*\(upgrade\)\s*$/i, '')) + '</span>');
+          });
+        }
 
         if (buffs.length) {
           html += '<div class="gn-tt-section-label">Gems &amp; Enchants</div>';
@@ -33098,9 +33151,10 @@ function syncCombatLevel(val) {
       // ── Cloak Upgrade (2026-09 patch) ────────────────────────────
       // Upgrading a cloak sets cloakUpgradeTier + up to two randomised stat
       // lines. They are per-copy live state (not in the item DB, not in
-      // statLines) and must fold into the current-gear model EXACTLY ONCE,
-      // like a live enchant, so totals track the game's combatStats
-      // aggregate without double counting.
+      // statLines). They must (a) NOT be merged into the per-slot item
+      // stats — every "the item itself" view shows base stats — and
+      // (b) count toward equipped TOTALS EXACTLY ONCE, so those totals
+      // still track the game's combatStats aggregate.
       IW_ENCHANT_PLAN={}; IW_PLATE_PLAN={}; IW_SOCKET_PLAN={}; IW_ENHANCEMENT_REMOVAL_PLAN={};
       window.IWProfile={id:'cloak-upgrade-probe',displayName:'cloak-upgrade-probe',
         skills:[{skillKey:'jewelcrafting',level:70}],
@@ -33122,13 +33176,21 @@ function syncCombatLevel(val) {
         ok('cloak upgrade parses a percent gather line',!!cuGat && cuGat.value===3 && cuGat.pct===true);
       }
       eq('non-cloak slot has no cloak upgrade',iwCloakUpgradeForSlot('helmet'),null);
-      // Differential double-count guard: measure totals with the upgrade,
-      // then with its fields nulled, and confirm the delta is exactly the
-      // upgrade's own numbers — never twice.
       var cuWith=iwReadEquippedSet();
       var cuSrc=(cuWith&&cuWith.liveEnhancements||[]).filter(function(x){return x.type==='cloakUpgrade';});
       eq('cloak upgrade emits one live source per randomised stat',cuSrc.length,2);
       eq('cloak upgrade sources carry the tier',cuSrc[0]&&cuSrc[0].tier,3);
+      // The upgrade must NOT be baked into the per-slot item stats — the probe
+      // cloak has no base DEF/gather, so any non-zero here means it leaked in.
+      eq('cloak upgrade not merged into slot stats (def)',
+         Number(cuWith&&cuWith.slots&&cuWith.slots.cloak?cuWith.slots.cloak.stats.def||0:0),0);
+      eq('cloak upgrade not merged into slot stats (gather)',
+         Number(cuWith&&cuWith.slots&&cuWith.slots.cloak?cuWith.slots.cloak.stats.gather||0:0),0);
+      ok('slot carries the cloak upgrade as separate metadata',
+         !!(cuWith&&cuWith.slots&&cuWith.slots.cloak&&cuWith.slots.cloak.cloakUpgrade&&cuWith.slots.cloak.cloakUpgrade.tier===3));
+      // Differential double-count guard: measure totals with the upgrade,
+      // then with its fields nulled, and confirm the delta is exactly the
+      // upgrade's own numbers — counted once, never twice, never zero.
       var gWith=Number(cuWith&&cuWith.totals?cuWith.totals.gather:0);
       var dWith=Number(cuWith&&cuWith.totals?cuWith.totals.def:0);
       window.IWProfile.equipped.cloak.cloakUpgradeTier=null;
