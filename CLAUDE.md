@@ -124,21 +124,39 @@ was unaffected because `iwItemStats` re-scrapes those numbers out of the
 description text, which is exactly why it stayed invisible for so long. When a
 stat "doesn't show up", suspect the view before the renderer.
 
-**The repo is also the CDN, and the two versions are pinned by hand.**
-`IW_GEAR_SPRITES` and `IW_ITEM_SPRITES` fetch the atlases and manifests from
-`raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/`, cache-busted
-by `GEAR_ASSET_VERSION` / `ITEM_ASSET_VERSION` string literals in this file.
-The manifest's own `asset_version` field is **never read** — the pin is purely
-the `?v=` query string, and the fetch uses `cache: 'default'`.
+**Icon loading was rewritten from a GitHub-hosted atlas to same-origin,
+demand-loaded chunks (2026-09-01, `publish-icon-split.yml` CI, merged into
+`index.html` alongside the v5.4 Woodcutting & Construction work).** The old
+`IW_GEAR_SPRITES` / `IW_ITEM_SPRITES` IIFEs — hand-pinned
+`GEAR_ASSET_VERSION` / `ITEM_ASSET_VERSION` strings, fetches from
+`raw.githubusercontent.com` — are **gone from `index.html` entirely**. Any
+note (including in old commit messages or stale docs) about bumping those
+version strings no longer applies to anything; there is nothing left in this
+file to bump.
 
-Measured against the real host (2026-09-03): `raw.githubusercontent.com` sends
-`Cache-Control: max-age=300` and ignores the `?v=` string entirely — it always
-serves whatever is currently on `main`, pinned string or not. So a forgotten pin
-bump is **bookkeeping drift that self-corrects within five minutes**, not an
-indefinite-cache bug; the browser's own 300s cache is the only thing the string
-defeats, and even that clears itself fast. (An earlier version of this note
-overstated this as a live defect — `…lapidaryfix-plus4restore1` vs a stale
-`…lapidaryfix1` pin — checked and fixed in the same pass as this correction.)
+In their place: `index.html` loads `./assets/icon-sprites-v2.js` (a UMD
+module, `window.IWIconSpritesV2`), which is `.install()`ed against
+`./assets/icons/v2/icon-manifest.<hash>.json` right where the old IIFEs used
+to sit — search `ICON CHUNKS v2` in the header comment region. That install
+call sets `window.IW_GEAR_SPRITES` / `window.IW_ITEM_SPRITES`, and
+`index.html` just reads them (`var IW_GEAR_SPRITES = window.IW_GEAR_SPRITES;`)
+— the two globals still exist and every existing call site
+(`IW_GEAR_SPRITES.markup(...)`, `.hydrate(...)`, `.splitItemName(...)`, etc.)
+is unchanged. The manifest and every PNG chunk filename carries a content
+hash (`icon-manifest.b9aa386e5137.json`, `weapon.5dc16a6236f1.png`, …), so
+each one is immutable and self-versioning — there is no cache-pin string to
+maintain by hand any more, and no bookkeeping-drift trap either. Chunks
+demand-load via `IntersectionObserver` as icons approach the viewport
+(`rootMargin: '300px 0px'`), decoded once and cached per session.
+
+The legacy `gear_icons_atlas.png` / `gear_icons_manifest.json`/`.csv` and
+`item_icons_atlas.png` / `item_icons_index.csv`/`item_icons_cells.csv` files
+remain in the repo as the deterministic **build source** for the chunks
+(`python tools/build_icon_chunks.py` regenerates `assets/icons/v2/*` from
+them) and as a rollback path — `index.html` itself no longer reads any of
+them at runtime. Validate a chunk rebuild with
+`python tools/verify_icon_migration.py`, `node --test tests/icon-sprites-v2.test.js`,
+and `node tools/check-inline-scripts.js index.html`.
 
 Bump the pin in the same change as any atlas/manifest replacement anyway: it is
 the only human-readable record of which art `index.html` expects, and it is
@@ -194,12 +212,21 @@ directly, set a value and dispatch the event the user would have caused.
 - `index2.html` — v5.2, a stale near-duplicate. Will rot silently.
 - `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build
 - `gear_icons_atlas.png` + `gear_icons_manifest.json`/`.csv` — 1280×19584,
-  10×153 grid, 128 px cells (64 px logical at 2×), 1146 icons, manifest v7
+  10×153 grid, 128 px cells (64 px logical at 2×), 1146 icons, manifest v7.
+  **Legacy build source only** since the 2026-09-01 icon-split — `index.html`
+  no longer fetches these at runtime; see the icon-loading note above.
 - `item_icons_atlas.png` + `item_icons_index.csv`/`item_icons_cells.csv` —
-  1280×4864; 1167 index rows over 375 shared cells
+  1280×4864; 1167 index rows over 375 shared cells. Same legacy-build-source
+  status as the gear atlas above.
+- `assets/icon-sprites-v2.js` + `assets/icons/v2/*` — the runtime icon
+  system `index.html` actually loads now: a UMD loader plus content-hashed,
+  demand-loaded manifest/PNG chunks. Rebuilt from the legacy atlases by
+  `tools/build_icon_chunks.py`.
 - `Skillsim/index.html` — separate developer balance tool
-- `README.txt` — **stale**: claims 10×150, 1280×19200, 1118 icons. The atlas
-  and manifest agree with each other; only the README is wrong.
+- `README.txt` — describes the current `assets/icon-sprites-v2.js` runtime
+  and its build/validate commands. Rewritten 2026-09-01 in the same pass as
+  the icon split; the old "stale — claims 10×150, 1280×19200, 1118 icons"
+  problem this note used to flag no longer applies (that text is gone).
 
 `CHANGELOG.md` is referenced by the header comment as holding the relocated
 ~123 KB release history. **It has never been committed to this repo, on any
