@@ -26,7 +26,7 @@ def aliases_from(html:str,root:Path):
     else:
         found=sorted((root/'assets/icons/v2').glob('icon-manifest.*.json'))
         if len(found)!=1: raise ValueError('aliases unavailable')
-        raw=json.loads(found[0].read_text())['gear']['aliases']
+        raw=json.loads(found[0].read_text(encoding='utf-8'))['gear']['aliases']
     return {normalise_name(k):normalise_name(v) for k,v in raw.items()}
 def slot_slug(s:str)->str:
     v=str(s).removesuffix(' slot').strip().lower()
@@ -41,12 +41,12 @@ def write_chunk(out:Path,family:str,name:str,source:Image.Image,records:list[dic
         cell=source.crop((r['source_x'],r['source_y'],r['source_x']+CELL,r['source_y']+CELL))
         image.paste(cell,(x,y)); r.update(x=x,y=y,sha256_rgba=hashlib.sha256(cell.tobytes()).hexdigest())
     buf=io.BytesIO(); image.save(buf,format='PNG',compress_level=9,optimize=False); data=buf.getvalue()
-    digest=hashlib.sha256(data).hexdigest(); filename=f'{name}.{digest[:12]}.png'; (out/filename).write_bytes(data)
+    digest=hashlib.sha256(data).hexdigest(); filename=f'{name}.{digest[:12]}.png'; (out/filename).write_bytes(data)  # guard-ok: brand-new hashed chunk in a dir this run just created
     return f'{family}:{name}',dict(path=filename,width=image.width,height=image.height,columns=cols,rows=rows,cell_count=len(records),sha256_png=digest)
 
 def build_icon_chunks(repo_root:Path)->Path:
-    root=Path(repo_root).resolve(); html=(root/'index.html').read_text(); items=items_from(html); aliases=aliases_from(html,root)
-    gear_manifest=json.loads((root/'gear_icons_manifest.json').read_text())
+    root=Path(repo_root).resolve(); html=(root/'index.html').read_text(encoding='utf-8'); items=items_from(html); aliases=aliases_from(html,root)
+    gear_manifest=json.loads((root/'gear_icons_manifest.json').read_text(encoding='utf-8'))
     out=root/'assets/icons/v2'; shutil.rmtree(out,ignore_errors=True); out.mkdir(parents=True)
     base_slots={}
     for item in items:
@@ -97,6 +97,7 @@ def build_icon_chunks(repo_root:Path)->Path:
                 r['chunk']=ck; runtime['items']['cells'][r['cell_key']]=[ck,r['x'],r['y']]; audit['item_cells'].append(r)
     for r in index: runtime['items']['icons'][r['item_id']]=cell_keys[int(r['index'])]
     audit['counts']={'gear_physical_cells':len(audit['gear_records']),'item_physical_cells':len(audit['item_cells']),'item_mappings':len(runtime['items']['icons']),'chunks':len(runtime['chunks'])}
+    # guard-ok: brand-new hashed audit file, nothing pre-existing to destroy
     ad=compact(audit); an=f'icon-audit.{hashlib.sha256(ad).hexdigest()[:12]}.json'; (out/an).write_bytes(ad); runtime['audit_path']=an
-    md=compact(runtime); mn=f'icon-manifest.{hashlib.sha256(md).hexdigest()[:12]}.json'; mp=out/mn; mp.write_bytes(md); return mp
+    md=compact(runtime); mn=f'icon-manifest.{hashlib.sha256(md).hexdigest()[:12]}.json'; mp=out/mn; mp.write_bytes(md); return mp  # guard-ok: brand-new hashed manifest
 if __name__=='__main__': print(build_icon_chunks(Path(__file__).resolve().parents[1]))

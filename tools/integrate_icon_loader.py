@@ -3,8 +3,9 @@
 from __future__ import annotations
 import re
 from pathlib import Path
+from atomic_write import replace_atomically
 def integrate(repo_root:Path)->None:
-    root=Path(repo_root).resolve(); path=root/'index.html'; html=path.read_text()
+    root=Path(repo_root).resolve(); path=root/'index.html'; html=path.read_text(encoding='utf-8')
     manifests=sorted((root/'assets/icons/v2').glob('icon-manifest.*.json'))
     if len(manifests)!=1: raise ValueError('expected one runtime manifest')
     manifest_url='./assets/icons/v2/'+manifests[0].name
@@ -65,5 +66,5 @@ window.iwPlus4SpriteBadgeCheck = function iwPlus4SpriteBadgeCheck() {{
     html=re.sub(r'<(?:span|div)\b[^>]*>',reset,html,flags=re.I)
     sprite=re.compile(r'(<span\b[^>]*class="[^"]*(?:iw-gear-sprite-base|iw-gear-sprite-upgrade|iw-item-sprite-base)[^"]*"[^>]*)(>)',re.I)
     html=sprite.sub(lambda m:re.sub(r'\sstyle="[^"]*"','',m.group(1),flags=re.I)+m.group(2),html)
-    path.write_text(html.rstrip('\n')+'\n')
+    replace_atomically(path,(html.rstrip('\n')+'\n').encode('utf-8'))
 if __name__=='__main__': integrate(Path(__file__).resolve().parents[1])

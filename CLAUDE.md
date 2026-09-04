@@ -158,6 +158,15 @@ them at runtime. Validate a chunk rebuild with
 `python tools/verify_icon_migration.py`, `node --test tests/icon-sprites-v2.test.js`,
 and `node tools/check-inline-scripts.js index.html`.
 
+**Adding new art means editing the legacy source, then rebuilding.** Paint the
+128 px cells into `item_icons_atlas.png` (or the gear atlas), add the matching
+rows to the two CSVs, run `build_icon_chunks.py`, and **re-pin `manifestUrl` in
+`index.html` to the new manifest hash it prints** — the rebuild renames every
+chunk, so an un-repinned `index.html` 404s the manifest and every icon falls
+back to its emoji. `verify_icon_migration.py` catches exactly that. The rebuild
+is byte-reproducible for a given Pillow, but a Pillow upgrade re-encodes every
+chunk (same pixels, new hashes); that is expected, not a content change.
+
 Bump the pin in the same change as any atlas/manifest replacement anyway: it is
 the only human-readable record of which art `index.html` expects, and it is
 what would make a future move to a real long-cache CDN safe. Atlas PNG and
@@ -216,8 +225,16 @@ directly, set a value and dispatch the event the user would have caused.
   **Legacy build source only** since the 2026-09-01 icon-split — `index.html`
   no longer fetches these at runtime; see the icon-loading note above.
 - `item_icons_atlas.png` + `item_icons_index.csv`/`item_icons_cells.csv` —
-  1280×4864; 1167 index rows over 375 shared cells. Same legacy-build-source
-  status as the gear atlas above.
+  1280×6144; 1269 index rows over 477 shared cells. Same legacy-build-source
+  status as the gear atlas above. Both CSVs are **CRLF** — keep it that way or
+  a small addition reads as a whole-file diff.
+- `construction_icon_manifest.json` — provenance for the 102 v5.4 Woodcutting
+  & Construction icons (34 timber, 34 Building Parts, 34 buildings) added to
+  the item atlas on 2026-09-04: source filename, pixel size and sha256 per
+  item. The art pack itself is ~390 MB of 1.5k-square PNGs and is **not in
+  this repo** — it lives at `Desktop/idleWorlds-art-source/construction-2026-09-04/`.
+  `tools/import_construction_icons.py <art-pack-dir>` folds it in (idempotent;
+  alpha-trim → fit 112×112 → centre on a transparent 128×128 cell).
 - `assets/icon-sprites-v2.js` + `assets/icons/v2/*` — the runtime icon
   system `index.html` actually loads now: a UMD loader plus content-hashed,
   demand-loaded manifest/PNG chunks. Rebuilt from the legacy atlases by
@@ -243,3 +260,64 @@ branch.** Do not cite it as a source.
 - Break a new check on purpose and confirm it fails before trusting it.
 - The embedded item payload is one 2.2 MB line. Never print it, and be careful
   with greps that could match inside it.
+
+## Never patch `index.html` by rewriting the whole file
+
+**Paid for on 2026-09-04: a Python read-modify-write truncated `index.html` to
+0 bytes.** Use a surgical editor (the Claude Code Edit tool, or `sed -i`) that
+replaces a matched span. If a script must rewrite the file, it MUST serialise
+to memory and then `os.replace()` a temp file into place — that is what
+`tools/atomic_write.py` exists for, and it is the **only** sanctioned way for a
+tool here to overwrite anything.
+
+Three gates now enforce this. They are not advice; two of them run whether you
+remember them or not.
+
+| # | Gate | Fires | What it does |
+|---|---|---|---|
+| 1 | `tools/atomic_write.py` | when a tool writes | `replace_atomically()` — the corruption never happens |
+| 2 | `tools/guard_working_files.py`, wired to hooks in `.claude/settings.json` | **every** Bash/Write/Edit call, and at session start | tripwire + rolling backup: damage becomes a blocking error on the very next tool call, with a known-good snapshot named in the message |
+| 3 | `tests/test_no_unsafe_writes.py` | `python -m unittest discover -s tests` | AST scan of `tools/` and `tests/` — the pattern cannot be reintroduced |
+
+Recovery, when gate 2 trips:
+
+```bash
+python tools/guard_working_files.py --restore
+```
+
+Snapshots live in `.claude/backups/` (gitignored, last 8 per file). Gate 2
+costs ~75 ms per tool call and skips the byte-level check entirely when
+`(size, mtime)` say nothing moved. `--self-test` breaks all 12 of its own
+checks on purpose; run it if you change one.
+
+Two things combined to cause the original loss, and each is invisible on its own:
+
+1. `Path.write_text()` / `open(path, 'w')` **truncates the target the instant
+   it returns** — before the encoder has looked at a single byte. So *any*
+   exception during encode or write leaves 0 bytes where the file was. It is
+   not a transaction and there is no rollback.
+2. **`'🏛'` means different things to Python and to JavaScript.** JS
+   folds the surrogate pair into 🏛. Python keeps two lone surrogates, which
+   `str` permits and UTF-8 cannot encode — `UnicodeEncodeError: surrogates not
+   allowed`, raised *after* step 1 truncated the file. Writing a JS escape
+   sequence inside a Python string literal is the trap. `index.html` already
+   holds 219 literal astral emoji, so just type the character.
+
+3. **A trailing `# comment` on a one-line Python statement swallows the rest of
+   it.** These tools pack whole statements into 140 characters; appending a
+   marker to `...write_bytes(ad); runtime['audit_path']=an` silently dropped
+   the assignment and shipped a manifest with no `audit_path`. Put the comment
+   on the line *above* — gate 3 accepts the marker there for exactly this reason.
+
+Also: `Path.read_text()` with **no** `encoding=` uses the locale codec — cp1252
+on Windows, which cannot decode this file at all. Every tool here now passes
+`encoding='utf-8'` explicitly, and gate 3 fails if a new one does not, so
+`PYTHONUTF8=1` is **no longer needed** for anything in this repo. Older notes
+telling you to prefix commands with it are stale.
+
+**A fourth trap, outside the repo's control:** backslash escapes in a script
+delivered through a shell heredoc are **not** reliable — `'\\uD83C'` written in
+a quoted `<<'EOF'` heredoc arrived on disk as `'\uD83C'` (confirmed with
+`od -c`), which is what produced the lone surrogates in the first place. Do not
+put `\u`, `\r\n` or `\t` escapes in heredoc-delivered Python. Use a real editor
+tool, or build the characters with `chr()`.

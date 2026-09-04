@@ -5878,6 +5878,27 @@
   }
   .iw-item-sprite-host[data-iw-item-sprite-state="ready"] .iw-item-sprite-base { opacity: 1; }
   .iw-item-sprite-host[data-iw-item-sprite-state="ready"] .iw-item-sprite-fallback { visibility: hidden; }
+  /* Village add-on slot art. The default sprite host is tooltip-sized (70px);
+     a slot row wants a chip. The sprite sits inside an .iw-item-ref trigger,
+     so the "i" glyph that trigger prints beside a name is suppressed here —
+     the art itself is the affordance. Scoped through the .iw-addon-icon
+     wrapper rather than :has() so it needs no modern-selector support. */
+  .iw-addon-icon { display: inline-flex; flex: none; }
+  .iw-addon-icon .iw-item-ref { display: inline-flex; align-items: center; padding: 0; margin: 0; }
+  .iw-addon-icon .iw-item-info { display: none; }
+  .iw-addon-icon .iw-item-name { display: inline-flex; }
+  .iw-addon-art {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .03);
+  }
+  .iw-addon-art .iw-item-sprite-host { width: 32px; height: 32px; }
+  .iw-addon-art .iw-item-sprite-fallback { font-size: 17px; }
   /* Unlike the Gear doll, the tooltip has no slot silhouette beneath
      the sprite. Keep a subdued category glyph visible while the atlas
      loads or if a network request fails. */
@@ -15439,7 +15460,7 @@ function iwReadEquippedSet(){
    compact atlas chunk is fetched and decoded once, on first use.
    ═══════════════════════════════════════════════════════════════ */
 var IW_ICON_SPRITES = window.IWIconSpritesV2.install(window, {
-  manifestUrl: './assets/icons/v2/icon-manifest.b9aa386e5137.json'
+  manifestUrl: './assets/icons/v2/icon-manifest.f78b460b57d1.json'
 });
 var IW_GEAR_SPRITES = window.IW_GEAR_SPRITES;
 var IW_ITEM_SPRITES = window.IW_ITEM_SPRITES;
@@ -30674,6 +30695,45 @@ function syncCombatLevel(val) {
 
   function esc(s) { return iwTipEsc(String(s == null ? '' : s)); }
 
+  /**
+   * Building item ids are stable and derivable — construction_building_tier_N,
+   * matching the payload record whose name is BUILDING_NAMES[N]. Resolving the
+   * icon by ID rather than by name means the sprite and the tooltip use the
+   * same key the item atlas is indexed by (item_icons_index.csv), so a later
+   * rename moves both together or neither.
+   */
+  function buildingItemId(tier) { return 'construction_building_tier_' + parseInt(tier); }
+
+  /**
+   * The building's atlas icon, wrapped as an item-details trigger so hovering
+   * the art opens the same card the Items tab shows. Degrades in two steps —
+   * to a bare sprite host if the tooltip layer is missing, then to the sprite
+   * service's own emoji fallback if the chunk never loads. This panel is
+   * decoration over a saved plan and must never fail to render a slot.
+   */
+  function buildingIcon(tier) {
+    if (typeof IW_ITEM_SPRITES === 'undefined' || !IW_ITEM_SPRITES ||
+        typeof IW_ITEM_SPRITES.markup !== 'function') return '';
+    var name = BUILDING_NAMES[tier];
+    var art = '<span class="iw-addon-art">' +
+      IW_ITEM_SPRITES.markup(buildingItemId(tier), name, '🏛️') + '</span>';
+    try {
+      if (typeof iwItemRef === 'function')
+        return '<span class="iw-addon-icon">' +
+          iwItemRef({ id: buildingItemId(tier), name: name }, null, { html: art }) +
+          '</span>';
+    } catch (e) {}
+    return '<span class="iw-addon-icon">' + art + '</span>';
+  }
+
+  /** An assembly-bill line's item name as a tooltip trigger, plain if unknown. */
+  function itemRef(name) {
+    try {
+      if (typeof iwItemRefIfKnown === 'function') return iwItemRefIfKnown(name);
+    } catch (e) {}
+    return esc(name);
+  }
+
   function buffLine(b) {
     var parts = [];
     var fmt = function (row) {
@@ -30698,12 +30758,14 @@ function syncCombatLevel(val) {
     return html;
   }
 
+  // Every bill line is a real item — Building Parts, timber and ore all carry
+  // their own atlas art now, so each name is worth a tooltip trigger. itemRef
+  // falls back to the escaped label, which is exactly what this printed before.
   function costLine(tier) {
     var bill = assemblyInputs(tier);
-    var text = bill.map(function (r) {
-      return r.qty.toLocaleString() + ' ' + esc(r.label);
+    return bill.map(function (r) {
+      return r.qty.toLocaleString() + ' ' + itemRef(r.label);
     }).join(', ');
-    return text;
   }
 
   function render() {
@@ -30738,6 +30800,7 @@ function syncCombatLevel(val) {
       html += '<div class="panel" style="margin:0;padding:10px 12px;">';
       html += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
       html += '<span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);min-width:52px;">Slot ' + (i + 1) + '</span>';
+      if (tier != null) html += buildingIcon(tier);
       html += '<select onchange="iwVillageAddonPick(' + i + ',this.value)" style="flex:1 1 220px;min-width:180px;">' +
         optionsHtml(tier, usedTiers) + '</select>';
       if (tier != null) {

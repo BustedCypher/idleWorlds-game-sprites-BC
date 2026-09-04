@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR:-.}/tools/guard_working_files.py\" --snapshot",
+            "timeout": 60,
+            "statusMessage": "Snapshotting working files",
+            "suppressOutput": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"${CLAUDE_PROJECT_DIR:-.}/tools/guard_working_files.py\" --guard",
+            "timeout": 60,
+            "statusMessage": "Checking working-file integrity"
+          }
+        ]
+      }
+    ]
+  }
+}

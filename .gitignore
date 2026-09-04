@@ -1,0 +1,12 @@
+# Rolling backups taken by tools/guard_working_files.py. Up to 8 copies of
+# index.html live here (~4 MB each) — recovery material for THIS machine, not
+# repo content. Never commit them; .git is already 733 MB.
+.claude/backups/
+
+# Crash residue from tools/atomic_write.py: a sibling temp file that never got
+# os.replace()d into position. Safe to delete.
+*.tmp
+
+__pycache__/
+*.pyc
+.pytest_cache/

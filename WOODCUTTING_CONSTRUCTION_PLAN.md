@@ -1313,6 +1313,16 @@ worth one full XP step every 4 levels.
 
 ## Phase 7 — Sprite atlas (art work, separate change)
 
+> **DONE 2026-09-04.** All 102 now have art. `item_icons_atlas.png` is
+> 1280×6144 with 477 cells; `item_icons_index.csv` has 1,269 rows. Groups
+> landed as `resources.wood` / `processed.building_parts` /
+> `trade.village_addon`, as suggested in 7.2. Everything below about
+> `ITEM_ASSET_VERSION` and the GitHub-raw pin is **historical** — that whole
+> mechanism was deleted by the 2026-09-01 icon-chunk split; what gets re-pinned
+> now is `manifestUrl` in the `ICON CHUNKS v2` block. See CLAUDE.md.
+
+The original statement of the gap, kept for context:
+
 There is **no icon for any of the 102 new items**. `item_icons_index.csv` has 1,167
 rows over 375 shared cells; none match `*_timber`, `*_building_parts` or
 `construction_building_tier_*`. The tooltip falls back to the category emoji, which
