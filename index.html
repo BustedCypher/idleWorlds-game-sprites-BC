@@ -6131,6 +6131,7 @@
 }
 </style>
 
+<link rel="stylesheet" href="./assets/construction-planner.css?v=20260905b">
 </head>
 <body class="mode-simple">
 
@@ -6195,6 +6196,10 @@
         <button class="tab-btn community-tool-child" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
           <span class="tab-icon" aria-hidden="true">📜</span>
           <span class="tab-label">Work Order Calculator</span>
+        </button>
+        <button class="tab-btn community-tool-child" data-tab="construction-village" role="tab" aria-selected="false" aria-controls="tab-construction-village" onclick="switchTab(&#39;construction-village&#39;)">
+          <span class="tab-icon" aria-hidden="true">🏘️</span>
+          <span class="tab-label">Construction Planner</span>
         </button>
         <button class="tab-btn community-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
           <span class="tab-icon" aria-hidden="true">💎</span>
@@ -7687,7 +7692,12 @@
   </div><!-- /#tab-calculator -->
 
 
-  <!-- ═══════════════════════════════════════════════════════════════
+    <!-- Construction & Village Planner: independent current village, target plan and stock. -->
+  <div class="tab-pane" id="tab-construction-village" role="tabpanel" aria-label="Construction & Village Planner">
+    <div id="cv-root"><div class="panel">Loading the Construction &amp; Village Planner…</div></div>
+  </div>
+
+<!-- ═══════════════════════════════════════════════════════════════
        TAB — WORK ORDER CALCULATOR (pre-release audit patch)
        Clear 24-hour production benchmark with profile-driven bonuses.
        ═══════════════════════════════════════════════════════════════ -->
@@ -8589,6 +8599,10 @@
         <button class="tab-btn community-tool-child" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
           <span class="tab-icon" aria-hidden="true">📜</span>
           <span class="tab-label">Work Order Calculator</span>
+        </button>
+        <button class="tab-btn community-tool-child" data-tab="construction-village" role="tab" aria-selected="false" aria-controls="tab-construction-village" onclick="switchTab(&#39;construction-village&#39;)">
+          <span class="tab-icon" aria-hidden="true">🏘️</span>
+          <span class="tab-label">Construction Planner</span>
         </button>
         <button class="tab-btn community-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
           <span class="tab-icon" aria-hidden="true">💎</span>
@@ -25405,7 +25419,7 @@ function switchTab(name) {
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
-  const isCommunityTool = name === 'work-order' || name === 'jewelry';
+  const isCommunityTool = name === 'work-order' || name === 'jewelry' || name === 'construction-village';
   document.querySelectorAll('.community-tools-toggle').forEach(btn => {
     btn.classList.toggle('active', isCommunityTool);
   });
@@ -25424,7 +25438,7 @@ function switchTab(name) {
   });
 
   // Per-tab side effects
-  if (name === 'calculator' || name === 'planner' || name === 'gear-new' || name === 'database' || name === 'work-order' || name === 'jewelry') {
+  if (name === 'calculator' || name === 'planner' || name === 'gear-new' || name === 'database' || name === 'work-order' || name === 'jewelry' || name === 'construction-village') {
     // v43.9: feeds the Start page's "Pick a tool" checklist row — see
     // iwMarkToolVisited(). Guarded because this file's IIFEs load in a
     // specific order and switchTab can theoretically fire before that
@@ -25443,6 +25457,10 @@ function switchTab(name) {
     // Initialise on first entry, then refresh house auto-fill + results.
     // Guarded: the wo- module is a separate IIFE that may not have run yet.
     if (typeof window.iwWorkOrderEnter === 'function') window.iwWorkOrderEnter();
+  }
+
+  if (name === 'construction-village' && typeof window.iwConstructionPlannerEnter === 'function') {
+    window.iwConstructionPlannerEnter();
   }
 
   if (name === 'jewelry') {
@@ -25472,7 +25490,8 @@ function switchTab(name) {
   }
 
   // Scroll wrap to top smoothly
-  document.querySelector('.wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (name === 'construction-village') window.scrollTo({top:0,behavior:'smooth'});
+  else document.querySelector('.wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /**
@@ -26082,7 +26101,7 @@ function syncCombatLevel(val) {
         KEY,
         'iw_gem_alltiers_v1', 'iwGearExpandersV1', 'iw_gear_expanders_v1',
         'iwSocketPlanV1', 'iwPlatePlanV1', 'iwEnchantPlanV1', 'iwEnhancementRemovalPlanV1',
-        'iwVillageAddonsV1',
+        'iwVillageAddonsV1', 'iwConstructionVillageV1',
         'iwShoppingOwned', 'iwShoppingGear',
         'iw_ui_mode_v1', 'iw_theme_v1', 'iw_goalcards_v1',
         'iw-settings-open-v1', 'iwCollapseSkills', 'iwVisitedTool',
@@ -33470,7 +33489,8 @@ function syncCombatLevel(val) {
         ['+4 sprite',window.iwPlus4SpriteBadgeCheck],
         ['Gear current data',window.iwGearPlannerCurrentDataSelfCheck],
         ['Gear import integrity',window.iwGearImportIntegritySelfCheck],
-        ['Woodcutting/Construction',window.iwWoodcuttingConstructionSelfCheck]
+        ['Woodcutting/Construction',window.iwWoodcuttingConstructionSelfCheck],
+        ['Construction village planner',window.iwConstructionPlannerSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;
@@ -33519,4 +33539,60 @@ function syncCombatLevel(val) {
 })();
 </script>
 
+
+<!-- Construction & Village Planner: consumes the shared data after all toolkit modules load. -->
+<script src="./assets/construction-planner-engine.js?v=20260905"></script>
+<script src="./assets/construction-planner.js?v=20260905"></script>
+<script>
+(function () {
+  'use strict';
+  var host = document.getElementById('cv-root');
+  try {
+    if (!window.IWConstructionPlanner || !window.IWConstructionPlannerEngine)
+      throw new Error('Planner assets could not load. Reload the toolkit to retry.');
+    var adapter = {
+      building: function (tier) { return {tier:tier,name:BUILDING_NAMES[tier],inputs:assemblyInputs(tier),buffs:buildingBuffs(tier)}; },
+      woodName: function (tier) { return WOOD_NAMES[tier]; },
+      oreName: function (tier) { return ORE_NAMES[tier]; }
+    };
+    // Timber zones read from idleworlds.com/wiki/construction on 2026-09-05.
+    var zones = ['Greenwake Den','Ironfang Trail','Silverroot Hollow','Goldfire Pass','Mythril Bastion','Starsteel Frontier','Obsidian Depths','Runic Barrens','Dragonfall Ridge','Aether Spires','Voidiron Abyss','Celestial Crown','Bloodstone Scar','Moonsteel Basin','Sunforge Expanse','Nethergate Chasm','Stormglass Reach','Kingsfall Citadel','Eternium Verge','Astral Crucible','Gravite Maw','Frostiron Shelf','Dusksteel Strand','Titanium Wastes','Skysteel Pinnacle','Emberium Caldera','Soulsteel Necropolis','Chronite Spiral','Worldforge Core','Voidglass Sanctum','Thalassic Abyss','Ashspire Ruins','Glacial Abyss','Primordial Spire'];
+    function art(id, name, fallback) {
+      return window.IW_ITEM_SPRITES && typeof window.IW_ITEM_SPRITES.markup === 'function'
+        ? window.IW_ITEM_SPRITES.markup(id, name, fallback) : '<span aria-hidden="true">'+fallback+'</span>';
+    }
+    window.IWConstructionPlanner.install({
+      rootId:'cv-root', adapter:adapter, engine:window.IWConstructionPlannerEngine.create(adapter),
+      seconds:effectiveDuration, assemblySeconds:ASSEMBLY_TIME,
+      houseName:function(tier){return HOUSING_NAMES[tier];},
+      houseArt:function(tier){return SVG_OPEN+(HOUSE_ICONS[tier] || HOUSE_ICONS[0])+'</svg>';},
+      zone:function(tier){return 'Zone '+tier+' · '+(zones[tier-1] || '');},
+      art:art,
+      item:function(name){
+        var ref = typeof iwItemRefIfKnown === 'function' ? iwItemRefIfKnown(name) : iwTipEsc(name);
+        var found = typeof iwTipFindItem === 'function' ? iwTipFindItem({name:name}) : null;
+        var id = found && (found.id || found.item_id);
+        return '<span class="cv-item">'+(id?art(id,name,'📦'):'')+ref+'</span>';
+      },
+      context:function(){
+        var levels = {};
+        ['construction','woodcutting','mining'].forEach(function(k){
+          var resolved = iwSkillLevels(k);
+          // The Gear panel's add-ons are hypothetical. Remove that source;
+          // this planner separately adds the user's confirmed current village.
+          var hypothetical = resolved.sources.filter(function(s){return s.via === 'addon';})
+            .reduce(function(sum,s){return sum+Number(s.value || 0);},0);
+          levels[k] = resolved.effectiveLevel == null ? null : resolved.effectiveLevel-hypothetical;
+        });
+        var house = document.getElementById('housing-tier');
+        return {housing:house?Number(house.value):0,levels:levels,gatherYield:iwGatherYield(),
+          source:window.IWProfile?'Imported base + equipment':'Manual / toolkit'};
+      }
+    });
+  } catch (error) {
+    if (host) host.textContent = 'Construction planner unavailable: '+error.message;
+    window.iwConstructionPlannerSelfCheck = function(){return ['Construction planner initialization: '+error.message];};
+  }
+})();
+</script>
 </body></html>
