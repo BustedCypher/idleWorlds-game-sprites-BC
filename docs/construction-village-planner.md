@@ -1,6 +1,6 @@
 # Construction & Village Planner
 
-Open **Community Tools → Construction Planner**. Desktop uses a village/details split view; phones use Slot → Building → Materials → Plan. All 34 add-ons use the toolkit's existing recipes, buff descriptors and item sprites.
+Open **Skill Tools → Construction Planner**. Work Orders remains a standalone tool, while Construction and Jewelry live together under Skill Tools. Desktop uses a village/details split view; phones use Slot → Building → Materials → Plan. All 34 add-ons use the toolkit's existing recipes, buff descriptors and item sprites.
 
 ## Using the planner
 
@@ -12,19 +12,21 @@ Open **Community Tools → Construction Planner**. Desktop uses a village/detail
 
 Housing provides one slot per tier, capped at five. Duplicate types are blocked. Lowering housing retains inactive assignments but excludes them from bonuses and the production bill. Planning and clearing a plan never change the game account.
 
+The village uses an open-field scene with a large player residence at its centre. Camp, Cottage, Villa, Manor and Citadel each have a dedicated transparent housing sprite, with the original housing SVG retained as a loading fallback.
+
+**Equipped & previewed bonuses** shows the complete working lineup. Installed buildings are replaced by saved plans for their slot, and the building currently being browsed replaces both as a live preview. Every displayed building lists its primary buff, two secondary buffs and skill level bonus. The combined total includes active slots once per building type; previews in housing-locked slots remain visible but do not contribute. Only confirmed installed skill bonuses affect recipe eligibility.
+
 ## Sources and limits
 
 The [official construction guide](https://idleworlds.com/wiki/construction) describes Construction as free for everyone. Recipe and buff data reuse `assemblyInputs` and `buildingBuffs` in `index.html`; timing uses the existing toolkit duration and gathering-yield rules.
 
 Installed buildings and inventory are manual records stored locally under `iwConstructionVillageV1`. Unknown stock or unmet skill requirements suppress the total estimate. Estimates exclude travel, future level-ups and prospective refunds. Destroying a building refunds 25% of its direct Assembly cost; fractional quantities are shown before in-game rounding because the rounding rule is not verified. Refunds are never automatically credited to stock.
 
-## Validation — 2026-09-05
+## Validation — 2026-09-06
 
-- Planner engine/state and existing sprite tests: **21/21 passed**.
+- Planner engine/state, navigation, housing asset and existing sprite tests: **21/21 passed**.
 - Inline JavaScript parsing: **21 inline scripts, no errors**. Working-file integrity guard passed.
 - Independent implementation review: approved, no actionable findings.
-- Browser checks covered real sprites, inventory uncertainty, Training Yard hand-calculated deductions, Runite lower-tier Parts, shared inventory, current/future bonus separation, duplicate prevention, replacement refund, housing downgrade/restore, saved state after reload, and desktop/tablet/mobile layouts.
+- Browser checks covered Skill Tools navigation, standalone Work Orders, desktop and mobile Open Homestead layouts, Citadel artwork loading, and live bonus changes while browsing buildings.
 - The wider Python suite has **one pre-existing failure**: unsafe image writes in the unrelated `tools/rebuild_skill_atlases.py` at lines 241–242. Those files were left unchanged.
 - The Developer UI's global **Run engine self-checks** action was attempted, but the in-app browser crashed before returning a report. That global check is unverified; it is not counted as passing.
-
-Changes remain uncommitted in the current checkout.

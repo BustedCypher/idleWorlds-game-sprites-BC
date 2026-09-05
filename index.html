@@ -1065,10 +1065,8 @@
   }
   .tab-badge.show { display: block; }
 
-  /* ── Community Tools expandable nav group (v5.2) ──
-     Work Orders + Jewelry live under one parent entry without changing
-     either calculator's pane or data model. */
-  .community-tools-nav {
+  /* ── Skill Tools expandable nav group ── */
+  .skill-tools-nav {
     position: relative;
     width: 100%;
     display: flex;
@@ -1076,18 +1074,18 @@
     gap: 4px;
     min-width: 0;
   }
-  .community-tools-toggle .community-chevron {
+  .skill-tools-toggle .skill-chevron {
     margin-left: auto;
     color: var(--text3);
     font-size: 11px;
     line-height: 1;
     transition: transform .18s ease, color .18s ease;
   }
-  .community-tools-nav.open > .community-tools-toggle .community-chevron {
+  .skill-tools-nav.open > .skill-tools-toggle .skill-chevron {
     transform: rotate(180deg);
     color: var(--brass);
   }
-  .community-tools-menu {
+  .skill-tools-menu {
     display: grid;
     gap: 3px;
     max-height: 0;
@@ -1096,22 +1094,22 @@
     pointer-events: none;
     transition: max-height .2s ease, opacity .16s ease;
   }
-  .community-tools-nav.open > .community-tools-menu {
+  .skill-tools-nav.open > .skill-tools-menu {
     max-height: 140px;
     opacity: 1;
     pointer-events: auto;
   }
-  .rail .community-tool-child {
+  .rail .skill-tool-child {
     padding: 8px 10px 8px 30px;
     font-size: 12.5px;
     color: var(--text3);
   }
-  .rail .community-tool-child .tab-icon {
+  .rail .skill-tool-child .tab-icon {
     width: 22px;
     height: 22px;
     font-size: 14px;
   }
-  .rail .community-tool-child.active {
+  .rail .skill-tool-child.active {
     color: var(--text);
   }
 
@@ -1191,24 +1189,24 @@
   }
   .botnav .tab-badge { top: 5px; right: calc(50% - 16px); }
 
-  /* The mobile Community Tools parent occupies one bottom-nav slot; its
+  /* The mobile Skill Tools parent occupies one bottom-nav slot; its
      children open in a theme-aware popover above the nav instead of adding
      more bottom-nav buttons or horizontal scrolling. */
-  .botnav .community-tools-nav {
+  .botnav .skill-tools-nav {
     flex: 1 1 0;
     min-width: 0;
     width: auto;
     display: block;
   }
-  .botnav .community-tools-toggle { height: 100%; }
-  .botnav .community-tools-toggle .community-chevron {
+  .botnav .skill-tools-toggle { height: 100%; }
+  .botnav .skill-tools-toggle .skill-chevron {
     position: absolute;
     top: 5px;
     right: calc(50% - 19px);
     margin: 0;
     font-size: 8px;
   }
-  .botnav .community-tools-menu {
+  .botnav .skill-tools-menu {
     position: absolute;
     left: 50%;
     bottom: calc(100% + 11px);
@@ -1227,14 +1225,14 @@
     box-shadow: var(--shadow);
     transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
   }
-  .botnav .community-tools-nav.open > .community-tools-menu {
+  .botnav .skill-tools-nav.open > .skill-tools-menu {
     max-height: 180px;
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transform: translate(-50%, 0);
   }
-  .botnav .community-tool-child {
+  .botnav .skill-tool-child {
     width: 100%;
     min-height: 44px;
     flex: none;
@@ -1247,15 +1245,15 @@
     font-size: 13px;
     border: 1px solid transparent;
   }
-  .botnav .community-tool-child .tab-icon {
+  .botnav .skill-tool-child .tab-icon {
     width: 24px;
     height: 24px;
     font-size: 17px;
   }
-  .botnav .community-tool-child .tab-label {
+  .botnav .skill-tool-child .tab-label {
     font-size: 12.5px;
   }
-  .botnav .community-tool-child.active::before {
+  .botnav .skill-tool-child.active::before {
     left: 3px;
     top: 50%;
     transform: translateY(-50%);
@@ -6120,8 +6118,8 @@
 }
 @media(max-width:520px){
   /* Six top-level bottom-nav entries share the phone width without scrolling. */
-  .botnav > .tab-btn .tab-label,.botnav > .community-tools-nav > .community-tools-toggle .tab-label{font-size:9px;letter-spacing:-.01em}
-  .botnav > .tab-btn,.botnav > .community-tools-nav > .community-tools-toggle{padding-left:1px;padding-right:1px}
+  .botnav > .tab-btn .tab-label,.botnav > .skill-tools-nav > .skill-tools-toggle .tab-label{font-size:9px;letter-spacing:-.01em}
+  .botnav > .tab-btn,.botnav > .skill-tools-nav > .skill-tools-toggle{padding-left:1px;padding-right:1px}
 }
 @media(max-width:420px){
   .jpc-summary{grid-template-columns:1fr}
@@ -6131,7 +6129,7 @@
 }
 </style>
 
-<link rel="stylesheet" href="./assets/construction-planner.css?v=20260905b">
+<link rel="stylesheet" href="./assets/construction-planner.css?v=20260906">
 </head>
 <body class="mode-simple">
 
@@ -6186,22 +6184,22 @@
       <span class="tab-label">Gear</span>
       <span class="tab-badge" id="badge-gear" style="background:var(--orange);"></span>
     </button>
-    <div class="community-tools-nav" data-community-nav="desktop">
-      <button type="button" class="tab-btn community-tools-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="community-tools-desktop" onclick="toggleCommunityTools(event)">
+    <button class="tab-btn" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
+      <span class="tab-icon" aria-hidden="true">📜</span>
+      <span class="tab-label">Work Orders</span>
+    </button>
+    <div class="skill-tools-nav" data-skill-nav="desktop">
+      <button type="button" class="tab-btn skill-tools-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="skill-tools-desktop" aria-label="Skill Tools" onclick="toggleSkillTools(event)">
         <span class="tab-icon" aria-hidden="true">🧰</span>
-        <span class="tab-label">Community Tools</span>
-        <span class="community-chevron" aria-hidden="true">▾</span>
+        <span class="tab-label">Skill Tools</span>
+        <span class="skill-chevron" aria-hidden="true">▾</span>
       </button>
-      <div class="community-tools-menu" id="community-tools-desktop">
-        <button class="tab-btn community-tool-child" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
-          <span class="tab-icon" aria-hidden="true">📜</span>
-          <span class="tab-label">Work Order Calculator</span>
-        </button>
-        <button class="tab-btn community-tool-child" data-tab="construction-village" role="tab" aria-selected="false" aria-controls="tab-construction-village" onclick="switchTab(&#39;construction-village&#39;)">
+      <div class="skill-tools-menu" id="skill-tools-desktop">
+        <button class="tab-btn skill-tool-child" data-tab="construction-village" role="tab" aria-selected="false" aria-controls="tab-construction-village" onclick="switchTab(&#39;construction-village&#39;)">
           <span class="tab-icon" aria-hidden="true">🏘️</span>
           <span class="tab-label">Construction Planner</span>
         </button>
-        <button class="tab-btn community-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
+        <button class="tab-btn skill-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
           <span class="tab-icon" aria-hidden="true">💎</span>
           <span class="tab-label">Jewelry Calculator</span>
         </button>
@@ -8589,22 +8587,22 @@
       <span class="tab-label">Gear</span>
       <span class="tab-badge" data-badge="badge-gear" style="background:var(--orange);"></span>
     </button>
-    <div class="community-tools-nav" data-community-nav="mobile">
-      <button type="button" class="tab-btn community-tools-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="community-tools-mobile" aria-label="Community Tools" onclick="toggleCommunityTools(event)">
+    <button class="tab-btn" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
+      <span class="tab-icon" aria-hidden="true">📜</span>
+      <span class="tab-label">Orders</span>
+    </button>
+    <div class="skill-tools-nav" data-skill-nav="mobile">
+      <button type="button" class="tab-btn skill-tools-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="skill-tools-mobile" aria-label="Skill Tools" onclick="toggleSkillTools(event)">
         <span class="tab-icon" aria-hidden="true">🧰</span>
-        <span class="tab-label">Community</span>
-        <span class="community-chevron" aria-hidden="true">▾</span>
+        <span class="tab-label">Skills</span>
+        <span class="skill-chevron" aria-hidden="true">▾</span>
       </button>
-      <div class="community-tools-menu" id="community-tools-mobile">
-        <button class="tab-btn community-tool-child" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
-          <span class="tab-icon" aria-hidden="true">📜</span>
-          <span class="tab-label">Work Order Calculator</span>
-        </button>
-        <button class="tab-btn community-tool-child" data-tab="construction-village" role="tab" aria-selected="false" aria-controls="tab-construction-village" onclick="switchTab(&#39;construction-village&#39;)">
+      <div class="skill-tools-menu" id="skill-tools-mobile">
+        <button class="tab-btn skill-tool-child" data-tab="construction-village" role="tab" aria-selected="false" aria-controls="tab-construction-village" onclick="switchTab(&#39;construction-village&#39;)">
           <span class="tab-icon" aria-hidden="true">🏘️</span>
           <span class="tab-label">Construction Planner</span>
         </button>
-        <button class="tab-btn community-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
+        <button class="tab-btn skill-tool-child" data-tab="jewelry" role="tab" aria-selected="false" aria-controls="tab-jewelry" onclick="switchTab(&#39;jewelry&#39;)">
           <span class="tab-icon" aria-hidden="true">💎</span>
           <span class="tab-label">Jewelry Calculator</span>
         </button>
@@ -25379,39 +25377,39 @@ syncDailyBoostFromWiki();
  *  - Gear tab: syncs the combat-level-gear input from appState.
  *  - Clears badge dots when a tab is visited.
  */
-function iwSetCommunityToolsOpen(open, scope) {
-  document.querySelectorAll('.community-tools-nav').forEach(group => {
-    if (scope && group.dataset.communityNav !== scope) return;
+function iwSetSkillToolsOpen(open, scope) {
+  document.querySelectorAll('.skill-tools-nav').forEach(group => {
+    if (scope && group.dataset.skillNav !== scope) return;
     group.classList.toggle('open', !!open);
-    const toggle = group.querySelector('.community-tools-toggle');
+    const toggle = group.querySelector('.skill-tools-toggle');
     if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   });
 }
 
-function toggleCommunityTools(event) {
+function toggleSkillTools(event) {
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  const group = event && event.currentTarget ? event.currentTarget.closest('.community-tools-nav') : null;
+  const group = event && event.currentTarget ? event.currentTarget.closest('.skill-tools-nav') : null;
   const open = !(group && group.classList.contains('open'));
-  const scope = group ? group.dataset.communityNav : null;
-  iwSetCommunityToolsOpen(open, scope);
+  const scope = group ? group.dataset.skillNav : null;
+  iwSetSkillToolsOpen(open, scope);
 }
-window.toggleCommunityTools = toggleCommunityTools;
+window.toggleSkillTools = toggleSkillTools;
 
 // Close the mobile popover when the user taps elsewhere or presses Escape.
 document.addEventListener('click', function(event) {
-  if (!event.target.closest('.community-tools-nav')) iwSetCommunityToolsOpen(false, 'mobile');
+  if (!event.target.closest('.skill-tools-nav')) iwSetSkillToolsOpen(false, 'mobile');
 });
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') iwSetCommunityToolsOpen(false, 'mobile');
+  if (event.key === 'Escape') iwSetSkillToolsOpen(false, 'mobile');
 });
 
 function switchTab(name) {
   if (name === 'gear') name = 'gear-new';
 
-  // Update real tab buttons. The Community Tools parent is an expandable
+  // Update real tab buttons. The Skill Tools parent is an expandable
   // navigation control, not a content pane, so it has no data-tab contract.
   document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
     const isActive = btn.dataset.tab === name;
@@ -25419,17 +25417,17 @@ function switchTab(name) {
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
-  const isCommunityTool = name === 'work-order' || name === 'jewelry' || name === 'construction-village';
-  document.querySelectorAll('.community-tools-toggle').forEach(btn => {
-    btn.classList.toggle('active', isCommunityTool);
+  const isSkillTool = name === 'construction-village' || name === 'jewelry';
+  document.querySelectorAll('.skill-tools-toggle').forEach(btn => {
+    btn.classList.toggle('active', isSkillTool);
   });
-  if (isCommunityTool) {
+  if (isSkillTool) {
     // Keep the desktop group visibly expanded around the active child, but
     // close the mobile popover after selection so it never covers results.
-    iwSetCommunityToolsOpen(true, 'desktop');
-    iwSetCommunityToolsOpen(false, 'mobile');
+    iwSetSkillToolsOpen(true, 'desktop');
+    iwSetSkillToolsOpen(false, 'mobile');
   } else {
-    iwSetCommunityToolsOpen(false, 'mobile');
+    iwSetSkillToolsOpen(false, 'mobile');
   }
 
   // Update panes
@@ -33542,7 +33540,7 @@ function syncCombatLevel(val) {
 
 <!-- Construction & Village Planner: consumes the shared data after all toolkit modules load. -->
 <script src="./assets/construction-planner-engine.js?v=20260905"></script>
-<script src="./assets/construction-planner.js?v=20260905"></script>
+<script src="./assets/construction-planner.js?v=20260906"></script>
 <script>
 (function () {
   'use strict';

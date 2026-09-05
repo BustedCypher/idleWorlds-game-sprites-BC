@@ -7,6 +7,13 @@
   'use strict';
   var SKILLS = ['construction', 'woodcutting', 'mining'];
   var STORE_KEY = 'iwConstructionVillageV1';
+  var HOUSING_SPRITES = {
+    1:'./assets/housing/camp.png?v=20260906',
+    2:'./assets/housing/cottage.png?v=20260906',
+    3:'./assets/housing/villa.png?v=20260906',
+    4:'./assets/housing/manor.png?v=20260906',
+    5:'./assets/housing/citadel.png?v=20260906'
+  };
   var STAT_NAMES = {atk:'ATK',def:'DEF',xp:'XP/task',goldFind:'Gold Find',itemFind:'Item Find',doubleGather:'2× Gather Chance'};
   var SKILL_NAMES = {mining:'Mining',smithing:'Smithing',herbing:'Gathering',alchemy:'Alchemy',jewelcrafting:'Jewelcrafting',spellcrafting:'Spellcrafting',tailoring:'Tailoring',woodcutting:'Woodcutting',construction:'Construction'};
   function number(value, min, max, integer) {
@@ -40,6 +47,24 @@
     return {housing:state.housing != null ? state.housing : (number(c.housing,0,5,true) || 0),
       levels:levels,baseLevels:baseLevels,gatherYield:state.gatherYield != null ? state.gatherYield : number(c.gatherYield,1,1000,false)};
   }
+  function displayLineup(state, village) {
+    var capacity = village && Number.isInteger(village.capacity) ? village.capacity : 0;
+    var installed = Array.isArray(state.installed) ? state.installed : [];
+    var planned = Array.isArray(state.planned) ? state.planned : [];
+    var rows = [];
+    for (var slot=0;slot<5;slot++) {
+      var tier=installed[slot], rowState='installed';
+      if (planned[slot]!=null) { tier=planned[slot]; rowState='planned'; }
+      if (slot===state.selectedSlot && state.targetTier!=null) { tier=state.targetTier; rowState='preview'; }
+      if (tier!=null) rows.push({slot:slot,tier:tier,state:rowState,active:slot<capacity});
+    }
+    var seen = {}, activeTiers=[];
+    rows.forEach(function(row){
+      if (!row.active || seen[row.tier]) return;
+      seen[row.tier]=true;activeTiers.push(row.tier);
+    });
+    return {rows:rows,activeTiers:activeTiers};
+  }
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function fmt(n) { return n == null ? 'Unknown' : Number(n).toLocaleString(undefined,{maximumFractionDigits:2}); }
   function duration(seconds) {
@@ -70,6 +95,11 @@
     function stat(k,v,includeName) { return (v >= 0 ? '+' : '') + fmt(v) + (['goldFind','itemFind','doubleGather'].includes(k) ? '%' : '') + (includeName ? ' '+label(k) : ''); }
     function sprite(t) { return o.art('construction_building_tier_'+t,building(t).name,'🏛️'); }
     function item(row) { return o.item(row.name); }
+    function housingArt(tier) {
+      var fallback='<span class="cv-house-fallback" aria-hidden="true">'+o.houseArt(tier)+'</span>';
+      if (!HOUSING_SPRITES[tier]) return '<span class="cv-house-art cv-house-art-fallback-only">'+fallback+'</span>';
+      return '<span class="cv-house-art"><img class="cv-house-sprite" src="'+HOUSING_SPRITES[tier]+'" alt="" decoding="async">'+fallback+'</span>';
+    }
     function computeContext() {
       context = o.context();
       var h = state.housing != null ? state.housing : context.housing;
@@ -105,7 +135,7 @@
       return Array.from(new Set(out));
     }
     host.innerHTML = `
-      <div class="pane-head cv-page-head"><div><div class="pane-eyebrow">Community Tools · Construction</div><h2 class="pane-title">Construction & Village Planner</h2><p class="pane-sub">Shape your village. Compare the benefits. Plan every material.</p></div><a class="cv-wiki" href="https://idleworlds.com/wiki/construction" target="_blank" rel="noopener noreferrer">Construction guide ↗</a></div>
+      <div class="pane-head cv-page-head"><div><div class="pane-eyebrow">Skill Tools · Construction</div><h2 class="pane-title">Construction & Village Planner</h2><p class="pane-sub">Shape your village. Compare the benefits. Plan every material.</p></div><a class="cv-wiki" href="https://idleworlds.com/wiki/construction" target="_blank" rel="noopener noreferrer">Construction guide ↗</a></div>
       <div class="cv-setup panel"><div class="cv-setup-top"><span class="cv-eyebrow">Your setup</span><span class="cv-source" data-cv-source></span><button type="button" class="cv-link-button" data-cv-action="sync">Use toolkit settings</button></div>
         <div class="cv-fields"><label>Housing<select data-cv-field="housing" aria-label="Planner housing"></select><small data-cv-housing-source></small></label>
           <label>Construction<input type="number" min="1" max="999" step="1" data-cv-field="construction" placeholder="Enter level"><small data-cv-level-note="construction"></small></label>
@@ -121,7 +151,7 @@
           <div class="cv-legend"><span>● Installed</span><span>◇ Planned</span><span>+ Available</span><span>▧ Locked</span></div>
           <p class="cv-slot-notice" data-cv-slot-notice></p><div class="cv-alert" data-cv-capacity-warning hidden></div>
           <details class="cv-current-editor"><summary>Edit current village / choose a slot</summary><p>Enter buildings you already have installed in IdleWorlds. This is a manual record; it does not change your game or Gear plan.</p><div data-cv-current-editor></div></details>
-          <div class="cv-current-bonuses"><span class="cv-eyebrow">Current installed bonuses</span><div class="cv-facts" data-cv-current-bonuses></div></div>
+          <div class="cv-equipped-bonuses"><div class="cv-equipped-head"><span class="cv-eyebrow">Equipped &amp; previewed bonuses</span><span class="cv-small">Every building shown in your working lineup</span></div><div class="cv-bonus-lineup" data-cv-bonus-lineup></div><div class="cv-equipped-total"><span class="cv-eyebrow">Combined active total</span><div class="cv-facts" data-cv-equipped-total></div></div></div>
           <div class="cv-saved-plan"><div class="cv-section-head"><h3>Village plan</h3><button type="button" class="cv-link-button" data-cv-action="clear-plan">Clear plan</button></div><div data-cv-saved-plan></div><p class="cv-small">Saved locally. Planning never installs or destroys a building in your game.</p></div>
         </section>
         <section class="cv-details" aria-label="Selected building and production plan">
@@ -155,12 +185,24 @@
       $('[data-cv-source]').textContent = 'Current village: manual · Player values: '+(state.housing!=null || state.gatherYield!=null || SKILLS.some(function(k){return state.levels[k]!=null;}) ? 'manual / toolkit' : (context.source || 'toolkit'));
     }
     function factRows(totals) {
-      return Object.keys(totals.stats).map(function(k){return '<span class="cv-fact">'+esc(stat(k,totals.stats[k],true))+'</span>';}).concat(Object.keys(totals.skills).map(function(k){return '<span class="cv-fact">+'+fmt(totals.skills[k])+' '+esc(label(k))+'</span>';})).join('') || '<span class="cv-small">No installed bonuses recorded.</span>';
+      return Object.keys(totals.stats).map(function(k){return '<span class="cv-fact">'+esc(stat(k,totals.stats[k],true))+'</span>';}).concat(Object.keys(totals.skills).map(function(k){return '<span class="cv-fact">+'+fmt(totals.skills[k])+' '+esc(label(k))+'</span>';})).join('') || '<span class="cv-small">No active bonuses in this lineup.</span>';
+    }
+    function renderEquippedBonuses() {
+      var lineup=displayLineup(state,village), seen={};
+      $('[data-cv-bonus-lineup]').innerHTML=lineup.rows.map(function(row){
+        var b=building(row.tier), counted=row.active&&!seen[row.tier];
+        if(row.active)seen[row.tier]=true;
+        var stateLabel=!row.active?'Requires housing upgrade':!counted?'Already represented':row.state==='preview'?'Preview':row.state==='planned'?'Planned':'Installed';
+        return '<article class="cv-bonus-card cv-bonus-'+row.state+(row.active?'':' cv-bonus-inactive')+(counted?'':' cv-bonus-duplicate')+'">'+
+          '<div class="cv-bonus-card-head">'+sprite(row.tier)+'<div><strong>'+esc(b.name)+'</strong><span>Slot '+(row.slot+1)+' · '+esc(stateLabel)+'</span></div></div>'+
+          '<div class="cv-bonus-card-lines"><span><small>Primary</small>'+esc(stat(b.buffs.primary.stat,b.buffs.primary.value,true))+'</span><span><small>Secondary</small>'+b.buffs.secondary.map(function(v){return esc(stat(v.stat,v.value,true));}).join(' · ')+'</span><span><small>Skill</small>+'+fmt(b.buffs.skill.amount)+' '+esc(label(b.buffs.skill.skill))+'</span></div></article>';
+      }).join('')||'<p class="cv-small">Choose a building to preview its permanent bonuses.</p>';
+      $('[data-cv-equipped-total]').innerHTML=factRows(engine.bonuses(lineup.activeTiers));
     }
     function renderVillage() {
       $('[data-cv-village-name]').textContent = o.houseName(setup.housing);
       $('[data-cv-capacity]').textContent = village.currentTiers.length+' installed / '+village.capacity+' slots';
-      $('[data-cv-house]').innerHTML = o.houseArt(setup.housing)+'<strong>'+esc(o.houseName(setup.housing))+'</strong><span>Housing tier '+setup.housing+'</span>';
+      $('[data-cv-house]').innerHTML = housingArt(setup.housing)+'<strong>'+esc(o.houseName(setup.housing))+'</strong><span>Housing tier '+setup.housing+'</span>';
       for(var i=0;i<5;i++) {
         var locked=i>=village.capacity, current=state.installed[i], planned=state.planned[i], tier=planned || current;
         var status=locked?'Locked':planned && planned!==current?'Planned':current?'Installed':'Available';
@@ -175,7 +217,7 @@
       if(village.conflicts.length)warn.push('Duplicate building types need resolving before this village is valid.');
       $('[data-cv-capacity-warning]').hidden=!warn.length;$('[data-cv-capacity-warning]').textContent=warn.join(' ');
       $('[data-cv-current-editor]').innerHTML=state.installed.map(function(t,i){return '<div class="cv-current-row"><button type="button" class="cv-secondary" data-cv-slot="'+i+'">Slot '+(i+1)+'</button><label><span class="cv-sr-only">Installed building in slot '+(i+1)+'</span><select data-cv-installed="'+i+'"><option value="">Empty</option>'+Array.from({length:34},function(_,j){var tier=j+1,used=state.installed.some(function(v,s){return s!==i&&v===tier;});return '<option value="'+tier+'"'+(t===tier?' selected':'')+(used?' disabled':'')+'>T'+tier+' · '+esc(building(tier).name)+'</option>';}).join('')+'</select></label>'+(i>=village.capacity?'<span class="cv-small">Inactive</span>':'')+'</div>';}).join('');
-      $('[data-cv-current-bonuses]').innerHTML=factRows(currentBonuses);
+      renderEquippedBonuses();
       var plans=state.planned.map(function(t,i){if(t==null)return '';return '<div class="cv-plan-row"><button type="button" class="cv-plan-select" data-cv-slot="'+i+'">'+sprite(t)+'<span>Slot '+(i+1)+' · '+esc(building(t).name)+'<small>'+(i>=village.capacity?'Housing locked':state.installed[i]===t?'Already installed':state.installed[i]?'Replacement plan':'New add-on')+'</small></span></button><button type="button" class="cv-link-button" data-cv-remove="'+i+'" aria-label="Remove plan for slot '+(i+1)+'">Remove</button></div>';}).join('');
       $('[data-cv-saved-plan]').innerHTML=plans||'<p class="cv-small">Select an available slot and add your first building.</p>';
     }
@@ -251,7 +293,7 @@
       if(b.dataset.cvSlot!=null){selectSlot(+b.dataset.cvSlot);return;}
       if(b.dataset.cvStage!=null){stage(+b.dataset.cvStage);return;}
       if(b.dataset.cvNext!=null){stage(+b.dataset.cvNext);return;}
-      if(b.dataset.cvBuilding!=null){state.targetTier=+b.dataset.cvBuilding;$('.cv-catalogue').open=false;save();renderBuilding();refreshResults(false);return;}
+      if(b.dataset.cvBuilding!=null){state.targetTier=+b.dataset.cvBuilding;$('.cv-catalogue').open=false;save();renderBuilding();renderEquippedBonuses();refreshResults(false);return;}
       if(b.dataset.cvRemove!=null){state.planned[+b.dataset.cvRemove]=null;save();render();announce('Building removed from the local plan.');return;}
       var action=b.dataset.cvAction;
       if(action==='sync'){state.housing=null;state.gatherYield=null;SKILLS.forEach(function(k){state.levels[k]=null;});save();render();announce('Player values now follow toolkit settings. Current village and stock retained.');}
@@ -275,6 +317,9 @@
       if(e.dataset.cvSearch!=null){search=e.value.trim().toLowerCase();renderCatalogue();return;}
       if(e.dataset.cvStock!=null){var value=number(e.value,0,Number.MAX_SAFE_INTEGER,true);if(value==null)delete state.stock[e.dataset.cvStock];else state.stock[e.dataset.cvStock]=value;e.setAttribute('aria-invalid',e.value!==''&&value==null?'true':'false');save();refreshResults(true);}
     });
+    host.addEventListener('error',function(event){
+      if(event.target&&event.target.classList&&event.target.classList.contains('cv-house-sprite'))event.target.parentElement.classList.add('cv-house-art-failed');
+    },true);
     host.addEventListener('change',function(event){
       var e=event.target;
       if(e.dataset.cvField){if(!e.checkValidity()){e.setAttribute('aria-invalid','true');refreshResults(true);return;}e.setAttribute('aria-invalid','false');var field=e.dataset.cvField;
@@ -304,5 +349,5 @@
     };
     render();
   }
-  return {normalizeState:normalizeState,resolveSetup:resolveSetup,install:install};
+  return {normalizeState:normalizeState,resolveSetup:resolveSetup,displayLineup:displayLineup,install:install};
 });
