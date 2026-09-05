@@ -36,8 +36,9 @@
 #cv-root h4 { font-size:13px; margin:0; }
 #cv-root .cv-chip { border-radius:20px; background:rgb(var(--accent-rgb)/.1); color:var(--accent-hi); padding:5px 9px; font-size:10px; line-height:1.5; }
 #cv-root .cv-scene { position:relative; isolation:isolate; min-height:500px; margin:0 -8px; overflow:hidden; border:1px solid rgb(var(--green-rgb)/.2); border-radius:18px; background:linear-gradient(180deg,rgb(var(--green-rgb)/.05),rgb(var(--green-rgb)/.13)),radial-gradient(ellipse at 50% 52%,rgb(var(--warn-rgb)/.08),transparent 42%); box-shadow:inset 0 1px 0 rgb(255 255 255/.04); }
-#cv-root .cv-terrain { position:absolute; inset:0; z-index:-2; background:radial-gradient(ellipse at 16% 20%,rgb(var(--green-rgb)/.16),transparent 22%),radial-gradient(ellipse at 84% 26%,rgb(var(--green-rgb)/.12),transparent 23%),repeating-linear-gradient(112deg,transparent 0 34px,rgb(var(--green-rgb)/.025) 35px 37px); }
-#cv-root .cv-path { position:absolute; z-index:-1; height:18px; top:52%; left:8%; right:8%; border-radius:50%; background:rgb(var(--warn-rgb)/.1); filter:blur(.2px); }
+#cv-root .cv-terrain { position:absolute; inset:0; z-index:-2; background:linear-gradient(rgb(12 22 12/.18),rgb(12 22 12/.3)),url('./housing/village-terrain.png?v=20260906') center/cover; box-shadow:inset 0 0 45px rgb(9 17 9/.4); }
+#cv-root .cv-path { display:none; }
+#cv-root .cv-scene .cv-plot-name,#cv-root .cv-scene .cv-plot-status,#cv-root .cv-house strong,#cv-root .cv-house>span:not(.cv-house-art) { color:#f3f0df; text-shadow:0 1px 3px #10170c,0 0 7px #10170c; }
 #cv-root .cv-path-a { transform:rotate(34deg); }
 #cv-root .cv-path-b { transform:rotate(-34deg); }
 #cv-root .cv-house { position:absolute; z-index:1; left:50%; top:48%; width:48%; transform:translate(-50%,-50%); text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--text); pointer-events:none; }
