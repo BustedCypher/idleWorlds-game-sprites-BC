@@ -1,0 +1,64 @@
+# Cloudflare Workers static-assets exclusion list.
+#
+# The deploy's assets directory IS the repo root (/opt/buildhome/repo in the
+# build container), so without this file Wrangler walks and uploads EVERYTHING
+# in the checkout — including .git. That is what broke the 2026-09-06 deploy:
+#
+#   [ERROR] Asset too large.
+#   .git/objects/pack/pack-2824a78...pack with a size of 334 MiB
+#   (Workers supports assets up to 25 MiB)
+#
+# Same format as .gitignore. Wrangler skips anything matching a line here.
+# https://developers.cloudflare.com/workers/static-assets/binding/
+#
+# RULE OF THUMB: a path belongs here unless one of the four shipped pages
+# (index.html, index2.html, IdleWorlds_Toolkit_v4_8.html, Skillsim/index.html)
+# actually loads it at runtime. Everything below was checked against all four.
+
+# ── Repo and tooling internals ───────────────────────────────────────────
+# .git is not merely too big: uploading it publishes the ENTIRE history —
+# every past revision of every file — as downloadable objects on the public
+# site. It must never be an asset, at any size.
+.git/
+.claude/
+.codex-tmp/
+.superpowers/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.tmp
+
+# ── Build/dev sources, never served ──────────────────────────────────────
+tools/
+tests/
+docs/
+requirements-dev.txt
+
+# ── Source art kept in-repo for rebuilds, not loaded by any page ─────────
+# ~260 MB between them. Nothing in any shipped HTML references either path
+# (verified 2026-09-06); they exist so the atlases can be regenerated.
+assets/zone-headers/
+assets/skills-ui-atlas/
+
+# ── Notes and internal documents ─────────────────────────────────────────
+CLAUDE.md
+README.txt
+WOODCUTTING_CONSTRUCTION_PLAN.md
+IdleWorlds-Delegated-Publisher-Trust-Addendum-v1.2A.pdf
+
+# ── UI capture dumps consumed by tools/audit_ui_names.py ─────────────────
+iw-overlay-capture.json
+iw-panel-order-dungeon.json
+iw-panel-order-root.json
+iw-quests-capture.json
+
+# ── DELIBERATELY NOT EXCLUDED ────────────────────────────────────────────
+# gear_icons_atlas.png / item_icons_atlas.png and their CSV/JSON manifests.
+# index.html no longer fetches these at runtime (its only mention is a v4.8.4
+# comment), but index2.html and IdleWorlds_Toolkit_v4_8.html still do, and both
+# are deployed. Dropping them would silently blank the icons on those pages.
+#
+# WATCH THIS: gear_icons_atlas.png is 24.5 MB against a hard 25 MiB per-file
+# ceiling. One more row of icons in the gear atlas breaks the deploy the same
+# way .git just did. When it does, the fix is to retire the legacy pages or
+# move the atlas to R2 — not to raise a limit that cannot be raised.
