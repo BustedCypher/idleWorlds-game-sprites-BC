@@ -1,0 +1,119 @@
+{
+  "route": "/dungeon",
+  "found": {
+    "actionLog": true,
+    "inventory": true
+  },
+  "commonAncestor": {
+    "el": "section.hidden.gap-3.xl:grid.xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)].xl:items-start",
+    "rect": {
+      "w": 1348,
+      "h": 1355,
+      "y": 451
+    },
+    "computed": {
+      "display": "grid",
+      "flexDirection": "row",
+      "gridTemplateColumns": "set",
+      "gridTemplateRows": "set"
+    },
+    "directChildCount": 2,
+    "directChildren": [
+      {
+        "el": "div.flex.min-w-0.flex-col.gap-3",
+        "rect": {
+          "w": 681,
+          "h": 1195,
+          "y": 451
+        },
+        "holdsActionLog": true,
+        "holdsInventory": false,
+        "containsOtherPanels": 2
+      },
+      {
+        "el": "div.flex.min-w-0.flex-col.gap-3",
+        "rect": {
+          "w": 655,
+          "h": 1355,
+          "y": 451
+        },
+        "holdsActionLog": false,
+        "holdsInventory": true,
+        "containsOtherPanels": 2
+      }
+    ]
+  },
+  "siblingsInSameContainer": true,
+  "sameDirectChild": false,
+  "orderNow": "inventory ABOVE action-log",
+  "actionLogLadder": [
+    {
+      "el": "div.panel.p-3.5",
+      "rect": {
+        "w": 681,
+        "h": 309,
+        "y": 772
+      },
+      "display": "flex",
+      "flexDirection": "column",
+      "order": "0"
+    },
+    {
+      "el": "div.flex.min-w-0.flex-col.gap-3",
+      "rect": {
+        "w": 681,
+        "h": 1195,
+        "y": 451
+      },
+      "display": "flex",
+      "flexDirection": "column",
+      "order": "0"
+    },
+    {
+      "el": "section.hidden.gap-3.xl:grid.xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)].xl:items-start",
+      "rect": {
+        "w": 1348,
+        "h": 1355,
+        "y": 451
+      },
+      "display": "grid",
+      "flexDirection": "row",
+      "order": "0"
+    }
+  ],
+  "inventoryLadder": [
+    {
+      "el": "div.panel.p-3.5",
+      "rect": {
+        "w": 655,
+        "h": 683,
+        "y": 658
+      },
+      "display": "block",
+      "flexDirection": "row",
+      "order": "0"
+    },
+    {
+      "el": "div.flex.min-w-0.flex-col.gap-3",
+      "rect": {
+        "w": 655,
+        "h": 1355,
+        "y": 451
+      },
+      "display": "flex",
+      "flexDirection": "column",
+      "order": "0"
+    },
+    {
+      "el": "section.hidden.gap-3.xl:grid.xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)].xl:items-start",
+      "rect": {
+        "w": 1348,
+        "h": 1355,
+        "y": 451
+      },
+      "display": "grid",
+      "flexDirection": "row",
+      "order": "0"
+    }
+  ]
+}

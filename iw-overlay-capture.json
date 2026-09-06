@@ -1,0 +1,1852 @@
+{
+  "meta": {
+    "url": "https://idleworlds.com/",
+    "viewport": {
+      "w": 412,
+      "h": 915,
+      "dpr": 2.625
+    },
+    "dataSkin": "default",
+    "zoneTheme": "voidborn",
+    "candidateCount": 4,
+    "note": "Open ONE popup before running. Re-run per popup."
+  },
+  "overlays": [
+    {
+      "role": "panel",
+      "zIndex": "4",
+      "node": {
+        "tag": "div",
+        "id": null,
+        "classes": "flex shrink-0 items-center gap-1",
+        "attrs": [
+          "data-iw-skill-role=\"nav-group\""
+        ],
+        "inlineStyle": null,
+        "rect": {
+          "x": 125.7,
+          "y": 1135.9,
+          "w": 240,
+          "h": 64
+        },
+        "label": null,
+        "text": "",
+        "style": {
+          "display": "flex",
+          "position": "absolute",
+          "inset": "115.458px -99px 0px 219px",
+          "top": "115.458px",
+          "left": "219px",
+          "right": "-99px",
+          "bottom": "0px",
+          "width": "240px",
+          "minWidth": "0px",
+          "maxWidth": "calc(100% - 78px)",
+          "height": "64px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "boxSizing": "border-box",
+          "padding": "0px",
+          "margin": "0px",
+          "border": "0px solid rgb(229, 231, 235)",
+          "borderColor": "rgb(229, 231, 235)",
+          "borderRadius": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundImage": "none",
+          "backgroundSize": "auto",
+          "backgroundPosition": "0% 0%",
+          "boxShadow": "none",
+          "backdropFilter": "none",
+          "color": "rgb(221, 214, 198)",
+          "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "overflow": "visible",
+          "zIndex": "4",
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, -120, 0)",
+          "borderImageSource": "none",
+          "borderImageSlice": "100%"
+        },
+        "children": [
+          {
+            "tag": "button",
+            "id": null,
+            "classes": "rounded-xl border border-white/10 bg-white/5 p-2 text-white/70",
+            "attrs": [
+              "data-iw-skill-role=\"nav-button\"",
+              "data-iw-nav-direction=\"prev\"",
+              "data-iw-btn-state=\"icon\""
+            ],
+            "inlineStyle": "font-family: Barlow, system-ui, sans-serif !important; font-size: 0px !important; font-weight: 700 !important; letter-spacing: 0.09em !important; text-transform: uppercase !important; border-radius: 2px !important; trans…(817)",
+            "rect": {
+              "x": 125.7,
+              "y": 1145.9,
+              "w": 26,
+              "h": 44
+            },
+            "label": null,
+            "text": "",
+            "style": {
+              "display": "grid",
+              "position": "relative",
+              "inset": "0px",
+              "top": "0px",
+              "left": "0px",
+              "right": "0px",
+              "bottom": "0px",
+              "width": "26px",
+              "minWidth": "26px",
+              "maxWidth": "none",
+              "height": "44px",
+              "minHeight": "44px",
+              "maxHeight": "none",
+              "boxSizing": "border-box",
+              "padding": "0px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(42, 36, 26)",
+              "borderColor": "rgb(42, 36, 26)",
+              "borderRadius": "2px",
+              "background": "rgba(0, 0, 0, 0) linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7)) repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "backgroundImage": "linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7))",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(255, 255, 255, 0.035) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.95) 0px -7px 10px -8px inset",
+              "backdropFilter": "none",
+              "color": "rgba(0, 0, 0, 0)",
+              "fontFamily": "Barlow, system-ui, sans-serif",
+              "fontSize": "0px",
+              "fontWeight": "700",
+              "overflow": "hidden",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "svg",
+                "id": null,
+                "classes": "lucide lucide-chevron-left h-4 w-4",
+                "attrs": [
+                  "xmlns=\"http://www.w3.org/2000/svg\"",
+                  "width=\"24\"",
+                  "height=\"24\"",
+                  "viewBox=\"0 0 24 24\"",
+                  "fill=\"none\"",
+                  "stroke=\"currentColor\"",
+                  "stroke-width=\"2\"",
+                  "stroke-linecap=\"round\"",
+                  "stroke-linejoin=\"round\""
+                ],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 130.7,
+                  "y": 1159.9,
+                  "w": 16,
+                  "h": 16
+                },
+                "label": null,
+                "text": "",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "16px",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "height": "16px",
+                  "minHeight": "auto",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "fontFamily": "Barlow, system-ui, sans-serif",
+                  "fontSize": "0px",
+                  "fontWeight": "700",
+                  "overflow": "hidden",
+                  "zIndex": "auto",
+                  "opacity": "0",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "path"
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "classes": "rounded-xl border border-white/10 bg-white/5 p-2 text-white/70",
+            "attrs": [
+              "data-iw-skill-role=\"nav-button\"",
+              "data-iw-nav-direction=\"next\"",
+              "data-iw-btn-state=\"icon\""
+            ],
+            "inlineStyle": "font-family: Barlow, system-ui, sans-serif !important; font-size: 0px !important; font-weight: 700 !important; letter-spacing: 0.09em !important; text-transform: uppercase !important; border-radius: 2px !important; trans…(817)",
+            "rect": {
+              "x": 339.7,
+              "y": 1145.9,
+              "w": 26,
+              "h": 44
+            },
+            "label": null,
+            "text": "",
+            "style": {
+              "display": "grid",
+              "position": "relative",
+              "inset": "0px",
+              "top": "0px",
+              "left": "0px",
+              "right": "0px",
+              "bottom": "0px",
+              "width": "26px",
+              "minWidth": "26px",
+              "maxWidth": "none",
+              "height": "44px",
+              "minHeight": "44px",
+              "maxHeight": "none",
+              "boxSizing": "border-box",
+              "padding": "0px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(42, 36, 26)",
+              "borderColor": "rgb(42, 36, 26)",
+              "borderRadius": "2px",
+              "background": "rgba(0, 0, 0, 0) linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7)) repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "backgroundImage": "linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7))",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(255, 255, 255, 0.035) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.95) 0px -7px 10px -8px inset",
+              "backdropFilter": "none",
+              "color": "rgba(0, 0, 0, 0)",
+              "fontFamily": "Barlow, system-ui, sans-serif",
+              "fontSize": "0px",
+              "fontWeight": "700",
+              "overflow": "hidden",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "svg",
+                "id": null,
+                "classes": "lucide lucide-chevron-right h-4 w-4",
+                "attrs": [
+                  "xmlns=\"http://www.w3.org/2000/svg\"",
+                  "width=\"24\"",
+                  "height=\"24\"",
+                  "viewBox=\"0 0 24 24\"",
+                  "fill=\"none\"",
+                  "stroke=\"currentColor\"",
+                  "stroke-width=\"2\"",
+                  "stroke-linecap=\"round\"",
+                  "stroke-linejoin=\"round\""
+                ],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 344.7,
+                  "y": 1159.9,
+                  "w": 16,
+                  "h": 16
+                },
+                "label": null,
+                "text": "",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "16px",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "height": "16px",
+                  "minHeight": "auto",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "fontFamily": "Barlow, system-ui, sans-serif",
+                  "fontSize": "0px",
+                  "fontWeight": "700",
+                  "overflow": "hidden",
+                  "zIndex": "auto",
+                  "opacity": "0",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "path"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "before": {
+        "content": "none",
+        "empty": true
+      },
+      "after": {
+        "content": "none",
+        "empty": true
+      },
+      "ancestors": [
+        {
+          "sel": "div.flex.shrink-0.items-center.gap-1",
+          "position": "absolute",
+          "zIndex": "4",
+          "display": "flex"
+        },
+        {
+          "sel": "div.flex.items-start.justify-between.gap-2",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "flex"
+        },
+        {
+          "sel": "div.min-w-0.flex-[1_1_220px]",
+          "position": "static",
+          "zIndex": "1",
+          "display": "flex"
+        },
+        {
+          "sel": "div.grid.grid-cols-[60px_minmax(0,1fr)].gap-2.sm:grid-cols-[72px_minmax(0,1fr)_auto]",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "grid"
+        },
+        {
+          "sel": "div.compact-panel.p-2.5.fs-skill-panel.fs-skill--smithing",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "block"
+        },
+        {
+          "sel": "div.space-y-2",
+          "position": "relative",
+          "zIndex": "1",
+          "display": "block"
+        },
+        {
+          "sel": "div.panel.p-3.5.fs-skills-section-frame",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "block"
+        },
+        {
+          "sel": "section.grid.gap-3.xl:hidden",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "grid"
+        },
+        {
+          "sel": "div.mx-auto.flex.w-full.max-w-[1380px].flex-col",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "flex"
+        },
+        {
+          "sel": "main.overflow-x-hidden.bg-transparent.min-h-screen.mobile-top-safe-area",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "block"
+        }
+      ],
+      "siblings": [
+        {
+          "tag": "div",
+          "id": null,
+          "classes": "min-w-0",
+          "attrs": [],
+          "inlineStyle": null,
+          "rect": {
+            "x": 163,
+            "y": 1029.5,
+            "w": 165.3,
+            "h": 16.2
+          },
+          "label": null,
+          "text": "🛠️ Smelt Voidiron BarsLv 57 - 77.2% • 1,413,049 to go",
+          "style": {
+            "display": "block",
+            "position": "static",
+            "inset": "auto",
+            "top": "auto",
+            "left": "auto",
+            "right": "auto",
+            "bottom": "auto",
+            "width": "165.281px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "height": "16.2396px",
+            "minHeight": "auto",
+            "maxHeight": "none",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "margin": "0px 52.3542px 0px 52.3646px",
+            "border": "0px solid rgb(229, 231, 235)",
+            "borderColor": "rgb(229, 231, 235)",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "backgroundImage": "none",
+            "backgroundSize": "auto",
+            "backgroundPosition": "0% 0%",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "color": "rgb(221, 214, 198)",
+            "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "overflow": "visible",
+            "zIndex": "auto",
+            "opacity": "1",
+            "transform": "none",
+            "borderImageSource": "none",
+            "borderImageSlice": "100%"
+          },
+          "childTags": [
+            "p.break-words.text-sm.font-semibold",
+            "button.mt-0.5.text-left.text-[10px]"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "panel",
+      "zIndex": "4",
+      "node": {
+        "tag": "div",
+        "id": null,
+        "classes": "flex shrink-0 items-center gap-1",
+        "attrs": [
+          "data-iw-skill-role=\"nav-group\""
+        ],
+        "inlineStyle": null,
+        "rect": {
+          "x": 125.7,
+          "y": 1295.3,
+          "w": 240,
+          "h": 64
+        },
+        "label": null,
+        "text": "",
+        "style": {
+          "display": "flex",
+          "position": "absolute",
+          "inset": "86px -99px 0px 219px",
+          "top": "86px",
+          "left": "219px",
+          "right": "-99px",
+          "bottom": "0px",
+          "width": "240px",
+          "minWidth": "0px",
+          "maxWidth": "calc(100% - 78px)",
+          "height": "64px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "boxSizing": "border-box",
+          "padding": "0px",
+          "margin": "0px",
+          "border": "0px solid rgb(229, 231, 235)",
+          "borderColor": "rgb(229, 231, 235)",
+          "borderRadius": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundImage": "none",
+          "backgroundSize": "auto",
+          "backgroundPosition": "0% 0%",
+          "boxShadow": "none",
+          "backdropFilter": "none",
+          "color": "rgb(221, 214, 198)",
+          "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "overflow": "visible",
+          "zIndex": "4",
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, -120, 0)",
+          "borderImageSource": "none",
+          "borderImageSlice": "100%"
+        },
+        "children": [
+          {
+            "tag": "button",
+            "id": null,
+            "classes": "rounded-xl border border-white/10 bg-white/5 p-2 text-white/70",
+            "attrs": [
+              "data-iw-skill-role=\"nav-button\"",
+              "data-iw-nav-direction=\"prev\"",
+              "data-iw-btn-state=\"icon\""
+            ],
+            "inlineStyle": "font-family: Barlow, system-ui, sans-serif !important; font-size: 0px !important; font-weight: 700 !important; letter-spacing: 0.09em !important; text-transform: uppercase !important; border-radius: 2px !important; trans…(817)",
+            "rect": {
+              "x": 125.7,
+              "y": 1305.3,
+              "w": 26,
+              "h": 44
+            },
+            "label": null,
+            "text": "",
+            "style": {
+              "display": "grid",
+              "position": "relative",
+              "inset": "0px",
+              "top": "0px",
+              "left": "0px",
+              "right": "0px",
+              "bottom": "0px",
+              "width": "26px",
+              "minWidth": "26px",
+              "maxWidth": "none",
+              "height": "44px",
+              "minHeight": "44px",
+              "maxHeight": "none",
+              "boxSizing": "border-box",
+              "padding": "0px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(42, 36, 26)",
+              "borderColor": "rgb(42, 36, 26)",
+              "borderRadius": "2px",
+              "background": "rgba(0, 0, 0, 0) linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7)) repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "backgroundImage": "linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7))",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(255, 255, 255, 0.035) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.95) 0px -7px 10px -8px inset",
+              "backdropFilter": "none",
+              "color": "rgba(0, 0, 0, 0)",
+              "fontFamily": "Barlow, system-ui, sans-serif",
+              "fontSize": "0px",
+              "fontWeight": "700",
+              "overflow": "hidden",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "svg",
+                "id": null,
+                "classes": "lucide lucide-chevron-left h-4 w-4",
+                "attrs": [
+                  "xmlns=\"http://www.w3.org/2000/svg\"",
+                  "width=\"24\"",
+                  "height=\"24\"",
+                  "viewBox=\"0 0 24 24\"",
+                  "fill=\"none\"",
+                  "stroke=\"currentColor\"",
+                  "stroke-width=\"2\"",
+                  "stroke-linecap=\"round\"",
+                  "stroke-linejoin=\"round\""
+                ],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 130.7,
+                  "y": 1319.3,
+                  "w": 16,
+                  "h": 16
+                },
+                "label": null,
+                "text": "",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "16px",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "height": "16px",
+                  "minHeight": "auto",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "fontFamily": "Barlow, system-ui, sans-serif",
+                  "fontSize": "0px",
+                  "fontWeight": "700",
+                  "overflow": "hidden",
+                  "zIndex": "auto",
+                  "opacity": "0",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "path"
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "classes": "rounded-xl border border-white/10 bg-white/5 p-2 text-white/70",
+            "attrs": [
+              "data-iw-skill-role=\"nav-button\"",
+              "data-iw-nav-direction=\"next\"",
+              "data-iw-btn-state=\"icon\""
+            ],
+            "inlineStyle": "font-family: Barlow, system-ui, sans-serif !important; font-size: 0px !important; font-weight: 700 !important; letter-spacing: 0.09em !important; text-transform: uppercase !important; border-radius: 2px !important; trans…(817)",
+            "rect": {
+              "x": 339.7,
+              "y": 1305.3,
+              "w": 26,
+              "h": 44
+            },
+            "label": null,
+            "text": "",
+            "style": {
+              "display": "grid",
+              "position": "relative",
+              "inset": "0px",
+              "top": "0px",
+              "left": "0px",
+              "right": "0px",
+              "bottom": "0px",
+              "width": "26px",
+              "minWidth": "26px",
+              "maxWidth": "none",
+              "height": "44px",
+              "minHeight": "44px",
+              "maxHeight": "none",
+              "boxSizing": "border-box",
+              "padding": "0px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(42, 36, 26)",
+              "borderColor": "rgb(42, 36, 26)",
+              "borderRadius": "2px",
+              "background": "rgba(0, 0, 0, 0) linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7)) repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "backgroundImage": "linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7))",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(255, 255, 255, 0.035) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.95) 0px -7px 10px -8px inset",
+              "backdropFilter": "none",
+              "color": "rgba(0, 0, 0, 0)",
+              "fontFamily": "Barlow, system-ui, sans-serif",
+              "fontSize": "0px",
+              "fontWeight": "700",
+              "overflow": "hidden",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "svg",
+                "id": null,
+                "classes": "lucide lucide-chevron-right h-4 w-4",
+                "attrs": [
+                  "xmlns=\"http://www.w3.org/2000/svg\"",
+                  "width=\"24\"",
+                  "height=\"24\"",
+                  "viewBox=\"0 0 24 24\"",
+                  "fill=\"none\"",
+                  "stroke=\"currentColor\"",
+                  "stroke-width=\"2\"",
+                  "stroke-linecap=\"round\"",
+                  "stroke-linejoin=\"round\""
+                ],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 344.7,
+                  "y": 1319.3,
+                  "w": 16,
+                  "h": 16
+                },
+                "label": null,
+                "text": "",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "16px",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "height": "16px",
+                  "minHeight": "auto",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "fontFamily": "Barlow, system-ui, sans-serif",
+                  "fontSize": "0px",
+                  "fontWeight": "700",
+                  "overflow": "hidden",
+                  "zIndex": "auto",
+                  "opacity": "0",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "path"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "before": {
+        "content": "none",
+        "empty": true
+      },
+      "after": {
+        "content": "none",
+        "empty": true
+      },
+      "ancestors": [
+        {
+          "sel": "div.flex.shrink-0.items-center.gap-1",
+          "position": "absolute",
+          "zIndex": "4",
+          "display": "flex"
+        },
+        {
+          "sel": "div.flex.items-start.justify-between.gap-2",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "flex"
+        },
+        {
+          "sel": "div.min-w-0.flex-[1_1_220px]",
+          "position": "static",
+          "zIndex": "1",
+          "display": "flex"
+        },
+        {
+          "sel": "div.grid.grid-cols-[60px_minmax(0,1fr)].gap-2.sm:grid-cols-[72px_minmax(0,1fr)_auto]",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "grid"
+        },
+        {
+          "sel": "div.compact-panel.p-2.5.fs-skill-panel.fs-skill--gathering",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "block"
+        },
+        {
+          "sel": "div.space-y-2",
+          "position": "relative",
+          "zIndex": "1",
+          "display": "block"
+        },
+        {
+          "sel": "div.panel.p-3.5.fs-skills-section-frame",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "block"
+        },
+        {
+          "sel": "section.grid.gap-3.xl:hidden",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "grid"
+        },
+        {
+          "sel": "div.mx-auto.flex.w-full.max-w-[1380px].flex-col",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "flex"
+        },
+        {
+          "sel": "main.overflow-x-hidden.bg-transparent.min-h-screen.mobile-top-safe-area",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "block"
+        }
+      ],
+      "siblings": [
+        {
+          "tag": "div",
+          "id": null,
+          "classes": "min-w-0",
+          "attrs": [],
+          "inlineStyle": null,
+          "rect": {
+            "x": 174.4,
+            "y": 1220.1,
+            "w": 142.6,
+            "h": 16.2
+          },
+          "label": null,
+          "text": "🌿 Gather Void FernLv 64 - 12.4% • 21,772,126 to go",
+          "style": {
+            "display": "block",
+            "position": "static",
+            "inset": "auto",
+            "top": "auto",
+            "left": "auto",
+            "right": "auto",
+            "bottom": "auto",
+            "width": "142.562px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "height": "16.2396px",
+            "minHeight": "auto",
+            "maxHeight": "none",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "margin": "0px 63.7188px",
+            "border": "0px solid rgb(229, 231, 235)",
+            "borderColor": "rgb(229, 231, 235)",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "backgroundImage": "none",
+            "backgroundSize": "auto",
+            "backgroundPosition": "0% 0%",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "color": "rgb(221, 214, 198)",
+            "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "overflow": "visible",
+            "zIndex": "auto",
+            "opacity": "1",
+            "transform": "none",
+            "borderImageSource": "none",
+            "borderImageSlice": "100%"
+          },
+          "childTags": [
+            "p.break-words.text-sm.font-semibold",
+            "button.mt-0.5.text-left.text-[10px]"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "panel",
+      "zIndex": "4",
+      "node": {
+        "tag": "div",
+        "id": null,
+        "classes": "flex shrink-0 items-center gap-1",
+        "attrs": [
+          "data-iw-skill-role=\"nav-group\""
+        ],
+        "inlineStyle": null,
+        "rect": {
+          "x": 125.7,
+          "y": 1484.1,
+          "w": 240,
+          "h": 64
+        },
+        "label": null,
+        "text": "",
+        "style": {
+          "display": "flex",
+          "position": "absolute",
+          "inset": "115.458px -99px 0px 219px",
+          "top": "115.458px",
+          "left": "219px",
+          "right": "-99px",
+          "bottom": "0px",
+          "width": "240px",
+          "minWidth": "0px",
+          "maxWidth": "calc(100% - 78px)",
+          "height": "64px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "boxSizing": "border-box",
+          "padding": "0px",
+          "margin": "0px",
+          "border": "0px solid rgb(229, 231, 235)",
+          "borderColor": "rgb(229, 231, 235)",
+          "borderRadius": "0px",
+          "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backgroundColor": "rgba(0, 0, 0, 0)",
+          "backgroundImage": "none",
+          "backgroundSize": "auto",
+          "backgroundPosition": "0% 0%",
+          "boxShadow": "none",
+          "backdropFilter": "none",
+          "color": "rgb(221, 214, 198)",
+          "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "overflow": "visible",
+          "zIndex": "4",
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, -120, 0)",
+          "borderImageSource": "none",
+          "borderImageSlice": "100%"
+        },
+        "children": [
+          {
+            "tag": "button",
+            "id": null,
+            "classes": "rounded-xl border border-white/10 bg-white/5 p-2 text-white/70",
+            "attrs": [
+              "data-iw-skill-role=\"nav-button\"",
+              "data-iw-nav-direction=\"prev\"",
+              "data-iw-btn-state=\"icon\""
+            ],
+            "inlineStyle": "font-family: Barlow, system-ui, sans-serif !important; font-size: 0px !important; font-weight: 700 !important; letter-spacing: 0.09em !important; text-transform: uppercase !important; border-radius: 2px !important; trans…(817)",
+            "rect": {
+              "x": 125.7,
+              "y": 1494.1,
+              "w": 26,
+              "h": 44
+            },
+            "label": null,
+            "text": "",
+            "style": {
+              "display": "grid",
+              "position": "relative",
+              "inset": "0px",
+              "top": "0px",
+              "left": "0px",
+              "right": "0px",
+              "bottom": "0px",
+              "width": "26px",
+              "minWidth": "26px",
+              "maxWidth": "none",
+              "height": "44px",
+              "minHeight": "44px",
+              "maxHeight": "none",
+              "boxSizing": "border-box",
+              "padding": "0px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(42, 36, 26)",
+              "borderColor": "rgb(42, 36, 26)",
+              "borderRadius": "2px",
+              "background": "rgba(0, 0, 0, 0) linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7)) repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "backgroundImage": "linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7))",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(255, 255, 255, 0.035) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.95) 0px -7px 10px -8px inset",
+              "backdropFilter": "none",
+              "color": "rgba(0, 0, 0, 0)",
+              "fontFamily": "Barlow, system-ui, sans-serif",
+              "fontSize": "0px",
+              "fontWeight": "700",
+              "overflow": "hidden",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "svg",
+                "id": null,
+                "classes": "lucide lucide-chevron-left h-4 w-4",
+                "attrs": [
+                  "xmlns=\"http://www.w3.org/2000/svg\"",
+                  "width=\"24\"",
+                  "height=\"24\"",
+                  "viewBox=\"0 0 24 24\"",
+                  "fill=\"none\"",
+                  "stroke=\"currentColor\"",
+                  "stroke-width=\"2\"",
+                  "stroke-linecap=\"round\"",
+                  "stroke-linejoin=\"round\""
+                ],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 130.7,
+                  "y": 1508.1,
+                  "w": 16,
+                  "h": 16
+                },
+                "label": null,
+                "text": "",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "16px",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "height": "16px",
+                  "minHeight": "auto",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "fontFamily": "Barlow, system-ui, sans-serif",
+                  "fontSize": "0px",
+                  "fontWeight": "700",
+                  "overflow": "hidden",
+                  "zIndex": "auto",
+                  "opacity": "0",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "path"
+                ]
+              }
+            ]
+          },
+          {
+            "tag": "button",
+            "id": null,
+            "classes": "rounded-xl border border-white/10 bg-white/5 p-2 text-white/70",
+            "attrs": [
+              "data-iw-skill-role=\"nav-button\"",
+              "data-iw-nav-direction=\"next\"",
+              "data-iw-btn-state=\"icon\""
+            ],
+            "inlineStyle": "font-family: Barlow, system-ui, sans-serif !important; font-size: 0px !important; font-weight: 700 !important; letter-spacing: 0.09em !important; text-transform: uppercase !important; border-radius: 2px !important; trans…(817)",
+            "rect": {
+              "x": 339.7,
+              "y": 1494.1,
+              "w": 26,
+              "h": 44
+            },
+            "label": null,
+            "text": "",
+            "style": {
+              "display": "grid",
+              "position": "relative",
+              "inset": "0px",
+              "top": "0px",
+              "left": "0px",
+              "right": "0px",
+              "bottom": "0px",
+              "width": "26px",
+              "minWidth": "26px",
+              "maxWidth": "none",
+              "height": "44px",
+              "minHeight": "44px",
+              "maxHeight": "none",
+              "boxSizing": "border-box",
+              "padding": "0px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(42, 36, 26)",
+              "borderColor": "rgb(42, 36, 26)",
+              "borderRadius": "2px",
+              "background": "rgba(0, 0, 0, 0) linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7)) repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgba(0, 0, 0, 0)",
+              "backgroundImage": "linear-gradient(rgb(16, 14, 10), rgb(10, 9, 7))",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(255, 255, 255, 0.035) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.95) 0px -7px 10px -8px inset",
+              "backdropFilter": "none",
+              "color": "rgba(0, 0, 0, 0)",
+              "fontFamily": "Barlow, system-ui, sans-serif",
+              "fontSize": "0px",
+              "fontWeight": "700",
+              "overflow": "hidden",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "svg",
+                "id": null,
+                "classes": "lucide lucide-chevron-right h-4 w-4",
+                "attrs": [
+                  "xmlns=\"http://www.w3.org/2000/svg\"",
+                  "width=\"24\"",
+                  "height=\"24\"",
+                  "viewBox=\"0 0 24 24\"",
+                  "fill=\"none\"",
+                  "stroke=\"currentColor\"",
+                  "stroke-width=\"2\"",
+                  "stroke-linecap=\"round\"",
+                  "stroke-linejoin=\"round\""
+                ],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 344.7,
+                  "y": 1508.1,
+                  "w": 16,
+                  "h": 16
+                },
+                "label": null,
+                "text": "",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "16px",
+                  "minWidth": "auto",
+                  "maxWidth": "none",
+                  "height": "16px",
+                  "minHeight": "auto",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "fontFamily": "Barlow, system-ui, sans-serif",
+                  "fontSize": "0px",
+                  "fontWeight": "700",
+                  "overflow": "hidden",
+                  "zIndex": "auto",
+                  "opacity": "0",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "path"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "before": {
+        "content": "none",
+        "empty": true
+      },
+      "after": {
+        "content": "none",
+        "empty": true
+      },
+      "ancestors": [
+        {
+          "sel": "div.flex.shrink-0.items-center.gap-1",
+          "position": "absolute",
+          "zIndex": "4",
+          "display": "flex"
+        },
+        {
+          "sel": "div.flex.items-start.justify-between.gap-2",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "flex"
+        },
+        {
+          "sel": "div.min-w-0.flex-[1_1_220px]",
+          "position": "static",
+          "zIndex": "1",
+          "display": "flex"
+        },
+        {
+          "sel": "div.grid.grid-cols-[60px_minmax(0,1fr)].gap-2.sm:grid-cols-[72px_minmax(0,1fr)_auto]",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "grid"
+        },
+        {
+          "sel": "div.compact-panel.p-2.5.fs-skill-panel.fs-skill--alchemy",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "block"
+        },
+        {
+          "sel": "div.space-y-2",
+          "position": "relative",
+          "zIndex": "1",
+          "display": "block"
+        },
+        {
+          "sel": "div.panel.p-3.5.fs-skills-section-frame",
+          "position": "relative",
+          "zIndex": "auto",
+          "display": "block"
+        },
+        {
+          "sel": "section.grid.gap-3.xl:hidden",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "grid"
+        },
+        {
+          "sel": "div.mx-auto.flex.w-full.max-w-[1380px].flex-col",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "flex"
+        },
+        {
+          "sel": "main.overflow-x-hidden.bg-transparent.min-h-screen.mobile-top-safe-area",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "block"
+        }
+      ],
+      "siblings": [
+        {
+          "tag": "div",
+          "id": null,
+          "classes": "min-w-0",
+          "attrs": [],
+          "inlineStyle": null,
+          "rect": {
+            "x": 137.6,
+            "y": 1377.6,
+            "w": 216,
+            "h": 16.2
+          },
+          "label": null,
+          "text": "🧪 Brew Voidiron ATK PotionLv 63 - 35.6% • 13,114,198 to go",
+          "style": {
+            "display": "block",
+            "position": "static",
+            "inset": "auto",
+            "top": "auto",
+            "left": "auto",
+            "right": "auto",
+            "bottom": "auto",
+            "width": "216.042px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "height": "16.2396px",
+            "minHeight": "auto",
+            "maxHeight": "none",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "margin": "0px 26.9792px",
+            "border": "0px solid rgb(229, 231, 235)",
+            "borderColor": "rgb(229, 231, 235)",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "backgroundImage": "none",
+            "backgroundSize": "auto",
+            "backgroundPosition": "0% 0%",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "color": "rgb(221, 214, 198)",
+            "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "overflow": "visible",
+            "zIndex": "auto",
+            "opacity": "1",
+            "transform": "none",
+            "borderImageSource": "none",
+            "borderImageSlice": "100%"
+          },
+          "childTags": [
+            "p.break-words.text-sm.font-semibold",
+            "button.mt-0.5.text-left.text-[10px]"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "backdrop-or-shell",
+      "zIndex": "50",
+      "node": {
+        "tag": "div",
+        "id": null,
+        "classes": "fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-3 py-3 backdrop-blur-sm sm:py-6",
+        "attrs": [],
+        "inlineStyle": null,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "w": 412,
+          "h": 915.3
+        },
+        "label": null,
+        "text": "Players OnlineCloseActive now (16)💬 Nono🤝 archie☠️ Krod💬 Guest 63AC🤝 Chuddha…(1571)",
+        "style": {
+          "display": "flex",
+          "position": "fixed",
+          "inset": "0px",
+          "top": "0px",
+          "left": "0px",
+          "right": "0px",
+          "bottom": "0px",
+          "width": "412px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "height": "915.333px",
+          "minHeight": "0px",
+          "maxHeight": "none",
+          "boxSizing": "border-box",
+          "padding": "12px",
+          "margin": "0px",
+          "border": "0px solid rgb(229, 231, 235)",
+          "borderColor": "rgb(229, 231, 235)",
+          "borderRadius": "0px",
+          "background": "rgba(0, 0, 0, 0.65) none repeat scroll 0% 0% / auto padding-box border-box",
+          "backgroundColor": "rgba(0, 0, 0, 0.65)",
+          "backgroundImage": "none",
+          "backgroundSize": "auto",
+          "backgroundPosition": "0% 0%",
+          "boxShadow": "none",
+          "backdropFilter": "blur(4px)",
+          "color": "rgb(221, 214, 198)",
+          "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "overflow": "visible",
+          "zIndex": "50",
+          "opacity": "1",
+          "transform": "none",
+          "borderImageSource": "none",
+          "borderImageSlice": "100%"
+        },
+        "children": [
+          {
+            "tag": "div",
+            "id": null,
+            "classes": "panel max-h-[calc(100dvh-1.5rem)] w-full max-w-2xl overflow-y-auto overscroll-contain p-4 sm:max-h-[calc(100dvh-3rem)] sm:p-5",
+            "attrs": [],
+            "inlineStyle": null,
+            "rect": {
+              "x": 12,
+              "y": 144.4,
+              "w": 388,
+              "h": 626.5
+            },
+            "label": null,
+            "text": "Players OnlineCloseActive now (16)💬 Nono🤝 archie☠️ Krod💬 Guest 63AC🤝 Chuddha…(1571)",
+            "style": {
+              "display": "block",
+              "position": "static",
+              "inset": "auto",
+              "top": "auto",
+              "left": "auto",
+              "right": "auto",
+              "bottom": "auto",
+              "width": "388px",
+              "minWidth": "auto",
+              "maxWidth": "672px",
+              "height": "626.531px",
+              "minHeight": "auto",
+              "maxHeight": "891.333px",
+              "boxSizing": "border-box",
+              "padding": "16px",
+              "margin": "0px",
+              "border": "0.666667px solid rgb(52, 45, 32)",
+              "borderColor": "rgb(52, 45, 32)",
+              "borderRadius": "24px",
+              "background": "rgb(20, 19, 15) none repeat scroll 0% 0% / auto padding-box border-box",
+              "backgroundColor": "rgb(20, 19, 15)",
+              "backgroundImage": "none",
+              "backgroundSize": "auto",
+              "backgroundPosition": "0% 0%",
+              "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(17, 32, 44) 0px 18px 48px 0px",
+              "backdropFilter": "blur(8px)",
+              "color": "rgb(221, 214, 198)",
+              "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "overflow": "auto",
+              "zIndex": "auto",
+              "opacity": "1",
+              "transform": "none",
+              "borderImageSource": "none",
+              "borderImageSlice": "100%"
+            },
+            "children": [
+              {
+                "tag": "div",
+                "id": null,
+                "classes": "mb-4 flex items-center justify-between",
+                "attrs": [],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 28.7,
+                  "y": 161.1,
+                  "w": 354.7,
+                  "h": 28
+                },
+                "label": null,
+                "text": "Players OnlineClose",
+                "style": {
+                  "display": "flex",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "354.667px",
+                  "minWidth": "0px",
+                  "maxWidth": "none",
+                  "height": "28px",
+                  "minHeight": "0px",
+                  "maxHeight": "none",
+                  "boxSizing": "border-box",
+                  "padding": "0px",
+                  "margin": "0px 0px 16px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgb(221, 214, 198)",
+                  "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+                  "fontSize": "16px",
+                  "fontWeight": "400",
+                  "overflow": "visible",
+                  "zIndex": "auto",
+                  "opacity": "1",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "h2.text-lg.font-semibold.text-white",
+                  "button.text-sm.text-white/60.hover:text-white"
+                ]
+              },
+              {
+                "tag": "div",
+                "id": null,
+                "classes": "space-y-4 max-h-[60vh] overflow-y-auto pr-1",
+                "attrs": [],
+                "inlineStyle": null,
+                "rect": {
+                  "x": 28.7,
+                  "y": 205.1,
+                  "w": 354.7,
+                  "h": 549.2
+                },
+                "label": null,
+                "text": "Active now (16)💬 Nono🤝 archie☠️ Krod💬 Guest 63AC🤝 Chuddha⭐ Umberwaught🤝 Ren…(1552)",
+                "style": {
+                  "display": "block",
+                  "position": "static",
+                  "inset": "auto",
+                  "top": "auto",
+                  "left": "auto",
+                  "right": "auto",
+                  "bottom": "auto",
+                  "width": "354.667px",
+                  "minWidth": "0px",
+                  "maxWidth": "none",
+                  "height": "549.198px",
+                  "minHeight": "0px",
+                  "maxHeight": "549.2px",
+                  "boxSizing": "border-box",
+                  "padding": "0px 4px 0px 0px",
+                  "margin": "0px",
+                  "border": "0px solid rgb(229, 231, 235)",
+                  "borderColor": "rgb(229, 231, 235)",
+                  "borderRadius": "0px",
+                  "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+                  "backgroundColor": "rgba(0, 0, 0, 0)",
+                  "backgroundImage": "none",
+                  "backgroundSize": "auto",
+                  "backgroundPosition": "0% 0%",
+                  "boxShadow": "none",
+                  "backdropFilter": "none",
+                  "color": "rgb(221, 214, 198)",
+                  "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+                  "fontSize": "16px",
+                  "fontWeight": "400",
+                  "overflow": "auto",
+                  "zIndex": "auto",
+                  "opacity": "1",
+                  "transform": "none",
+                  "borderImageSource": "none",
+                  "borderImageSlice": "100%"
+                },
+                "childTags": [
+                  "div",
+                  "div"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "before": {
+        "content": "none",
+        "empty": true
+      },
+      "after": {
+        "content": "none",
+        "empty": true
+      },
+      "ancestors": [
+        {
+          "sel": "div.fixed.inset-0.z-50.flex.items-center",
+          "position": "fixed",
+          "zIndex": "50",
+          "display": "flex"
+        },
+        {
+          "sel": "main.overflow-x-hidden.bg-transparent.min-h-screen.mobile-top-safe-area",
+          "position": "static",
+          "zIndex": "auto",
+          "display": "block"
+        }
+      ],
+      "siblings": [
+        {
+          "tag": "div",
+          "id": null,
+          "classes": "mx-auto flex w-full max-w-[1380px] flex-col gap-3 overflow-x-hidden px-2 py-3 sm:px-4 sm:py-5",
+          "attrs": [],
+          "inlineStyle": null,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "w": 412,
+            "h": 4498.3
+          },
+          "label": null,
+          "text": "IdleWorldsBustedCypherCraftbound Innovator⚔️ Combat Lv 63 • Zone 11: Voidiron Ab…(26436)",
+          "style": {
+            "display": "flex",
+            "position": "static",
+            "inset": "auto",
+            "top": "auto",
+            "left": "auto",
+            "right": "auto",
+            "bottom": "auto",
+            "width": "412px",
+            "minWidth": "0px",
+            "maxWidth": "1380px",
+            "height": "4498.25px",
+            "minHeight": "0px",
+            "maxHeight": "none",
+            "boxSizing": "border-box",
+            "padding": "12px 8px",
+            "margin": "0px",
+            "border": "0px solid rgb(229, 231, 235)",
+            "borderColor": "rgb(229, 231, 235)",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "backgroundImage": "none",
+            "backgroundSize": "auto",
+            "backgroundPosition": "0% 0%",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "color": "rgb(221, 214, 198)",
+            "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "overflow": "hidden auto",
+            "zIndex": "auto",
+            "opacity": "1",
+            "transform": "none",
+            "borderImageSource": "none",
+            "borderImageSlice": "100%"
+          },
+          "childTags": [
+            "header.panel.p-3.5.sm:p-4",
+            "div.panel.flex.flex-wrap",
+            "div.rounded-2xl.px-3.py-2",
+            "div.panel.flex.flex-col",
+            "section.grid.gap-3.xl:hidden",
+            "section.hidden.gap-3.xl:grid"
+          ]
+        },
+        {
+          "tag": "footer",
+          "id": null,
+          "classes": "game-footer mt-3 border-t pt-3",
+          "attrs": [],
+          "inlineStyle": null,
+          "rect": {
+            "x": 0,
+            "y": 4510.3,
+            "w": 412,
+            "h": 60.7
+          },
+          "label": null,
+          "text": "v0.2.0+2026-09-04.662WikiCalculatorBlogForumPatch NotesDiscordRulesPrivacyTerms",
+          "style": {
+            "display": "block",
+            "position": "static",
+            "inset": "auto",
+            "top": "auto",
+            "left": "auto",
+            "right": "auto",
+            "bottom": "auto",
+            "width": "412px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "height": "60.6667px",
+            "minHeight": "0px",
+            "maxHeight": "none",
+            "boxSizing": "border-box",
+            "padding": "12px 0px 0px",
+            "margin": "12px 0px 0px",
+            "border": "",
+            "borderColor": "rgba(255, 255, 255, 0.05)",
+            "borderRadius": "0px",
+            "background": "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+            "backgroundColor": "rgba(0, 0, 0, 0)",
+            "backgroundImage": "none",
+            "backgroundSize": "auto",
+            "backgroundPosition": "0% 0%",
+            "boxShadow": "none",
+            "backdropFilter": "none",
+            "color": "rgb(221, 214, 198)",
+            "fontFamily": "Barlow, system-ui, -apple-system, sans-serif",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "overflow": "visible",
+            "zIndex": "auto",
+            "opacity": "1",
+            "transform": "none",
+            "borderImageSource": "none",
+            "borderImageSlice": "100%"
+          },
+          "childTags": [
+            "div.flex.flex-wrap.items-center"
+          ]
+        }
+      ]
+    }
+  ],
+  "bodyDirectChildren": [
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script#_R_",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "div",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "script#register-sw",
+      "position": "static",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "next-route-announcer",
+      "position": "absolute",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "div#iw-tip.iw-tip",
+      "position": "fixed",
+      "childCount": 0,
+      "rect": {
+        "w": 0,
+        "h": 0
+      }
+    },
+    {
+      "sel": "main.overflow-x-hidden.bg-transparent.min-h-screen.mobile-top-safe-area",
+      "position": "static",
+      "childCount": 3,
+      "rect": {
+        "w": 412,
+        "h": 4571
+      }
+    }
+  ],
+  "failedAssets": []
+}

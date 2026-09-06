@@ -1,0 +1,104 @@
+<style>
+  #iw-village-ideas .skill-nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:18px 0 28px; }
+  #iw-village-ideas .skill-nav span { color:var(--muted-foreground); }
+  #iw-village-ideas .scene-card { cursor:pointer; }
+  #iw-village-ideas .option-a { grid-column:1 / -1; }
+  #iw-village-ideas .option-a .scene { min-height:390px; }
+  #iw-village-ideas .scene { position:relative; min-height:330px; overflow:hidden; background:linear-gradient(180deg,color-mix(in srgb,var(--blue) 13%,var(--card)) 0 35%,color-mix(in srgb,var(--green) 15%,var(--card)) 35% 100%); }
+  #iw-village-ideas .sun { position:absolute; width:54px; height:54px; border-radius:50%; right:28px; top:24px; background:color-mix(in srgb,var(--yellow) 38%,transparent); }
+  #iw-village-ideas .horizon { position:absolute; left:-5%; right:-5%; top:31%; height:34%; border-radius:50% 50% 0 0; background:color-mix(in srgb,var(--green) 16%,var(--card)); }
+  #iw-village-ideas .home { position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); display:grid; place-items:center; gap:6px; color:var(--foreground); text-align:center; z-index:2; }
+  #iw-village-ideas .home .glyph { font-size:72px; line-height:1; }
+  #iw-village-ideas .home strong { font-weight:500; }
+  #iw-village-ideas .building { position:absolute; display:grid; place-items:center; gap:3px; color:var(--muted-foreground); text-align:center; z-index:2; }
+  #iw-village-ideas .building .glyph { font-size:28px; line-height:1; }
+  #iw-village-ideas .building small { font-size:11px; }
+  #iw-village-ideas .b1 { left:10%; top:23%; } #iw-village-ideas .b2 { right:11%; top:27%; }
+  #iw-village-ideas .b3 { left:13%; bottom:29%; } #iw-village-ideas .b4 { right:13%; bottom:29%; }
+  #iw-village-ideas .b5 { left:50%; bottom:22%; transform:translateX(-50%); }
+  #iw-village-ideas .preview { color:var(--orange); }
+  #iw-village-ideas .bonus-strip { position:absolute; left:12px; right:12px; bottom:12px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; padding:8px; background:color-mix(in srgb,var(--card) 88%,transparent); color:var(--card-foreground); z-index:3; }
+  #iw-village-ideas .bonus-strip span { font-size:11px; }
+  #iw-village-ideas .option-b .home { top:58%; }
+  #iw-village-ideas .option-b .building { border-radius:50%; background:color-mix(in srgb,var(--accent) 20%,transparent); padding:8px; }
+  #iw-village-ideas .option-b .b1 { left:8%; top:18%; } #iw-village-ideas .option-b .b2 { right:8%; top:18%; }
+  #iw-village-ideas .option-b .b3 { left:24%; bottom:24%; } #iw-village-ideas .option-b .b4 { right:24%; bottom:24%; }
+  #iw-village-ideas .option-b .b5 { top:13%; bottom:auto; }
+  #iw-village-ideas .option-c .scene { min-height:250px; }
+  #iw-village-ideas .option-c .home { left:30%; top:50%; }
+  #iw-village-ideas .option-c .home .glyph { font-size:88px; }
+  #iw-village-ideas .option-c .building { left:68%; right:auto; }
+  #iw-village-ideas .option-c .b1 { top:12%; } #iw-village-ideas .option-c .b2 { top:29%; }
+  #iw-village-ideas .option-c .b3 { top:46%; bottom:auto; } #iw-village-ideas .option-c .b4 { top:63%; bottom:auto; }
+  #iw-village-ideas .option-c .b5 { top:80%; bottom:auto; transform:none; }
+  #iw-village-ideas .option-c .bonus-strip { left:auto; width:42%; top:10px; bottom:10px; align-content:center; }
+  @media (max-width:680px) {
+    #iw-village-ideas .option-a { grid-column:auto; }
+    #iw-village-ideas .scene { min-height:280px; }
+    #iw-village-ideas .home .glyph { font-size:60px; }
+    #iw-village-ideas .building small { display:none; }
+    #iw-village-ideas .option-c .bonus-strip { position:absolute; left:8px; right:8px; top:auto; width:auto; bottom:8px; }
+  }
+</style>
+
+<div id="iw-village-ideas">
+  <h2>How should the village feel?</h2>
+  <p class="subtitle">The house becomes the anchor; planned, installed, and currently previewed buildings all contribute to “Equipped & previewed bonuses.”</p>
+
+  <div class="skill-nav" aria-label="Proposed navigation">
+    <span>Tools</span><span aria-hidden="true">›</span>
+    <span class="viz-badge">Skill Tools</span><span aria-hidden="true">›</span>
+    <strong>Construction Planner</strong><span>·</span><span>Jewelry Planner</span>
+  </div>
+
+  <div class="cards">
+    <div class="card scene-card option-a" data-choice="homestead" onclick="toggleSelect(this)">
+      <div class="scene" aria-label="Homestead layout with a large central Villa and buildings around the field">
+        <div class="sun"></div><div class="horizon"></div>
+        <div class="home"><span class="glyph" aria-hidden="true">🏡</span><strong>Villa</strong><small>3 active plots</small></div>
+        <div class="building b1"><span class="glyph" aria-hidden="true">⚔️</span><small>Training Yard</small></div>
+        <div class="building b2"><span class="glyph" aria-hidden="true">🏥</span><small>Infirmary</small></div>
+        <div class="building b3 preview"><span class="glyph" aria-hidden="true">🔭</span><small>Preview</small></div>
+        <div class="building b4"><span class="glyph" aria-hidden="true">◇</span><small>Locked</small></div>
+        <div class="building b5"><span class="glyph" aria-hidden="true">◇</span><small>Locked</small></div>
+        <div class="bonus-strip"><strong>Equipped & previewed</strong><span>+8 ATK</span><span>+3 DEF</span><span>+2% Gather</span><span>+1 Mining</span></div>
+      </div>
+      <div class="card-body">
+        <h3>A · Open homestead — recommended</h3>
+        <p>The field fills the panel. A large house sits in the middle, with five building plots arranged naturally around it. It keeps the “my village” feeling while preserving direct slot selection.</p>
+      </div>
+    </div>
+
+    <div class="card scene-card option-b" data-choice="village-ring" onclick="toggleSelect(this)">
+      <div class="scene" aria-label="Village ring layout with the Villa below five surrounding buildings">
+        <div class="sun"></div><div class="horizon"></div>
+        <div class="home"><span class="glyph" aria-hidden="true">🏡</span><strong>Villa</strong></div>
+        <div class="building b1"><span class="glyph" aria-hidden="true">⚔️</span><small>Yard</small></div>
+        <div class="building b2"><span class="glyph" aria-hidden="true">🏥</span><small>Infirmary</small></div>
+        <div class="building b3 preview"><span class="glyph" aria-hidden="true">🔭</span><small>Preview</small></div>
+        <div class="building b4"><span class="glyph" aria-hidden="true">◇</span><small>Plot 4</small></div>
+        <div class="building b5"><span class="glyph" aria-hidden="true">◇</span><small>Plot 5</small></div>
+      </div>
+      <div class="card-body">
+        <h3>B · Village ring</h3>
+        <p>The buildings form a ring around the home. It makes all five add-ons equally prominent, though the player’s house feels less dominant.</p>
+      </div>
+    </div>
+
+    <div class="card scene-card option-c" data-choice="estate-map" onclick="toggleSelect(this)">
+      <div class="scene" aria-label="Estate map with a large house on the left and a vertical building roster on the right">
+        <div class="sun"></div><div class="horizon"></div>
+        <div class="home"><span class="glyph" aria-hidden="true">🏰</span><strong>Villa estate</strong></div>
+        <div class="building b1"><span class="glyph" aria-hidden="true">⚔️</span><small>Training Yard</small></div>
+        <div class="building b2"><span class="glyph" aria-hidden="true">🏥</span><small>Infirmary</small></div>
+        <div class="building b3 preview"><span class="glyph" aria-hidden="true">🔭</span><small>Preview</small></div>
+        <div class="building b4"><span class="glyph" aria-hidden="true">◇</span><small>Plot 4</small></div>
+        <div class="building b5"><span class="glyph" aria-hidden="true">◇</span><small>Plot 5</small></div>
+      </div>
+      <div class="card-body">
+        <h3>C · Estate map</h3>
+        <p>A larger house dominates one side while buildings become a compact roster. It scans well, but feels more like a management screen than an open field.</p>
+      </div>
+    </div>
+  </div>
+</div>

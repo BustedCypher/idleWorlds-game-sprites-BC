@@ -18,8 +18,8 @@ what changed, and stop there. Offering is fine; doing it is not.
 
 Open `index.html` in a browser. There is nothing to install and nothing to
 build. Verify JS still parses after an edit — this is the cheapest real gate,
-and it compiles every inline block without executing any of it (20 blocks, all
-passing as of v5.4):
+and it compiles every inline block without executing any of it (25 blocks, all
+passing as of v5.5):
 
 ```bash
 node -e "const fs=require('fs'),vm=require('vm');const src=fs.readFileSync('index.html','utf8');let m,i=0,bad=0;const re=/<script([^>]*)>([\s\S]*?)<\/script>/gi;while((m=re.exec(src))){if(/type\s*=\s*[\"'](?!text\/javascript)/i.test(m[1]))continue;const line=src.slice(0,m.index).split('\n').length;i++;try{new vm.Script(m[2]);}catch(e){bad++;console.log('FAIL block at line '+line+': '+e.message);}}console.log(i+' blocks checked, '+bad+' failed');"
@@ -36,7 +36,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Fourteen regression suites ship inside the file and are the safety net for
+Fifteen regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -57,7 +57,8 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwSilkbindStageGSelfCheck` (G) · `iwAugust2026FinalSelfCheck` ·
 `iwFinalAuditSelfCheck` · `iwSetOptimizerAndTaskTierSelfCheck` ·
 `iwCharacterStatRoundingSelfCheck` · `iwGearPlannerCurrentDataSelfCheck` ·
-`iwGearImportIntegritySelfCheck` · `iwWoodcuttingConstructionSelfCheck` (H).
+`iwGearImportIntegritySelfCheck` · `iwWoodcuttingConstructionSelfCheck` (H) ·
+`iwDailyBoostSyncSelfCheck` (I).
 
 A suite assertion may be **updated only by the stage that intentionally
 changes that mechanic**. Unrelated assertions must stay green.
@@ -172,6 +173,19 @@ the only human-readable record of which art `index.html` expects, and it is
 what would make a future move to a real long-cache CDN safe. Atlas PNG and
 manifest must always be replaced together.
 
+**The Daily XP Boost has no offline answer.** As of 2026-09 the game draws
+**3 of the 10 skills at random each day** (no repeat from either of the previous
+2 days). There is no rotation, no anchor date and nothing to compute — v5.5
+deleted `DAILY_BONUS_CONFIG.rotation` and `referenceDateUTC`, and reintroducing
+either is a regression, not a fallback. The wiki page is the only source;
+`serverDayString()` still owns the noon-ET boundary and expires the one-day
+`iwDailyBoostV1` cache. When there is no live and no same-day cached answer,
+`getActiveDailyBonus()` returns an **empty** skill set flagged `isUnknown` and
+the panel says "unavailable" — it must never guess. A wrong 3-of-10 guess
+applies +20% to skills that have no boost and withholds it from ones that do,
+and every XP-per-hour and time-to-level figure on the page silently inherits
+that while still looking plausible.
+
 **Same-origin is a hard requirement for live data.** Profile import hits
 `/api/player-profile` same-origin. `items.json` tries same-origin `/items.json`
 first, then absolute. v5.3 exists *because* the absolute origin returns 200 with
@@ -179,7 +193,8 @@ first, then absolute. v5.3 exists *because* the absolute origin returns 200 with
 response and the toolkit silently ran on the embedded snapshot forever. A
 data-loading change that "works" on a static host has not been tested. The
 daily-XP-boost scraper falls back through `r.jina.ai` and `allorigins.win`
-readers; failure there is soft by design and the built-in rotation stands.
+readers; failure there is soft by design, but "soft" now means the same-day
+cache or an explicit "unavailable" — see the Daily XP Boost note above.
 
 **One import must equal one repaint.** `applyProfile()` dispatches synthetic
 `change` events on housing-tier / race-select / combat-level, and `schedule()`
@@ -208,7 +223,7 @@ inline on their host elements.
 `iwPlatePlanV1` · `iwEnchantPlanV1` · `iwEnhancementRemovalPlanV1` ·
 `iwReTierSettingV1` · `iwShoppingOwned` · `iwShoppingGear` ·
 `iwCollapseSkills` · `iw_gem_alltiers_v1` · `iwVisitedTool` ·
-`iw_gear_expanders_v1` · `iwVillageAddonsV1`.
+`iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1`.
 
 Two rules govern `IWStore`: **capture is generic** (every `<input>`/`<select>`
 carrying an id is snapshotted by id, so new controls persist automatically),
@@ -217,7 +232,7 @@ directly, set a value and dispatch the event the user would have caused.
 
 ## Repo contents
 
-- `index.html` — **v5.4, the working file**
+- `index.html` — **v5.5, the working file**
 - `index2.html` — v5.2, a stale near-duplicate. Will rot silently.
 - `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build
 - `gear_icons_atlas.png` + `gear_icons_manifest.json`/`.csv` — 1280×19584,

@@ -1,0 +1,119 @@
+{
+  "route": "/",
+  "found": {
+    "actionLog": true,
+    "inventory": true
+  },
+  "commonAncestor": {
+    "el": "section.hidden.gap-3.xl:grid.xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)].xl:items-start",
+    "rect": {
+      "w": 1348,
+      "h": 1850,
+      "y": 430
+    },
+    "computed": {
+      "display": "grid",
+      "flexDirection": "row",
+      "gridTemplateColumns": "set",
+      "gridTemplateRows": "set"
+    },
+    "directChildCount": 2,
+    "directChildren": [
+      {
+        "el": "div.flex.min-w-0.flex-col.gap-3",
+        "rect": {
+          "w": 681,
+          "h": 1850,
+          "y": 430
+        },
+        "holdsActionLog": true,
+        "holdsInventory": false,
+        "containsOtherPanels": 3
+      },
+      {
+        "el": "div.flex.min-w-0.flex-col.gap-3",
+        "rect": {
+          "w": 655,
+          "h": 1743,
+          "y": 430
+        },
+        "holdsActionLog": false,
+        "holdsInventory": true,
+        "containsOtherPanels": 1
+      }
+    ]
+  },
+  "siblingsInSameContainer": true,
+  "sameDirectChild": false,
+  "orderNow": "inventory ABOVE action-log",
+  "actionLogLadder": [
+    {
+      "el": "div.panel.p-3.5",
+      "rect": {
+        "w": 681,
+        "h": 324,
+        "y": 1391
+      },
+      "display": "flex",
+      "flexDirection": "column",
+      "order": "0"
+    },
+    {
+      "el": "div.flex.min-w-0.flex-col.gap-3",
+      "rect": {
+        "w": 681,
+        "h": 1850,
+        "y": 430
+      },
+      "display": "flex",
+      "flexDirection": "column",
+      "order": "0"
+    },
+    {
+      "el": "section.hidden.gap-3.xl:grid.xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)].xl:items-start",
+      "rect": {
+        "w": 1348,
+        "h": 1850,
+        "y": 430
+      },
+      "display": "grid",
+      "flexDirection": "row",
+      "order": "0"
+    }
+  ],
+  "inventoryLadder": [
+    {
+      "el": "div.panel.p-3.5",
+      "rect": {
+        "w": 655,
+        "h": 683,
+        "y": 430
+      },
+      "display": "block",
+      "flexDirection": "row",
+      "order": "0"
+    },
+    {
+      "el": "div.flex.min-w-0.flex-col.gap-3",
+      "rect": {
+        "w": 655,
+        "h": 1743,
+        "y": 430
+      },
+      "display": "flex",
+      "flexDirection": "column",
+      "order": "0"
+    },
+    {
+      "el": "section.hidden.gap-3.xl:grid.xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)].xl:items-start",
+      "rect": {
+        "w": 1348,
+        "h": 1850,
+        "y": 430
+      },
+      "display": "grid",
+      "flexDirection": "row",
+      "order": "0"
+    }
+  ]
+}
