@@ -52,13 +52,29 @@ iw-panel-order-dungeon.json
 iw-panel-order-root.json
 iw-quests-capture.json
 
-# ── DELIBERATELY NOT EXCLUDED ────────────────────────────────────────────
-# gear_icons_atlas.png / item_icons_atlas.png and their CSV/JSON manifests.
-# index.html no longer fetches these at runtime (its only mention is a v4.8.4
-# comment), but index2.html and IdleWorlds_Toolkit_v4_8.html still do, and both
-# are deployed. Dropping them would silently blank the icons on those pages.
+# ── Legacy icon atlases: kept in git, NOT served from this origin ────────
+# These stay in the repo — they are the deterministic build source for
+# assets/icons/v2/* (tools/build_icon_chunks.py) and the rollback path. They
+# are excluded from the UPLOAD because nothing served here reads them:
 #
-# WATCH THIS: gear_icons_atlas.png is 24.5 MB against a hard 25 MiB per-file
-# ceiling. One more row of icons in the gear atlas breaks the deploy the same
-# way .git just did. When it does, the fix is to retire the legacy pages or
-# move the atlas to R2 — not to raise a limit that cannot be raised.
+#   • index.html loads only the hashed assets/icons/v2/* chunks. Its only
+#     mentions of the atlases are two comments, and it has zero
+#     raw.githubusercontent references.
+#   • IdleWorlds_Toolkit_v4_8.html, the one deployed page that still wants
+#     them, fetches from raw.githubusercontent.com/BustedCypher/
+#     idleWorlds-game-sprites-BC/main/ — GitHub, not this origin. Excluding
+#     them here cannot break it.
+#   • Skillsim/index.html references neither. (index2.html did, and was
+#     retired 2026-09-06.)
+#
+# This also retires the 24.5 MB vs 25 MiB per-file cliff that gear_icons_
+# atlas.png was sitting half a megabyte under. Keep it retired: if a page
+# ever needs an atlas from THIS origin, put it in R2 — the 25 MiB ceiling
+# is not raisable.
+gear_icons_atlas.png
+gear_icons_manifest.json
+gear_icons_manifest.csv
+item_icons_atlas.png
+item_icons_index.csv
+item_icons_cells.csv
+construction_icon_manifest.json

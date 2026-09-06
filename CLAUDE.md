@@ -230,11 +230,35 @@ carrying an id is snapshotted by id, so new controls persist automatically),
 and **restore replays the app's own paths** — never write engine state
 directly, set a value and dispatch the event the user would have caused.
 
+## Deploying
+
+The site is a Cloudflare **Workers** static-assets deploy whose assets
+directory is the **repo root** — so by default Wrangler uploads the entire
+checkout, `.git` included. `.assetsignore` at the root is the only thing
+stopping that; it uses `.gitignore` syntax and Wrangler skips every match.
+
+Two rules:
+
+1. **Anything the site must serve has to survive `.assetsignore`.** Add a new
+   runtime asset and check it is not swept up by one of the directory
+   exclusions (`tools/`, `docs/`, `assets/zone-headers/`, …). A file that is
+   in git but excluded here 404s on the live site and nowhere else.
+2. **`.git/` must never be uploaded**, at any size. Beyond the 25 MiB
+   per-file limit it broke on 2026-09-06 (a 334 MiB pack), uploading it
+   publishes the whole history as fetchable objects on the public site.
+
+Per-file limit is a hard **25 MiB** and is not raisable; the answer for
+anything bigger is R2. Current upload after exclusions: ~53 files, well
+inside the limits.
+
 ## Repo contents
 
 - `index.html` — **v5.5, the working file**
-- `index2.html` — v5.2, a stale near-duplicate. Will rot silently.
-- `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build
+- `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build. Still fetches the
+  legacy atlases, but from `raw.githubusercontent.com/…/main/`, **not** from
+  the deploy origin — which is why `.assetsignore` can keep them off the
+  site without breaking it. (`index2.html`, the stale v5.2 near-duplicate,
+  was retired 2026-09-06; git history still has it.)
 - `gear_icons_atlas.png` + `gear_icons_manifest.json`/`.csv` — 1280×19584,
   10×153 grid, 128 px cells (64 px logical at 2×), 1146 icons, manifest v7.
   **Legacy build source only** since the 2026-09-01 icon-split — `index.html`
