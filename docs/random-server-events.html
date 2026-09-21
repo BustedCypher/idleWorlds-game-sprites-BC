@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IdleWorlds — Modular Server Events</title>
+<style>
+  @page { size: A4; margin: 17mm 16mm 15mm 16mm; }
+
+  :root{
+    --ink:#15161c; --ink2:#3c4050; --mut:#6b7183; --line:#d9dde6;
+    --acc:#2f4fa8; --acc2:#e8edf9; --warm:#8a5a12; --warmbg:#fdf6e7;
+    --grn:#1f6b45; --grnbg:#eaf5ef; --red:#9a2a2a; --redbg:#fbeeee;
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{
+    font:10.5pt/1.55 Georgia,"Times New Roman",serif;
+    color:var(--ink); margin:0; background:#fff;
+  }
+  h1,h2,h3,h4,.ui{ font-family:"Segoe UI",Inter,system-ui,-apple-system,sans-serif; }
+
+  /* ---------------------------------------------------------- cover */
+  .cover{ height:255mm; display:flex; flex-direction:column; justify-content:center;
+          page-break-after:always; }
+  .cover .kicker{ font-family:"Segoe UI",system-ui,sans-serif; font-size:9.5pt;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--acc); font-weight:700; }
+  .cover h1{ font-size:34pt; line-height:1.08; margin:14px 0 6px; letter-spacing:-.5px; }
+  .cover .sub{ font-size:14pt; color:var(--ink2); font-style:italic; margin-bottom:26px; }
+  .cover .rule{ height:4px; background:var(--acc); width:120px; margin:0 0 26px; }
+  .cover .lede{ font-size:11.5pt; max-width:135mm; color:var(--ink2); }
+  .cover .meta{ margin-top:34px; font-family:"Segoe UI",system-ui,sans-serif;
+    font-size:9pt; color:var(--mut); border-top:1px solid var(--line); padding-top:12px; }
+  .cover .meta b{ color:var(--ink); }
+  .statstrip{ display:flex; gap:0; margin:30px 0 0; border:1px solid var(--line);
+    border-radius:4px; overflow:hidden; }
+  .statstrip div{ flex:1; padding:12px 14px; border-right:1px solid var(--line);
+    font-family:"Segoe UI",system-ui,sans-serif; }
+  .statstrip div:last-child{ border-right:0; }
+  .statstrip .n{ font-size:17pt; font-weight:700; color:var(--acc); display:block;
+    letter-spacing:-.5px; }
+  .statstrip .l{ font-size:7.8pt; color:var(--mut); text-transform:uppercase;
+    letter-spacing:.09em; }
+
+  /* ------------------------------------------------------- structure */
+  h2{ font-size:16pt; margin:0 0 4px; letter-spacing:-.3px; page-break-after:avoid; }
+  h2 .num{ color:var(--acc); font-weight:700; margin-right:10px; }
+  h3{ font-size:11.8pt; margin:20px 0 6px; page-break-after:avoid; color:var(--ink); }
+  h4{ font-size:10pt; margin:14px 0 4px; page-break-after:avoid;
+      text-transform:uppercase; letter-spacing:.07em; color:var(--mut); }
+  section{ page-break-before:always; padding-top:2mm; }
+  section.cont{ page-break-before:auto; }
+  .secrule{ height:2px; background:var(--acc); width:46px; margin:0 0 14px; }
+  p{ margin:0 0 9px; }
+  ul,ol{ margin:0 0 10px; padding-left:19px; }
+  li{ margin-bottom:4px; }
+  b,strong{ font-weight:700; }
+  code{ font-family:"Cascadia Mono",Consolas,monospace; font-size:9pt;
+    background:#f2f4f8; padding:1px 4px; border-radius:3px; }
+
+  .toc{ column-count:2; column-gap:14mm; font-family:"Segoe UI",system-ui,sans-serif;
+    font-size:9.5pt; }
+  .toc div{ padding:2px 0; border-bottom:1px dotted var(--line);
+    break-inside:avoid; }
+  .toc span{ color:var(--acc); font-weight:700; display:inline-block; width:22px; }
+
+  /* ---------------------------------------------------------- tables */
+  table{ border-collapse:collapse; width:100%; font-size:8.6pt;
+    font-family:"Segoe UI",system-ui,sans-serif; margin:8px 0 14px; }
+  th{ text-align:left; background:var(--acc); color:#fff; padding:6px 7px;
+    font-size:7.8pt; text-transform:uppercase; letter-spacing:.07em; font-weight:700; }
+  td{ padding:6px 7px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even){ background:#f7f9fc; }
+  tr{ page-break-inside:avoid; }
+  thead{ display:table-header-group; }
+
+  .modtable td.mid, .mid{ font-family:"Cascadia Mono",Consolas,monospace;
+    font-weight:700; color:var(--acc); white-space:nowrap; width:26px; }
+  .modtable .mname{ width:30%; }
+  .modtable .blurb{ font-weight:400; color:var(--ink2); font-size:8.2pt;
+    margin-top:2px; font-family:Georgia,serif; }
+  .modtable .tags{ width:19%; font-size:7.9pt; font-weight:700; color:var(--ink2); }
+  .modtable .surf{ font-weight:400; color:var(--mut); font-size:7.2pt; margin-top:3px; }
+  .modtable .bands{ width:27%; }
+  .band{ font-size:7.9pt; padding:1px 0; }
+  .band b{ display:inline-block; width:20px; color:var(--acc); }
+  .modtable .roll{ width:13%; font-size:7.8pt; color:var(--mut); }
+  .slotintro{ font-size:9.6pt; color:var(--ink2); font-style:italic;
+    border-left:3px solid var(--acc); padding-left:10px; margin:6px 0 4px; }
+  .nouns{ font-size:7.6pt; color:var(--ink2); }
+
+  /* --------------------------------------------------------- callout */
+  .call{ border:1px solid var(--line); border-left:4px solid var(--acc);
+    background:#f7f9fc; padding:10px 13px; margin:12px 0; font-size:9.6pt;
+    page-break-inside:avoid; }
+  .call.warn{ border-left-color:var(--warm); background:var(--warmbg); }
+  .call.good{ border-left-color:var(--grn); background:var(--grnbg); }
+  .call .ct{ font-family:"Segoe UI",system-ui,sans-serif; font-weight:700;
+    font-size:8.4pt; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--acc); margin-bottom:4px; }
+  .call.warn .ct{ color:var(--warm); }
+  .call.good .ct{ color:var(--grn); }
+
+  /* --------------------------------------------------------- example */
+  .example{ border:1px solid var(--line); border-radius:5px; margin:0 0 16px;
+    overflow:hidden; page-break-inside:avoid; }
+  .exhead{ background:var(--acc); color:#fff; padding:10px 13px; }
+  .exday{ font-family:"Segoe UI",system-ui,sans-serif; font-size:7.8pt;
+    text-transform:uppercase; letter-spacing:.1em; opacity:.82; }
+  .exday code{ background:rgba(255,255,255,.16); color:#fff; }
+  .exname{ font-family:"Segoe UI",system-ui,sans-serif; font-size:14.5pt;
+    font-weight:700; letter-spacing:-.3px; margin:3px 0 2px; }
+  .exrank{ font-family:"Segoe UI",system-ui,sans-serif; font-size:8.4pt; opacity:.9; }
+  .extable{ margin:0; }
+  .extable th{ background:#eef2f9; color:var(--ink2); }
+  .extable td{ padding:5px 8px; }
+  .slotcell{ font-family:"Segoe UI",system-ui,sans-serif; font-weight:700;
+    background:var(--acc2); color:var(--acc); text-align:center; width:26px; }
+  .magcell{ font-family:"Cascadia Mono",Consolas,monospace; font-weight:700;
+    text-align:center; width:34px; }
+  .tagcell{ font-size:7.6pt; color:var(--mut); width:22%; }
+  .ptscell{ text-align:center; width:26px; color:var(--mut); }
+  .param{ font-size:8pt; color:var(--warm); margin-top:2px; }
+  .exwhy{ padding:9px 13px; background:#fafbfd; border-top:1px solid var(--line);
+    font-size:8.8pt; font-family:"Segoe UI",system-ui,sans-serif; }
+  .exwhyrow{ display:flex; gap:10px; padding:2.5px 0; align-items:baseline; }
+  .exwhyrow .lbl{ flex:0 0 62px; font-size:7.5pt; text-transform:uppercase;
+    letter-spacing:.07em; color:var(--mut); font-weight:700; }
+  .chip{ display:inline-block; padding:1px 6px; margin:0 3px 2px 0; border-radius:9px;
+    background:#eceff5; color:var(--ink2); font-size:7.6pt; }
+  .chip.tie{ background:#e0e5ef; }
+  .chip.win{ background:var(--acc); color:#fff; font-weight:700; }
+  ul.log{ margin:0; padding-left:14px; font-size:8.2pt; color:var(--ink2); }
+  .exread{ padding:9px 13px; border-top:1px solid var(--line); font-size:9.5pt;
+    background:#fff; }
+
+  .pipeline{ width:100%; margin:10px 0 4px; }
+  .fig{ font-size:8.2pt; color:var(--mut); font-style:italic; margin:0 0 14px;
+    font-family:"Segoe UI",system-ui,sans-serif; }
+  pre{ background:#f5f7fa; border:1px solid var(--line); border-left:3px solid var(--acc);
+    padding:9px 11px; font-family:"Cascadia Mono",Consolas,monospace; font-size:8pt;
+    line-height:1.45; overflow-x:auto; page-break-inside:avoid; margin:8px 0 12px; }
+  .two{ display:flex; gap:9mm; }
+  .two > div{ flex:1; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">IdleWorlds &nbsp;·&nbsp; Design Proposal</div>
+  <h1>Modular<br>Server Events</h1>
+  <div class="sub">A once-a-week world event that is never the same twice</div>
+  <div class="rule"></div>
+  <div class="lede">
+    <p>One roll at server reset. Six days in seven, nothing happens and the day
+    proceeds exactly as it does now. On the seventh, four modules are drawn from
+    four separate pools, each at a randomly rolled magnitude, checked against
+    each other for coherence, given a name derived from what was actually
+    drawn, and published to the whole server.</p>
+    <p>This document specifies the eighty modules, the draw pipeline, the
+    coherence gate, the naming system and the balance clamps — and hands over a
+    verified reference implementation so none of it has to be guessed at.</p>
+  </div>
+  <div class="statstrip">
+    <div><span class="n">80</span><span class="l">modules</span></div>
+    <div><span class="n">12,960,000</span><span class="l">event structures</span></div>
+    <div><span class="n">8,800</span><span class="l">possible names</span></div>
+    <div><span class="n">81 yrs</span><span class="l">to a likely repeat</span></div>
+  </div>
+  <div class="meta">
+    Prepared 08 September 2026 &nbsp;·&nbsp; every figure in this document is measured from a
+    <b>100-year simulation</b> of the reference implementation, not estimated.
+  </div>
+</div>
+
+<section class="cont">
+<h2><span class="num">§</span>Contents</h2>
+<div class="secrule"></div>
+<div class="toc">
+  <div><span>1</span>The shape of the system</div>
+  <div><span>2</span>The daily gate</div>
+  <div><span>3</span>The four slots</div>
+  <div><span>4</span>The draw pipeline</div>
+  <div><span>5</span>Magnitude and Rank</div>
+  <div><span>6</span>The coherence gate</div>
+  <div><span>7</span>Naming: tags, themes, titles</div>
+  <div><span>8</span>Anti-repeat memory</div>
+  <div><span>9</span>How many events are there really?</div>
+  <div><span>10</span>Balance clamps</div>
+  <div><span>11</span>Module table — Slot A, the Boon</div>
+  <div><span>12</span>Module table — Slot B, the Twist</div>
+  <div><span>13</span>Module table — Slot C, the Focus</div>
+  <div><span>14</span>Module table — Slot D, the Flourish</div>
+  <div><span>15</span>Name pools</div>
+  <div><span>16</span>Five worked examples</div>
+  <div><span>17</span>Reference implementation</div>
+  <div><span>18</span>The published event contract</div>
+  <div><span>19</span>Operations, testing, rollout</div>
+  <div><span>20</span>Open questions for the developer</div>
+</div>
+
+<h2 style="margin-top:16px"><span class="num">1</span>The shape of the system</h2>
+<div class="secrule"></div>
+
+<p>Live-service events usually fail in one of two ways. Either they are
+hand-authored, which means there are twelve of them and players have seen all
+twelve by March; or they are pure random multipliers, which means every event is
+"×2 something" and none of them are memorable. This system is built to avoid
+both.</p>
+
+<p>The core idea is that an event is not <i>one</i> effect. It is a
+<b>Boon</b>, a <b>Twist</b>, a <b>Focus</b> and a <b>Flourish</b>, drawn
+independently and then reconciled. The Boon is the gift, the Twist is the
+complication, the Focus is where it lands, and the Flourish is the server-wide
+topper. That structure is what makes a random draw read as a designed event: the
+grammar is fixed even though every word in the sentence is rolled.</p>
+
+<p>Two consequences follow, and both are the point:</p>
+<ul>
+  <li><b>The combination carries the meaning, not the module.</b> "More gold" is
+  dull. "More gold, but one resource family has stopped dropping entirely, and
+  only in the top five zones, while market tax is waived" is a day players talk
+  about — and none of those four pieces had to be written for each other.</li>
+  <li><b>The name is derived, not authored.</b> Nobody writes a name for an
+  event that has never existed before. The system reads the tags off what it
+  actually drew, works out what kind of day it is, and names it from a pool
+  matching that kind. A player who sees <i>COMBAT EVENT — Marked Reaver's
+  Hour</i> knows what the day is about before reading a word of the detail.</li>
+</ul>
+
+<div class="call">
+  <div class="ct">The design constraint this is built against</div>
+  A player who logs in on an event day should be able to say, in one sentence,
+  what is different — and should not be able to predict what next week's event
+  will be. Everything below serves those two sentences.
+</div>
+
+<h3>What it costs to run</h3>
+<p>One integer roll per day, four table lookups, and a JSON blob published to a
+cache. There is no live tuning, no per-event content and no scheduling. Once the tables
+are in, the system generates events for years untouched, and the pools are
+additive: adding one new module to each of the four takes the structure count
+from 12,960,000 to over 15.7 million.</p>
+</section>
+
+<section>
+<h2><span class="num">2</span>The daily gate</h2>
+<div class="secrule"></div>
+
+<p>At the turn of the server day — the same boundary the Daily XP Boost already
+uses — the server rolls once. A value below <code>1/7</code> makes the coming day
+an event day. Everything else about the day is unchanged, and on a non-event day
+the system does nothing at all: no banner, no flag, no payload.</p>
+
+<p>Two guards sit either side of the raw roll, because a memoryless 1-in-7 is
+not actually the player experience anyone wants:</p>
+
+<table>
+<thead><tr><th style="width:20%">Guard</th><th style="width:16%">Threshold</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><b>Drought floor</b></td><td>16 quiet days</td>
+<td>A pure 1-in-7 produces a six-week gap surprisingly often — a 44-day drought
+appeared within ten simulated years before this guard existed. Sixteen quiet days
+force an event on the seventeenth. This is the only reason the observed cadence
+is faster than one in seven.</td></tr>
+<tr><td><b>Streak ceiling</b></td><td>2 in a row</td>
+<td>Back-to-back event days are a pleasant surprise at 1-in-49. Three in a row
+reads as broken, and devalues the fourth. The third consecutive roll is
+suppressed.</td></tr>
+</tbody>
+</table>
+
+<h4>Measured over 100 simulated years</h4>
+<table>
+<thead><tr><th>Measure</th><th style="width:24%">Result</th><th>Note</th></tr></thead>
+<tbody>
+<tr><td>Events generated</td><td><b>5539</b> in 100 years</td><td>about 55 a year</td></tr>
+<tr><td>Observed cadence</td><td><b>one every 6.59 days</b></td>
+<td>faster than 7.00 because of the drought floor — this is the price of the guarantee</td></tr>
+<tr><td>Events forced by the floor</td><td>421 (7.6%)</td>
+<td>roughly one in eleven events exists because the floor fired</td></tr>
+<tr><td>Longest gap between events</td><td><b>16 days</b></td><td>by construction; unbounded without the floor</td></tr>
+<tr><td>Longest run of event days</td><td><b>2</b></td><td>by construction</td></tr>
+</tbody>
+</table>
+
+<div class="call warn">
+  <div class="ct">A decision to make deliberately</div>
+  The drought floor trades exactness for predictability: the cadence becomes
+  1-in-6.59 rather than 1-in-7. If the 1-in-7 figure is something you want to
+  state publicly and have be literally true, lower the base rate to about 1-in-7.8
+  and let the floor bring it back — or drop the floor and accept that once a
+  decade players will go six weeks without an event and conclude the system is
+  broken. Our recommendation is to keep the floor and describe the cadence as
+  "about once a week".
+</div>
+
+<h3>Why the gate gets its own sub-seed</h3>
+<p>The gate is rolled from <code>seed + "|gate"</code>, not from the same stream
+that draws the modules. If both came off one stream, the modules drawn would be
+statistically conditioned on the gate having passed — a subtle and very annoying
+class of bug where certain modules quietly never appear. Separate sub-seeds cost
+nothing and remove the question entirely.</p>
+</section>
+
+<section>
+<h2><span class="num">3</span>The four slots</h2>
+<div class="secrule"></div>
+
+<p>Each slot is its own pool of twenty modules. A module belongs to exactly one
+slot and cannot appear in another. That is a deliberate constraint rather than a
+limitation: it is what guarantees every event has one gift, one complication, one
+scope and one capstone, and it is also what prevents two modules that inflate the
+same number from ever landing together.</p>
+
+<table>
+<thead><tr><th style="width:9%">Slot</th><th style="width:17%">Role</th><th>What it contributes</th><th style="width:22%">Rule it always obeys</th></tr></thead>
+<tbody>
+<tr><td class="slotcell">A</td><td><b>Boon</b></td>
+<td>The headline gift — the reason to log in today. Always framed as a
+straightforward positive.</td>
+<td>Never carries a downside.</td></tr>
+<tr><td class="slotcell">B</td><td><b>Twist</b></td>
+<td>The complication that changes <i>how</i> you play rather than how much you
+get. Most Twists trade something away for something better.</td>
+<td>Supplies the adjective in the event's name.</td></tr>
+<tr><td class="slotcell">C</td><td><b>Focus</b></td>
+<td>Where the event lands: a zone, a skill, a tier band, a four-hour window, or
+the whole world.</td>
+<td>Must be able to reach both the Boon and the Twist — see §6.</td></tr>
+<tr><td class="slotcell">D</td><td><b>Flourish</b></td>
+<td>The server-wide capstone that applies regardless of how a player spends the
+day.</td>
+<td>Always globally reachable, so nobody is locked out by build or level.</td></tr>
+</tbody>
+</table>
+
+<div class="call good">
+  <div class="ct">Why slot separation matters more than it looks</div>
+  If all eighty modules sat in one pool and four were drawn from it, roughly one
+  event in twenty would draw two modules that multiply the same quantity — and
+  those are exactly the events that break an economy. Because Coin Flood (A1) and
+  Silver Tongue (A13) are both Slot A, they can never co-occur. The structure
+  does the balance work that would otherwise need a hand-maintained conflict
+  matrix with 3,160 entries in it.
+</div>
+
+<h3>Slot D is the accessibility slot</h3>
+<p>It is worth being explicit about this, because it is easy to lose in
+implementation. Slots A, B and C can all end up narrow — one skill, one zone,
+one enemy family, four hours. If that were the whole event, a player whose
+evening does not intersect the Focus gets nothing at all and correctly concludes
+the event was not for them. Every Slot D module is globally reachable precisely
+so that never happens: whatever else the day is, the Flourish is for everyone.</p>
+</section>
+
+<section>
+<h2><span class="num">4</span>The draw pipeline</h2>
+<div class="secrule"></div>
+
+<p>Ten steps, in order. Steps 1–2 decide whether there is an event at all;
+3–6 decide what it is; 7–9 make it legal and safe; 10 publishes it.</p>
+
+<svg class="pipeline" viewBox="0 0 700 258" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Draw pipeline">
+  <defs>
+    <marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#6b7183"/>
+    </marker>
+    <style>
+      .bx{ fill:#f7f9fc; stroke:#d9dde6; }
+      .bxa{ fill:#2f4fa8; stroke:#2f4fa8; }
+      .bxg{ fill:#eaf5ef; stroke:#1f6b45; }
+      .t{ font:9px "Segoe UI",sans-serif; fill:#15161c; }
+      .tw{ font:9px "Segoe UI",sans-serif; fill:#fff; font-weight:700; }
+      .n{ font:8px "Cascadia Mono",monospace; fill:#2f4fa8; font-weight:700; }
+      .s{ font:7.5px "Segoe UI",sans-serif; fill:#6b7183; }
+      .ln{ stroke:#6b7183; stroke-width:1.1; fill:none; marker-end:url(#ar); }
+    </style>
+  </defs>
+
+  <rect class="bx" x="2" y="14" width="120" height="34" rx="4"/>
+  <text class="n" x="10" y="28">1–2</text><text class="t" x="34" y="29">Gate 1/7</text>
+  <text class="s" x="10" y="41">+ floor, + ceiling</text>
+
+  <rect class="bxa" x="150" y="4" width="104" height="26" rx="4"/>
+  <text class="tw" x="160" y="21">3 · Draw A — Boon</text>
+  <rect class="bxa" x="150" y="34" width="104" height="26" rx="4"/>
+  <text class="tw" x="160" y="51">4 · Draw B — Twist</text>
+
+  <rect class="bxg" x="282" y="4" width="126" height="56" rx="4"/>
+  <text class="t" x="292" y="21" font-weight="700">5 · Filter Slot C</text>
+  <text class="s" x="292" y="34">keep only Focuses that</text>
+  <text class="s" x="292" y="45">reach both A and B</text>
+  <text class="s" x="292" y="56">(mean 8.9 of 20 survive)</text>
+
+  <rect class="bxa" x="436" y="4" width="104" height="26" rx="4"/>
+  <text class="tw" x="446" y="21">Draw C — Focus</text>
+  <rect class="bxa" x="436" y="34" width="104" height="26" rx="4"/>
+  <text class="tw" x="446" y="51">6 · Draw D — Flourish</text>
+
+  <rect class="bx" x="568" y="14" width="128" height="34" rx="4"/>
+  <text class="n" x="576" y="28">7</text><text class="t" x="592" y="29">Roll magnitudes</text>
+  <text class="s" x="576" y="41">45 / 37 / 18 per module</text>
+
+  <rect class="bx" x="568" y="88" width="128" height="42" rx="4"/>
+  <text class="n" x="576" y="102">8</text><text class="t" x="592" y="103">Clamps</text>
+  <text class="s" x="576" y="115">Open World damping,</text>
+  <text class="s" x="576" y="125">risk floor, ×4 ceiling</text>
+
+  <rect class="bx" x="366" y="88" width="170" height="42" rx="4"/>
+  <text class="n" x="374" y="102">9</text><text class="t" x="390" y="103">Tally tags → Theme → Name</text>
+  <text class="s" x="374" y="115">primary 2 pts, secondary 1 pt;</text>
+  <text class="s" x="374" y="125">adjective from B, noun from Theme</text>
+
+  <rect class="bx" x="196" y="88" width="146" height="42" rx="4"/>
+  <text class="n" x="204" y="102">9b</text><text class="t" x="222" y="103">Anti-repeat memory</text>
+  <text class="s" x="204" y="115">module cooldown 4 events,</text>
+  <text class="s" x="204" y="125">title memory 100 events</text>
+
+  <rect class="bxa" x="2" y="88" width="170" height="42" rx="4"/>
+  <text class="tw" x="12" y="105">10 · Publish signed payload</text>
+  <text class="s" x="12" y="118" fill="#dfe6f6">/api/daily-event, same-origin</text>
+
+  <line class="ln" x1="124" y1="31" x2="146" y2="20"/>
+  <line class="ln" x1="124" y1="31" x2="146" y2="44"/>
+  <line class="ln" x1="256" y1="32" x2="278" y2="32"/>
+  <line class="ln" x1="410" y1="32" x2="432" y2="20"/>
+  <line class="ln" x1="410" y1="32" x2="432" y2="44"/>
+  <line class="ln" x1="542" y1="32" x2="564" y2="32"/>
+  <path class="ln" d="M632,50 L632,84"/>
+  <line class="ln" x1="566" y1="109" x2="540" y2="109"/>
+  <line class="ln" x1="364" y1="109" x2="346" y2="109"/>
+  <line class="ln" x1="194" y1="109" x2="176" y2="109"/>
+
+  <rect class="bx" x="2" y="164" width="694" height="80" rx="4" fill="#fafbfd"/>
+  <text class="t" x="14" y="182" font-weight="700">The one ordering constraint that matters</text>
+  <text class="s" x="14" y="197">The Focus pool is filtered BEFORE C is drawn, not validated after. Rejection sampling — draw, test, redraw — was the first design, and it</text>
+  <text class="s" x="14" y="209">churned 45% of draws, failed outright on 5.6% of them, and biased the fallback module upward. Filtering first makes the draw single-pass,</text>
+  <text class="s" x="14" y="221">removes the fallback path entirely, and turns "how constrained was today's draw?" into an observable number (2–16 of 20 survive,</text>
+  <text class="s" x="14" y="233">mean 8.9) that you can log and watch. Same distribution goals, less machinery, better telemetry.</text>
+</svg>
+<p class="fig">Figure 1 — the draw pipeline. Blue is a random draw; green is a filter.</p>
+
+<h3>Determinism</h3>
+<p>The whole pipeline is a pure function of the server-day string and the recent
+event history. Given the same inputs, every shard, the client, the wiki and any
+third-party tool compute byte-identical results. That is what makes the event
+verifiable rather than something players have to take on trust — and it means a
+desync is a visible bug rather than a silent divergence.</p>
+</section>
+
+<section>
+<h2><span class="num">5</span>Magnitude and Rank</h2>
+<div class="secrule"></div>
+
+<p>Each of the four drawn modules independently rolls a magnitude band, weighted
+<b>45 / 37 / 18</b> across I, II and III. This is the single most important
+multiplier on variety in the whole system: without it, there are 160,000 possible
+events and the first repeat is expected within about eight years of weekly
+events. With it, there are 12,960,000.</p>
+
+<p>The bands are worth <b>1, 2 and 4 points</b>. The sum across four modules is
+the event's <b>intensity</b>, from 4 to 16, which maps to a public <b>Rank</b>.
+Rank is what players actually talk about — it is the difference between "there's
+an event today" and "get online, it's a Grand".</p>
+
+<table>
+<thead><tr><th style="width:26%">Rank</th><th style="width:14%">Intensity</th>
+<th style="width:16%">Theoretical</th><th style="width:16%">Measured</th><th>Frequency</th></tr></thead>
+<tbody><tr><td><b>Rank I</b> · Faint</td><td>4–5</td><td>17.6%</td><td>24.3%</td><td>about 13.5 a year</td></tr><tr><td><b>Rank II</b> · Rising</td><td>6–8</td><td>50.4%</td><td>46.7%</td><td>about 25.9 a year</td></tr><tr><td><b>Rank III</b> · Greater</td><td>9–12</td><td>30.1%</td><td>27.1%</td><td>about 15.0 a year</td></tr><tr><td><b>Rank IV</b> · Grand</td><td>13–16</td><td>2.0%</td><td>1.8%</td><td>about 1.0 a year</td></tr></tbody>
+</table>
+
+<p>Measured share differs from theoretical because Open World days (§6) damp
+every other module one band, which pulls a slice of the distribution downward.
+That is intentional: the widest events should also be the mildest.</p>
+
+<div class="call">
+  <div class="ct">Rank IV is deliberately about once a year</div>
+  A Grand event is a genuine occasion — three of four modules at their top band.
+  At 55 events a year and a 1.8% share, players will see roughly one a
+  year, and it should get a distinct banner, a distinct colour and an
+  announcement. If it fires twice in eighteen months that is normal variance, not
+  a bug; resist the urge to hand-tune it after the first cluster.
+</div>
+
+<h3>Point weighting is not linear, on purpose</h3>
+<p>Band III is worth 4 rather than 3 because a Rank should reflect the presence
+of an extreme, not an average. Four modules at band II (intensity 8) is a solid
+Rising day. Two at band III and two at band I (intensity 10) is a lopsided day
+with two genuinely dramatic effects, and it should — and does — rank higher.</p>
+</section>
+
+<section>
+<h2><span class="num">6</span>The coherence gate</h2>
+<div class="secrule"></div>
+
+<p>Independent draws produce nonsense on their own. <i>Rich Veins</i> (gathering
+yields) under a <i>Warfront</i> focus (combat only) is an event with no effect
+whatsoever — it would publish a banner, promise a bonus, and do nothing. This is
+the failure mode that makes procedural events feel broken, and it is not rare:
+without a gate, it happens on roughly a fifth of draws.</p>
+
+<h3>Surfaces</h3>
+<p>Every module declares which parts of the game it touches:
+<code>COMBAT</code>, <code>GATHER</code>, <code>CRAFT</code>,
+<code>WORKORDER</code>, <code>VILLAGE</code>, <code>TRADE</code>, or
+<code>GLOBAL</code>. <code>GLOBAL</code> intersects everything. Two modules
+overlap if either is <code>GLOBAL</code> or their surface sets intersect.</p>
+
+<h3>The rule</h3>
+<p>A Focus is legal for a given Boon and Twist if it overlaps <b>both</b> of
+them, and the pair is not in the hard-ban table. Rather than draw a Focus and
+test it, the system <b>filters the Slot C pool first and draws from what
+survives</b>. C12 Open World is <code>GLOBAL</code>, so the surviving pool is
+never empty and there is no fallback path to get wrong.</p>
+
+<table>
+<thead><tr><th style="width:34%">Measure</th><th style="width:20%">Value</th><th>Reading</th></tr></thead>
+<tbody>
+<tr><td>Legal Focuses, mean</td><td><b>8.9 of 20</b></td>
+<td>a typical Boon/Twist pair admits about nine of the twenty Focus modules</td></tr>
+<tr><td>Legal Focuses, range</td><td>2 – 16</td>
+<td>the low end is two narrow modules pulling in different directions; the high end is two GLOBAL modules</td></tr>
+<tr><td>Open World days</td><td>8.6%</td>
+<td>drawn naturally from the filtered pool, not used as a fallback</td></tr>
+</tbody>
+</table>
+
+<h3>The hard-ban table</h3>
+<p>Surfaces catch the great majority of incoherence structurally. A short
+explicit list handles what they cannot — currently one entry, and it is the
+extension point for anything discovered in playtest:</p>
+<table>
+<thead><tr><th style="width:22%">Pair</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td class="mid">B10 × C13</td>
+<td><b>Two competing time gates.</b> Night Shift makes the event dormant for the
+first twelve hours; Hour of Power designates a four-hour window that may fall
+inside the dormant half. The intersection is either incoherent or empty, and
+players cannot be expected to reason about it.</td></tr>
+</tbody>
+</table>
+
+<div class="call good">
+  <div class="ct">Verified, not assumed</div>
+  The gate was tested by asserting the exclusions it should make — Warfront is
+  correctly refused a gathering Boon, Harvest is correctly refused a combat
+  Twist, Open World is always legal — and then by disabling each rule in turn and
+  confirming the assertions fail. A check that has never been observed failing is
+  not a check.
+</div>
+</section>
+
+<section>
+<h2><span class="num">7</span>Naming: tags, themes, titles</h2>
+<div class="secrule"></div>
+
+<p>Every module carries one <b>primary tag</b> and zero or more
+<b>secondary tags</b> from a fixed set of eleven. On an event day the system
+tallies them across all four drawn modules — <b>primary scores 2, each secondary
+scores 1</b> — and the highest total is the event's <b>Theme</b>.</p>
+
+<h3>Tie-breaks, in order</h3>
+<ol>
+  <li><b>RISK never wins a tie.</b> It rides along as a secondary tag on most
+  Twists, so on a plain plurality it would take about a third of all themes and
+  every event would be called a gamble. It is removed from any tied set — but it
+  is allowed a <i>clean</i> plurality, which is what produces the genuinely rare
+  gambler's day. Measured share: 4.7%, roughly two and a half a year.</li>
+  <li><b>Slot A's primary tag wins</b> if it is among the leaders. The Boon is
+  the headline, so when the draw is ambiguous the gift decides what kind of day
+  it was.</li>
+  <li><b>Slot D's primary tag</b>, then declaration order, as final
+  deterministic backstops. These fire rarely but must exist — a tie-break that
+  can return "no answer" is a crash on a live server at reset.</li>
+</ol>
+
+<h3>Composing the title</h3>
+<p>The name is <b>adjective + noun</b>. The adjective comes from the drawn
+<b>Twist</b> — four per Twist module, eighty in total — so the most distinctive
+mechanic of the day is what colours the name. The noun comes from the
+<b>Theme</b> pool, ten per theme. The format is:</p>
+
+<pre>&lt;THEME&gt; EVENT — &lt;Adjective&gt; &lt;Noun&gt;                      COMBAT EVENT — Marked Reaver's Hour
+&lt;THEME&gt; EVENT — &lt;Adjective&gt; &lt;Noun&gt; Ascendant   (Rank IV)  VILLAGE EVENT — Patient Bonfire Night Ascendant
+&lt;THEME&gt; EVENT — &lt;Adjective&gt; &lt;Noun&gt; &lt;Numeral&gt;   (a return) LOOT EVENT — Devil's Trove III</pre>
+
+<p>That is <b>8,800</b> distinct titles in the pool. A title used within the
+last 100 events is redrawn; beyond that window a repeat is permitted and
+<b>numbered from the archive</b>. This turns the one genuinely unavoidable
+collision into a feature — players remember the third Ravening Blood Moon, and a
+returning name reads as a sequel rather than a bug. Over 100 simulated years and
+5539 events, <b>0 unnumbered duplicate names</b> occurred.</p>
+
+<h3>Theme frequencies and noun pools</h3>
+<table>
+<thead><tr><th style="width:13%">Theme</th><th style="width:9%">Share</th>
+<th style="width:11%">Frequency</th><th>Noun pool (10 each)</th></tr></thead>
+<tbody><tr><td><b>COMBAT</b></td><td>21.7%</td><td>12.0 a year</td><td class="nouns">Blood Moon · Warcry · Red Tide · Iron Harvest · Siegefall · Bonefield · Long Battle · Hollow Crown · Ashen Vigil · Reaver's Hour</td></tr><tr><td><b>GATHERING</b></td><td>6.4%</td><td>3.5 a year</td><td class="nouns">Green Tide · First Harvest · Deep Seam · Rootfall · Amber Season · Long Gather · Wildgrowth · Stonebloom · Sapmoon · Full Cart</td></tr><tr><td><b>CRAFTING</b></td><td>7.7%</td><td>4.3 a year</td><td class="nouns">Forgefire · Anvil Chorus · Emberwork · Quenching · Maker's Hour · Ashfall Forge · Loomsong · Bellowsnight · Fine Seam · Hammerfall</td></tr><tr><td><b>ECONOMY</b></td><td>15.6%</td><td>8.6 a year</td><td class="nouns">Gilded Hour · Grand Exchange · Coinfall · Merchant's Moon · Ledger · Golden Wake · Copper Rain · Long Market · Vault Season · Purse-Cut</td></tr><tr><td><b>WORKORDER</b></td><td>5.6%</td><td>3.1 a year</td><td class="nouns">Muster Roll · Quota · Standing Order · Requisition · Warrant Day · Foreman's Call · Backlog · Docket · Signed and Sealed · Order of the Day</td></tr><tr><td><b>LOOT</b></td><td>12.7%</td><td>7.1 a year</td><td class="nouns">Spoils · Glittering Hour · Hoardfall · Treasurewake · Bright Take · Cache Season · Windfall · Full Pack · Trove · Scattered Riches</td></tr><tr><td><b>XP</b></td><td>10.9%</td><td>6.1 a year</td><td class="nouns">Enlightenment · Long Lesson · Ascension · Mindfire · Steep Climb · Revelation · Whetstone · Quickening · Insight · Breakthrough</td></tr><tr><td><b>EXPLORATION</b></td><td>3.3%</td><td>1.8 a year</td><td class="nouns">Wayfare · Open Road · Farwander · Uncharted · Horizonfall · Long Path · Trailblaze · Strange Country · Far Marches · Driftlands</td></tr><tr><td><b>VILLAGE</b></td><td>4.2%</td><td>2.3 a year</td><td class="nouns">Raising · Hearthlight · Common Good · Foundation Day · Rooftree · Village Wake · Cornerstone · Bonfire Night · Long Table · Homecoming</td></tr><tr><td><b>SOCIAL</b></td><td>7.2%</td><td>4.0 a year</td><td class="nouns">Convergence · Gathering · Assembly · Chorus · Great Meet · Commonwake · Many Hands · Shared Hour · Congress · Fellowship</td></tr><tr><td><b>RISK</b></td><td>4.7%</td><td>2.6 a year</td><td class="nouns">Gamble · Fool's Wager · Knife-Edge · Long Odds · Tempest · Coin-Toss · Brinkfall · Wild Hunt · Precipice · Snake Eyes</td></tr></tbody>
+</table>
+
+<p>The distribution is uneven by design and it reflects the game: combat is the
+largest surface in IdleWorlds, so COMBAT themes most often. What matters is that
+no theme is starved — the rarest, EXPLORATION, still lands about twice a year,
+which is often enough to feel like part of the rotation and rare enough to feel
+like an occasion.</p>
+</section>
+
+<section>
+<h2><span class="num">8</span>Anti-repeat memory</h2>
+<div class="secrule"></div>
+
+<p>Raw combination count is not the same as felt variety. An event whose modules
+all appeared last week feels repetitive even if the exact four-tuple is new.
+Three cheap memories fix that; all three are small enough to keep in the same
+row as the event archive.</p>
+
+<table>
+<thead><tr><th style="width:20%">Memory</th><th style="width:14%">Window</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><b>Module cooldown</b></td><td>4 events</td>
+<td>A module that has appeared in any of the last four events is removed from its
+pool. At about 55 events a year that is roughly a month's rest, and it is
+what stops the same Boon showing up three times in five weeks.</td></tr>
+<tr><td><b>Title memory</b></td><td>100 events</td>
+<td>A title used in the last 100 events is redrawn, up to eight attempts.</td></tr>
+<tr><td><b>Signature memory</b></td><td>archive</td>
+<td>The full <code>A2-B10-C4-D1</code>-style signature is stored per event. Used
+for the numeral suffix, for "this has happened before" in the archive UI, and as
+the source for D20 Echo of Days.</td></tr>
+</tbody>
+</table>
+
+<div class="call warn">
+  <div class="ct">The cooldown slightly raises collision odds — knowingly</div>
+  Blocking four modules per slot shrinks each pool from 20 to as few as 16, which
+  raises the chance of an exact structural repeat by roughly 1.9×. Over 100
+  simulated years the system produced <b>8 exact structural repeats</b>
+  across 5539 events, against about 1.2 expected with no cooldown. That is the
+  right trade: an exact repeat a century apart is invisible, while the same module
+  twice in a fortnight is not.
+</div>
+</section>
+
+<section>
+<h2><span class="num">9</span>How many events are there really?</h2>
+<div class="secrule"></div>
+
+<p>The brief asked for enough combinations that no two events are ever likely to
+be the same. Here is the honest accounting, with the weakest claim first.</p>
+
+<table>
+<thead><tr><th style="width:34%">Counting</th><th style="width:22%">Count</th><th>What it includes</th></tr></thead>
+<tbody>
+<tr><td>Module identity only</td><td>160,000</td>
+<td>20<sup>4</sup>. <b>Not sufficient on its own</b> — at 55 events a year, a repeat
+becomes more likely than not inside nine years.</td></tr>
+<tr><td><b>Structure</b> — modules + ranks</td><td><b>12,960,000</b></td>
+<td>20<sup>4</sup> × 3<sup>4</sup>. This is the number to quote: it is what a player
+would perceive as "the same event".</td></tr>
+<tr><td>With rolled targets</td><td>56,800,501,560</td>
+<td>Includes which zone, which skill, which enemy family, which window. Genuine
+variety, but dominated by C14's ordered four-skill rotation; we do not lead with
+this number.</td></tr>
+<tr><td>Distinct names</td><td>8,800</td>
+<td>80 Twist adjectives × 110 Theme nouns, before the archive numeral.</td></tr>
+</tbody>
+</table>
+
+<h3>When would a repeat actually happen?</h3>
+<p>Against the structural count of 12,960,000, and by the birthday bound, the
+expected number of events before a first exact structural repeat is about
+<b>4,512</b> — roughly <b>81 years</b> of weekly events. Over
+a far more realistic ten-year horizon, the probability of <i>any</i> exact
+structural repeat occurring at all is <b>1.18%</b>.</p>
+
+<p>The 100-year simulation bears this out: 8 structural repeats in 5539
+events, and even those differ in their rolled targets. In practice, no player
+will ever see the same event twice.</p>
+
+<div class="call good">
+  <div class="ct">Where the variety actually comes from</div>
+  Note which factor is load-bearing. Going from 20 modules per slot to 25 would
+  multiply the structure count by 2.4×. Adding the magnitude roll multiplied it by
+  <b>81×</b>. If schedule pressure forces a cut, cut modules — never cut
+  magnitude bands.
+</div>
+</section>
+
+<section>
+<h2><span class="num">10</span>Balance clamps</h2>
+<div class="secrule"></div>
+
+<p>Slot separation prevents most stacking, but not all of it. Four clamps run
+after the draw and before publication.</p>
+
+<table>
+<thead><tr><th style="width:22%">Clamp</th><th>Rule</th></tr></thead>
+<tbody>
+<tr><td><b>Open World damping</b></td>
+<td>If C12 Open World is drawn, every other module drops one magnitude band
+(never below I). Removing all restriction has to cost something, or Open World
+becomes the strictly best Focus. C12's own band is pinned to I before intensity
+is summed — its three bands are identical text, so letting its roll into the sum
+scored the mildest days of the year as some of the strongest. Measured effect:
+Open World days average intensity 4.6 against 7.6 elsewhere, which is correct.</td></tr>
+<tr><td><b>Risk floor</b></td>
+<td>A10 Second Wind at band III removes the death penalty entirely. Beside B11
+Glass Cannon — the Twist whose whole point is that you might die — that
+neutralises the day's only real danger. When both are drawn, A10 is held to band
+I. This is the template for any future conditional clamp: reduce a magnitude,
+do not ban a pair.</td></tr>
+<tr><td><b>Ceiling</b></td>
+<td>No single quantity may exceed <b>×4</b> from all event sources combined
+(<b>×6</b> at Rank IV). Applied at the point of effect, after every multiplier is
+resolved. This is the backstop that means a new module can be added without
+re-deriving every interaction it might have.</td></tr>
+<tr><td><b>Kill switch</b></td>
+<td>A single server flag suppresses the day's event and reverts to normal rules
+without a deploy. Non-negotiable for a system that generates content nobody
+reviewed in advance.</td></tr>
+</tbody>
+</table>
+
+<div class="call warn">
+  <div class="ct">The clamp that will be needed and is not here yet</div>
+  Nothing in this spec models the interaction between event multipliers and
+  existing permanent player bonuses — gear Gold Find, Item Find, add-on buffs, set
+  bonuses. A player at the top of the gear curve will get materially more out of
+  Coin Flood than a new one, which is fine, and out of Fortune's Eye specifically,
+  which may not be. Decide before launch whether event bonuses are additive with
+  gear stats or multiplicative; the ×4 ceiling assumes additive.
+</div>
+</section>
+
+<section>
+<h2><span class="num">11</span>Module table — Slot A</h2>
+<div class="secrule"></div>
+<h3>Slot A — the Boon</h3><p class="slotintro">The headline gift. What the announcement leads with, and the reason a player logs in today rather than tomorrow. Slot A is always a straightforward positive; it never carries a downside.</p><table class="modtable"><thead><tr><th>ID</th><th>Module</th><th>Tags</th><th>Magnitude bands</th><th>Rolls a target</th></tr></thead><tbody><tr><td class="mid">A1</td><td class="mname"><b>Coin Flood</b><div class="blurb">Every gold source on the server pays more.</div></td><td class="tags">ECONOMY · LOOT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> +25% gold</div><div class="band"><b>II</b> +60% gold</div><div class="band"><b>III</b> +120% gold</div></td><td class="roll">—</td></tr><tr><td class="mid">A2</td><td class="mname"><b>Rich Veins</b><div class="blurb">Gathering nodes give up a second helping.</div></td><td class="tags">GATHERING · ECONOMY<div class="surf">reaches: GATHER</div></td><td class="bands"><div class="band"><b>I</b> 10% double-yield</div><div class="band"><b>II</b> 20% double-yield</div><div class="band"><b>III</b> 35% double-yield</div></td><td class="roll">—</td></tr><tr><td class="mid">A3</td><td class="mname"><b>Master's Hand</b><div class="blurb">Crafts occasionally come off the bench twice.</div></td><td class="tags">CRAFTING · ECONOMY<div class="surf">reaches: CRAFT</div></td><td class="bands"><div class="band"><b>I</b> 8% free extra craft</div><div class="band"><b>II</b> 15% free extra craft</div><div class="band"><b>III</b> 25% free extra craft</div></td><td class="roll">—</td></tr><tr><td class="mid">A4</td><td class="mname"><b>Battle Fervour</b><div class="blurb">Combat experience surges.</div></td><td class="tags">COMBAT · XP<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +30% combat XP</div><div class="band"><b>II</b> +70% combat XP</div><div class="band"><b>III</b> +150% combat XP</div></td><td class="roll">—</td></tr><tr><td class="mid">A5</td><td class="mname"><b>Deep Pockets</b><div class="blurb">Item Find rises for everyone, equipped or not.</div></td><td class="tags">LOOT · COMBAT<div class="surf">reaches: COMBAT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> +15 Item Find</div><div class="band"><b>II</b> +35 Item Find</div><div class="band"><b>III</b> +75 Item Find</div></td><td class="roll">—</td></tr><tr><td class="mid">A6</td><td class="mname"><b>Fortune's Eye</b><div class="blurb">Gold Find rises for everyone, equipped or not.</div></td><td class="tags">LOOT · ECONOMY<div class="surf">reaches: COMBAT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> +20 Gold Find</div><div class="band"><b>II</b> +45 Gold Find</div><div class="band"><b>III</b> +90 Gold Find</div></td><td class="roll">—</td></tr><tr><td class="mid">A7</td><td class="mname"><b>Quartermaster's Ledger</b><div class="blurb">Work Order payouts are inflated.</div></td><td class="tags">WORKORDER · ECONOMY<div class="surf">reaches: WORKORDER</div></td><td class="bands"><div class="band"><b>I</b> +30% WO reward</div><div class="band"><b>II</b> +65% WO reward</div><div class="band"><b>III</b> +130% WO reward</div></td><td class="roll">—</td></tr><tr><td class="mid">A8</td><td class="mname"><b>Tireless</b><div class="blurb">Every non-combat action ticks faster.</div></td><td class="tags">GATHERING · CRAFTING<div class="surf">reaches: CRAFT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> +10% action speed</div><div class="band"><b>II</b> +20% action speed</div><div class="band"><b>III</b> +35% action speed</div></td><td class="roll">—</td></tr><tr><td class="mid">A9</td><td class="mname"><b>Warband</b><div class="blurb">Warfare climbs across the roster.</div></td><td class="tags">COMBAT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +10% Warfare</div><div class="band"><b>II</b> +22% Warfare</div><div class="band"><b>III</b> +45% Warfare</div></td><td class="roll">—</td></tr><tr><td class="mid">A10</td><td class="mname"><b>Second Wind</b><div class="blurb">Recovery is fast and dying costs less.</div></td><td class="tags">COMBAT · RISK<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> ×2 recovery, −50% death penalty</div><div class="band"><b>II</b> ×3 recovery, −75% death penalty</div><div class="band"><b>III</b> ×5 recovery, no death penalty</div></td><td class="roll">—</td></tr><tr><td class="mid">A11</td><td class="mname"><b>Salvager's Luck</b><div class="blurb">Enhancement materials fall out of ordinary actions.</div></td><td class="tags">LOOT · CRAFTING<div class="surf">reaches: COMBAT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> 5% bonus material</div><div class="band"><b>II</b> 10% bonus material</div><div class="band"><b>III</b> 18% bonus material</div></td><td class="roll">—</td></tr><tr><td class="mid">A12</td><td class="mname"><b>Foreman's Whistle</b><div class="blurb">Building Parts come quicker and cheaper.</div></td><td class="tags">VILLAGE · CRAFTING<div class="surf">reaches: VILLAGE</div></td><td class="bands"><div class="band"><b>I</b> +25% Parts XP, −10% bill</div><div class="band"><b>II</b> +55% Parts XP, −20% bill</div><div class="band"><b>III</b> +110% Parts XP, −35% bill</div></td><td class="roll">—</td></tr><tr><td class="mid">A13</td><td class="mname"><b>Silver Tongue</b><div class="blurb">Vendors buy high and sell low.</div></td><td class="tags">ECONOMY<div class="surf">reaches: GLOBAL, TRADE</div></td><td class="bands"><div class="band"><b>I</b> −10% buy / +15% sell</div><div class="band"><b>II</b> −20% buy / +30% sell</div><div class="band"><b>III</b> −33% buy / +60% sell</div></td><td class="roll">—</td></tr><tr><td class="mid">A14</td><td class="mname"><b>Apprentice's Boon</b><div class="blurb">Your three lowest skills catch up fast.</div></td><td class="tags">XP · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> +50% XP on lowest 3</div><div class="band"><b>II</b> +110% XP on lowest 3</div><div class="band"><b>III</b> +220% XP on lowest 3</div></td><td class="roll">—</td></tr><tr><td class="mid">A15</td><td class="mname"><b>Restless Traveller</b><div class="blurb">Zone gates relax and travel is free.</div></td><td class="tags">EXPLORATION · COMBAT<div class="surf">reaches: COMBAT, GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> −3 zone level req</div><div class="band"><b>II</b> −6 zone level req</div><div class="band"><b>III</b> −10 zone level req</div></td><td class="roll">—</td></tr><tr><td class="mid">A16</td><td class="mname"><b>Overflow</b><div class="blurb">The idle bucket holds far more before it spills.</div></td><td class="tags">ECONOMY · XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> +4h idle cap</div><div class="band"><b>II</b> +8h idle cap</div><div class="band"><b>III</b> +16h idle cap</div></td><td class="roll">—</td></tr><tr><td class="mid">A17</td><td class="mname"><b>Gem-Sight</b><div class="blurb">Gems and sockets surface everywhere.</div></td><td class="tags">LOOT · CRAFTING<div class="surf">reaches: COMBAT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> ×2 gem drops</div><div class="band"><b>II</b> ×3 gem drops</div><div class="band"><b>III</b> ×5 gem drops</div></td><td class="roll">—</td></tr><tr><td class="mid">A18</td><td class="mname"><b>Alchemist's Surplus</b><div class="blurb">Potions last longer and are often not spent.</div></td><td class="tags">CRAFTING · COMBAT<div class="surf">reaches: COMBAT, CRAFT</div></td><td class="bands"><div class="band"><b>I</b> +50% duration, 15% not consumed</div><div class="band"><b>II</b> +100% duration, 30% not consumed</div><div class="band"><b>III</b> +200% duration, 50% not consumed</div></td><td class="roll">—</td></tr><tr><td class="mid">A19</td><td class="mname"><b>Village Rally</b><div class="blurb">Every add-on and building buff is amplified.</div></td><td class="tags">VILLAGE · SOCIAL<div class="surf">reaches: GLOBAL, VILLAGE</div></td><td class="bands"><div class="band"><b>I</b> +25% add-on buffs</div><div class="band"><b>II</b> +50% add-on buffs</div><div class="band"><b>III</b> +100% add-on buffs</div></td><td class="roll">—</td></tr><tr><td class="mid">A20</td><td class="mname"><b>Task Bounty</b><div class="blurb">Task-tier completions pay a bounty.</div></td><td class="tags">WORKORDER · XP<div class="surf">reaches: WORKORDER</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 task rewards</div><div class="band"><b>II</b> ×2 task rewards</div><div class="band"><b>III</b> ×3 task rewards</div></td><td class="roll">—</td></tr></tbody></table>
+</section>
+
+<section>
+<h2><span class="num">12</span>Module table — Slot B</h2>
+<div class="secrule"></div>
+<h3>Slot B — the Twist</h3><p class="slotintro">The complication that makes the day feel unlike any other. Twists change how you play, not just how much you get. This is the slot that supplies the adjective in the event name.</p><table class="modtable"><thead><tr><th>ID</th><th>Module</th><th>Tags</th><th>Magnitude bands</th><th>Rolls a target</th></tr></thead><tbody><tr><td class="mid">B1</td><td class="mname"><b>Swarm</b><div class="blurb">Encounters bring friends. Per-kill rewards are unchanged, so the day is strictly denser, not strictly richer.</div></td><td class="tags">COMBAT · RISK<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +1 enemy per fight</div><div class="band"><b>II</b> +2 enemies per fight</div><div class="band"><b>III</b> +4 enemies per fight</div></td><td class="roll">—</td></tr><tr><td class="mid">B2</td><td class="mname"><b>Elite Vanguard</b><div class="blurb">A share of spawns are Elites: double health, two-and-a-half times the take.</div></td><td class="tags">COMBAT · LOOT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> 10% Elites</div><div class="band"><b>II</b> 20% Elites</div><div class="band"><b>III</b> 35% Elites</div></td><td class="roll">—</td></tr><tr><td class="mid">B3</td><td class="mname"><b>Brittle Steel</b><div class="blurb">Enhancement is far riskier, but every success lands one level deeper.</div></td><td class="tags">CRAFTING · RISK<div class="surf">reaches: CRAFT</div></td><td class="bands"><div class="band"><b>I</b> +15pp failure, +1 level on success</div><div class="band"><b>II</b> +25pp failure, +1 level on success</div><div class="band"><b>III</b> +40pp failure, +1 level on success</div></td><td class="roll">—</td></tr><tr><td class="mid">B4</td><td class="mname"><b>Blind Draw</b><div class="blurb">Every drop rolls twice and keeps the better roll. Nothing is previewed anywhere in the UI until it is claimed.</div></td><td class="tags">LOOT · RISK<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> best of 2 on rares</div><div class="band"><b>II</b> best of 2 on all drops</div><div class="band"><b>III</b> best of 3 on all drops</div></td><td class="roll">—</td></tr><tr><td class="mid">B5</td><td class="mname"><b>Iron Rations</b><div class="blurb">Healing is halved; the survivors learn faster for it.</div></td><td class="tags">COMBAT · RISK<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> −50% healing, +40% combat XP</div><div class="band"><b>II</b> −50% healing, +80% combat XP</div><div class="band"><b>III</b> −50% healing, +150% combat XP</div></td><td class="roll">—</td></tr><tr><td class="mid">B6</td><td class="mname"><b>Rush Orders</b><div class="blurb">Shorter fuses, bigger quotas.</div></td><td class="tags">WORKORDER · RISK<div class="surf">reaches: WORKORDER</div></td><td class="bands"><div class="band"><b>I</b> −25% timer, +50% quantity</div><div class="band"><b>II</b> −40% timer, +90% quantity</div><div class="band"><b>III</b> −60% timer, +150% quantity</div></td><td class="roll">—</td></tr><tr><td class="mid">B7</td><td class="mname"><b>Heavy Haul</b><div class="blurb">Carry less, gather more. Bank trips become the real cost.</div></td><td class="tags">GATHERING · RISK<div class="surf">reaches: GATHER</div></td><td class="bands"><div class="band"><b>I</b> −30% carry, +40% yield</div><div class="band"><b>II</b> −45% carry, +80% yield</div><div class="band"><b>III</b> −60% carry, +150% yield</div></td><td class="roll">—</td></tr><tr><td class="mid">B8</td><td class="mname"><b>Contested Ground</b><div class="blurb">A server-wide kill counter runs in the focused area; everyone shares the escalating bonus it pays out.</div></td><td class="tags">SOCIAL · COMBAT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +5% per 10k kills, cap +25%</div><div class="band"><b>II</b> +5% per 10k kills, cap +50%</div><div class="band"><b>III</b> +5% per 5k kills, cap +75%</div></td><td class="roll">—</td></tr><tr><td class="mid">B9</td><td class="mname"><b>Tempered Tools</b><div class="blurb">Gathering is slower per action and much larger per action, which rewards long uninterrupted sessions over check-ins.</div></td><td class="tags">GATHERING · RISK<div class="surf">reaches: GATHER</div></td><td class="bands"><div class="band"><b>I</b> −25% speed, ×2 yield</div><div class="band"><b>II</b> −35% speed, ×2.5 yield</div><div class="band"><b>III</b> −50% speed, ×3.5 yield</div></td><td class="roll">—</td></tr><tr><td class="mid">B10</td><td class="mname"><b>Night Shift</b><div class="blurb">Nothing happens for the first half of the server day. Then everything happens harder.</div></td><td class="tags">RISK · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> dormant 12h, then ×1.5</div><div class="band"><b>II</b> dormant 12h, then ×2</div><div class="band"><b>III</b> dormant 12h, then ×2.5</div></td><td class="roll">—</td></tr><tr><td class="mid">B11</td><td class="mname"><b>Glass Cannon</b><div class="blurb">Damage dealt and damage taken both climb, dealt slightly faster.</div></td><td class="tags">COMBAT · RISK<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +50% dealt / +40% taken</div><div class="band"><b>II</b> +100% dealt / +80% taken</div><div class="band"><b>III</b> +200% dealt / +150% taken</div></td><td class="roll">—</td></tr><tr><td class="mid">B12</td><td class="mname"><b>Tithe</b><div class="blurb">A slice of every coin earned goes into a server pot, paid back at reset to contributors at one and a half times what they put in.</div></td><td class="tags">ECONOMY · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 10% tithe</div><div class="band"><b>II</b> 15% tithe</div><div class="band"><b>III</b> 25% tithe</div></td><td class="roll">—</td></tr><tr><td class="mid">B13</td><td class="mname"><b>Rivalry</b><div class="blurb">A public leaderboard opens for the themed activity and pays the top of it at reset.</div></td><td class="tags">SOCIAL · XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> top 25 rewarded</div><div class="band"><b>II</b> top 100 rewarded</div><div class="band"><b>III</b> top 500 rewarded</div></td><td class="roll">—</td></tr><tr><td class="mid">B14</td><td class="mname"><b>Unstable Enchantment</b><div class="blurb">Enchantments on equipped gear reroll to a random enchantment of the same tier on a timer. Nothing is destroyed; the loadout simply will not sit still.</div></td><td class="tags">CRAFTING · RISK<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> reroll every 4h</div><div class="band"><b>II</b> reroll every 2h</div><div class="band"><b>III</b> reroll every 1h</div></td><td class="roll">—</td></tr><tr><td class="mid">B15</td><td class="mname"><b>Wandering Merchant</b><div class="blurb">A merchant with a randomly drawn stock sets up in one zone and moves every few hours.</div></td><td class="tags">ECONOMY · EXPLORATION<div class="surf">reaches: GLOBAL, TRADE</div></td><td class="bands"><div class="band"><b>I</b> 6 lines at 60% price</div><div class="band"><b>II</b> 10 lines at 50% price</div><div class="band"><b>III</b> 15 lines at 40% price</div></td><td class="roll">zone (34)</td></tr><tr><td class="mid">B16</td><td class="mname"><b>Scarcity</b><div class="blurb">One resource family stops dropping entirely. Anything already made from it is worth a fortune.</div></td><td class="tags">ECONOMY · GATHERING<div class="surf">reaches: CRAFT, GATHER, TRADE</div></td><td class="bands"><div class="band"><b>I</b> ×2 value on affected goods</div><div class="band"><b>II</b> ×3 value on affected goods</div><div class="band"><b>III</b> ×5 value on affected goods</div></td><td class="roll">resource family (8)</td></tr><tr><td class="mid">B17</td><td class="mname"><b>Conscription</b><div class="blurb">Finishing a Work Order reassigns you to a different skill. Each link in the chain pays better than the last.</div></td><td class="tags">WORKORDER · RISK<div class="surf">reaches: WORKORDER</div></td><td class="bands"><div class="band"><b>I</b> +20% per chain link</div><div class="band"><b>II</b> +35% per chain link</div><div class="band"><b>III</b> +50% per chain link</div></td><td class="roll">—</td></tr><tr><td class="mid">B18</td><td class="mname"><b>Momentum</b><div class="blurb">Repeating the same action stacks a bonus. Switching resets it to zero.</div></td><td class="tags">GATHERING · CRAFTING<div class="surf">reaches: CRAFT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> +1% per action, cap +25%</div><div class="band"><b>II</b> +1% per action, cap +50%</div><div class="band"><b>III</b> +1% per action, cap +100%</div></td><td class="roll">—</td></tr><tr><td class="mid">B19</td><td class="mname"><b>Hunter's Mark</b><div class="blurb">One enemy family is marked. It is worth several times normal; everything else is worth rather less.</div></td><td class="tags">COMBAT · LOOT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> ×3 marked / ×0.6 rest</div><div class="band"><b>II</b> ×4 marked / ×0.6 rest</div><div class="band"><b>III</b> ×6 marked / ×0.6 rest</div></td><td class="roll">enemy family (8)</td></tr><tr><td class="mid">B20</td><td class="mname"><b>Doubling Down</b><div class="blurb">Any reward can be pushed: better than even odds to double it, otherwise it is gone. Opt-in, per reward.</div></td><td class="tags">RISK · LOOT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 55% to double, 3 pushes/h</div><div class="band"><b>II</b> 60% to double, 5 pushes/h</div><div class="band"><b>III</b> 65% to double, unlimited</div></td><td class="roll">—</td></tr></tbody></table>
+</section>
+
+<section>
+<h2><span class="num">13</span>Module table — Slot C</h2>
+<div class="secrule"></div>
+<h3>Slot C — the Focus</h3><p class="slotintro">Where the event lands: a zone, a skill, a tier band, a four-hour window, the whole world. The Focus is what stops every event being "everything, everywhere, more" and is the slot the coherence gate polices.</p><table class="modtable"><thead><tr><th>ID</th><th>Module</th><th>Tags</th><th>Magnitude bands</th><th>Rolls a target</th></tr></thead><tbody><tr><td class="mid">C1</td><td class="mname"><b>Zone Lock</b><div class="blurb">One zone becomes the epicentre; the rest of the world is damped.</div></td><td class="tags">EXPLORATION<div class="surf">reaches: COMBAT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 inside / ×0.75 outside</div><div class="band"><b>II</b> ×2 inside / ×0.75 outside</div><div class="band"><b>III</b> ×3 inside / ×0.75 outside</div></td><td class="roll">zone (34)</td></tr><tr><td class="mid">C2</td><td class="mname"><b>Tier Band</b><div class="blurb">Only a five-tier band of content is affected.</div></td><td class="tags">EXPLORATION · COMBAT<div class="surf">reaches: COMBAT, GATHER</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 in band</div><div class="band"><b>II</b> ×2 in band</div><div class="band"><b>III</b> ×2.5 in band</div></td><td class="roll">tier band (30)</td></tr><tr><td class="mid">C3</td><td class="mname"><b>Skill Trio</b><div class="blurb">Three skills carry the event; the other seven have a normal day.</div></td><td class="tags">XP · GATHERING<div class="surf">reaches: CRAFT, GATHER, VILLAGE</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 on the trio</div><div class="band"><b>II</b> ×2 on the trio</div><div class="band"><b>III</b> ×2.5 on the trio</div></td><td class="roll">three skills (120)</td></tr><tr><td class="mid">C4</td><td class="mname"><b>Spotlight</b><div class="blurb">One skill only, and it is turned up hard.</div></td><td class="tags">XP<div class="surf">reaches: CRAFT, GATHER, VILLAGE</div></td><td class="bands"><div class="band"><b>I</b> ×2 on that skill</div><div class="band"><b>II</b> ×2.5 on that skill</div><div class="band"><b>III</b> ×3 on that skill</div></td><td class="roll">skill (10)</td></tr><tr><td class="mid">C5</td><td class="mname"><b>Element Ascendant</b><div class="blurb">One damage type is ascendant; event combat effects scale with using it.</div></td><td class="tags">COMBAT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 with that type</div><div class="band"><b>II</b> ×2 with that type</div><div class="band"><b>III</b> ×2.5 with that type</div></td><td class="roll">damage type (8)</td></tr><tr><td class="mid">C6</td><td class="mname"><b>Slotwork</b><div class="blurb">One equipment slot has its stats multiplied for the day.</div></td><td class="tags">COMBAT · CRAFTING<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 slot stats</div><div class="band"><b>II</b> ×2 slot stats</div><div class="band"><b>III</b> ×2.5 slot stats</div></td><td class="roll">gear slot (12)</td></tr><tr><td class="mid">C7</td><td class="mname"><b>Set Surge</b><div class="blurb">Set bonuses count extra pieces you are not wearing.</div></td><td class="tags">COMBAT · CRAFTING<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +1 phantom piece</div><div class="band"><b>II</b> +2 phantom pieces</div><div class="band"><b>III</b> all sets active at 4 pieces</div></td><td class="roll">—</td></tr><tr><td class="mid">C8</td><td class="mname"><b>Hearthbound</b><div class="blurb">Effects run through the village and scale with what has been built.</div></td><td class="tags">VILLAGE · SOCIAL<div class="surf">reaches: VILLAGE</div></td><td class="bands"><div class="band"><b>I</b> +4% per add-on, cap +40%</div><div class="band"><b>II</b> +6% per add-on, cap +60%</div><div class="band"><b>III</b> +8% per add-on, cap +80%</div></td><td class="roll">—</td></tr><tr><td class="mid">C9</td><td class="mname"><b>Estate</b><div class="blurb">Magnitude scales off housing tier, so the event rewards long-term investment.</div></td><td class="tags">VILLAGE · ECONOMY<div class="surf">reaches: GLOBAL, VILLAGE</div></td><td class="bands"><div class="band"><b>I</b> +10% per housing tier</div><div class="band"><b>II</b> +15% per housing tier</div><div class="band"><b>III</b> +20% per housing tier</div></td><td class="roll">—</td></tr><tr><td class="mid">C10</td><td class="mname"><b>Sanctuary</b><div class="blurb">Only content at or below your level minus ten is affected. A deliberate catch-up lens.</div></td><td class="tags">XP · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×2 on backfill content</div><div class="band"><b>II</b> ×3 on backfill content</div><div class="band"><b>III</b> ×4 on backfill content</div></td><td class="roll">—</td></tr><tr><td class="mid">C11</td><td class="mname"><b>Deep End</b><div class="blurb">The top five zones only.</div></td><td class="tags">COMBAT · EXPLORATION<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> ×2 at the top</div><div class="band"><b>II</b> ×2.5 at the top</div><div class="band"><b>III</b> ×3 at the top</div></td><td class="roll">—</td></tr><tr><td class="mid">C12</td><td class="mname"><b>Open World</b><div class="blurb">No restriction at all — but every other module drops one magnitude band (never below I). The safety valve and the wide, gentle day.</div></td><td class="tags">— neutral —<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> unrestricted, -1 band</div><div class="band"><b>II</b> unrestricted, -1 band</div><div class="band"><b>III</b> unrestricted, -1 band</div></td><td class="roll">—</td></tr><tr><td class="mid">C13</td><td class="mname"><b>Hour of Power</b><div class="blurb">A four-hour window is announced at reset. Inside it the event triples; outside it the event is halved.</div></td><td class="tags">RISK · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×3 in window / ×0.5 out</div><div class="band"><b>II</b> ×4 in window / ×0.5 out</div><div class="band"><b>III</b> ×5 in window / ×0.5 out</div></td><td class="roll">4h window (20)</td></tr><tr><td class="mid">C14</td><td class="mname"><b>Rotation</b><div class="blurb">The focus walks through four drawn targets, six hours each.</div></td><td class="tags">EXPLORATION · XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 on the active target</div><div class="band"><b>II</b> ×2 on the active target</div><div class="band"><b>III</b> ×2.5 on the active target</div></td><td class="roll">four targets, ordered (5040)</td></tr><tr><td class="mid">C15</td><td class="mname"><b>Warfront</b><div class="blurb">Combat only.</div></td><td class="tags">COMBAT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 in combat</div><div class="band"><b>II</b> ×2 in combat</div><div class="band"><b>III</b> ×2.5 in combat</div></td><td class="roll">—</td></tr><tr><td class="mid">C16</td><td class="mname"><b>Harvest</b><div class="blurb">Gathering only.</div></td><td class="tags">GATHERING<div class="surf">reaches: GATHER</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 gathering</div><div class="band"><b>II</b> ×2 gathering</div><div class="band"><b>III</b> ×2.5 gathering</div></td><td class="roll">—</td></tr><tr><td class="mid">C17</td><td class="mname"><b>Forge</b><div class="blurb">Crafting and refining only.</div></td><td class="tags">CRAFTING<div class="surf">reaches: CRAFT</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 crafting</div><div class="band"><b>II</b> ×2 crafting</div><div class="band"><b>III</b> ×2.5 crafting</div></td><td class="roll">—</td></tr><tr><td class="mid">C18</td><td class="mname"><b>Ledger</b><div class="blurb">Work Orders and task tiers only.</div></td><td class="tags">WORKORDER · ECONOMY<div class="surf">reaches: WORKORDER</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 on orders</div><div class="band"><b>II</b> ×2 on orders</div><div class="band"><b>III</b> ×2.5 on orders</div></td><td class="roll">—</td></tr><tr><td class="mid">C19</td><td class="mname"><b>Muster</b><div class="blurb">Effects scale with how many players are in your zone right now.</div></td><td class="tags">SOCIAL · COMBAT<div class="surf">reaches: COMBAT</div></td><td class="bands"><div class="band"><b>I</b> +2% each, cap +40%</div><div class="band"><b>II</b> +3% each, cap +50%</div><div class="band"><b>III</b> +5% each, cap +60%</div></td><td class="roll">—</td></tr><tr><td class="mid">C20</td><td class="mname"><b>Watermark</b><div class="blurb">Effects scale with how far past your own previous-day total you get. Competes with nobody but yesterday.</div></td><td class="tags">SOCIAL · XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> +1% per 5% over, cap +50%</div><div class="band"><b>II</b> +1% per 4% over, cap +75%</div><div class="band"><b>III</b> +1% per 3% over, cap +100%</div></td><td class="roll">—</td></tr></tbody></table>
+</section>
+
+<section>
+<h2><span class="num">14</span>Module table — Slot D</h2>
+<div class="secrule"></div>
+<h3>Slot D — the Flourish</h3><p class="slotintro">The server-wide capstone that applies no matter how a player spends the day. Every Flourish is globally reachable by design, so no player is locked out of an event by their build or their level.</p><table class="modtable"><thead><tr><th>ID</th><th>Module</th><th>Tags</th><th>Magnitude bands</th><th>Rolls a target</th></tr></thead><tbody><tr><td class="mid">D1</td><td class="mname"><b>Great Learning</b><div class="blurb">All experience, every skill, all day.</div></td><td class="tags">XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 all XP</div><div class="band"><b>II</b> ×2 all XP</div><div class="band"><b>III</b> ×2.5 all XP</div></td><td class="roll">—</td></tr><tr><td class="mid">D2</td><td class="mname"><b>Spoils</b><div class="blurb">Drop quantities across the board.</div></td><td class="tags">LOOT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×1.5 drop quantity</div><div class="band"><b>II</b> ×2 drop quantity</div><div class="band"><b>III</b> ×3 drop quantity</div></td><td class="roll">—</td></tr><tr><td class="mid">D3</td><td class="mname"><b>Wider Boon</b><div class="blurb">Today's Daily XP Boost covers more than its usual three skills.</div></td><td class="tags">XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 5 skills boosted</div><div class="band"><b>II</b> 6 skills boosted</div><div class="band"><b>III</b> all 10 skills boosted</div></td><td class="roll">—</td></tr><tr><td class="mid">D4</td><td class="mname"><b>Free Rerolls</b><div class="blurb">Reroll tasks and Work Orders at no cost.</div></td><td class="tags">WORKORDER<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 3 rerolls</div><div class="band"><b>II</b> 5 rerolls</div><div class="band"><b>III</b> unlimited rerolls</div></td><td class="roll">—</td></tr><tr><td class="mid">D5</td><td class="mname"><b>Event Currency</b><div class="blurb">A token drops server-wide and an event shop stays open for 48 hours past reset, so nobody is punished for sleeping through the day.</div></td><td class="tags">ECONOMY · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 6 shop lines</div><div class="band"><b>II</b> 10 shop lines</div><div class="band"><b>III</b> 15 shop lines</div></td><td class="roll">—</td></tr><tr><td class="mid">D6</td><td class="mname"><b>Regalia</b><div class="blurb">A title and banner named for this exact event, awarded on participation and never reissued. The permanent record that this day happened.</div></td><td class="tags">SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> title</div><div class="band"><b>II</b> title + banner</div><div class="band"><b>III</b> title + banner + frame</div></td><td class="roll">—</td></tr><tr><td class="mid">D7</td><td class="mname"><b>Server Goal</b><div class="blurb">One global bar the whole server fills together.</div></td><td class="tags">SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 1 reward tier</div><div class="band"><b>II</b> 2 reward tiers</div><div class="band"><b>III</b> 3 reward tiers</div></td><td class="roll">—</td></tr><tr><td class="mid">D8</td><td class="mname"><b>Milestone Chain</b><div class="blurb">Personal milestones through the day, each paying more than the last.</div></td><td class="tags">XP · LOOT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 3 milestones</div><div class="band"><b>II</b> 5 milestones</div><div class="band"><b>III</b> 7 milestones</div></td><td class="roll">—</td></tr><tr><td class="mid">D9</td><td class="mname"><b>Grace</b><div class="blurb">Guaranteed enhancement successes, banked per account.</div></td><td class="tags">CRAFTING<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 1 guaranteed success</div><div class="band"><b>II</b> 2 guaranteed successes</div><div class="band"><b>III</b> 3 guaranteed successes</div></td><td class="roll">—</td></tr><tr><td class="mid">D10</td><td class="mname"><b>Gem Rain</b><div class="blurb">Gems fall from everything.</div></td><td class="tags">LOOT · CRAFTING<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×2 gems</div><div class="band"><b>II</b> ×3 gems</div><div class="band"><b>III</b> ×5 gems</div></td><td class="roll">—</td></tr><tr><td class="mid">D11</td><td class="mname"><b>Amnesty</b><div class="blurb">Every gold sink is switched off: travel, repair, respec, listing fees.</div></td><td class="tags">ECONOMY<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> travel + repair free</div><div class="band"><b>II</b> travel + repair + respec free</div><div class="band"><b>III</b> all sinks free</div></td><td class="roll">—</td></tr><tr><td class="mid">D12</td><td class="mname"><b>Second Ledger</b><div class="blurb">Extra concurrent Work Order slots.</div></td><td class="tags">WORKORDER<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> +1 slot</div><div class="band"><b>II</b> +2 slots</div><div class="band"><b>III</b> +3 slots</div></td><td class="roll">—</td></tr><tr><td class="mid">D13</td><td class="mname"><b>Construction Blitz</b><div class="blurb">The village goes up fast and cheap.</div></td><td class="tags">VILLAGE<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> ×2 speed, −10% Parts</div><div class="band"><b>II</b> ×3 speed, −20% Parts</div><div class="band"><b>III</b> ×5 speed, −30% Parts</div></td><td class="roll">—</td></tr><tr><td class="mid">D14</td><td class="mname"><b>The Rift</b><div class="blurb">A temporary zone opens, level-scaled to each player, with its own loot table that closes at reset.</div></td><td class="tags">EXPLORATION · COMBAT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> rift, 1 floor</div><div class="band"><b>II</b> rift, 3 floors</div><div class="band"><b>III</b> rift, 5 floors</div></td><td class="roll">—</td></tr><tr><td class="mid">D15</td><td class="mname"><b>Loot Echo</b><div class="blurb">Drops can duplicate, and the duplicate can duplicate.</div></td><td class="tags">LOOT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 8% echo</div><div class="band"><b>II</b> 12% echo</div><div class="band"><b>III</b> 20% echo</div></td><td class="roll">—</td></tr><tr><td class="mid">D16</td><td class="mname"><b>First Blood</b><div class="blurb">The first kills of each hour are guaranteed rares — a shape that rewards checking in rather than parking.</div></td><td class="tags">LOOT · COMBAT<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> first 5 per hour</div><div class="band"><b>II</b> first 10 per hour</div><div class="band"><b>III</b> first 20 per hour</div></td><td class="roll">—</td></tr><tr><td class="mid">D17</td><td class="mname"><b>Overreach</b><div class="blurb">Your highest skill counts as several levels higher for requirements and yields.</div></td><td class="tags">XP<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> +3 effective levels</div><div class="band"><b>II</b> +5 effective levels</div><div class="band"><b>III</b> +8 effective levels</div></td><td class="roll">—</td></tr><tr><td class="mid">D18</td><td class="mname"><b>Overtime</b><div class="blurb">Idle and offline accrual pays at the full active rate for the event day.</div></td><td class="tags">ECONOMY<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 100% offline rate, 8h</div><div class="band"><b>II</b> 100% offline rate, 16h</div><div class="band"><b>III</b> 100% offline rate, 24h</div></td><td class="roll">—</td></tr><tr><td class="mid">D19</td><td class="mname"><b>Trader's Holiday</b><div class="blurb">Market tax is waived and vendors pay a premium.</div></td><td class="tags">ECONOMY<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> no tax, +20% sell</div><div class="band"><b>II</b> no tax, +40% sell</div><div class="band"><b>III</b> no tax, +75% sell</div></td><td class="roll">—</td></tr><tr><td class="mid">D20</td><td class="mname"><b>Echo of Days</b><div class="blurb">One module from a randomly chosen past event returns as a fifth effect at magnitude I. The archive feeds itself.</div></td><td class="tags">RISK · SOCIAL<div class="surf">reaches: GLOBAL</div></td><td class="bands"><div class="band"><b>I</b> 1 revived module at I</div><div class="band"><b>II</b> 1 revived module at I</div><div class="band"><b>III</b> 2 revived modules at I</div></td><td class="roll">a past module (80)</td></tr></tbody></table>
+</section>
+
+<section>
+<h2><span class="num">15</span>Name pools</h2>
+<div class="secrule"></div>
+<h3>Twist adjectives — four per Slot B module</h3>
+<p>The adjective is drawn from whichever Twist was rolled, which is what ties the
+name to the day's most distinctive mechanic.</p>
+<table>
+<thead><tr><th style="width:8%">ID</th><th style="width:26%">Twist</th><th>Adjective pool</th></tr></thead>
+<tbody><tr><td class="mid">B1</td><td>Swarm</td><td>Teeming · Endless · Ravening · Boundless</td></tr><tr><td class="mid">B2</td><td>Elite Vanguard</td><td>Crowned · Vanguard's · Imperial · Warlord's</td></tr><tr><td class="mid">B3</td><td>Brittle Steel</td><td>Brittle · Tempered · Reckless · Hammered</td></tr><tr><td class="mid">B4</td><td>Blind Draw</td><td>Veiled · Hidden · Shrouded · Unseen</td></tr><tr><td class="mid">B5</td><td>Iron Rations</td><td>Starving · Lean · Gaunt · Hollow</td></tr><tr><td class="mid">B6</td><td>Rush Orders</td><td>Hurried · Frantic · Breakneck · Clamouring</td></tr><tr><td class="mid">B7</td><td>Heavy Haul</td><td>Laden · Burdened · Groaning · Overladen</td></tr><tr><td class="mid">B8</td><td>Contested Ground</td><td>Contested · Warring · Thronged · Embattled</td></tr><tr><td class="mid">B9</td><td>Tempered Tools</td><td>Patient · Slow-Burning · Deliberate · Enduring</td></tr><tr><td class="mid">B10</td><td>Night Shift</td><td>Nocturnal · Midnight · Twilit · Waking</td></tr><tr><td class="mid">B11</td><td>Glass Cannon</td><td>Brittle-Boned · Reckless · Sundering · Frenzied</td></tr><tr><td class="mid">B12</td><td>Tithe</td><td>Tithed · Sworn · Covenant · Pledged</td></tr><tr><td class="mid">B13</td><td>Rivalry</td><td>Rival · Proving · Contested · Crowning</td></tr><tr><td class="mid">B14</td><td>Unstable Enchantment</td><td>Unstable · Shifting · Wild · Unbound</td></tr><tr><td class="mid">B15</td><td>Wandering Merchant</td><td>Wandering · Vagrant · Gilded · Far-Roaming</td></tr><tr><td class="mid">B16</td><td>Scarcity</td><td>Barren · Withered · Hungering · Fallow</td></tr><tr><td class="mid">B17</td><td>Conscription</td><td>Conscript · Levied · Marching · Summoned</td></tr><tr><td class="mid">B18</td><td>Momentum</td><td>Relentless · Unbroken · Ceaseless · Driving</td></tr><tr><td class="mid">B19</td><td>Hunter's Mark</td><td>Hunted · Marked · Stalking · Quarry's</td></tr><tr><td class="mid">B20</td><td>Doubling Down</td><td>Gambler's · Fated · Chancer's · Devil's</td></tr></tbody>
+</table>
+<p>Theme noun pools are listed in the table in §7.</p>
+</section>
+
+<section>
+<h2><span class="num">16</span>Five worked examples</h2>
+<div class="secrule"></div>
+<p>These are not illustrations written by hand. They are five real consecutive-calendar
+draws taken from the reference implementation seeded with actual server-day
+strings, selected from a two-year run to show a spread of theme, rank and
+mechanic. Every figure — the tag tally, the Focus pool size, the rolled targets,
+the engine log — is the engine's own output.</p>
+
+<div class="example">
+  <div class="exhead">
+    <div class="exday">Example 1 &nbsp;·&nbsp; server day 2026-09-14 &nbsp;·&nbsp; seed <code>2026-09-14</code></div>
+    <div class="exname">XP EVENT — Shrouded Steep Climb</div>
+    <div class="exrank">Rank II · Rising · intensity 7 · Focus pool 20 of 20</div>
+  </div>
+  <table class="extable"><thead><tr><th>Slot</th><th>ID</th>
+    <th>Module and rolled effect</th><th>Band</th><th>Tags</th><th>Pts</th>
+    </tr></thead><tbody><tr><td class="slotcell">A</td><td class="mid">A14</td><td><b>Apprentice's Boon</b> — +50% XP on lowest 3</td><td class="magcell">I</td><td class="tagcell">XP · SOCIAL</td><td class="ptscell">1</td></tr><tr><td class="slotcell">B</td><td class="mid">B4</td><td><b>Blind Draw</b> — best of 2 on rares</td><td class="magcell">I</td><td class="tagcell">LOOT · RISK</td><td class="ptscell">1</td></tr><tr><td class="slotcell">C</td><td class="mid">C10</td><td><b>Sanctuary</b> — ×4 on backfill content</td><td class="magcell">III</td><td class="tagcell">XP · SOCIAL</td><td class="ptscell">4</td></tr><tr><td class="slotcell">D</td><td class="mid">D7</td><td><b>Server Goal</b> — 1 reward tier</td><td class="magcell">I</td><td class="tagcell">SOCIAL</td><td class="ptscell">1</td></tr></tbody></table>
+  <div class="exwhy">
+    <div class="exwhyrow"><span class="lbl">Tag tally</span><span class="chips"><span class="chip tie">SOCIAL&nbsp;4</span><span class="chip win">XP&nbsp;4</span><span class="chip">LOOT&nbsp;2</span><span class="chip">RISK&nbsp;1</span></span></div>
+    <div class="exwhyrow"><span class="lbl">Theme</span><span><b>XP</b> — 2-way tie at 4 points, broken by Slot A’s primary tag.</span></div>
+    <div class="exwhyrow"><span class="lbl">Name</span><span>adjective <b>Shrouded</b> from the B4 pool, noun <b>Steep Climb</b> from the XP pool.</span></div>
+    <div class="exwhyrow"><span class="lbl">Engine log</span><span><ul class="log"><li>Focus pool: 20 of 20 Slot C modules reach both A14 and B4.</li></ul></span></div>
+  </div>
+  <div class="exread"><b>Reads as</b> — a quiet, generous catch-up day. Your three weakest skills gain half again as fast, and anything at least ten levels below you pays four times — so the day is aimed squarely at the alt, the neglected skill and the returning player. Nothing is previewed before you claim it, and the whole server is filling one shared bar in the background. Low intensity, high goodwill.</div>
+</div>
+<div class="example">
+  <div class="exhead">
+    <div class="exday">Example 2 &nbsp;·&nbsp; server day 2026-10-06 &nbsp;·&nbsp; seed <code>2026-10-06</code></div>
+    <div class="exname">VILLAGE EVENT — Patient Bonfire Night Ascendant</div>
+    <div class="exrank">Rank IV · Grand · intensity 13 · Focus pool 6 of 20</div>
+  </div>
+  <table class="extable"><thead><tr><th>Slot</th><th>ID</th>
+    <th>Module and rolled effect</th><th>Band</th><th>Tags</th><th>Pts</th>
+    </tr></thead><tbody><tr><td class="slotcell">A</td><td class="mid">A12</td><td><b>Foreman's Whistle</b> — +110% Parts XP, −35% bill</td><td class="magcell">III</td><td class="tagcell">VILLAGE · CRAFTING</td><td class="ptscell">4</td></tr><tr><td class="slotcell">B</td><td class="mid">B9</td><td><b>Tempered Tools</b> — −50% speed, ×3.5 yield</td><td class="magcell">III</td><td class="tagcell">GATHERING · RISK</td><td class="ptscell">4</td></tr><tr><td class="slotcell">C</td><td class="mid">C4</td><td><b>Spotlight</b> — ×2 on that skill<div class="param">rolled target: <b>Tailoring</b></div></td><td class="magcell">I</td><td class="tagcell">XP</td><td class="ptscell">1</td></tr><tr><td class="slotcell">D</td><td class="mid">D18</td><td><b>Overtime</b> — 100% offline rate, 24h</td><td class="magcell">III</td><td class="tagcell">ECONOMY</td><td class="ptscell">4</td></tr></tbody></table>
+  <div class="exwhy">
+    <div class="exwhyrow"><span class="lbl">Tag tally</span><span class="chips"><span class="chip tie">ECONOMY&nbsp;2</span><span class="chip tie">GATHERING&nbsp;2</span><span class="chip win">VILLAGE&nbsp;2</span><span class="chip tie">XP&nbsp;2</span><span class="chip">CRAFTING&nbsp;1</span><span class="chip">RISK&nbsp;1</span></span></div>
+    <div class="exwhyrow"><span class="lbl">Theme</span><span><b>VILLAGE</b> — 4-way tie at 2 points, broken by Slot A’s primary tag.</span></div>
+    <div class="exwhyrow"><span class="lbl">Name</span><span>adjective <b>Patient</b> from the B9 pool, noun <b>Bonfire Night</b> from the VILLAGE pool, with <b>Ascendant</b> appended for Rank IV.</span></div>
+    <div class="exwhyrow"><span class="lbl">Engine log</span><span><ul class="log"><li>Focus pool: 6 of 20 Slot C modules reach both A12 and B9.</li></ul></span></div>
+  </div>
+  <div class="exread"><b>Reads as</b> — the rare Grand day, and it is a builder’s one. Parts XP more than doubles while the assembly bill drops a third; gathering is half speed but three and a half times the haul, which turns Tailoring — the rolled spotlight, doubled again — into the only sane thing to do for twenty-four hours. Offline accrual pays the full active rate all day, so this is the one event a player can genuinely sleep through and still win. Note the four-way tag tie broken by Slot A’s primary.</div>
+</div>
+<div class="example">
+  <div class="exhead">
+    <div class="exday">Example 3 &nbsp;·&nbsp; server day 2026-12-18 &nbsp;·&nbsp; seed <code>2026-12-18</code></div>
+    <div class="exname">COMBAT EVENT — Marked Reaver's Hour</div>
+    <div class="exrank">Rank II · Rising · intensity 6 · Focus pool 11 of 20</div>
+  </div>
+  <table class="extable"><thead><tr><th>Slot</th><th>ID</th>
+    <th>Module and rolled effect</th><th>Band</th><th>Tags</th><th>Pts</th>
+    </tr></thead><tbody><tr><td class="slotcell">A</td><td class="mid">A4</td><td><b>Battle Fervour</b> — +70% combat XP</td><td class="magcell">II</td><td class="tagcell">COMBAT · XP</td><td class="ptscell">2</td></tr><tr><td class="slotcell">B</td><td class="mid">B19</td><td><b>Hunter's Mark</b> — ×3 marked / ×0.6 rest<div class="param">rolled target: <b>Aberrant</b></div></td><td class="magcell">I</td><td class="tagcell">COMBAT · LOOT</td><td class="ptscell">1</td></tr><tr><td class="slotcell">C</td><td class="mid">C7</td><td><b>Set Surge</b> — +1 phantom piece</td><td class="magcell">I</td><td class="tagcell">COMBAT · CRAFTING</td><td class="ptscell">1</td></tr><tr><td class="slotcell">D</td><td class="mid">D15</td><td><b>Loot Echo</b> — 12% echo</td><td class="magcell">II</td><td class="tagcell">LOOT</td><td class="ptscell">2</td></tr></tbody></table>
+  <div class="exwhy">
+    <div class="exwhyrow"><span class="lbl">Tag tally</span><span class="chips"><span class="chip win">COMBAT&nbsp;6</span><span class="chip">LOOT&nbsp;3</span><span class="chip">CRAFTING&nbsp;1</span><span class="chip">XP&nbsp;1</span></span></div>
+    <div class="exwhyrow"><span class="lbl">Theme</span><span><b>COMBAT</b> — clear plurality at 6 points.</span></div>
+    <div class="exwhyrow"><span class="lbl">Name</span><span>adjective <b>Marked</b> from the B19 pool, noun <b>Reaver's Hour</b> from the COMBAT pool.</span></div>
+    <div class="exwhyrow"><span class="lbl">Engine log</span><span><ul class="log"><li>Focus pool: 11 of 20 Slot C modules reach both A4 and B19.</li></ul></span></div>
+  </div>
+  <div class="exread"><b>Reads as</b> — the shape the brief asked for, almost exactly. Three of four modules are tagged COMBAT, so the name comes from the combat pool. Aberrants are worth triple and everything else is worth rather less, which pushes the whole server toward the same handful of zones; set bonuses count a phantom piece, so half-finished sets suddenly come online for a day; and one drop in eight quietly duplicates itself.</div>
+</div>
+<div class="example">
+  <div class="exhead">
+    <div class="exday">Example 4 &nbsp;·&nbsp; server day 2027-03-04 &nbsp;·&nbsp; seed <code>2027-03-04</code></div>
+    <div class="exname">WORKORDER EVENT — Marching Standing Order</div>
+    <div class="exrank">Rank I · Faint · intensity 5 · Focus pool 5 of 20</div>
+  </div>
+  <table class="extable"><thead><tr><th>Slot</th><th>ID</th>
+    <th>Module and rolled effect</th><th>Band</th><th>Tags</th><th>Pts</th>
+    </tr></thead><tbody><tr><td class="slotcell">A</td><td class="mid">A20</td><td><b>Task Bounty</b> — ×2 task rewards</td><td class="magcell">II</td><td class="tagcell">WORKORDER · XP</td><td class="ptscell">2</td></tr><tr><td class="slotcell">B</td><td class="mid">B17</td><td><b>Conscription</b> — +20% per chain link</td><td class="magcell">I</td><td class="tagcell">WORKORDER · RISK</td><td class="ptscell">1</td></tr><tr><td class="slotcell">C</td><td class="mid">C12</td><td><b>Open World</b> — unrestricted, -1 band</td><td class="magcell">I</td><td class="tagcell">neutral</td><td class="ptscell">1</td></tr><tr><td class="slotcell">D</td><td class="mid">D13</td><td><b>Construction Blitz</b> — ×2 speed, −10% Parts</td><td class="magcell">I</td><td class="tagcell">VILLAGE</td><td class="ptscell">1</td></tr></tbody></table>
+  <div class="exwhy">
+    <div class="exwhyrow"><span class="lbl">Tag tally</span><span class="chips"><span class="chip win">WORKORDER&nbsp;4</span><span class="chip">VILLAGE&nbsp;2</span><span class="chip">RISK&nbsp;1</span><span class="chip">XP&nbsp;1</span></span></div>
+    <div class="exwhyrow"><span class="lbl">Theme</span><span><b>WORKORDER</b> — clear plurality at 4 points.</span></div>
+    <div class="exwhyrow"><span class="lbl">Name</span><span>adjective <b>Marching</b> from the B17 pool, noun <b>Standing Order</b> from the WORKORDER pool.</span></div>
+    <div class="exwhyrow"><span class="lbl">Engine log</span><span><ul class="log"><li>Focus pool: 5 of 20 Slot C modules reach both A20 and B17.</li><li>C12 Open World: own band pinned to I; every other module drops one band.</li></ul></span></div>
+  </div>
+  <div class="exread"><b>Reads as</b> — the safety valve doing its job. Task Bounty and Conscription are both Work Order modules, so the Focus pool narrowed to five — and the draw came up Open World, which lifts every restriction and damps every other module one band in exchange. The result is a mild, wide day that touches everyone: double task rewards, Work Orders that keep reassigning you to new skills for a compounding bonus, and the village going up at double speed underneath it.</div>
+</div>
+<div class="example">
+  <div class="exhead">
+    <div class="exday">Example 5 &nbsp;·&nbsp; server day 2027-10-02 &nbsp;·&nbsp; seed <code>2027-10-02</code></div>
+    <div class="exname">RISK EVENT — Midnight Brinkfall</div>
+    <div class="exrank">Rank III · Greater · intensity 10 · Focus pool 9 of 20</div>
+  </div>
+  <table class="extable"><thead><tr><th>Slot</th><th>ID</th>
+    <th>Module and rolled effect</th><th>Band</th><th>Tags</th><th>Pts</th>
+    </tr></thead><tbody><tr><td class="slotcell">A</td><td class="mid">A2</td><td><b>Rich Veins</b> — 10% double-yield</td><td class="magcell">I</td><td class="tagcell">GATHERING · ECONOMY</td><td class="ptscell">1</td></tr><tr><td class="slotcell">B</td><td class="mid">B10</td><td><b>Night Shift</b> — dormant 12h, then ×2.5</td><td class="magcell">III</td><td class="tagcell">RISK · SOCIAL</td><td class="ptscell">4</td></tr><tr><td class="slotcell">C</td><td class="mid">C4</td><td><b>Spotlight</b> — ×3 on that skill<div class="param">rolled target: <b>Foraging</b></div></td><td class="magcell">III</td><td class="tagcell">XP</td><td class="ptscell">4</td></tr><tr><td class="slotcell">D</td><td class="mid">D20</td><td><b>Echo of Days</b> — 1 revived module at I</td><td class="magcell">I</td><td class="tagcell">RISK · SOCIAL</td><td class="ptscell">1</td></tr></tbody></table>
+  <div class="exwhy">
+    <div class="exwhyrow"><span class="lbl">Tag tally</span><span class="chips"><span class="chip win">RISK&nbsp;4</span><span class="chip">GATHERING&nbsp;2</span><span class="chip">SOCIAL&nbsp;2</span><span class="chip">XP&nbsp;2</span><span class="chip">ECONOMY&nbsp;1</span></span></div>
+    <div class="exwhyrow"><span class="lbl">Theme</span><span><b>RISK</b> — clear plurality at 4 points.</span></div>
+    <div class="exwhyrow"><span class="lbl">Name</span><span>adjective <b>Midnight</b> from the B10 pool, noun <b>Brinkfall</b> from the RISK pool.</span></div>
+    <div class="exwhyrow"><span class="lbl">Engine log</span><span><ul class="log"><li>Focus pool: 9 of 20 Slot C modules reach both A2 and B10.</li></ul></span></div>
+  </div>
+  <div class="exread"><b>Reads as</b> — the gambler’s day, and the one that shows the archive feeding itself. Nothing at all happens for the first twelve hours — then the event wakes at ×2.5 for the back half, with Foraging tripled inside it. Echo of Days drags one module out of a past event and bolts it on as a fifth effect. RISK only takes a theme on a clean plurality, which is why this reads as a RISK event rather than a gathering one.</div>
+</div>
+</section>
+
+<section>
+<h2><span class="num">17</span>Reference implementation</h2>
+<div class="secrule"></div>
+
+<p>The full engine accompanies this document as a single Python file with no
+dependencies: the eighty modules, the pipeline, the naming system, the clamps and
+the simulation harness that produced every number quoted here. It is intended as
+an executable specification — the tables in §11–§14 are generated from it, so
+they cannot drift.</p>
+
+<h3>The PRNG</h3>
+<p>Determinism across server, client and any third-party tool requires everyone
+to agree on the random stream, which means specifying the generator rather than
+using each platform's built-in. The system uses <b>FNV-1a</b> to hash the seed
+string to 32 bits and <b>mulberry32</b> to expand it.</p>
+
+<pre>function fnv1a(s){ let h = 0x811C9DC5;
+  for (const c of Buffer.from(s,'utf8')) { h ^= c; h = Math.imul(h, 0x01000193) >>> 0; }
+  return h >>> 0; }
+
+function mulberry32(a){ return function(){
+  a = (a + 0x6D2B79F5) >>> 0;
+  var t = a;
+  t = Math.imul(t ^ t >>> 15, 1 | t);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// seeds
+const gate  = mulberry32(fnv1a(serverDay + '|gate'));   // 1-in-7 check
+const draw  = mulberry32(fnv1a(serverDay));             // module draws</pre>
+
+<div class="call good">
+  <div class="ct">The port is verified, not assumed</div>
+  The Python reference and this JavaScript were run side by side over four seed
+  strings — including a real server-day string and a gate sub-seed — and compared
+  to twelve decimal places across six successive draws each. All 24 values match
+  exactly. The subtlety worth knowing about: <code>t + Math.imul(...)</code> in JS
+  is a float64 addition of two int32 values that is only truncated to 32 bits by
+  the following <code>^</code>. A port that masks to 32 bits too early diverges
+  after a handful of draws, and the divergence is invisible until two clients
+  disagree about what day it is.
+</div>
+
+<h3>Draw order is part of the contract</h3>
+<p>Because every draw consumes from one stream, the <b>order of calls is
+load-bearing</b>. A, then B, then the filtered C, then D; magnitude immediately
+after each module; rolled target immediately after magnitude. Reordering any of
+these produces a different but equally valid event, which means a refactor that
+looks purely cosmetic will silently change every future event and break agreement
+with any client that was not redeployed at the same instant. Freeze the order,
+and put a comment saying so next to it.</p>
+</section>
+
+<section>
+<h2><span class="num">18</span>The published event contract</h2>
+<div class="secrule"></div>
+
+<p>The event must be published as machine-readable data at a same-origin
+endpoint. This is the single most important integration requirement in this
+document, and it is worth being blunt about why.</p>
+
+<div class="call warn">
+  <div class="ct">The lesson already paid for</div>
+  The Daily XP Boost has no offline answer. Because it is not published anywhere
+  machine-readable, external tools have to scrape a wiki page through third-party
+  CORS readers, and when that fails the only correct behaviour is to display
+  "unavailable" — because a wrong guess applies a bonus to skills that do not have
+  one and withholds it from ones that do, and every XP-per-hour figure downstream
+  inherits the error while still looking plausible.
+  <br><br>
+  A modular event system is <b>strictly worse</b> in this respect: there are four
+  simultaneous effects instead of one, several are multiplicative, and no external
+  tool can possibly infer them. If the event is not published as data, every
+  calculator in the ecosystem is silently wrong for one day in seven. Publishing
+  it is a few lines of JSON and it prevents that entirely.
+</div>
+
+<h4>Requirements</h4>
+<ul>
+  <li><b>Same-origin</b>, e.g. <code>/api/daily-event</code>. An absolute URL
+  serving 200 with no <code>Access-Control-Allow-Origin</code> header is
+  discarded by every browser and looks identical to "no event today".</li>
+  <li><b>Numbers, not prose.</b> <code>"goldMultiplier": 1.6</code>, not
+  <code>"Gold is increased by 60%"</code>. Prose has to be parsed, and parsers
+  break silently.</li>
+  <li><b>Absent is not zero.</b> A multiplier that does not apply should be
+  absent from the payload, never present as <code>0</code> or <code>1</code>. The
+  distinction between "no bonus" and "not applicable" matters to consumers.</li>
+  <li><b>Available on non-event days too</b>, returning
+  <code>{"event": null}</code>. Silence is ambiguous with failure.</li>
+</ul>
+
+<pre>{
+  "serverDay": "2026-12-18",
+  "event": {
+    "id": "evt-2026-12-18",
+    "name": "COMBAT EVENT — Marked Reaver's Hour",
+    "theme": "COMBAT", "rank": 2, "rankName": "Rising", "intensity": 6,
+    "signature": "A4II-B19I-C7I-D15II",
+    "modules": [
+      { "slot":"A", "id":"A4",  "magnitude":2,
+        "effects": { "combatXpMultiplier": 1.70 } },
+      { "slot":"B", "id":"B19", "magnitude":1, "target": "Aberrant",
+        "effects": { "markedFamilyMultiplier": 3.0, "otherFamilyMultiplier": 0.6 } },
+      { "slot":"C", "id":"C7",  "magnitude":1,
+        "effects": { "setBonusPhantomPieces": 1 } },
+      { "slot":"D", "id":"D15", "magnitude":2,
+        "effects": { "lootEchoChance": 0.12 } }
+    ],
+    "startsAt": "2026-12-18T17:00:00Z", "endsAt": "2026-12-19T17:00:00Z"
+  }
+}</pre>
+
+<p>Every consumer — the in-game banner, the event archive, the wiki, and the
+community calculators — reads this one payload. Nothing re-derives the event from
+the seed in production, even though it could; the seed is for verification and
+for showing players <i>why</i> today is what it is, not for parallel
+implementations that can drift.</p>
+</section>
+
+<section>
+<h2><span class="num">19</span>Operations, testing, rollout</h2>
+<div class="secrule"></div>
+
+<h3>What to test</h3>
+<table>
+<thead><tr><th style="width:28%">Check</th><th>Assertion</th></tr></thead>
+<tbody>
+<tr><td><b>Determinism</b></td><td>The same seed and history produce a byte-identical payload on every shard and in the client port. Assert against stored fixtures.</td></tr>
+<tr><td><b>PRNG agreement</b></td><td>Server and client agree to 12 decimal places over at least 6 draws from at least 4 seeds. This catches the int32 truncation bug described in §17.</td></tr>
+<tr><td><b>Gate coherence</b></td><td>Every Focus in a filtered pool overlaps both the Boon and the Twist, and every excluded one fails a rule. Then disable each rule and confirm the assertions fail.</td></tr>
+<tr><td><b>Non-empty pool</b></td><td>For all 400 Boon × Twist pairs, the filtered Focus pool is non-empty. This is a finite exhaustive check — run it, do not reason about it.</td></tr>
+<tr><td><b>Clamp ceiling</b></td><td>Over a long simulated run, no resolved quantity exceeds ×4 (×6 at Rank IV).</td></tr>
+<tr><td><b>Distribution</b></td><td>Over 10,000 simulated events: every module and every theme appears, and rank shares are within tolerance of §5.</td></tr>
+</tbody>
+</table>
+
+<p>A check that returns an empty list on success only means something if you can
+tell "empty" from "did not run" — make the runner report how many assertions it
+executed, not just how many failed.</p>
+
+<h3>Telemetry worth having from day one</h3>
+<ul>
+  <li>Focus pool size per event — the health metric for the gate. If the mean
+  drifts below about 5, the tables have grown too narrow and events will feel samey.</li>
+  <li>Per-module appearance counts. Any module at zero after a simulated decade
+  is unreachable and is a bug in its surfaces or tags.</li>
+  <li>Active players and session length on event days against the trailing
+  non-event baseline, split by Rank — this tells you whether Rank is landing.</li>
+  <li>Which Boon/Twist pairs produce the smallest pools — the candidates for a new
+  Focus module.</li>
+</ul>
+
+<h3>Suggested rollout</h3>
+<ol>
+  <li><b>Shadow mode.</b> Run the roll daily, publish nothing, log everything, for
+  two to four weeks. Check that the events that came up sound like days you would
+  want to ship.</li>
+  <li><b>Reduced pools.</b> Launch with a subset — say twelve modules per slot —
+  chosen for effects that already exist in the game and need no new systems. The
+  structure count is still over 1.6 million.</li>
+  <li><b>Widen.</b> Append modules as their underlying features land. Because pools
+  are additive and the gate is structural, that requires no other changes.</li>
+</ol>
+
+<div class="call">
+  <div class="ct">Player-facing communication</div>
+  Publish the module list and the tag rules. The system is far more interesting
+  to players who can see the machine — an archive page listing every past event
+  with its signature, its rank and its numeral turns a random daily buff into
+  something with history that players collect and compare. It also makes Echo of
+  Days (D20) legible instead of confusing.
+</div>
+</section>
+
+<section>
+<h2><span class="num">20</span>Open questions for the developer</h2>
+<div class="secrule"></div>
+
+<p>These are the decisions this document deliberately does not make, because they
+depend on the live game and on your intent rather than on the structure.</p>
+
+<ol>
+  <li><b>Additive or multiplicative with gear?</b> The single biggest balance
+  question (§10). The ×4 ceiling assumes additive.</li>
+  <li><b>Are the ten skills the right parameter pool?</b> The skill list used
+  here is illustrative and must be bound to real skill IDs. Likewise the 34
+  zones, 12 gear slots, 8 enemy families, 8 resource families and 8 damage types
+  — several of these are inferred from the existing toolkit and need
+  confirming against the live data model.</li>
+  <li><b>Which modules need new systems?</b> Roughly a dozen — the server pot
+  (B12), the wandering merchant (B15), the temporary rift (D14), the event shop
+  (D5), leaderboards (B13), the server goal (D7) — are meaningful engineering in
+  their own right. They are worth keeping in the tables as targets, but the
+  reduced-pool launch in §19 exists so they are not blockers.</li>
+  <li><b>Does the death penalty exist in the form A10 assumes?</b> Several
+  Twists assume there is a cost to dying worth removing or raising. If there is
+  not, B5, B11 and A10 need rewriting.</li>
+  <li><b>Should events be per-shard or global?</b> This spec assumes global,
+  which is why the seed is the server-day string alone. Per-shard events need the
+  shard ID in the seed and change the social character of the system
+  considerably.</li>
+  <li><b>What happens to an event in progress across a patch?</b> If module
+  effects are read live from config, a mid-day deploy changes the event under
+  players. Freeze the payload at reset and read from the frozen copy.</li>
+</ol>
+
+<div class="call good">
+  <div class="ct">What is already done</div>
+  Eighty modules with effects, tags, surfaces and three magnitude bands each. The
+  gate, the clamps, the naming system, the anti-repeat memories and the
+  distribution tuning. A verified deterministic PRNG with a matching JS port. A
+  100-year simulation harness and the numbers it produces. What remains is
+  binding the effects to real game systems and deciding the six questions above.
+</div>
+</section>
+
+</body>
+</html>

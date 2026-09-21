@@ -24,3 +24,7 @@ __pycache__/
 /output/
 /outputs/
 /tmp/
+
+# Private design notes — kept on disk, never committed or pushed.
+/docs/IdleWorlds-Fair-Monetisation-Blueprint.md
+/docs/research/
