@@ -73,6 +73,14 @@ SOURCE_REGIONS = (
 )
 
 SOURCE_REGION_OVERRIDES = {
+    # Lunar-spectral's nav pair sits right of the shared windows: the idle
+    # frame spans x 1266-1467 and the active one 1487-1689, so the default
+    # window 4 (ending at 1420) sliced the idle frame's right-hand border off —
+    # the clipped inventory buttons in zones 14/23/27. Split in the gap.
+    "lunar-spectral": {
+        4: (1240, 0, 1477, 330),
+        5: (1477, 0, 1710, 330),
+    },
     # Verdant's generated nav pair sits about 110 px left of the otherwise
     # consistent top-row layout. Without explicit windows, the idle crop picks
     # the active frame and the active crop stretches only its right-hand side.

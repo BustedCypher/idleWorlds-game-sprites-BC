@@ -140,6 +140,24 @@ class RebuildSkillAtlasesTest(unittest.TestCase):
                         f"{theme}: under-filled slot {box}",
                     )
 
+                # The idle/active nav frames (slots 4 and 5) are the same
+                # ornament, so their opaque widths must match. A crop window
+                # that slices one side off leaves the occupancy check above
+                # satisfied; this catches it. Healthy themes sit at 0.947+;
+                # the clipped lunar-spectral idle frame was 106 vs 142 = 0.746.
+                def opaque_width(logical_box):
+                    x0, y0, x1, y1 = (value * PIXEL_RATIO for value in logical_box)
+                    columns = np.where((png_pixels[y0:y1, x0:x1, 3] > 40).sum(axis=0) > 20)[0]
+                    return int(columns.max() - columns.min() + 1) if columns.size else 0
+
+                idle_width = opaque_width(TARGET_BOXES[4])
+                active_width = opaque_width(TARGET_BOXES[5])
+                self.assertGreaterEqual(
+                    min(idle_width, active_width) / max(idle_width, active_width, 1),
+                    0.9,
+                    f"{theme}: nav frames differ in width ({idle_width} vs {active_width}) - one is clipped",
+                )
+
                 outside = Image.new("L", png.size, 0)
                 outside.paste(alpha)
                 outside.paste(0, mask=allowed)
@@ -204,8 +222,11 @@ class RebuildSkillAtlasesTest(unittest.TestCase):
                     aspect, _ = strong_ink_aspect(TARGET_BOXES[3])
                     self.assertTrue(2.35 < aspect < 2.55, aspect)
                 if theme == "lunar-spectral":
+                    # Source idle frame: 202 x 231 px = 0.874. The old
+                    # 0.62-0.72 range was measured off the CLIPPED crop
+                    # (0.66) and pinned the bug it should have caught.
                     aspect, _ = strong_ink_aspect(TARGET_BOXES[4])
-                    self.assertTrue(0.62 < aspect < 0.72, aspect)
+                    self.assertTrue(0.82 < aspect < 0.93, aspect)
                 if theme == "runic-arcane":
                     aspect, bounds = strong_ink_aspect(TARGET_BOXES[9])
                     self.assertTrue(1.18 < aspect < 1.36, aspect)
