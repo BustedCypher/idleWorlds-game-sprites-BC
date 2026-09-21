@@ -1,1 +1,3 @@
 Pillow>=10.0,<12
+# tools/rebuild_skill_atlases.py and its test compare pixels with numpy.
+numpy>=1.24

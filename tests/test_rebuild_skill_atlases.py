@@ -4,14 +4,32 @@ import tempfile
 import unittest
 from pathlib import Path
 
-import numpy as np
-from PIL import Image
+# numpy is an OPTIONAL dependency: it belongs to this art tool, not to the
+# toolkit. Importing it at module scope made `python -m unittest discover -s
+# tests` ERROR on any machine without it — which took the whole run red and
+# buried test_no_unsafe_writes, the gate that actually protects index.html.
+# A missing art dependency must degrade to "skipped", never to "the gate is
+# unreadable". Install it with `pip install -r requirements-dev.txt`.
+try:
+    import numpy as np
+    from PIL import Image
+except ImportError as exc:  # pragma: no cover - environment-dependent
+    np = None
+    Image = None
+    _MISSING = str(exc)
+else:
+    _MISSING = ""
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools" / "rebuild_skill_atlases.py"
 BASE_ATLAS = ROOT / "assets" / "skills-ui-atlas" / "source" / "skills_ui_atlas_original.webp"
 PREVIEW_DIR = ROOT / "assets" / "skills-ui-atlas" / "source-previews"
+THEME_MAP = ROOT / "assets" / "skills-ui-atlas" / "families" / "zone-theme-map.json"
+
+LOGICAL_SIZE = (860, 463)
+PIXEL_RATIO = 2
+PHYSICAL_SIZE = tuple(dimension * PIXEL_RATIO for dimension in LOGICAL_SIZE)
 
 THEMES = (
     "celestial",
@@ -43,7 +61,25 @@ TARGET_BOXES = (
 )
 
 
+def setUpModule() -> None:
+    """Skip the whole module when its optional deps are absent.
+
+    Raised here rather than decorating each test so the reason is reported
+    once, and so `discover` still returns a clean, readable result for the
+    gates that matter."""
+    if _MISSING:
+        raise unittest.SkipTest(
+            f"{_MISSING} - optional; pip install -r requirements-dev.txt")
+
+
 class RebuildSkillAtlasesTest(unittest.TestCase):
+    def test_theme_map_declares_logical_canvas_and_physical_pixel_ratio(self):
+        import json
+
+        data = json.loads(THEME_MAP.read_text(encoding="utf-8"))
+        self.assertEqual(data["canvas"], {"width": 860, "height": 463})
+        self.assertEqual(data["pixelRatio"], PIXEL_RATIO)
+
     def test_rebuilds_complete_unclipped_atlases_in_original_slots(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             output_dir = Path(temp_dir)
@@ -76,7 +112,7 @@ class RebuildSkillAtlasesTest(unittest.TestCase):
                 with Image.open(webp_path) as webp_image:
                     webp = webp_image.convert("RGBA")
 
-                self.assertEqual(png.size, (860, 463), theme)
+                self.assertEqual(png.size, PHYSICAL_SIZE, theme)
                 self.assertEqual(png.mode, "RGBA", theme)
                 png_pixels = np.asarray(png)
                 webp_pixels = np.asarray(webp)
@@ -92,11 +128,12 @@ class RebuildSkillAtlasesTest(unittest.TestCase):
 
                 alpha = png.getchannel("A")
                 allowed = Image.new("1", png.size, 0)
-                for box in TARGET_BOXES:
+                for logical_box in TARGET_BOXES:
+                    box = tuple(value * PIXEL_RATIO for value in logical_box)
                     allowed.paste(1, box)
                     sprite_alpha = alpha.crop(box)
-                    self.assertIsNotNone(sprite_alpha.getbbox(), f"{theme}: empty slot {box}")
-                    occupied = sum(1 for value in sprite_alpha.get_flattened_data() if value > 8)
+                    self.assertIsNotNone(sprite_alpha.getbbox(), f"{theme}: empty slot {logical_box}")
+                    occupied = sum(1 for value in sprite_alpha.getdata() if value > 8)
                     self.assertGreater(
                         occupied,
                         sprite_alpha.width * sprite_alpha.height * 0.08,
@@ -108,13 +145,84 @@ class RebuildSkillAtlasesTest(unittest.TestCase):
                 outside.paste(0, mask=allowed)
                 self.assertIsNone(outside.getbbox(), f"{theme}: sprite escaped its atlas slot")
 
+                partial_alpha = np.logical_and(png_pixels[:, :, 3] > 0, png_pixels[:, :, 3] < 255)
+                self.assertGreater(
+                    int(partial_alpha.sum()),
+                    1000,
+                    f"{theme}: antialiased edge coverage is missing",
+                )
+                if theme in {"infernal", "runic-arcane", "tempest-oceanic", "verdant", "voidborn"}:
+                    rgb = png_pixels[:, :, :3]
+                    lightness = rgb.mean(axis=2)
+                    saturation = rgb.max(axis=2) - rgb.min(axis=2)
+                    bright_neutral = np.logical_and.reduce((
+                        png_pixels[:, :, 3] > 32,
+                        lightness > 245,
+                        saturation < 8,
+                    ))
+                    self.assertLess(
+                        int(bright_neutral.sum()),
+                        3000,
+                        f"{theme}: bright neutral matte remains around the sprites",
+                    )
+
+                for logical_box in TARGET_BOXES[4:6]:
+                    box = tuple(value * PIXEL_RATIO for value in logical_box)
+                    nav = np.asarray(alpha.crop(box)) > 8
+                    edge_width = max(1, nav.shape[1] // 5)
+                    minimum_edge_ink = nav.shape[0] * edge_width * 0.08
+                    self.assertGreater(
+                        int(nav[:, :edge_width].sum()), minimum_edge_ink,
+                        f"{theme}: square frame is missing its left edge",
+                    )
+                    self.assertGreater(
+                        int(nav[:, -edge_width:].sum()), minimum_edge_ink,
+                        f"{theme}: square frame is missing its right edge",
+                    )
+                    nav_rgb = png_pixels[box[1]:box[3], box[0]:box[2], :3].astype(np.int16)
+                    mirror_error = np.abs(nav_rgb - nav_rgb[:, ::-1]).mean()
+                    self.assertLess(
+                        mirror_error,
+                        70,
+                        f"{theme}: square frame crop is horizontally distorted",
+                    )
+
+                # Generated objects do not all share the destination slot's
+                # aspect ratio. The rebuild must letterbox them rather than
+                # independently scaling X and Y, which visibly stretches the
+                # inventory flourish and misaligns theme corners. These
+                # literal ranges are hand-measured from the source previews.
+                def strong_ink_aspect(logical_box):
+                    box = tuple(value * PIXEL_RATIO for value in logical_box)
+                    mask = alpha.crop(box).point(
+                        lambda value: 255 if value >= 160 else 0)
+                    bounds = mask.getbbox()
+                    self.assertIsNotNone(bounds, f"{theme}: no strong sprite ink")
+                    return (bounds[2] - bounds[0]) / (bounds[3] - bounds[1]), bounds
+
+                if theme == "celestial":
+                    aspect, _ = strong_ink_aspect(TARGET_BOXES[3])
+                    self.assertTrue(2.35 < aspect < 2.55, aspect)
+                if theme == "lunar-spectral":
+                    aspect, _ = strong_ink_aspect(TARGET_BOXES[4])
+                    self.assertTrue(0.62 < aspect < 0.72, aspect)
+                if theme == "runic-arcane":
+                    aspect, bounds = strong_ink_aspect(TARGET_BOXES[9])
+                    self.assertTrue(1.18 < aspect < 1.36, aspect)
+                    self.assertLessEqual(bounds[0], 8, bounds)
+                    self.assertLessEqual(bounds[1], 8, bounds)
+                if theme == "voidborn":
+                    aspect, _ = strong_ink_aspect(TARGET_BOXES[3])
+                    self.assertTrue(2.40 < aspect < 2.70, aspect)
+
                 # The ring and square-button centres are deliberately empty or
                 # dark; leaked checkerboard would make these opaque and pale.
-                self.assertLess(alpha.getpixel((70, 75)), 16, theme)
-                self.assertLess(sum(png.getpixel((513, 47))[:3]), 300, theme)
+                self.assertLess(alpha.getpixel((140, 150)), 16, theme)
+                self.assertLess(sum(png.getpixel((1026, 94))[:3]), 300, theme)
 
                 if theme in {"glacial", "verdant"}:
-                    vertical = np.asarray(alpha.crop(TARGET_BOXES[2])) > 8
+                    vertical_box = tuple(value * PIXEL_RATIO for value in TARGET_BOXES[2])
+                    vertical = np.asarray(alpha.crop(vertical_box)) > 8
                     tail_rows = vertical[-12:-1]
                     full_width_tail_rows = (
                         tail_rows.sum(axis=1) >= vertical.shape[1] * 0.75

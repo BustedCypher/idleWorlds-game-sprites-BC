@@ -14,6 +14,6 @@ Nine themed atlases cover all 34 zones. Each atlas is supplied as a lossless Web
 | Tempest Oceanic | 17 Stormglass Reach, 31 Thalassic Abyss |
 | Glacial | 22 Frostiron Shelf, 33 Glacial Abyss |
 
-All atlases retain the original 860 x 463 canvas and twelve production sprite slots. They are rebuilt sprite-by-sprite from the approved themed previews so ornament edges are not clipped by the original atlas mask. `zone-theme-map.json` is the machine-readable assignment list.
+All atlases retain the original 860 x 463 **logical** canvas and twelve production sprite slots. The files are rendered at 2x density (1720 x 926 physical pixels) for high-DPI browser displays. They are rebuilt sprite-by-sprite from the approved themed previews with soft antialiased alpha and foreground-colour bleed, so ornament edges are neither clipped nor contaminated by the generated preview background. `zone-theme-map.json` is the machine-readable assignment list and declares the physical `pixelRatio`.
 
 The reproducible sources and rebuild utilities are in `../source-previews/`, `../source/`, and `../../../tools/rebuild_skill_atlases.py`. The superseded broken exports are preserved in `archive-broken-v1/`.

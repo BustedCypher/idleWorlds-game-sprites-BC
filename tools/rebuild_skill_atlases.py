@@ -10,10 +10,13 @@ corresponding production slot independently.
 from __future__ import annotations
 
 import argparse
+import io
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageChops, ImageFilter
+from PIL import Image, ImageChops, ImageFilter, ImageOps
+
+from atomic_write import replace_atomically
 
 
 THEMES = (
@@ -27,6 +30,10 @@ THEMES = (
     "verdant",
     "voidborn",
 )
+
+LOGICAL_SIZE = (860, 463)
+PIXEL_RATIO = 2
+PHYSICAL_SIZE = tuple(dimension * PIXEL_RATIO for dimension in LOGICAL_SIZE)
 
 # Maximum occupied rectangles from the original 860 x 463 production atlas.
 TARGET_BOXES = (
@@ -47,40 +54,32 @@ TARGET_BOXES = (
 # Image generation preserved the composition but shifted individual objects by
 # as much as 80 pixels. Theme-specific windows keep every object intact while
 # preventing neighbouring sprites from entering the crop.
-TOP_SOURCE_REGIONS = {
-    "celestial": ((0, 0, 295, 340), (295, 0, 440, 280), (440, 0, 525, 530), (525, 0, 1005, 230), (1005, 0, 1190, 230), (1190, 0, 1380, 230)),
-    "forged-metal": ((0, 0, 290, 340), (290, 0, 435, 280), (435, 0, 525, 530), (520, 0, 980, 230), (980, 0, 1155, 230), (1155, 0, 1335, 230)),
-    "glacial": ((0, 0, 265, 340), (265, 0, 395, 280), (395, 0, 470, 442), (470, 0, 915, 230), (910, 0, 1078, 230), (1078, 0, 1245, 230)),
-    "infernal": ((0, 0, 305, 340), (305, 0, 460, 280), (460, 0, 545, 540), (545, 0, 1025, 230), (1025, 0, 1210, 230), (1210, 0, 1405, 230)),
-    "lunar-spectral": ((0, 0, 335, 350), (335, 0, 495, 290), (495, 0, 585, 520), (585, 0, 1100, 230), (1100, 0, 1300, 230), (1300, 0, 1500, 230)),
-    "runic-arcane": ((0, 0, 325, 350), (325, 0, 480, 290), (480, 0, 565, 540), (565, 0, 1065, 230), (1065, 0, 1255, 230), (1255, 0, 1460, 230)),
-    "tempest-oceanic": ((0, 0, 295, 340), (295, 0, 440, 280), (440, 0, 525, 530), (525, 0, 990, 230), (990, 0, 1170, 230), (1170, 0, 1350, 230)),
-    "verdant": ((0, 0, 300, 350), (300, 0, 445, 290), (445, 0, 530, 490), (530, 0, 1010, 230), (1010, 0, 1195, 230), (1195, 0, 1385, 230)),
-    "voidborn": ((0, 0, 285, 340), (280, 0, 425, 280), (425, 0, 500, 510), (495, 0, 950, 230), (945, 0, 1118, 230), (1115, 0, 1305, 230)),
-}
+# The remastered sheets use one consistent three-row composition. Regions
+# deliberately overlap the gutters: connected-component selection keeps the
+# requested ornament while tolerating small generator shifts between themes.
+SOURCE_REGIONS = (
+    (0, 0, 385, 410),
+    (320, 0, 520, 370),
+    (480, 0, 670, 560),
+    (620, 0, 1190, 320),
+    (1120, 0, 1420, 330),
+    (1370, 0, 1710, 330),
+    (0, 420, 180, 770),
+    (145, 420, 805, 750),
+    (755, 420, 1415, 750),
+    (0, 690, 260, 920),
+    (470, 690, 1135, 920),
+    (1040, 680, 1710, 920),
+)
 
-MIDDLE_SOURCE_REGIONS = {
-    "celestial": ((0, 400, 145, 720), (140, 400, 720, 720), (720, 400, 1285, 720)),
-    "forged-metal": ((0, 400, 145, 720), (145, 400, 710, 720), (710, 400, 1275, 720)),
-    "glacial": ((0, 390, 140, 720), (135, 390, 660, 720), (660, 390, 1190, 720)),
-    "infernal": ((0, 400, 150, 730), (145, 400, 750, 730), (750, 400, 1320, 730)),
-    "lunar-spectral": ((0, 400, 170, 730), (165, 400, 765, 730), (760, 400, 1300, 730)),
-    "runic-arcane": ((0, 400, 160, 730), (155, 400, 745, 730), (740, 400, 1320, 730)),
-    "tempest-oceanic": ((0, 400, 150, 730), (145, 400, 720, 730), (715, 400, 1285, 730)),
-    "verdant": ((0, 400, 155, 730), (150, 400, 720, 730), (715, 400, 1250, 730)),
-    "voidborn": ((0, 400, 150, 730), (145, 400, 690, 730), (685, 400, 1245, 730)),
-}
-
-BOTTOM_START = {
-    "celestial": 710,
-    "forged-metal": 710,
-    "glacial": 610,
-    "infernal": 710,
-    "lunar-spectral": 715,
-    "runic-arcane": 710,
-    "tempest-oceanic": 710,
-    "verdant": 670,
-    "voidborn": 690,
+SOURCE_REGION_OVERRIDES = {
+    # Verdant's generated nav pair sits about 110 px left of the otherwise
+    # consistent top-row layout. Without explicit windows, the idle crop picks
+    # the active frame and the active crop stretches only its right-hand side.
+    "verdant": {
+        4: (1000, 0, 1235, 330),
+        5: (1225, 0, 1480, 330),
+    },
 }
 
 
@@ -166,8 +165,12 @@ def _extract_sprite(
     grow_iterations: int = 5,
     trim_detached_tail: bool = False,
 ) -> Image.Image:
-    crop = preview.crop(region).convert("RGB")
-    alpha = _foreground_mask(crop, background_range, grow_iterations)
+    crop = preview.crop(region).convert("RGBA")
+    source_alpha = crop.getchannel("A")
+    if source_alpha.getextrema()[0] < 255:
+        alpha = source_alpha
+    else:
+        alpha = _foreground_mask(crop, background_range, grow_iterations)
     if trim_detached_tail:
         row_widths = (np.asarray(alpha) > 0).sum(axis=1)
         for row in range(int(len(row_widths) * 0.7), len(row_widths) - 12):
@@ -178,13 +181,63 @@ def _extract_sprite(
     bounds = alpha.getbbox()
     if bounds is None:
         raise ValueError(f"No sprite found in source region {region}")
-    rgba = crop.convert("RGBA")
-    rgba.putalpha(alpha)
+    # Generated RGB sheets carry white in pixels outside their artwork. A hard
+    # alpha cut followed by resampling pulls that white into the edge and makes
+    # the halo seen in the browser. Bleed the nearest foreground colour a few
+    # pixels outward, then soften only the coverage channel.
+    source_rgb = np.asarray(crop.convert("RGB"), dtype=np.uint8)
+    rgb = source_rgb.copy()
+    filled = np.asarray(alpha, dtype=np.uint8) > 0
+    for _ in range(4):
+        sums = np.zeros_like(rgb, dtype=np.uint16)
+        counts = np.zeros(filled.shape, dtype=np.uint8)
+        for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1),
+                       (-1, -1), (-1, 1), (1, -1), (1, 1)):
+            shifted_filled = np.roll(filled, (dy, dx), axis=(0, 1))
+            shifted_rgb = np.roll(rgb, (dy, dx), axis=(0, 1))
+            if dy < 0:
+                shifted_filled[dy:] = False
+            elif dy > 0:
+                shifted_filled[:dy] = False
+            if dx < 0:
+                shifted_filled[:, dx:] = False
+            elif dx > 0:
+                shifted_filled[:, :dx] = False
+            sums += shifted_rgb.astype(np.uint16) * shifted_filled[..., None]
+            counts += shifted_filled
+        frontier = ~filled & (counts > 0)
+        rgb[frontier] = (sums[frontier] / counts[frontier, None]).astype(np.uint8)
+        filled |= frontier
+
+    softened = np.asarray(
+        alpha.filter(ImageFilter.GaussianBlur(radius=0.7)), dtype=np.float32
+    ) / 255.0
+
+    # Recover coverage from an opaque white render. The multiplier makes solid
+    # pale metal stay opaque while a near-white antialias pixel becomes
+    # translucent. Unmatting reverses the white compositing in those pixels;
+    # this is what removes the light outline over the game's near-black panels.
+    white_coverage = np.clip(
+        (255.0 - source_rgb.astype(np.float32).min(axis=2)) * 6.0 / 255.0,
+        0.0,
+        1.0,
+    )
+    coverage = np.minimum(softened, white_coverage)
+    safe_coverage = np.maximum(coverage, 1.0 / 255.0)
+    unmatted = (
+        source_rgb.astype(np.float32)
+        - 255.0 * (1.0 - coverage[..., None])
+    ) / safe_coverage[..., None]
+    visible = coverage > 0
+    rgb[visible] = np.clip(unmatted[visible], 0, 255).astype(np.uint8)
+    output_alpha = np.rint(coverage * 255.0).astype(np.uint8)
+    rgba = Image.fromarray(
+        np.dstack((rgb, output_alpha)), mode="RGBA")
     return rgba.crop(bounds)
 
 
 def rebuild_atlas(base_atlas: Image.Image, preview: Image.Image, theme: str) -> Image.Image:
-    if base_atlas.size != (860, 463):
+    if base_atlas.size != LOGICAL_SIZE:
         raise ValueError(f"Expected 860 x 463 base atlas, got {base_atlas.size}")
     if not 920 <= preview.height <= 921 or not 1708 <= preview.width <= 1710:
         raise ValueError(f"Expected an approximately 1710 x 920 preview, got {preview.size}")
@@ -201,16 +254,11 @@ def rebuild_atlas(base_atlas: Image.Image, preview: Image.Image, theme: str) -> 
         float(np.percentile(neutral_lightness, 92)),
     )
 
-    bottom_start = BOTTOM_START[theme]
-    source_regions = (
-        *TOP_SOURCE_REGIONS[theme],
-        *MIDDLE_SOURCE_REGIONS[theme],
-        (0, bottom_start, 240, 920),
-        (480, bottom_start, 1120, 880),
-        (1030, bottom_start, 1710, 920),
-    )
+    source_regions = list(SOURCE_REGIONS)
+    for index, region in SOURCE_REGION_OVERRIDES.get(theme, {}).items():
+        source_regions[index] = region
 
-    atlas = Image.new("RGBA", base_atlas.size, (0, 0, 0, 0))
+    atlas = Image.new("RGBA", PHYSICAL_SIZE, (0, 0, 0, 0))
     for index, (region, target) in enumerate(
         zip(source_regions, TARGET_BOXES, strict=True)
     ):
@@ -221,12 +269,47 @@ def rebuild_atlas(base_atlas: Image.Image, preview: Image.Image, theme: str) -> 
             grow_iterations=2 if index == 2 else 5,
             trim_detached_tail=(index == 2 and theme in {"glacial", "verdant"}),
         )
-        left, top, right, bottom = target
-        width = right - left - 2
-        height = bottom - top - 2
-        sprite = sprite.resize((width, height), Image.Resampling.LANCZOS)
-        atlas.alpha_composite(sprite, (left + 1, top + 1))
+        left, top, right, bottom = (value * PIXEL_RATIO for value in target)
+        padding = PIXEL_RATIO
+        width = right - left - padding * 2
+        height = bottom - top - padding * 2
+        # Generated ornaments vary slightly in aspect ratio. Stretching every
+        # crop to both slot dimensions independently warped flourishes, frames,
+        # and corner connection points. Fit proportionally inside the fixed
+        # logical slot instead. The corner sprite is registered to the outer
+        # top-left edges; all standalone ornaments are optically centred.
+        sprite = ImageOps.contain(
+            sprite, (width, height), Image.Resampling.LANCZOS)
+        if index == 9:
+            offset_x = 0
+            offset_y = 0
+        else:
+            offset_x = (width - sprite.width) // 2
+            offset_y = (height - sprite.height) // 2
+        atlas.alpha_composite(
+            sprite,
+            (left + padding + offset_x, top + padding + offset_y),
+        )
     return atlas
+
+
+def _write_image(path: Path, image: Image.Image, image_format: str, **options) -> None:
+    """Encode to memory, then swap the finished bytes into place.
+
+    `image.save(path, ...)` truncates `path` the instant it opens it, before
+    the encoder has produced a single byte — so a failure part-way through
+    (an unencodable mode, a full disk, a killed process) leaves a 0-byte or
+    half-written PNG where the previous atlas used to be, with no rollback.
+    This tool re-runs over its own output directory, so that target is
+    routinely a real, good atlas rather than a fresh file.
+
+    That is the exact shape of the 2026-09-04 incident that emptied
+    index.html. `tools/atomic_write.py` exists for it, and
+    `tests/test_no_unsafe_writes.py` enforces the route.
+    """
+    encoded = io.BytesIO()
+    image.save(encoded, format=image_format, **options)
+    replace_atomically(path, encoded.getvalue())
 
 
 def rebuild_all(base_path: Path, preview_dir: Path, output_dir: Path) -> None:
@@ -236,10 +319,11 @@ def rebuild_all(base_path: Path, preview_dir: Path, output_dir: Path) -> None:
         for theme in THEMES:
             preview_path = preview_dir / f"{theme}.png"
             with Image.open(preview_path) as preview_image:
-                atlas = rebuild_atlas(base, preview_image.convert("RGB"), theme)
+                atlas = rebuild_atlas(base, preview_image.convert("RGBA"), theme)
             stem = f"skills_ui_atlas_theme_{theme}"
-            atlas.save(output_dir / f"{stem}.png", "PNG", optimize=True)
-            atlas.save(output_dir / f"{stem}.webp", "WEBP", lossless=True, method=6)
+            _write_image(output_dir / f"{stem}.png", atlas, "PNG", optimize=True)
+            _write_image(output_dir / f"{stem}.webp", atlas, "WEBP",
+                         lossless=True, method=6)
             print(f"rebuilt {theme}")
 
 
