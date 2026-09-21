@@ -10,3 +10,17 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Agent scratch directories. Both were swept into history by the 2026-09-06
+# "commit everything" pass and are still tracked — git ignores nothing it is
+# already tracking, so these lines only stop FUTURE churn. To get them out of
+# the working tree's index as well:
+#   git rm -r --cached .codex-tmp .superpowers
+# (that keeps the files on disk; history still holds the committed copies).
+.codex-tmp/
+.superpowers/
+
+# Local build / render output — kept on disk, never committed.
+/output/
+/outputs/
+/tmp/
