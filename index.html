@@ -3,7 +3,20 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v5.5.1</title>
+<title>IdleWorlds Toolkit v5.6</title>
+<!-- v5.6 Achievements XP + Zone 22 Rimewrought Sentinel drops (2026-09-21):
+     • Achievements: TEMPORARY manual +5/10/15% control in the Calculator,
+       read only through iwAchievementXpPct() by calculate(),
+       getEffectiveXPParams() and taskBonusEnv(). Joins the additive totalPct
+       group — an unconfirmed assumption. iwAchievementPctFromProfile() is the
+       player.json hand-off; its field names are placeholders. Suite J.
+     • Items: 4,458 → 4,466 (seven Rimewrought Sentinel drops + Glacier's
+       Last Gasp), gear art and re-pinned icon manifest. Post-launch balance:
+       Glacier's Last Gasp 45% gather / 30% item find, no resist; Frostforge
+       Gauntlets Construction Level +5 (was Smithing).
+     • "How to get it": an Unknown-typed row with a drop_rate renders as a
+       zone drop; a drop with no source_zone shows its acquisition summary.
+-->
 <!-- v5.5.1 Woodcutting XP restored to the gather rate (2026-09-07):
      WOODCUT_XP[t] is MINING_XP[t] again — all three gather skills award
      2 × round(skillXp × 1.1). It had briefly been halved to match the number
@@ -177,7 +190,7 @@
      • Removed accumulated duplicate static potion options; population is now idempotent.
      ═══════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════════════
-     IDLEWORLDS TOOLKIT — v5.5.1
+     IDLEWORLDS TOOLKIT — v5.6
 
      Release history now lives in CHANGELOG.md beside this file. It was
      previously inlined here as a ~123 KB comment; the text is unchanged,
@@ -6205,7 +6218,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v5.5.1</span>
+  <span data-ui=ver-pill class="ver-pill">v5.6</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span data-ui=tab-icon class="tab-icon" aria-hidden="true">⚙️</span>
