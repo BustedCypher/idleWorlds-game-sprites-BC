@@ -19,7 +19,7 @@ what changed, and stop there. Offering is fine; doing it is not.
 Open `index.html` in a browser. There is nothing to install and nothing to
 build. Verify JS still parses after an edit — this is the cheapest real gate,
 and it compiles every inline block without executing any of it (25 blocks, all
-passing as of v5.6):
+passing as of v6.0):
 
 ```bash
 node -e "const fs=require('fs'),vm=require('vm');const src=fs.readFileSync('index.html','utf8');let m,i=0,bad=0;const re=/<script([^>]*)>([\s\S]*?)<\/script>/gi;while((m=re.exec(src))){if(/type\s*=\s*[\"'](?!text\/javascript)/i.test(m[1]))continue;const line=src.slice(0,m.index).split('\n').length;i++;try{new vm.Script(m[2]);}catch(e){bad++;console.log('FAIL block at line '+line+': '+e.message);}}console.log(i+' blocks checked, '+bad+' failed');"
@@ -36,7 +36,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Sixteen regression suites ship inside the file and are the safety net for
+Seventeen regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -58,7 +58,8 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwFinalAuditSelfCheck` · `iwSetOptimizerAndTaskTierSelfCheck` ·
 `iwCharacterStatRoundingSelfCheck` · `iwGearPlannerCurrentDataSelfCheck` ·
 `iwGearImportIntegritySelfCheck` · `iwWoodcuttingConstructionSelfCheck` (H) ·
-`iwDailyBoostSyncSelfCheck` (I) · `iwAchievementXpSelfCheck` (J).
+`iwDailyBoostSyncSelfCheck` (I) · `iwAchievementXpSelfCheck` (J) ·
+`iwXpCurveTaperSelfCheck` (K).
 
 A suite assertion may be **updated only by the stage that intentionally
 changes that mechanic**. Unrelated assertions must stay green.
@@ -253,7 +254,7 @@ inside the limits.
 
 ## Repo contents
 
-- `index.html` — **v5.6, the working file**
+- `index.html` — **v6.0, the working file**
 - `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build. Still fetches the
   legacy atlases, but from `raw.githubusercontent.com/…/main/`, **not** from
   the deploy origin — which is why `.assetsignore` can keep them off the

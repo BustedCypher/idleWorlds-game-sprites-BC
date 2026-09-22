@@ -447,7 +447,12 @@ function oresPerBar(t){
 function tierForLevel(level){
   return Math.max(1,Math.min(MAX_TIER,Math.floor((Math.max(1,level)-1)/4)+1));
 }
-function xpForLevel(v){ return 90*Math.pow(1.22,v-1)+v*v*6; }
+// 2026-09 patch: 22%/level compounding through the 73->74 step, 8%/level from 74 on
+// (mirrors xpForLevel in ../index.html).
+function xpForLevel(v){
+  const exp=v<=73 ? 90*Math.pow(1.22,v-1) : 90*Math.pow(1.22,72)*Math.pow(1.08,v-73);
+  return exp+v*v*6;
+}
 function totalXPToReach(a,b){
   let total=0;
   for(let v=a;v<b;v++) total+=xpForLevel(v);

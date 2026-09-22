@@ -3,7 +3,16 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v5.6</title>
+<title>IdleWorlds Toolkit v6.0</title>
+<!-- v6.0 XP curve taper (2026-09-22):
+     • Game patch: the per-skill XP curve's exponential term compounded at
+       22%/level forever. Levels 1-73 are unchanged (the 73→74 step is exactly
+       as before); from 74 onward it compounds at 8%/level. xpForLevel() is
+       the single source, so Calculator, Planner, profile import and tier
+       progress all follow. 78→80 ≈ 454M (was ~892M); 73→100 ≈ 13B (was
+       ~144B) — both pinned against the patch notes by Suite K
+       (iwXpCurveTaperSelfCheck). Skillsim mirrors the curve.
+-->
 <!-- v5.6 Achievements XP + Zone 22 Rimewrought Sentinel drops (2026-09-21):
      • Achievements: TEMPORARY manual +5/10/15% control in the Calculator,
        read only through iwAchievementXpPct() by calculate(),
@@ -190,7 +199,7 @@
      • Removed accumulated duplicate static potion options; population is now idempotent.
      ═══════════════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════════════
-     IDLEWORLDS TOOLKIT — v5.6
+     IDLEWORLDS TOOLKIT — v6.0
 
      Release history now lives in CHANGELOG.md beside this file. It was
      previously inlined here as a ~123 KB comment; the text is unchanged,
@@ -6218,7 +6227,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v5.6</span>
+  <span data-ui=ver-pill class="ver-pill">v6.0</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span data-ui=tab-icon class="tab-icon" aria-hidden="true">⚙️</span>
@@ -11969,8 +11978,21 @@ function populateFlatBonusDropdowns() {
 // MAIN CALCULATOR — unchanged math from v2.1
 // ═══════════════════════════════════════════════════════════════
 
+// xpForLevel(v) = XP to go from v to v+1: an exponential term plus 6v².
+// 2026-09 patch: the exponential term compounded at 22%/level forever, which
+// is what made 78-80 a 14-month grind. Levels 1-73 are untouched (the 73→74
+// step is exactly as before); from 74 onward it compounds at 8%/level.
+// Pinned against the patch notes by suite K: 78→80 ≈ 454M (was ~892M),
+// cumulative 73→100 ≈ 13B (was ~144B).
+const XP_CURVE_TAPER_LEVEL = 73;   // last step still on the 22% curve
+const XP_CURVE_EARLY_GROWTH = 1.22;
+const XP_CURVE_LATE_GROWTH  = 1.08;
 function xpForLevel(v) {
-  return 90 * Math.pow(1.22, v - 1) + v * v * 6;
+  const exp = v <= XP_CURVE_TAPER_LEVEL
+    ? 90 * Math.pow(XP_CURVE_EARLY_GROWTH, v - 1)
+    : 90 * Math.pow(XP_CURVE_EARLY_GROWTH, XP_CURVE_TAPER_LEVEL - 1)
+         * Math.pow(XP_CURVE_LATE_GROWTH, v - XP_CURVE_TAPER_LEVEL);
+  return exp + v * v * 6;
 }
 function totalXPToReach(a, b) {
   let total = 0;
@@ -34226,6 +34248,48 @@ function syncCombatLevel(val) {
     return fail;
   };
 })();
+
+/* ════════════════════════════════════════════════════════════════════
+   SUITE K — XP curve taper (2026-09 patch)
+   ────────────────────────────────────────────────────────────────────
+   Levels 1-73 keep the old 90·1.22^(v-1) + 6v² curve; from 74 the
+   exponential term compounds at 8%/level instead of 22%. Pins the
+   patch-note figures: 78→80 ≈ 454M (old ~892M), 73→100 ≈ 13B (old ~144B).
+   Pure — reads xpForLevel/totalXPToReach, mutates nothing.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwXpCurveTaperSelfCheck = function () {
+    var fail = [];
+    function ok(label, cond) { if (!cond) fail.push(label); }
+    function old(v) { return 90 * Math.pow(1.22, v - 1) + v * v * 6; }
+    function near(a, b, tol) { return Math.abs(a - b) <= Math.abs(b) * tol; }
+    try {
+      ok('xpForLevel is a function', typeof xpForLevel === 'function');
+      ok('totalXPToReach is a function', typeof totalXPToReach === 'function');
+      var v, same = true;
+      for (v = 1; v <= 73; v++) if (Math.abs(xpForLevel(v) - old(v)) > 1e-6 * old(v)) same = false;
+      ok('levels 1-73 unchanged (incl. the 73->74 step)', same);
+      ok('74->75 step is tapered below the old curve', xpForLevel(74) < old(74));
+      ok('74->75 step = 73->74 exp term x1.08 + 6v^2',
+         near(xpForLevel(74), (xpForLevel(73) - 6 * 73 * 73) * 1.08 + 6 * 74 * 74, 1e-9));
+      var r = (xpForLevel(91) - 6 * 91 * 91) / (xpForLevel(90) - 6 * 90 * 90);
+      ok('late growth is 8%/level (got ' + r.toFixed(4) + ')', near(r, 1.08, 1e-9));
+      var s7880 = totalXPToReach(78, 80);
+      ok('78->80 ~ 454M (got ' + Math.round(s7880 / 1e6) + 'M)', near(s7880, 454e6, 0.01));
+      var s73100 = totalXPToReach(73, 100);
+      ok('73->100 ~ 13B (got ' + (s73100 / 1e9).toFixed(2) + 'B)', near(s73100, 13e9, 0.01));
+      var mono = true;
+      for (v = 1; v < 120; v++) if (!(xpForLevel(v + 1) > xpForLevel(v))) mono = false;
+      ok('curve strictly increasing to 120', mono);
+    } catch (e) {
+      fail.push('suite threw: ' + (e && e.message ? e.message : String(e)));
+    }
+    if (fail.length && typeof console !== 'undefined')
+      console.warn('[XP curve taper] FAILED:', fail.join(' | '));
+    return fail;
+  };
+})();
 </script>
 
 <script>
@@ -34256,7 +34320,8 @@ function syncCombatLevel(val) {
         ['Woodcutting/Construction',window.iwWoodcuttingConstructionSelfCheck],
         ['Construction village planner',window.iwConstructionPlannerSelfCheck],
         ['Daily XP Boost sync',window.iwDailyBoostSyncSelfCheck],
-        ['Achievements XP',window.iwAchievementXpSelfCheck]
+        ['Achievements XP',window.iwAchievementXpSelfCheck],
+        ['XP curve taper',window.iwXpCurveTaperSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;
