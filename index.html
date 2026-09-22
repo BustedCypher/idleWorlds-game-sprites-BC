@@ -6976,16 +6976,52 @@
         "background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);}",
       ".iwp-teamsub{font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3,#4e566d);}",
       ".iwp-teamname{font:700 16px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);margin-top:2px;}",
+      /* Achievements are feats of strength, so this one card is allowed the
+         gold the rest deliberately gave up: a medallion, a gilded number and
+         medal-plaque chips. The unlocked list sits in a closed <details>. */
       ".iwp-ach-hero{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}",
-      ".iwp-ach-pct{font:800 26px 'JetBrains Mono',monospace;letter-spacing:-.5px;color:var(--text,#e8ecf5);}",
-      ".iwp-ach-pct.zero{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}",
+      ".iwp-ach-medallion{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:22px;",
+        "background:radial-gradient(circle at 35% 30%,#fff4c2 0,#f6c453 32%,#b7791f 70%,#6b4212 100%);border:2px solid #f9dd8a;",
+        "box-shadow:0 0 0 3px rgba(201,162,255,.28),0 0 14px rgba(246,196,83,.4),inset 0 -3px 6px rgba(0,0,0,.35);",
+        "animation:iwp-ach-pulse 3.2s ease-in-out infinite;}",
+      ".iwp-ach-hero.zero .iwp-ach-medallion{filter:grayscale(1) brightness(.75);animation:none;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35);}",
+      ".iwp-ach-pct{font:800 28px 'JetBrains Mono',monospace;letter-spacing:-.5px;color:#e9b949;",
+        "background:linear-gradient(180deg,#fff1b8 0%,#f6c453 45%,#c98a1c 100%);-webkit-background-clip:text;background-clip:text;",
+        "-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 0 rgba(0,0,0,.55));}",
+      "[data-theme=\"light\"] .iwp-ach-pct,[data-theme=\"office\"] .iwp-ach-pct{background:linear-gradient(180deg,#c98a1c,#7a4e0a);",
+        "-webkit-background-clip:text;background-clip:text;filter:none;}",
+      ".iwp-ach-pct.zero{background:none;-webkit-text-fill-color:currentColor;filter:none;",
+        "color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}",
       ".iwp-ach-sub{font:600 11px/1.35 'Inter',sans-serif;color:var(--text2,#8b93b0);}",
-      ".iwp-ach-count{margin:10px 0 6px;font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.6px;color:var(--text3,#4e566d);}",
-      ".iwp-ach-chips{display:flex;flex-wrap:wrap;gap:5px;position:relative;z-index:1;}",
-      ".iwp-ach-chip{font:600 11px 'Inter',sans-serif;color:var(--text,#e8ecf5);padding:3px 8px;border-radius:999px;",
-        "background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);}",
+      ".iwp-ach-list{margin-top:10px;position:relative;z-index:1;}",
+      ".iwp-ach-summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:8px;",
+        "padding:6px 10px;border-radius:8px;background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);transition:border-color .16s ease;}",
+      ".iwp-ach-summary::-webkit-details-marker{display:none;}",
+      ".iwp-ach-summary:hover{border-color:#d9a93a;}",
+      ".iwp-ach-summary:focus-visible{outline:2px solid #f6c453;outline-offset:2px;}",
+      ".iwp-ach-count{font:700 9.5px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.9px;color:var(--text2,#8b93b0);}",
+      ".iwp-ach-count b{font-size:11.5px;color:var(--text,#e8ecf5);margin-right:2px;}",
+      ".iwp-ach-chev{font-size:11px;color:var(--text2,#8b93b0);transition:transform .2s ease;}",
+      ".iwp-ach-list[open] .iwp-ach-chev{transform:rotate(180deg);}",
+      ".iwp-ach-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:2px;max-height:280px;overflow:auto;}",
+      ".iwp-ach-chip{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 4px;border-radius:999px;",
+        "background:linear-gradient(135deg,rgba(246,196,83,.2),rgba(201,162,255,.14));border:1px solid rgba(233,185,73,.6);",
+        "box-shadow:inset 0 1px 0 rgba(255,244,194,.22),0 0 10px rgba(246,196,83,.12);",
+        "animation:iwp-ach-in .35s cubic-bezier(.2,.7,.2,1) both;animation-delay:min(calc(var(--i,0) * 30ms),600ms);}",
+      ".iwp-ach-chip::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;pointer-events:none;",
+        "background:linear-gradient(100deg,transparent,rgba(255,248,220,.35),transparent);transform:skewX(-20deg);",
+        "animation:iwp-ach-sheen 6s ease-in-out infinite;animation-delay:calc(var(--i,0) * .41s);}",
+      ".iwp-ach-glyph{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;",
+        "background:radial-gradient(circle at 50% 40%,#3d2c12,#140e06 80%);border:1px solid #f0c860;box-shadow:0 0 0 1px rgba(122,78,10,.8),0 0 6px rgba(246,196,83,.35),inset 0 0 5px rgba(246,196,83,.25);}",
+      ".iwp-ach-name{font:700 11.5px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);}",
+      ".iwp-ach-none{margin-top:10px;font:italic 600 11px 'Inter',sans-serif;color:var(--text2,#8b93b0);}",
+      "@keyframes iwp-ach-pulse{0%,100%{box-shadow:0 0 0 3px rgba(201,162,255,.28),0 0 12px rgba(246,196,83,.35),inset 0 -3px 6px rgba(0,0,0,.35);}",
+        "50%{box-shadow:0 0 0 3px rgba(201,162,255,.45),0 0 22px rgba(246,196,83,.65),inset 0 -3px 6px rgba(0,0,0,.35);}}",
+      "@keyframes iwp-ach-in{from{opacity:0;transform:translateY(4px) scale(.96);}to{opacity:1;transform:none;}}",
+      "@keyframes iwp-ach-sheen{0%,75%{left:-60%;}100%{left:130%;}}",
       "@keyframes iwp-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}",
-      "@media (prefers-reduced-motion:reduce){.iwp-card{animation:none;}.iwp-fill{transition:none;}}"
+      "@media (prefers-reduced-motion:reduce){.iwp-card{animation:none;}.iwp-fill{transition:none;}",
+        ".iwp-ach-medallion,.iwp-ach-chip{animation:none;}.iwp-ach-chip::after{display:none;}}"
     ].join('');
     document.head.appendChild(st);
   }
@@ -7084,17 +7120,27 @@
     var achKeys = Array.isArray(profile.unlockedAchievementKeys) ? profile.unlockedAchievementKeys : null;
     if(achPctCard!==undefined || achKeys){
       var achN = (achPctCard!==undefined) ? achPctCard : 0;
-      var achBody = '<div data-ui=iwp-ach-hero class="iwp-ach-hero">'+
+      var achBody = '<div data-ui=iwp-ach-hero class="iwp-ach-hero'+(achN===0?' zero':'')+'">'+
+        '<span data-ui=iwp-ach-medallion class="iwp-ach-medallion" aria-hidden="true">🏆</span>'+
         '<span data-ui=iwp-ach-pct class="iwp-ach-pct'+(achN===0?' zero':'')+'">+'+achN+'%</span>'+
         '<span data-ui=iwp-ach-sub class="iwp-ach-sub">XP from achievements<br>applied to every skill</span></div>';
-      if(achKeys){
-        achBody += '<div data-ui=iwp-ach-count class="iwp-ach-count">'+achKeys.length+' unlocked</div>';
-        if(achKeys.length){
-          achBody += '<div data-ui=iwp-ach-chips class="iwp-ach-chips">'+
-            achKeys.map(function(k){
-              return '<span data-ui=iwp-ach-chip class="iwp-ach-chip">'+iwTipEsc(iwAchievementLabel(k))+'</span>';
-            }).join('')+'</div>';
-        }
+      // The unlocked list lives in a collapsed <details> so the card stays
+      // compact. Closed by default; the open state survives a repaint for
+      // the session only (window.__iwAchOpen), never persisted.
+      if(achKeys && achKeys.length){
+        achBody += '<details data-ui=iwp-ach-list class="iwp-ach-list"'+(window.__iwAchOpen?' open':'')+
+          ' ontoggle="window.__iwAchOpen=this.open">'+
+          '<summary data-ui=iwp-ach-summary class="iwp-ach-summary">'+
+            '<span data-ui=iwp-ach-count class="iwp-ach-count"><b>'+achKeys.length+'</b> feat'+(achKeys.length===1?'':'s')+' of strength</span>'+
+            '<span data-ui=iwp-ach-chev class="iwp-ach-chev" aria-hidden="true">▾</span></summary>'+
+          '<div data-ui=iwp-ach-chips class="iwp-ach-chips">'+
+            achKeys.map(function(k, i){
+              return '<span data-ui=iwp-ach-chip class="iwp-ach-chip" style="--i:'+i+'">'+
+                '<span data-ui=iwp-ach-glyph class="iwp-ach-glyph" aria-hidden="true">'+iwAchievementGlyph(k)+'</span>'+
+                '<span data-ui=iwp-ach-name class="iwp-ach-name">'+iwTipEsc(iwAchievementLabel(k))+'</span></span>';
+            }).join('')+'</div></details>';
+      } else if(achKeys){
+        achBody += '<div data-ui=iwp-ach-none class="iwp-ach-none">No feats unlocked yet</div>';
       }
       html += card('#c9a2ff','🏆','Achievements', achBody);
     }
@@ -9733,6 +9779,22 @@ function iwAchievementPctFromProfile(profile) {
 function iwAchievementLabel(key) {
   return String(key == null ? '' : key).split(/[_\s-]+/).filter(Boolean)
     .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+/** A decorative glyph for an achievement key, by keyword. Display only. */
+function iwAchievementGlyph(key) {
+  const k = String(key == null ? '' : key).toLowerCase();
+  const table = [
+    [/level|master|max/, '⭐'], [/combat|kill|slay|boss|fight|warfare/, '⚔️'],
+    [/raid|dragon|zone/, '🐉'], [/gold|coin|rich|wealth/, '🪙'],
+    [/craft|smith|forge|plate/, '🔨'], [/min(e|ing)|ore/, '⛏️'],
+    [/fish/, '🎣'], [/wood|tree|chop|log/, '🪓'], [/cook|food/, '🍳'],
+    [/alchem|potion|brew/, '⚗️'], [/jewel|gem/, '💎'], [/tailor|cloth|silk/, '🧵'],
+    [/build|construct|village/, '🏰'], [/quest|task|order/, '📜'],
+    [/explore|travel|map/, '🗺️'], [/login|day|streak/, '🔥']
+  ];
+  for (const [re, g] of table) if (re.test(k)) return g;
+  return '🏅';
 }
 
 /**
