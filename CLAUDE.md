@@ -18,8 +18,8 @@ what changed, and stop there. Offering is fine; doing it is not.
 
 Open `index.html` in a browser. There is nothing to install and nothing to
 build. Verify JS still parses after an edit — this is the cheapest real gate,
-and it compiles every inline block without executing any of it (25 blocks, all
-passing as of v6.0):
+and it compiles every inline block without executing any of it (27 blocks, all
+passing as of 2026-09-22):
 
 ```bash
 node -e "const fs=require('fs'),vm=require('vm');const src=fs.readFileSync('index.html','utf8');let m,i=0,bad=0;const re=/<script([^>]*)>([\s\S]*?)<\/script>/gi;while((m=re.exec(src))){if(/type\s*=\s*[\"'](?!text\/javascript)/i.test(m[1]))continue;const line=src.slice(0,m.index).split('\n').length;i++;try{new vm.Script(m[2]);}catch(e){bad++;console.log('FAIL block at line '+line+': '+e.message);}}console.log(i+' blocks checked, '+bad+' failed');"
@@ -36,7 +36,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Seventeen regression suites ship inside the file and are the safety net for
+Nineteen regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -59,10 +59,45 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwCharacterStatRoundingSelfCheck` · `iwGearPlannerCurrentDataSelfCheck` ·
 `iwGearImportIntegritySelfCheck` · `iwWoodcuttingConstructionSelfCheck` (H) ·
 `iwDailyBoostSyncSelfCheck` (I) · `iwAchievementXpSelfCheck` (J) ·
-`iwXpCurveTaperSelfCheck` (K).
+`iwXpCurveTaperSelfCheck` (K) · `iwAshenSkinSelfCheck` (L) ·
+`iwSelfCheckIsolationSelfCheck` (M).
 
 A suite assertion may be **updated only by the stage that intentionally
 changes that mechanic**. Unrelated assertions must stay green.
+
+**Suites run against the live engine, and the engine persists.**
+`window.IWProfile` is a setter that saves every assignment to `iw_state_v2`,
+and the plate, enchant, removal and re-tier savers write their own keys.
+Before 2026-09-22 a self-check run saved fixture data:
+- the retier fixture profile, and a helmet named `__retier_h` on the doll;
+- fixture plans, which survived a reload.
+
+Now every `*SelfCheck` global is wrapped by the **self-check storage guard**
+(the last `<script>` in the file):
+- it snapshots localStorage before the outermost call;
+- it restores that snapshot exactly afterwards;
+- it then redraws the Gear tab.
+
+Suite M proves it by running the gear suite and requiring every key and the
+doll to come back unchanged. A new suite is wrapped automatically, because
+it is discovered by name. In memory, suites still restore their own globals.
+One caveat: a harness that aborts a running script (a timed-out devtools
+call) skips `finally` and leaves the guard's depth counter stuck until reload.
+
+**The guard does not cover load-time checks.** Four IIFEs run on every page
+load and briefly swap in `{skills:[…]}` stub profiles: gear band, best-in-slot,
+goal loadout and task gear index. Their restore of a `null` original writes
+nothing, so until 2026-09-22 every page load for a user with no import saved
+a fake Combat 20 / Mining 66 profile. The toolkit then treated it as theirs:
+their levels, gear gating, and "Profile: profile" in Work Orders.
+- The `IWProfile` setter now refuses to persist any profile whose keys are a
+  subset of `['skills']`. That covers the stubs and the empty `{}` the
+  loadout buttons create; a real import always carries more.
+- IWStore drops such a stored profile on load.
+- Suite M asserts one is never stored.
+- It is a shape rule, not a counter, on purpose. Three of the four sites have
+  no `finally`, and a stuck counter would silently stop every real import
+  from saving.
 
 ## Anatomy of index.html
 
@@ -125,6 +160,34 @@ showed an Item Find row — directly under an effect line that named it. Scoring
 was unaffected because `iwItemStats` re-scrapes those numbers out of the
 description text, which is exactly why it stayed invisible for so long. When a
 stat "doesn't show up", suspect the view before the renderer.
+
+**Two stylesheet families; exactly one is live (Ashen Iron rewrite, from
+2026-09-22).** Every `<style>` / stylesheet `<link>` carries
+`data-iw-sheet="legacy"` or `"ashen"`. The switch at the very end of `<head>`
+parks the inactive family under `media="not all"` before first paint. It
+uses `media`, **not** `disabled`: a `<link>` that is disabled before it loads
+is never fetched, so its rules are invisible to suite L, and a live switch
+back loads it late. `<html data-skin="ashen">`
+selects the new native UI and is independent of `data-theme`. It is
+**developer-only** (Settings → Developer → "Ashen Iron UI (preview)", key
+`ashenSkin`, mirrored pre-paint by `iw_skin_v1`) until Curtis makes it the
+default. Spec and phase plan:
+`docs/superpowers/specs/2026-09-22-ashen-iron-native-ui-design.md`.
+
+- A new stylesheet must be tagged, or suite L fails.
+- The legacy CSS carries **behaviour**: tab panes, dropdowns, dev-only rows
+  and expert mode are shown or hidden by CSS. The Ashen sheet's
+  BEHAVIOUR PARITY block mirrors those rules. Suite L checks it textually,
+  and also by rendered state under both families.
+- A later Ashen rule that sets `display` on a parity element beats the block
+  by source order. That is how the bottom nav first showed on desktop.
+- Inline `var(--legacy-token)` styles are covered by the Ashen sheet's legacy
+  token bridge until they are migrated.
+- Hiding is not only `display`. `#iw-tip` (the global item tooltip),
+  the sprite layers and the menus hide with `opacity: 0` /
+  `visibility: hidden`. Suite L pins those rules too. Before that check
+  existed, the tooltip sat as a visible block at the foot of every Ashen
+  page.
 
 **Icon loading was rewritten from a GitHub-hosted atlas to same-origin,
 demand-loaded chunks (2026-09-01, `publish-icon-split.yml` CI, merged into
@@ -224,7 +287,7 @@ inline on their host elements.
 `iwPlatePlanV1` · `iwEnchantPlanV1` · `iwEnhancementRemovalPlanV1` ·
 `iwReTierSettingV1` · `iwShoppingOwned` · `iwShoppingGear` ·
 `iwCollapseSkills` · `iw_gem_alltiers_v1` · `iwVisitedTool` ·
-`iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1`.
+`iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1` · `iw_skin_v1`.
 
 Two rules govern `IWStore`: **capture is generic** (every `<input>`/`<select>`
 carrying an id is snapshotted by id, so new controls persist automatically),
