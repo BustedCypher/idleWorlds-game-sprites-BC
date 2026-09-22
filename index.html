@@ -9243,7 +9243,7 @@
      (their token blocks live in the disabled legacy sheet). The chosen
      theme is state. They apply whenever the Ashen preview is off. */
   .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
-  .swatches::after { content: 'Applies to the classic look, with the Ashen Iron preview off.'; flex-basis: 100%; margin-top: 2px; font-family: var(--ash-font-flav); font-style: italic; font-size: 13px; color: var(--ash-faint); }
+  .swatches::after { content: 'Applies to the classic look only (Ashen Iron off, under Developer).'; flex-basis: 100%; margin-top: 2px; font-family: var(--ash-font-flav); font-style: italic; font-size: 13px; color: var(--ash-faint); }
   .swatch { appearance: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 6px 6px 5px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: rgba(0,0,0,.25); transition: border-color .15s; }
   .swatch:hover { border-color: var(--ash-rule); }
   .swatch.on { border-color: var(--ash-hairline-hi); box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 0 10px rgba(212,173,99,.25); }
@@ -9278,10 +9278,14 @@
    must see every stylesheet: each is tagged data-iw-sheet="legacy" or
    "ashen", and exactly one family is left enabled. The Settings key
    'ashenSkin' (Developer group) is the source of truth; iw_skin_v1 is its
-   pre-paint mirror, as iw_theme_v1 is for 'theme'. */
+   pre-paint mirror, as iw_theme_v1 is for 'theme'.
+   Ashen is the DEFAULT (Curtis, 2026-09-22): only an explicit
+   iw_skin_v1 === 'legacy' (someone turned the setting off) gives the
+   legacy page. Absent, unreadable or unknown all mean Ashen, so a first
+   visit paints Ashen with no legacy flash before the settings apply. */
 (function () {
-  var KEY = 'iw_skin_v1', SKINS = ['legacy', 'ashen'];
-  function norm(v) { return SKINS.indexOf(v) > 0 ? v : 'legacy'; }
+  var KEY = 'iw_skin_v1';
+  function norm(v) { return v === 'legacy' ? 'legacy' : 'ashen'; }
   window.iwGetSkin = function () {
     return document.documentElement.getAttribute('data-skin') === 'ashen' ? 'ashen' : 'legacy';
   };
@@ -9308,7 +9312,7 @@
     window.iwApplySkinSheets();
     try { window.dispatchEvent(new CustomEvent('iw:skinchange', { detail: { skin: name } })); } catch (e) {}
   };
-  var saved = 'legacy';
+  var saved = 'ashen';
   try { saved = norm(localStorage.getItem(KEY)); } catch (e) {}
   if (saved === 'ashen') document.documentElement.setAttribute('data-skin', 'ashen');
   window.iwApplySkinSheets();
@@ -31321,12 +31325,14 @@ function syncCombatLevel(val) {
       apply: function (v) { window.IW_DEBUG = !!v; } },
 
     /* Ashen Iron native UI (2026-09-22, docs/superpowers/specs/
-       2026-09-22-ashen-iron-native-ui-design.md). Developer-only until Curtis
-       makes it the default. This setting is the source of truth; iw_skin_v1
-       is its pre-paint mirror, read by the skin switch at the end of <head>,
-       exactly as iw_theme_v1 mirrors 'theme'. */
-    { key: 'ashenSkin', type: 'toggle', def: false, dev: true, label: 'Ashen Iron UI (preview)',
-      help: 'Switches the whole page to the new Ashen Iron interface. Work in progress — the legacy themes are untouched and come back when this is off.',
+       2026-09-22-ashen-iron-native-ui-design.md). The DEFAULT since
+       2026-09-22 (Curtis); the toggle stays in Developer as the way back to
+       the classic look until the legacy sheets are deleted at cutover. This
+       setting is the source of truth; iw_skin_v1 is its pre-paint mirror,
+       read by the skin switch at the end of <head>, exactly as iw_theme_v1
+       mirrors 'theme'. def must agree with that switch's default (Ashen). */
+    { key: 'ashenSkin', type: 'toggle', def: true, dev: true, label: 'Ashen Iron UI',
+      help: 'The Ashen Iron interface, now the default. Turn off for the classic look and its colour themes, which are being retired.',
       apply: function (v) {
         var want = v ? 'ashen' : 'legacy';
         if (window.iwSetSkin && window.iwGetSkin() !== want) window.iwSetSkin(want);
@@ -31460,6 +31466,12 @@ function syncCombatLevel(val) {
   window.iwGetSetting = get;
   // v40.11: lets self-check 16 confirm every tooltip scope key has a
   // reachable toggle, rather than assuming the two lists agree.
+  // Registry default of one setting (suite L pins ashenSkin's to the
+  // pre-paint skin default).
+  window.iwSettingDefault = function (key) {
+    var it = itemByKey(key);
+    return it ? it.def : undefined;
+  };
   window.iwSettingsKeys = function () {
     var out = [];
     GROUPS.forEach(function (g) { (g.items || []).forEach(function (it) { if (it.key) out.push(it.key); }); });
@@ -37451,9 +37463,12 @@ function syncCombatLevel(val) {
       }
       // Nothing may widen the page: on a phone that grows the layout viewport
       // and the page loads zoomed out (a closed tooltip did, 2026-09-22).
+      // (Skipped with no viewport to measure: a hidden or zero-size frame
+      // reports clientWidth 0, which is not an overflow.)
       var docEl = document.documentElement;
-      ok('page is no wider than the viewport (' + docEl.scrollWidth + ' > ' + docEl.clientWidth + ')',
-         docEl.scrollWidth <= docEl.clientWidth + 1);
+      if (docEl.clientWidth > 0)
+        ok('page is no wider than the viewport (' + docEl.scrollWidth + ' > ' + docEl.clientWidth + ')',
+           docEl.scrollWidth <= docEl.clientWidth + 1);
       ok('iwGetSkin/iwSetSkin/iwApplySkinSheets exist',
          typeof window.iwGetSkin === 'function' && typeof window.iwSetSkin === 'function' &&
          typeof window.iwApplySkinSheets === 'function');
@@ -37487,9 +37502,15 @@ function syncCombatLevel(val) {
       ok('legacy sheets readable (unread: ' + unread.join(', ') + ' — still loading?)', unread.length === 0);
       checkFamilies('as found');
       try {
+        // Ashen is the default: only an explicit 'legacy' means legacy.
         var stored = localStorage.getItem('iw_skin_v1');
         ok('iw_skin_v1 agrees with the page (' + stored + ' vs ' + window.iwGetSkin() + ')',
-           (stored === 'ashen') === (window.iwGetSkin() === 'ashen'));
+           (stored !== 'legacy') === (window.iwGetSkin() === 'ashen'));
+        // The registry default must match the pre-paint default, or a first
+        // visit paints Ashen and then flips to legacy once settings apply.
+        if (typeof window.iwSettingDefault === 'function')
+          ok('ashenSkin registry default agrees with the pre-paint default (Ashen)', window.iwSettingDefault('ashenSkin') === true);
+        else fail.push('iwSettingDefault unavailable');
       } catch (e) { /* storage unavailable: nothing to compare */ }
 
       var aSheet = ashen[0] && ashen[0].sheet;

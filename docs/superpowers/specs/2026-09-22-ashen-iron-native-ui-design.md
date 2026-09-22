@@ -1,6 +1,7 @@
 # Ashen Iron — native UI rewrite of the toolkit
 
-Date: 2026-09-22. Status: in progress, developer-gated.
+Date: 2026-09-22. Status: the default UI since 2026-09-22. The legacy
+deletion (the rest of phase 6) is pending.
 
 ## Goal
 
@@ -391,6 +392,26 @@ unconverted tab is usable in Ashen mode from day one.
     skin does, they borrow Gathering's and Crafting's (Curtis's choice).
     Replace those two positions when real art exists.
   - **Ashen only:** the legacy look is untouched.
+
+- **Ashen is the default (2026-09-22, Curtis).** This is the first half of
+  phase 6.
+  - The pre-paint switch treats absent, unreadable or unknown `iw_skin_v1`
+    as Ashen. Only an explicit `'legacy'` gives the classic page.
+  - `ashenSkin` is `def: true`. It is still under Developer, as "Ashen Iron
+    UI", as the way back.
+  - Suite L:
+    - reads a missing `iw_skin_v1` as Ashen;
+    - pins the registry default to the pre-paint default (via
+      `iwSettingDefault`), negative-controlled;
+    - skips the page-width check in a zero-size frame.
+  - **Browser checks:**
+    - A first visit with nothing stored paints Ashen, and nothing writes
+      `iw_skin_v1`.
+    - An explicit opt-out survives a reload.
+    - Opting back in works.
+  - **Still to do (the second half of phase 6):** delete the legacy sheets,
+    the 8 themes and their swatch picker, the token bridge and the dead
+    old-Gear renderers.
 
 ## Lessons (read before converting the next tab)
 

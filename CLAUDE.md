@@ -168,10 +168,13 @@ parks the inactive family under `media="not all"` before first paint. It
 uses `media`, **not** `disabled`: a `<link>` that is disabled before it loads
 is never fetched, so its rules are invisible to suite L, and a live switch
 back loads it late. `<html data-skin="ashen">`
-selects the new native UI and is independent of `data-theme`. It is
-**developer-only** (Settings → Developer → "Ashen Iron UI (preview)", key
-`ashenSkin`, mirrored pre-paint by `iw_skin_v1`) until Curtis makes it the
-default. Spec and phase plan:
+selects the new native UI and is independent of `data-theme`. **Ashen is
+the default since 2026-09-22.** Only an explicit `iw_skin_v1 === 'legacy'`
+gives the classic page, which means someone turned off Settings → Developer →
+"Ashen Iron UI" (key `ashenSkin`, `def: true`). Absent or unknown means Ashen,
+pre-paint, so a first visit never flashes the classic look. Suite L pins the
+registry default to the pre-paint default. The legacy sheets and the 8 themes
+stay until the cutover pass deletes them. Spec and phase plan:
 `docs/superpowers/specs/2026-09-22-ashen-iron-native-ui-design.md`.
 
 - A new stylesheet must be tagged, or suite L fails.
