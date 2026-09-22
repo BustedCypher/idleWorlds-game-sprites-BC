@@ -284,6 +284,99 @@ unconverted tab is usable in Ashen mode from day one.
     legacy's order. Suite L is green at each of the four stages at phone
     width, with exactly one stage panel visible.
 
+- **Settings toggle fix (2026-09-22).** The `ashenSkin` setting was
+  registered but not listed in `SETTINGS_SECTIONS`, so it was never drawn.
+  - It now sits in Developer, after `verbose`.
+  - `iwSettingsSectionKeys()` is exposed, and suite L asserts that every
+    registered setting is placed in a section.
+
+- **Items (done 2026-09-22).** Section 17 of the Ashen sheet.
+  - **Converted:** search, dropdown, filter chips, results grid, pagination,
+    the detail card and the wiki button.
+  - **Lifted from inline styles:**
+    - `idb-header-count`.
+    - `idb-hint`: the placeholder and three JS empty states.
+    - `req-val--sm`: six sites.
+  - **Legacy twins** each carry `!important`.
+  - **Legacy diff:** 0 over 387 elements. The negative control gave 52.
+
+- **Settings (done 2026-09-22).** Section 18 of the Ashen sheet.
+  - **Converted:** accordions, rows, segmented choices, switches, actions
+    (danger stays red) and the dev output.
+  - **Theme swatches** keep each theme's colours through `--sw-*`, with a note
+    that they apply to the classic look only.
+  - `.set-row:not(.dev-only){display:flex}` keeps the parity hide intact.
+  - `select.set-select` is capped to the row (it sized to its longest
+    option, 395px at phone width).
+  - **Legacy diff:** 0 over 405 elements, with no markup changes.
+
+- **Phone viewport fix (2026-09-22).** Ashen panels don't clip (their
+  ornaments overhang), so a closed `.iw-info` tooltip's untransformed box
+  reached past the right edge on the Calculator. That grew the phone layout
+  viewport to 383px: the bottom nav stretched, and a real phone would load
+  zoomed out.
+  - `.shell{overflow-x:clip}` fixes it. It is `clip` rather than `hidden` so
+    there is no scroll container and the sticky rail still works.
+  - Suite L now asserts `scrollWidth <= clientWidth`. The negative control
+    fails with 383 > 375.
+
+- **Coverage audit (2026-09-22).** Two sweeps looked for surfaces that were
+  still unstyled in Ashen:
+  - **Offline:** every class that the legacy CSS styles and the page uses,
+    minus those the Ashen sheet names. That found 105.
+  - **Live:** every visible element's classes, on all ten tabs, with the
+    sample profile imported, every `<details>` open and a Gear slot popup
+    open.
+
+  Findings:
+  - **About 80 of the 105 are dead output** from the old Gear pane, which was
+    removed in v4.8.1. Its renderers (`renderGearRecommendations`,
+    `buildProgressionHero`, `renderSocketPlanner`, `renderTaskGearAdvisor`,
+    `taskAltCardHTML`, `enchCardHTML`, `gearExpander`, …) return early because
+    their hosts (`gear-output`, `gear-hero`, `gear-socket-planner`,
+    `gear-task-output`) no longer exist. They need no Ashen styling. Delete
+    them at cutover.
+  - **Live gaps, fixed in section 17:**
+    - The Items card's "XP Values" section (craftable items only) is now a
+      four-up readout grid, two-up at ≤500px.
+    - "Apply to Calculator" had been an unstyled browser button. It is now an
+      ember primary.
+    - The search dropdown's "No results" line is styled.
+  - **Everything else is covered.** The live sweep leaves only
+    `gn-doll-panel` and `gn-stats-panel`, which are JS hooks styled through
+    their other classes.
+  - **Live inline legacy-token styles migrated (2026-09-22).** 50 line edits
+    plus the footer block, in markup and JS templates:
+    - The token-carrying declaration moved to a class. Sizes and margins
+      stay inline, since they carry no tokens.
+    - `tc-<token>` classes for text: `tc-text3`, `tc-text-3`, `tc-text2`,
+      `tc-text-2`, `tc-positive`, `tc-teal`, `tc-green`, `tc-warn`,
+      `tc-accent`.
+    - `dot--blue` / `--purple` / `--accent` / `--positive` /
+      `--construction`, `tab-badge--orange`, and
+      `goal-card--brass` / `--purple` / `--orange` / `--blue` (these set
+      `--tint`).
+    - `site-footer`, `site-footer-nav` and `site-footer-note`.
+    - The JS writes (two input border flashes and one stat colour) became
+      class toggles (`flash-teal`, `flash-blue`, `tc-text-3`).
+    - **Naming and twins:** classes are named after the token, so each
+      legacy twin is exact. Aliases like `--text3: var(--text-3)` resolve at
+      `:root`, so they are kept apart. Every class is `!important` in both
+      sheets because it stands in for an inline style.
+    - **Legacy diff:** every pane (home, calculator, planner, gear-new,
+      work-order, jewelry, construction-village, database, settings), plus
+      the footer, rail and bottom nav, the Gear slot popup and the socket
+      replace warning, each class against its original inline declaration.
+      All 0 differences, with the sample profile imported. The negative
+      control (wrong `tc-text3` / `dot--blue` twins) was caught on
+      calculator and work-order.
+    - **Ashen changes are intended only:** each dot's glow now matches its
+      colour, and the footer disclaimer uses the italic flavour face.
+    - **Nothing is left:** a sweep of every pane finds no live inline style
+      that uses a legacy token, and a planted one is caught.
+    - **Not migrated:** inline styles inside the dead old-Gear renderers
+      (listed above). Delete them at cutover rather than migrate them.
+
 ## Lessons (read before converting the next tab)
 
 - **Positional reads of engine markup.** Before wrapping anything, grep for
@@ -318,6 +411,19 @@ unconverted tab is usable in Ashen mode from day one.
   the same element have equal specificity (a re-show against a stage or
   state hide), the later one wins. Copy them in the order legacy has them,
   and run suite L in each state (stage, breakpoint), not just the default.
+- **Stale cache in the pane.** The pane can serve a cached `index.html`
+  (`transferSize` 0), so a check can run against old code. Load with a fresh
+  query (`?fresh=N`) after an edit.
+- **Hidden overflow still widens a phone page.** An invisible, transformed
+  box counts at its untransformed position for the mobile layout viewport.
+  Measure `innerWidth` against `visualViewport.width`, not just element
+  rects: the stretched fixed nav looked like the culprit and wasn't.
+- **Tab names are not pane ids.** `switchTab('workorder')` and
+  `switchTab('construction')` silently do nothing. The names are
+  `work-order` and `construction-village` (panes `#tab-work-order`,
+  `#tab-construction-village`); Start is `home` (`#tab-home`) and Gear is
+  `#tab-gear-new`. A sweep must assert the pane it expects is `.active`,
+  or it re-checks the previous tab and reports a pass.
 - **Do not set `display` on parity elements.** `.potion-warn-banner`,
   `.lookup-pending`, `.active-skill-banner`, `.lookup-result`, `.error` and
   the others get their `display` from section 4 only.

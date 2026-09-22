@@ -6184,6 +6184,39 @@
   .cp-facts.va-facts.va-facts--last { margin: 0 !important; }
   .va-note { margin-top: 6px !important; font-size: 11px !important; color: var(--text-3) !important; }
 
+  /* ── Items: styles lifted out of inline style="" (2026-09-22) ─────────── */
+  .idb-header-count { margin-left: auto !important; font-size: 10px !important; color: var(--text3) !important;
+    font-weight: 400 !important; text-transform: none !important; letter-spacing: 0 !important; }
+  .idb-hint { font-size: 12px !important; }
+  .req-val.req-val--sm { font-size: 11px !important; }
+  /* Inline legacy-token styles lifted to classes (2026-09-22). Each is the
+     exact inline declaration, !important because an inline style beats every
+     rule. Named after the token so the twin stays exact. */
+  .tc-text3 { color: var(--text3) !important; }
+  .tc-text-3 { color: var(--text-3) !important; }
+  .tc-text2 { color: var(--text2) !important; }
+  .tc-text-2 { color: var(--text-2) !important; }
+  .tc-positive { color: var(--positive) !important; }
+  .tc-teal { color: var(--teal) !important; }
+  .tc-green { color: var(--green) !important; }
+  .tc-warn { color: var(--warn) !important; }
+  .tc-accent { color: var(--accent) !important; }
+  .dot.dot--blue { background: var(--blue) !important; }
+  .dot.dot--purple { background: var(--purple) !important; }
+  .dot.dot--accent { background: var(--accent) !important; }
+  .dot.dot--positive { background: var(--positive) !important; }
+  .dot.dot--construction { background: var(--sk-construction) !important; }
+  .tab-badge.tab-badge--orange { background: var(--orange) !important; }
+  .goal-card.goal-card--brass { --tint: var(--brass) !important; }
+  .goal-card.goal-card--purple { --tint: var(--purple) !important; }
+  .goal-card.goal-card--orange { --tint: var(--orange) !important; }
+  .goal-card.goal-card--blue { --tint: var(--blue) !important; }
+  .flash-teal { border-color: var(--teal) !important; }
+  .flash-blue { border-color: var(--blue) !important; }
+  .site-footer { margin-top: 48px !important; border-top: 1px solid var(--border) !important; padding: 32px 16px 40px !important; display: flex !important; flex-direction: column !important; align-items: center !important; gap: 24px !important; }
+  .site-footer-nav { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; gap: 6px 4px !important; }
+  .site-footer-note { max-width: 560px !important; text-align: center !important; font-size: 11px !important; line-height: 1.6 !important; color: var(--text3) !important; }
+
 </style>
 <script>
 /* Theme boot — must run before first paint. Reads the saved theme and
@@ -6923,6 +6956,11 @@
     position: relative; z-index: 1;
     display: flex; align-items: flex-start; gap: 28px;
     max-width: 1240px; margin: 0 auto; padding: 20px 16px 0;
+    /* Panels here don't clip (their frame ornaments overhang), so a closed
+       .iw-info tooltip's untransformed box can reach past the screen edge
+       and widen a phone's layout viewport (the page loads zoomed out).
+       clip, not hidden: no scroll container, so the sticky rail still works. */
+    overflow-x: clip;
   }
   @media (max-width: 700px) { .shell { padding: 14px 12px 0; gap: 0; } }
   .wrap { flex: 1 1 auto; min-width: 0; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 40px; }
@@ -7829,19 +7867,20 @@
   .iwp-crest { width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; border: 1px solid var(--ash-edge); border-radius: var(--ash-r-slot); background: radial-gradient(circle at 50% 35%, #211D16, #0A0A08 75%); }
   .iwp-teamsub { font-size: 9.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ash-faint); }
   .iwp-teamname { margin-top: 2px; font-family: var(--ash-font-head); font-size: 16px; font-weight: 700; color: var(--ash-text-hi); }
-  /* Achievements: feats of strength — a forged gold medallion, a gilded
-     number and struck-medal plaques. The unlocked list is a closed <details>. */
-  .iwp-ach-hero { display: flex; align-items: center; gap: 12px; }
-  .iwp-ach-medallion { flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
+  /* Achievements: a forged gold medallion, a gilded number and struck-medal
+     plaques. The two-row hero keeps its explanatory copy readable in the
+     narrow stat-card column; the unlocked list is a closed <details>. */
+  .iwp-ach-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 14px; row-gap: 3px; }
+  .iwp-ach-medallion { grid-row: 1 / span 2; flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
     background: radial-gradient(circle at 35% 30%, #FFF0C4 0, #D4AD63 34%, #8A6326 72%, #3B2A12 100%);
     border: 2px solid var(--ash-accent); outline: 1px solid var(--ash-edge); outline-offset: 2px;
     box-shadow: 0 0 14px rgba(212,173,99,.35), inset 0 -3px 6px rgba(0,0,0,.45); animation: iwp-ach-pulse 3.2s ease-in-out infinite; }
   .iwp-ach-hero.zero .iwp-ach-medallion { filter: grayscale(1) brightness(.7); animation: none; box-shadow: inset 0 -3px 6px rgba(0,0,0,.45); }
-  .iwp-ach-pct { font-family: var(--ash-font-head); font-size: 30px; font-weight: 700; color: var(--ash-accent);
+  .iwp-ach-pct { grid-column: 2; align-self: end; line-height: 1; font-family: var(--ash-font-head); font-size: 30px; font-weight: 700; color: var(--ash-accent);
     background: linear-gradient(180deg, #FFF0C4 0%, #E3BE72 45%, #A87E36 100%); -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; filter: drop-shadow(0 1px 0 #000) drop-shadow(0 0 8px rgba(212,173,99,.3)); }
   .iwp-ach-pct.zero { background: none; -webkit-text-fill-color: currentColor; filter: none; color: var(--ash-faint); }
-  .iwp-ach-sub { font-size: 12px; font-weight: 600; line-height: 1.35; color: var(--ash-dim); }
+  .iwp-ach-sub { grid-column: 2; align-self: start; min-width: 0; font-size: 12px; font-weight: 600; line-height: 1.35; color: var(--ash-dim); }
   .iwp-ach-list { margin-top: 10px; }
   .iwp-ach-summary { list-style: none; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; gap: 8px;
     padding: 6px 10px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: rgba(0,0,0,.3);
@@ -8984,6 +9023,202 @@
     #cv-root .cv-live-message { bottom: 75px; }
   }
 
+  /* ── 17. Items (item database) ────────────────────────────────────── */
+  .idb-header-count { margin-left: auto; font-family: var(--ash-font-ui); font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: none; color: var(--ash-faint); text-shadow: none; }
+  .idb-hint { font-size: 13px; }
+  .idb-controls-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+  /* Search: a trough with a lens, a clear coin, and a forged suggestion list. */
+  .idb-search-wrap { position: relative; flex: 1 1 260px; min-width: 200px; }
+  .idb-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--ash-accent-dim); pointer-events: none; }
+  input.idb-search-input { width: 100%; min-height: 42px; padding: 8px 40px 8px 36px; font-size: 15px; font-weight: 500; }
+  @media (max-width: 700px) { input.idb-search-input { font-size: 16px; } }
+  .idb-search-clear { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid var(--ash-edge-soft); border-radius: 50%; background: var(--ash-ink-800); font-size: 11px; color: var(--ash-faint); cursor: pointer; }
+  .idb-search-clear:hover { color: var(--ash-text-hi); border-color: var(--ash-edge); }
+  @media (pointer: coarse) { .idb-search-clear { width: 30px; height: 30px; } }
+  .idb-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 250; max-height: 340px; overflow-y: auto; padding: 5px; border: 1px solid var(--ash-edge); border-radius: var(--ash-r-control); background: var(--ash-ground); background-blend-mode: var(--ash-ground-blend); box-shadow: 0 14px 30px rgba(0,0,0,.7); }
+  .idb-suggestion { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border: 1px solid transparent; border-radius: var(--ash-r-control); cursor: pointer; transition: border-color .12s, background .12s; }
+  .idb-suggestion:hover, .idb-suggestion.focused { border-color: var(--ash-edge-faint); background: rgba(212,173,99,.08); }
+  .idb-sug-icon { flex-shrink: 0; font-size: 16px; }
+  .idb-sug-body { min-width: 0; flex: 1 1 auto; }
+  .idb-sug-name { font-size: 13.5px; font-weight: 700; color: var(--ash-text-hi); }
+  .idb-sug-meta { margin-top: 1px; font-size: 11.5px; color: var(--ash-faint); }
+  .idb-sug-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+  .idb-sug-tier { font-family: var(--ash-font-head); font-size: 12px; font-weight: 700; color: var(--ash-accent); }
+  .idb-sug-cat { font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ash-faint); }
+  .idb-tier-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .idb-tier-label { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ash-accent-dim); }
+  select.idb-tier-select { min-height: 42px; font-size: 14px; font-weight: 600; }
+  .idb-tier-banner { align-items: center; gap: 11px; margin-bottom: 12px; padding: 10px 13px; border: 1px solid var(--ash-edge-soft); border-left: 2px solid var(--ash-accent); border-radius: var(--ash-r-control); background: linear-gradient(90deg, rgba(212,173,99,.08), rgba(0,0,0,.18) 70%); font-size: 13px; color: var(--ash-dim); }
+  /* Category chips: the active filter is state. */
+  .idb-filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .idb-filter-chip { appearance: none; cursor: pointer; min-height: 30px; padding: 3px 12px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #25221B, #15130F); box-shadow: inset 0 1px 0 rgba(255,235,190,.05); font-size: 12.5px; font-weight: 600; color: var(--ash-dim); transition: color .15s, border-color .15s; }
+  .idb-filter-chip:hover { color: var(--ash-text-hi); border-color: var(--ash-rule); }
+  .idb-filter-chip.active { color: var(--ash-accent); border-color: var(--ash-hairline); background: linear-gradient(180deg, #3A2E18, #221A0D); }
+  @media (pointer: coarse) { .idb-filter-chip, .idb-page-btn { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; } }
+  .idb-stats-bar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12.5px; color: var(--ash-faint); }
+  .idb-stats-bar strong { color: var(--ash-text-hi); }
+  .idb-stats-sep { color: var(--ash-edge-mid); }
+  .idb-accuracy-note { font-family: var(--ash-font-flav); font-style: italic; font-size: 13px; color: var(--ash-faint); }
+  /* Results: carved cards; the selected one is state. */
+  .idb-results-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  @media (max-width: 560px) { .idb-results-grid { grid-template-columns: 1fr; } }
+  .idb-result-card { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #1E1B16, #100F0D); box-shadow: inset 0 1px 0 rgba(255,235,190,.04); cursor: pointer; transition: border-color .16s, box-shadow .16s; }
+  .idb-result-card:hover { border-color: var(--ash-rule); box-shadow: inset 0 1px 0 rgba(255,235,190,.06), inset 0 0 16px rgba(209,90,34,.08); }
+  .idb-result-card.selected { border-color: var(--ash-hairline); border-left: 2px solid var(--ash-accent); background: radial-gradient(160% 100% at 0% 0%, rgba(212,173,99,.12), transparent 60%), linear-gradient(180deg, #221E17, #100F0D); }
+  .idb-rc-icon { flex-shrink: 0; width: 38px; height: 38px; display: grid; place-items: center; font-size: 18px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-slot); background: radial-gradient(circle at 50% 38%, #221E17, #090908 72%); box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+  .idb-rc-body { min-width: 0; flex: 1 1 auto; }
+  .idb-rc-name { font-size: 14px; font-weight: 700; line-height: 1.25; color: var(--ash-text-hi); }
+  .idb-rc-meta { margin-top: 3px; font-size: 12px; color: var(--ash-faint); }
+  .idb-pagination { display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; margin-top: 14px; }
+  .idb-page-btn { appearance: none; cursor: pointer; min-width: 34px; min-height: 30px; padding: 3px 10px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #25221B, #15130F); font-family: var(--ash-font-head); font-size: 13px; font-weight: 700; color: var(--ash-dim); transition: color .15s, border-color .15s; }
+  .idb-page-btn:hover { color: var(--ash-text-hi); border-color: var(--ash-rule); }
+  .idb-page-btn.active { color: var(--ash-accent); border-color: var(--ash-hairline); background: linear-gradient(180deg, #3A2E18, #221A0D); }
+  .idb-page-info { margin: 0 6px; font-size: 12.5px; color: var(--ash-faint); }
+  /* Detail: a forged card with the item as its hero. */
+  .idb-detail-card { position: relative; isolation: isolate; margin-top: 16px; overflow: hidden; border: 1px solid var(--ash-edge); border-radius: var(--ash-r-panel); background: var(--ash-ground); background-blend-mode: var(--ash-ground-blend); box-shadow: inset 0 0 0 1px rgba(0,0,0,.78), inset 0 1px 0 var(--ash-glow), 0 5px 18px rgba(0,0,0,.24); }
+  .idb-detail-card::before { content: ""; position: absolute; left: 12px; right: 12px; top: 0; height: 1px; z-index: 2; pointer-events: none; background: linear-gradient(90deg, transparent, var(--ash-hairline) 14%, var(--ash-hairline-hi) 50%, var(--ash-hairline) 86%, transparent); }
+  .idb-detail-header { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-bottom: 1px solid var(--ash-edge-faint); background: radial-gradient(400px 160px at 90% -40px, rgba(212,173,99,.12), transparent 70%); }
+  .idb-detail-hero-icon { flex-shrink: 0; width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 1px solid var(--ash-edge); border-radius: var(--ash-r-slot); background: radial-gradient(circle at 50% 38%, #221E17, #090908 72%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.8), inset 0 2px 6px rgba(0,0,0,.6); }
+  .idb-detail-hero-body { min-width: 0; }
+  .idb-detail-name { font-family: var(--ash-font-head); font-size: 21px; font-weight: 700; letter-spacing: .03em; line-height: 1.15; color: var(--ash-text-hi); text-shadow: 0 1px 0 #000; }
+  .idb-detail-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .idb-badge { display: inline-block; padding: 0 7px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); font-size: 11px; font-weight: 700; color: var(--ash-dim); }
+  .idb-badge-tier { color: var(--ash-accent); border-color: var(--ash-edge); background: rgba(212,173,99,.08); }
+  .idb-badge-skill { color: #C9AEE8; border-color: #46345C; background: rgba(185,143,224,.08); }
+  .idb-detail-body { display: flex; flex-direction: column; gap: 14px; padding: 16px 18px; }
+  .idb-section-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; font-size: 10.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--ash-accent-dim); }
+  .idb-req-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  @media (max-width: 500px) { .idb-req-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .idb-req-item { padding: 9px 11px; border: 1px solid var(--ash-edge-faint); border-radius: var(--ash-r-control); background: rgba(0,0,0,.28); font-size: 12px; color: var(--ash-dim); }
+  .idb-req-item strong { display: block; margin-top: 3px; font-size: 14px; color: var(--ash-text-hi); }
+  .req-lbl { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ash-accent-dim); }
+  .req-val { margin-top: 2px; font-weight: 700; color: var(--ash-text-hi); }
+  .req-val.req-val--sm { font-size: 12.5px; }
+  .req-val.orange { color: var(--ash-warn); }
+  .idb-effect-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dotted var(--ash-edge-faint); font-size: 13.5px; }
+  .idb-effect-row:last-child { border-bottom: 0; }
+  .idb-effect-label { color: var(--ash-dim); }
+  .idb-effect-val { font-weight: 700; color: var(--ash-good); }
+  .idb-xp-pill { padding: 1px 9px; border: 1px solid #3E5A40; border-radius: var(--ash-r-control); background: rgba(130,184,138,.08); font-size: 12.5px; font-weight: 700; color: var(--ash-good); }
+  /* XP Values (craftable items only): four recessed readouts, figure over label. */
+  .idb-xp-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  @media (max-width: 500px) { .idb-xp-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .idb-xp-row .idb-xp-pill { display: flex; flex-direction: column; gap: 2px; padding: 8px 11px; border-color: var(--ash-edge-faint); background: rgba(0,0,0,.28); box-shadow: inset 0 1px 3px rgba(0,0,0,.5); }
+  .xp-val { font-family: var(--ash-font-head); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ash-good); }
+  .xp-lbl { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ash-faint); }
+  .idb-badge-cat { color: var(--ash-dim); }
+  .idb-dropdown-empty { padding: 16px; text-align: center; font-family: var(--ash-font-flav); font-style: italic; font-size: 14px; color: var(--ash-faint); }
+  .idb-dropdown-empty strong { font-family: var(--ash-font-ui); font-style: normal; color: var(--ash-dim); }
+  .idb-action-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+  /* The card's primary action: ember, like every other primary. */
+  .idb-apply-calc-btn { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; min-height: var(--ash-control-h-lg); padding: 6px 17px; border: 1px solid #7A2E10; border-radius: var(--ash-r-control); background: linear-gradient(180deg, var(--ash-cta-hi), var(--ash-cta) 55%, #8A330F); box-shadow: inset 0 1px 0 rgba(255,200,150,.3), 0 2px 6px rgba(0,0,0,.5); font-family: var(--ash-font-head); font-size: 13px; font-weight: 700; letter-spacing: .06em; color: var(--ash-on-cta); text-shadow: 0 1px 0 rgba(0,0,0,.45); transition: filter .15s; }
+  .idb-apply-calc-btn:hover { filter: brightness(1.12); }
+  .idb-apply-calc-btn:focus-visible { outline: 2px solid var(--ash-accent); outline-offset: 2px; }
+  .idb-wiki-btn { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; min-height: var(--ash-control-h-lg); padding: 6px 16px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #25221B, #15130F); box-shadow: inset 0 1px 0 rgba(255,235,190,.06), 0 1px 2px rgba(0,0,0,.5); font-size: 13px; font-weight: 700; color: var(--ash-text); text-decoration: none; transition: color .15s, border-color .15s; }
+  .idb-wiki-btn:hover { color: var(--ash-accent); border-color: var(--ash-rule); }
+
+  /* ── 17b. Former inline token styles ──────────────────────────────── */
+  /* Stand-ins for inline styles, so !important like the inline they replace.
+     Named after the legacy token; the value is the Ashen role it played. */
+  .tc-text3, .tc-text-3 { color: var(--ash-faint) !important; }
+  .tc-text2, .tc-text-2 { color: var(--ash-dim) !important; }
+  .tc-positive, .tc-teal { color: var(--ash-good) !important; }
+  .tc-green { color: var(--ash-t-uncommon) !important; }
+  .tc-warn { color: var(--ash-warn) !important; }
+  .tc-accent { color: var(--ash-accent) !important; }
+  .dot.dot--blue { background: var(--ash-info) !important; box-shadow: 0 0 8px -1px rgba(117,168,200,.6); }
+  .dot.dot--purple { background: var(--ash-t-epic) !important; box-shadow: 0 0 8px -1px rgba(185,143,224,.6); }
+  .dot.dot--accent { background: var(--ash-accent) !important; }
+  .dot.dot--positive { background: var(--ash-good) !important; box-shadow: 0 0 8px -1px rgba(130,184,138,.6); }
+  .dot.dot--construction { background: #9AA3AE !important; box-shadow: 0 0 8px -1px rgba(154,163,174,.5); }
+  .tab-badge.tab-badge--orange { background: var(--ash-warn) !important; }
+  .goal-card.goal-card--brass { --tint: var(--ash-accent) !important; }
+  .goal-card.goal-card--purple { --tint: var(--ash-t-epic) !important; }
+  .goal-card.goal-card--orange { --tint: var(--ash-warn) !important; }
+  .goal-card.goal-card--blue { --tint: var(--ash-info) !important; }
+  .flash-teal { border-color: var(--ash-good) !important; }
+  .flash-blue { border-color: var(--ash-info) !important; }
+  .site-footer { display: flex; flex-direction: column; align-items: center; gap: 24px; margin-top: 48px; padding: 32px 16px 40px; border-top: 1px solid var(--ash-line); }
+  .site-footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 4px; }
+  .site-footer-note { max-width: 560px; text-align: center; font-family: var(--ash-font-flav); font-style: italic; font-size: 13px; line-height: 1.55; color: var(--ash-faint); }
+
+  /* ── 18. Settings ─────────────────────────────────────────────────── */
+  /* Each section is a forged accordion; its open state is state. */
+  .set-accordion { position: relative; isolation: isolate; overflow: clip; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-panel); background: var(--ash-ground); background-blend-mode: var(--ash-ground-blend); box-shadow: inset 0 0 0 1px rgba(0,0,0,.78), inset 0 1px 0 var(--ash-glow), 0 5px 18px rgba(0,0,0,.24); }
+  .set-accordion[open] { border-color: var(--ash-edge); }
+  .set-accordion[open]::before { content: ""; position: absolute; left: 12px; right: 12px; top: 0; height: 1px; z-index: 2; pointer-events: none; background: linear-gradient(90deg, transparent, var(--ash-hairline) 14%, var(--ash-hairline-hi) 50%, var(--ash-hairline) 86%, transparent); }
+  .set-summary { list-style: none; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 66px; padding: 12px 16px; border-bottom: 1px solid transparent; cursor: pointer; user-select: none; transition: background .16s, border-color .16s; }
+  .set-summary:hover { background: rgba(212,173,99,.05); }
+  .set-accordion[open] > .set-summary { border-bottom-color: var(--ash-edge-faint); }
+  .set-summary-icon { width: 38px; height: 38px; display: grid; place-items: center; font-size: 18px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-slot); background: radial-gradient(circle at 50% 38%, #221E17, #090908 72%); box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+  .set-accordion.dev-group .set-summary-icon { border-color: #6B4A24; }
+  .set-summary-copy { min-width: 0; }
+  .set-summary-title { font-family: var(--ash-font-head); font-size: 16px; font-weight: 700; letter-spacing: .03em; line-height: 1.25; color: var(--ash-text-hi); text-shadow: 0 1px 0 #000; }
+  .set-summary-help { margin-top: 3px; font-family: var(--ash-font-flav); font-style: italic; font-size: 14px; line-height: 1.35; color: var(--ash-faint); }
+  .set-summary-meta { display: flex; align-items: center; gap: 9px; font-size: 11.5px; font-weight: 600; white-space: nowrap; color: var(--ash-faint); }
+  .set-summary-chevron { width: 24px; height: 24px; display: grid; place-items: center; font-size: 15px; color: var(--ash-accent); transition: transform .18s ease; }
+  .set-accordion[open] .set-summary-chevron { transform: rotate(180deg); }
+  .set-accordion > .set-rows { padding-top: 2px; }
+  @media (max-width: 620px) {
+    .set-summary { min-height: 60px; padding: 11px 12px; gap: 9px; }
+    .set-summary-icon { width: 32px; height: 32px; font-size: 16px; }
+  }
+  .set-rows { display: flex; flex-direction: column; padding: 4px 16px 8px; }
+  .set-row { align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px dotted var(--ash-edge-faint); }
+  .set-row:not(.dev-only) { display: flex; }
+  .set-row:last-child { border-bottom: 0; }
+  body.density-compact .set-row { padding: 9px 0; }
+  .set-text { flex: 1 1 auto; min-width: 0; }
+  .set-label { font-size: 14.5px; font-weight: 600; line-height: 1.35; color: var(--ash-text-hi); }
+  .set-help { margin-top: 3px; max-width: 62ch; font-size: 12.5px; line-height: 1.5; color: var(--ash-faint); }
+  body.text-large .set-label { font-size: 15.5px; }
+  body.text-large .set-help { font-size: 13.5px; }
+  .set-control { flex: 0 0 auto; display: flex; align-items: center; }
+  .set-info-val { font-size: 12.5px; text-align: right; color: var(--ash-dim); }
+  @media (max-width: 620px) {
+    .set-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .set-control { width: 100%; }
+    .set-info-val { text-align: left; }
+  }
+  /* A select sizes itself to its longest option; cap it to the row. */
+  select.set-select { max-width: 100%; min-height: var(--ash-control-h-lg); font-size: 13.5px; font-weight: 600; }
+  @media (max-width: 620px) { select.set-select { width: 100%; } }
+  .set-action { appearance: none; cursor: pointer; min-height: var(--ash-control-h); padding: 5px 15px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #25221B, #15130F); box-shadow: inset 0 1px 0 rgba(255,235,190,.06), 0 1px 2px rgba(0,0,0,.5); font-size: 13px; font-weight: 700; color: var(--ash-text); transition: color .15s, border-color .15s; }
+  .set-action:hover { color: var(--ash-accent); border-color: var(--ash-rule); }
+  /* Destructive actions keep their meaning. */
+  .set-action.danger { color: var(--ash-bad); border-color: #6B2E2E; }
+  .set-action.danger:hover { color: #fff; border-color: #A84040; background: linear-gradient(180deg, #8A2F2F, #5E1F1F); }
+  @media (pointer: coarse) { .set-action, .seg button { min-height: 40px; } .swatch { min-height: 56px; } }
+  /* Segmented choice: a trough with the chosen segment lit. */
+  .seg { display: inline-flex; flex-wrap: wrap; padding: 2px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #080907, var(--ash-ink-850)); box-shadow: inset 0 1px 3px rgba(0,0,0,.65); }
+  .seg button { appearance: none; cursor: pointer; padding: 5px 13px; border: 1px solid transparent; border-radius: var(--ash-r-control); background: transparent; font-size: 13px; font-weight: 700; color: var(--ash-faint); transition: color .15s, background .15s; }
+  .seg button:hover { color: var(--ash-text); }
+  .seg button.on { color: var(--ash-accent); border-color: var(--ash-hairline); background: linear-gradient(180deg, #3A2E18, #221A0D); }
+  /* Theme swatches: the classic themes, previewed in their own colours
+     (their token blocks live in the disabled legacy sheet). The chosen
+     theme is state. They apply whenever the Ashen preview is off. */
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatches::after { content: 'Applies to the classic look, with the Ashen Iron preview off.'; flex-basis: 100%; margin-top: 2px; font-family: var(--ash-font-flav); font-style: italic; font-size: 13px; color: var(--ash-faint); }
+  .swatch { appearance: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 6px 6px 5px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: rgba(0,0,0,.25); transition: border-color .15s; }
+  .swatch:hover { border-color: var(--ash-rule); }
+  .swatch.on { border-color: var(--ash-hairline-hi); box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 0 10px rgba(212,173,99,.25); }
+  .sw-page { position: relative; display: block; width: 42px; height: 28px; overflow: hidden; border-radius: 2px; border: 1px solid var(--sw-border, #343740); background: var(--sw-bg, #0e0f12); }
+  .sw-page::after { content: ''; position: absolute; left: 5px; top: 5px; width: 26px; height: 5px; border-radius: 1px; background: var(--sw-surface, #17181c); }
+  .sw-acc { position: absolute; left: 5px; bottom: 5px; width: 18px; height: 5px; border-radius: 1px; background: var(--sw-acc, #5b9dff); }
+  .sw-name { font-size: 10.5px; font-weight: 700; letter-spacing: .02em; color: var(--ash-faint); }
+  .swatch.on .sw-name { color: var(--ash-accent); }
+  .swatch[data-theme="dark"]     { --sw-bg: #0e0f12; --sw-surface: #17181c; --sw-acc: #5b9dff; --sw-border: #343740; }
+  .swatch[data-theme="light"]    { --sw-bg: #fbfaf7; --sw-surface: #ffffff; --sw-acc: #2563eb; --sw-border: #dcd3b8; }
+  .swatch[data-theme="office"]   { --sw-bg: #dce2ea; --sw-surface: #ffffff; --sw-acc: #2d5c86; --sw-border: #8ea1bc; }
+  .swatch[data-theme="pink"]     { --sw-bg: #150910; --sw-surface: #21101a; --sw-acc: #ff6fb5; --sw-border: #4c263c; }
+  .swatch[data-theme="emerald"]  { --sw-bg: #071411; --sw-surface: #0e211c; --sw-acc: #34d399; --sw-border: #214e44; }
+  .swatch[data-theme="sapphire"] { --sw-bg: #070e1d; --sw-surface: #0d162a; --sw-acc: #4c8dff; --sw-border: #1d315b; }
+  .swatch[data-theme="ruby"]     { --sw-bg: #17080b; --sw-surface: #240f13; --sw-acc: #ff5470; --sw-border: #51222b; }
+  .swatch[data-theme="topaz"]    { --sw-bg: #15120e; --sw-surface: #201c17; --sw-acc: #e7b44a; --sw-border: #463d31; }
+  /* Developer output. */
+  .dev-out { margin: 10px 0 4px; padding: 10px 12px; border: 1px solid var(--ash-edge-faint); border-radius: var(--ash-r-control); background: #070806; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); font-size: 12.5px; line-height: 1.6; color: var(--ash-dim); }
+  .dev-pre { margin: 0; max-height: 320px; overflow: auto; font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 11.5px; line-height: 1.5; white-space: pre; color: var(--ash-dim); }
+
   /* Footer (shell). Its layout is inline and shared by both skins. */
   .footer-link { font-size: 12.5px; font-weight: 600; letter-spacing: .02em; color: var(--ash-dim); text-decoration: none; transition: color .15s; }
   .footer-link:hover { color: var(--ash-accent); }
@@ -9086,7 +9321,7 @@
     <button class="tab-btn" data-tab="gear-new" role="tab" aria-selected="false" aria-controls="tab-gear-new" onclick="switchTab(&#39;gear-new&#39;)">
       <span data-ui=tab-icon class="tab-icon" aria-hidden="true">🗡️</span>
       <span data-ui=tab-label class="tab-label">Gear</span>
-      <span data-ui=badge-gear class="tab-badge" id="badge-gear" style="background:var(--orange);"></span>
+      <span data-ui=badge-gear class="tab-badge tab-badge--orange" id="badge-gear"></span>
     </button>
     <button class="tab-btn" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
       <span data-ui=tab-icon class="tab-icon" aria-hidden="true">📜</span>
@@ -9163,22 +9398,22 @@
     </div>
 
     <div data-ui=goal-grid class="goal-grid" id="goal-grid">
-    <button class="goal-card" style="--tint:var(--brass)" onclick="switchTab(&#39;calculator&#39;)">
+    <button class="goal-card goal-card--brass" onclick="switchTab(&#39;calculator&#39;)">
       <span data-ui=goal-glyph class="goal-glyph" aria-hidden="true">⏳</span>
       <span data-ui=goal-q class="goal-q">How long will this take?</span>
       <span data-ui=goal-d class="goal-d">XP per hour and clock time to your target level.</span>
     </button>
-    <button class="goal-card" style="--tint:var(--purple)" onclick="switchTab(&#39;planner&#39;)">
+    <button class="goal-card goal-card--purple" onclick="switchTab(&#39;planner&#39;)">
       <span data-ui=goal-glyph class="goal-glyph" aria-hidden="true">🗺️</span>
       <span data-ui=goal-q class="goal-q">What should I train next?</span>
       <span data-ui=goal-d class="goal-d">The fastest route from where you are to your goal.</span>
     </button>
-    <button class="goal-card" style="--tint:var(--orange)" onclick="switchTab(&#39;gear&#39;)">
+    <button class="goal-card goal-card--orange" onclick="switchTab(&#39;gear&#39;)">
       <span data-ui=goal-glyph class="goal-glyph" aria-hidden="true">🛡️</span>
       <span data-ui=goal-q class="goal-q">What should I be wearing?</span>
       <span data-ui=goal-d class="goal-d">Best item per slot for the stat you care about.</span>
     </button>
-    <button class="goal-card" style="--tint:var(--blue)" onclick="switchTab(&#39;database&#39;)">
+    <button class="goal-card goal-card--blue" onclick="switchTab(&#39;database&#39;)">
       <span data-ui=goal-glyph class="goal-glyph" aria-hidden="true">🔍</span>
       <span data-ui=goal-q class="goal-q">What is this item?</span>
       <span data-ui=goal-d class="goal-d">Search all <span data-ui=iw-live-count class="iw-live-count">4,349</span> items and recipes.</span>
@@ -9966,7 +10201,7 @@
         achBody += '<details data-ui=iwp-ach-list class="iwp-ach-list"'+(window.__iwAchOpen?' open':'')+
           ' ontoggle="window.__iwAchOpen=this.open">'+
           '<summary data-ui=iwp-ach-summary class="iwp-ach-summary">'+
-            '<span data-ui=iwp-ach-count class="iwp-ach-count"><b>'+achKeys.length+'</b> feat'+(achKeys.length===1?'':'s')+' of strength</span>'+
+            '<span data-ui=iwp-ach-count class="iwp-ach-count">Achievement List</span>'+
             '<span data-ui=iwp-ach-chev class="iwp-ach-chev" aria-hidden="true">▾</span></summary>'+
           '<div data-ui=iwp-ach-chips class="iwp-ach-chips">'+
             achKeys.map(function(k, i){
@@ -9975,7 +10210,7 @@
                 '<span data-ui=iwp-ach-name class="iwp-ach-name">'+iwTipEsc(iwAchievementLabel(k))+'</span></span>';
             }).join('')+'</div></details>';
       } else if(achKeys){
-        achBody += '<div data-ui=iwp-ach-none class="iwp-ach-none">No feats unlocked yet</div>';
+        achBody += '<div data-ui=iwp-ach-none class="iwp-ach-none">No achievements unlocked yet</div>';
       }
       html += card('#c9a2ff','🏆','Achievements', achBody);
     }
@@ -10642,7 +10877,7 @@
         <div data-ui=result-tear class="result-tear" aria-hidden="true"></div>
         <div data-ui=plain-summary class="plainline" id="plain-summary" style="display: flex;">
           <span data-ui=pl-icon class="pl-icon" aria-hidden="true">🧭</span>
-          <span data-ui=plain-summary-text id="plain-summary-text">At <b>361,008 XP an hour</b>, ⛏️ Mining level <b>66 → 67</b> takes about <b>3d 11h 16m</b>. <span data-ui=plain-summary-text style="color:var(--text3);">83.3h total</span></span>
+          <span data-ui=plain-summary-text id="plain-summary-text">At <b>361,008 XP an hour</b>, ⛏️ Mining level <b>66 → 67</b> takes about <b>3d 11h 16m</b>. <span data-ui=plain-summary-text class="tc-text3">83.3h total</span></span>
         </div>
         <div data-ui=metrics class="metrics">
           <div data-ui=metric class="metric">
@@ -10662,7 +10897,7 @@
           </div>
           <div data-ui=metric class="metric">
             <div data-ui=metric-lbl class="metric-lbl">Resources needed</div>
-            <div data-ui=res-resource class="metric-val" id="res-resource"><span data-ui=res-resource-text style="font-size:12px;color:var(--text3);font-style:italic;font-weight:400;">not set</span></div>
+            <div data-ui=res-resource class="metric-val" id="res-resource"><span data-ui=res-resource-text class="tc-text3" style="font-size:12px;font-style:italic;font-weight:400;">not set</span></div>
             <div data-ui=res-resource-sub class="metric-sub" id="res-resource-sub"></div>
           </div>
           <div data-ui=metric class="metric">
@@ -10804,7 +11039,7 @@
       </div>
 
       <div data-ui=work-order-comparison-panel class="panel">
-        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot" style="background:var(--blue);"></span>Compare order types <span data-ui=wo-panel-note class="wo-panel-note">Complete batches only</span></div>
+        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--blue"></span>Compare order types <span data-ui=wo-panel-note class="wo-panel-note">Complete batches only</span></div>
         <div data-ui=panel-body class="panel-body">
           <div data-ui=wo-tablebox class="wo-tablebox">
             <table data-ui=wo-table class="wo-table">
@@ -10832,7 +11067,7 @@
 
     <section data-ui=wo-panel-formula class="wo-subtab-panel" id="wo-panel-formula">
       <div data-ui=work-order-rules-panel class="panel">
-        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot" style="background:var(--purple);"></span>Rules, assumptions &amp; items.json data</div>
+        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--purple"></span>Rules, assumptions &amp; items.json data</div>
         <div data-ui=panel-body class="panel-body">
           <div data-ui=wo-rule-grid class="wo-rule-grid">
             <div data-ui=wo-rule class="wo-rule"><strong>Raw-material order</strong><span data-ui=wo-rule-text>100 ore / herb / fibre</span></div>
@@ -11192,9 +11427,9 @@
 
     <!-- ── Placeholder when no profile imported ───────────── -->
     <div data-ui=gn-no-profile id="gn-no-profile" class="panel" style="display: none;">
-      <div data-ui=panel-body class="panel-body" style="padding:20px;text-align:center;color:var(--text-3);font-size:13px;">
+      <div data-ui=panel-body class="panel-body tc-text-3" style="padding:20px;text-align:center;font-size:13px;">
         <div data-ui=gear-empty-icon style="font-size:2rem;margin-bottom:8px;">🗡️</div>
-        Import your character on the <strong style="cursor:pointer;color:var(--accent);" onclick="switchTab(&#39;home&#39;)">Start</strong> page to see your loadout here.
+        Import your character on the <strong class="tc-accent" style="cursor:pointer;" onclick="switchTab(&#39;home&#39;)">Start</strong> page to see your loadout here.
       </div>
     </div>
 
@@ -11206,7 +11441,7 @@
 
         <!-- LEFT: Equipment doll -->
         <div data-ui=gn-doll-panel class="panel gn-doll-panel">
-          <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot" style="background:var(--accent);"></span>Equipment</div>
+          <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--accent"></span>Equipment</div>
           <div data-ui=panel-body class="panel-body gn-doll-body">
 
             <!-- Three-column doll layout -->
@@ -11294,7 +11529,7 @@
 
         <!-- RIGHT: Stats panel -->
         <div data-ui=gn-stats-panel class="panel gn-stats-panel">
-          <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot" style="background:var(--positive);"></span>Combat Stats</div>
+          <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--positive"></span>Combat Stats</div>
           <div data-ui=gn-stats-body class="panel-body" id="gn-stats-body"><div data-ui=gn-section-head class="gn-section-head">Attack &amp; Defence</div><div data-ui=gn-stat-row class="gn-stat-row"><span data-ui=gn-stat-label class="gn-stat-label">Total ATK (combat slots)</span><span data-ui=gn-stat-value class="gn-stat-value highlight">119</span></div><div data-ui=gn-stat-row class="gn-stat-row"><span data-ui=gn-stat-label class="gn-stat-label">Total DEF (combat slots)</span><span data-ui=gn-stat-value class="gn-stat-value highlight">121</span></div><div data-ui=gn-stat-row class="gn-stat-row"><span data-ui=gn-stat-label class="gn-stat-label">ATK (all slots)</span><span data-ui=gn-stat-value class="gn-stat-value">127</span></div><div data-ui=gn-stat-row class="gn-stat-row"><span data-ui=gn-stat-label class="gn-stat-label">DEF (all slots)</span><span data-ui=gn-stat-value class="gn-stat-value">131</span></div><div data-ui=gn-section-head class="gn-section-head">Gear Bonuses</div><div data-ui=gn-stat-row class="gn-stat-row"><span data-ui=gn-stat-label class="gn-stat-label">XP per Task</span><span data-ui=gn-stat-value class="gn-stat-value highlight">+101</span></div><div data-ui=gn-stat-row class="gn-stat-row"><span data-ui=gn-stat-label class="gn-stat-label">Gather Chance (2x)</span><span data-ui=gn-stat-value class="gn-stat-value highlight">+218%</span></div><div data-ui=gn-section-head class="gn-section-head">Active Enhancements</div><div data-ui=gn-enhancements-wrap class="gn-enhancements-wrap"><div data-ui=gn-enhancement-total class="gn-enhancement-total" data-enhancement-stat="gather"><button type="button" class="gn-enhancement-total-btn" aria-expanded="false" aria-controls="gn-enhancement-breakdown-gather" aria-label="Gather Chance (2x) enhancement total +48%. Show source breakdown." onclick="gnToggleEnhancementBreakdown(event,this)"><span data-ui=gn-enhancement-total-label class="gn-enhancement-total-label">Gather Chance (2x)</span><span data-ui=gn-enhancement-total-value class="gn-enhancement-total-value">+48%</span><span data-ui=gn-enhancement-total-caret class="gn-enhancement-total-caret" aria-hidden="true">⌄</span></button><div data-ui=gn-enhancement-breakdown-gather class="gn-enhancement-breakdown" id="gn-enhancement-breakdown-gather" role="region" aria-label="Gather Chance (2x) enhancement sources"><div data-ui=gn-enhancement-breakdown-title class="gn-enhancement-breakdown-title">Sources · 6</div><div data-ui=gn-enhancement-source class="gn-enhancement-source gem"><span data-ui=gn-enhancement-source-icon class="gn-enhancement-source-icon" aria-hidden="true">◆</span><span data-ui=gn-enhancement-source-main class="gn-enhancement-source-main"><span data-ui=gn-enhancement-source-name class="gn-enhancement-source-name">Helmet · Gem, socket 1</span><span data-ui=gn-enhancement-source-detail class="gn-enhancement-source-detail">Cut Jade · Socketed in game</span></span><span data-ui=gn-enhancement-source-value class="gn-enhancement-source-value">+8%</span></div><div data-ui=gn-enhancement-source class="gn-enhancement-source gem"><span data-ui=gn-enhancement-source-icon class="gn-enhancement-source-icon" aria-hidden="true">◆</span><span data-ui=gn-enhancement-source-main class="gn-enhancement-source-main"><span data-ui=gn-enhancement-source-name class="gn-enhancement-source-name">Chest · Gem, socket 1</span><span data-ui=gn-enhancement-source-detail class="gn-enhancement-source-detail">Cut Jade · Socketed in game</span></span><span data-ui=gn-enhancement-source-value class="gn-enhancement-source-value">+8%</span></div><div data-ui=gn-enhancement-source class="gn-enhancement-source gem"><span data-ui=gn-enhancement-source-icon class="gn-enhancement-source-icon" aria-hidden="true">◆</span><span data-ui=gn-enhancement-source-main class="gn-enhancement-source-main"><span data-ui=gn-enhancement-source-name class="gn-enhancement-source-name">Legs · Gem, socket 1</span><span data-ui=gn-enhancement-source-detail class="gn-enhancement-source-detail">Cut Jade · Socketed in game</span></span><span data-ui=gn-enhancement-source-value class="gn-enhancement-source-value">+8%</span></div><div data-ui=gn-enhancement-source class="gn-enhancement-source gem"><span data-ui=gn-enhancement-source-icon class="gn-enhancement-source-icon" aria-hidden="true">◆</span><span data-ui=gn-enhancement-source-main class="gn-enhancement-source-main"><span data-ui=gn-enhancement-source-name class="gn-enhancement-source-name">Boots · Gem, socket 1</span><span data-ui=gn-enhancement-source-detail class="gn-enhancement-source-detail">Cut Jade · Socketed in game</span></span><span data-ui=gn-enhancement-source-value class="gn-enhancement-source-value">+8%</span></div><div data-ui=gn-enhancement-source class="gn-enhancement-source gem"><span data-ui=gn-enhancement-source-icon class="gn-enhancement-source-icon" aria-hidden="true">◆</span><span data-ui=gn-enhancement-source-main class="gn-enhancement-source-main"><span data-ui=gn-enhancement-source-name class="gn-enhancement-source-name">Weapon · Gem, socket 1</span><span data-ui=gn-enhancement-source-detail class="gn-enhancement-source-detail">Cut Jade · Socketed in game</span></span><span data-ui=gn-enhancement-source-value class="gn-enhancement-source-value">+8%</span></div><div data-ui=gn-enhancement-source class="gn-enhancement-source gem"><span data-ui=gn-enhancement-source-icon class="gn-enhancement-source-icon" aria-hidden="true">◆</span><span data-ui=gn-enhancement-source-main class="gn-enhancement-source-main"><span data-ui=gn-enhancement-source-name class="gn-enhancement-source-name">Shield · Gem, socket 1</span><span data-ui=gn-enhancement-source-detail class="gn-enhancement-source-detail">Cut Jade · Socketed in game</span></span><span data-ui=gn-enhancement-source-value class="gn-enhancement-source-value">+8%</span></div></div></div></div></div>
         </div>
 
@@ -11383,7 +11618,7 @@
 
       <!-- ── Compact recommendation alternatives from the original Gear engine ── -->
       <div data-ui=gn-recommended-panel class="panel gn-recommended-panel">
-        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot" style="background:var(--positive);"></span>Recommended Gear</div>
+        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--positive"></span>Recommended Gear</div>
         <div data-ui=panel-body class="panel-body">
           <div data-ui=gn-recommended-intro class="gn-recommended-intro">Your current tier path and useful alternatives for each slot. Expand a slot to compare choices.</div>
           <div data-ui=gn-recommended-output id="gn-recommended-output"><div data-ui=gn-rec-progress class="gn-rec-progress"><div data-ui=gn-rec-progress-card class="gn-rec-progress-card"><span data-ui=gn-rec-progress-label class="gn-rec-progress-label">Current tier</span><span data-ui=gn-rec-progress-value class="gn-rec-progress-value">Kingssteel Set</span><span data-ui=gn-rec-progress-note class="gn-rec-progress-note">Tier 18 · Combat Lv 61</span></div><div data-ui=gn-rec-progress-card class="gn-rec-progress-card"><span data-ui=gn-rec-progress-label class="gn-rec-progress-label">Next tier</span><span data-ui=gn-rec-progress-value class="gn-rec-progress-value">Eternium Set</span><span data-ui=gn-rec-progress-note class="gn-rec-progress-note">Tier 19 · Requires Combat Lv 65</span></div></div><div data-ui=gn-rec-groups class="gn-rec-groups"><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">⛑️</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Helmet</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Eternal Weave Hood+3</span></span><span data-ui=gn-rec-count class="gn-rec-count">8 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Hood" aria-expanded="false" aria-label="Cotton Hood, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Hood</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="helmet" data-gn-item="Cotton Hood" aria-label="Add Cotton Hood to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Hood+1" aria-expanded="false" aria-label="Cotton Hood+1, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Hood+1</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="helmet" data-gn-item="Cotton Hood+1" aria-label="Add Cotton Hood+1 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Hood+2" aria-expanded="false" aria-label="Cotton Hood+2, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Hood+2</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="helmet" data-gn-item="Cotton Hood+2" aria-label="Add Cotton Hood+2 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Hood+3" aria-expanded="false" aria-label="Cotton Hood+3, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Hood+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="helmet" data-gn-item="Cotton Hood+3" aria-label="Add Cotton Hood+3 to the Gear UI">Add</button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta">Showing the top 4 of 8 useful alternatives.</div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">🥋</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Chest</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Overlord's Pauldrons</span></span><span data-ui=gn-rec-count class="gn-rec-count">4 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Nethergate Hauberk" aria-expanded="false" aria-label="Nethergate Hauberk, item details"><span data-ui=iw-item-name class="iw-item-name">Nethergate Hauberk</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +12% Gold Find</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="chest" data-gn-item="Nethergate Hauberk" aria-label="Add Nethergate Hauberk to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Stormcaller&#39;s Mantle" aria-expanded="false" aria-label="Stormcaller&#39;s Mantle, item details"><span data-ui=iw-item-name class="iw-item-name">Stormcaller's Mantle</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +14 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="chest" data-gn-item="Stormcaller&#39;s Mantle" aria-label="Add Stormcaller&#39;s Mantle to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Ancient&#39;s Vestment" aria-expanded="false" aria-label="Ancient&#39;s Vestment, item details"><span data-ui=iw-item-name class="iw-item-name">Ancient's Vestment</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +18 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="chest" data-gn-item="Ancient&#39;s Vestment" aria-label="Add Ancient&#39;s Vestment to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Conqueror&#39;s Plate" aria-expanded="false" aria-label="Conqueror&#39;s Plate, item details"><span data-ui=iw-item-name class="iw-item-name">Conqueror's Plate</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +4 Warfare</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="chest" data-gn-item="Conqueror&#39;s Plate" aria-label="Add Conqueror&#39;s Plate to the Gear UI">Add</button></div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">🧥</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Cloak</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Fortunate Eternal Weave Cloak of Insight</span></span><span data-ui=gn-rec-count class="gn-rec-count">4 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Gilded Cotton Cloak of Fortune" aria-expanded="false" aria-label="Gilded Cotton Cloak of Fortune, item details"><span data-ui=iw-item-name class="iw-item-name">Gilded Cotton Cloak of Fortune</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +1% Item Find · +1% Gold Find</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="cloak" data-gn-item="Gilded Cotton Cloak of Fortune" aria-label="Add Gilded Cotton Cloak of Fortune to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Gilded Cotton Cloak of the Harvest" aria-expanded="false" aria-label="Gilded Cotton Cloak of the Harvest, item details"><span data-ui=iw-item-name class="iw-item-name">Gilded Cotton Cloak of the Harvest</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +1% Gold Find · +1% 2× Gather</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="cloak" data-gn-item="Gilded Cotton Cloak of the Harvest" aria-label="Add Gilded Cotton Cloak of the Harvest to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Gilded Cotton Cloak of Insight" aria-expanded="false" aria-label="Gilded Cotton Cloak of Insight, item details"><span data-ui=iw-item-name class="iw-item-name">Gilded Cotton Cloak of Insight</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +1% Gold Find · +1 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="cloak" data-gn-item="Gilded Cotton Cloak of Insight" aria-label="Add Gilded Cotton Cloak of Insight to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Fortunate Cotton Cloak of the Harvest" aria-expanded="false" aria-label="Fortunate Cotton Cloak of the Harvest, item details"><span data-ui=iw-item-name class="iw-item-name">Fortunate Cotton Cloak of the Harvest</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +1% Item Find · +1% 2× Gather</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="cloak" data-gn-item="Fortunate Cotton Cloak of the Harvest" aria-label="Add Fortunate Cotton Cloak of the Harvest to the Gear UI">Add</button></div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">👖</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Legs</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Eternal Weave Leggings+3</span></span><span data-ui=gn-rec-count class="gn-rec-count">8 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Leggings" aria-expanded="false" aria-label="Cotton Leggings, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Leggings</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="legs" data-gn-item="Cotton Leggings" aria-label="Add Cotton Leggings to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Leggings+1" aria-expanded="false" aria-label="Cotton Leggings+1, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Leggings+1</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="legs" data-gn-item="Cotton Leggings+1" aria-label="Add Cotton Leggings+1 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Leggings+2" aria-expanded="false" aria-label="Cotton Leggings+2, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Leggings+2</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="legs" data-gn-item="Cotton Leggings+2" aria-label="Add Cotton Leggings+2 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Leggings+3" aria-expanded="false" aria-label="Cotton Leggings+3, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Leggings+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="legs" data-gn-item="Cotton Leggings+3" aria-label="Add Cotton Leggings+3 to the Gear UI">Add</button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta">Showing the top 4 of 8 useful alternatives.</div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">👢</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Boots</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Eternal Weave Boots+3</span></span><span data-ui=gn-rec-count class="gn-rec-count">8 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Boots" aria-expanded="false" aria-label="Cotton Boots, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Boots</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="boots" data-gn-item="Cotton Boots" aria-label="Add Cotton Boots to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Boots+1" aria-expanded="false" aria-label="Cotton Boots+1, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Boots+1</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="boots" data-gn-item="Cotton Boots+1" aria-label="Add Cotton Boots+1 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Boots+2" aria-expanded="false" aria-label="Cotton Boots+2, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Boots+2</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="boots" data-gn-item="Cotton Boots+2" aria-label="Add Cotton Boots+2 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Boots+3" aria-expanded="false" aria-label="Cotton Boots+3, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Boots+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="boots" data-gn-item="Cotton Boots+3" aria-label="Add Cotton Boots+3 to the Gear UI">Add</button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta">Showing the top 4 of 8 useful alternatives.</div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">⚔️</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Weapon</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Cindersteel Warblade</span></span><span data-ui=gn-rec-count class="gn-rec-count">5 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Kingssteel Sword+3" aria-expanded="false" aria-label="Kingssteel Sword+3, item details"><span data-ui=iw-item-name class="iw-item-name">Kingssteel Sword+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 126 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="weapon" data-gn-item="Kingssteel Sword+3" aria-label="Add Kingssteel Sword+3 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Soulforged Blade" aria-expanded="false" aria-label="Soulforged Blade, item details"><span data-ui=iw-item-name class="iw-item-name">Soulforged Blade</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 95 · +5% Item Find · +8% Gold Find</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="weapon" data-gn-item="Soulforged Blade" aria-label="Add Soulforged Blade to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Prospector&#39;s Pick" aria-expanded="false" aria-label="Prospector&#39;s Pick, item details"><span data-ui=iw-item-name class="iw-item-name">Prospector's Pick</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 112 · +16% 2× Gather · +12 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="weapon" data-gn-item="Prospector&#39;s Pick" aria-label="Add Prospector&#39;s Pick to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Forager&#39;s Sickle" aria-expanded="false" aria-label="Forager&#39;s Sickle, item details"><span data-ui=iw-item-name class="iw-item-name">Forager's Sickle</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 112 · +16% 2× Gather · +12 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="weapon" data-gn-item="Forager&#39;s Sickle" aria-label="Add Forager&#39;s Sickle to the Gear UI">Add</button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta">Showing the top 4 of 5 useful alternatives.</div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">🛡️</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Shield</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Warlord's Bulwark</span></span><span data-ui=gn-rec-count class="gn-rec-count">4 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Prospector&#39;s Buckler" aria-expanded="false" aria-label="Prospector&#39;s Buckler, item details"><span data-ui=iw-item-name class="iw-item-name">Prospector's Buckler</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +8% 2× Gather · +8 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="shield" data-gn-item="Prospector&#39;s Buckler" aria-label="Add Prospector&#39;s Buckler to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Forager&#39;s Guard" aria-expanded="false" aria-label="Forager&#39;s Guard, item details"><span data-ui=iw-item-name class="iw-item-name">Forager's Guard</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +8% 2× Gather · +8 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="shield" data-gn-item="Forager&#39;s Guard" aria-label="Add Forager&#39;s Guard to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Jeweler&#39;s Strongbox" aria-expanded="false" aria-label="Jeweler&#39;s Strongbox, item details"><span data-ui=iw-item-name class="iw-item-name">Jeweler's Strongbox</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +7% Item Find · +8 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="shield" data-gn-item="Jeweler&#39;s Strongbox" aria-label="Add Jeweler&#39;s Strongbox to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Plunderer&#39;s Bulwark" aria-expanded="false" aria-label="Plunderer&#39;s Bulwark, item details"><span data-ui=iw-item-name class="iw-item-name">Plunderer's Bulwark</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +15% Gold Find · +18 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="shield" data-gn-item="Plunderer&#39;s Bulwark" aria-label="Add Plunderer&#39;s Bulwark to the Gear UI">Add</button></div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">🎗️</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Belt</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Enchanted Belt Lv. 40</span></span><span data-ui=gn-rec-count class="gn-rec-count">5 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 39" aria-expanded="false" aria-label="Enchanted Belt Lv. 39, item details"><span data-ui=iw-item-name class="iw-item-name">Enchanted Belt Lv. 39</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 11 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="belt" data-gn-item="Enchanted Belt Lv. 39" aria-label="Add Enchanted Belt Lv. 39 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 35" aria-expanded="false" aria-label="Enchanted Belt Lv. 35, item details"><span data-ui=iw-item-name class="iw-item-name">Enchanted Belt Lv. 35</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 10 · +7 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="belt" data-gn-item="Enchanted Belt Lv. 35" aria-label="Add Enchanted Belt Lv. 35 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 36" aria-expanded="false" aria-label="Enchanted Belt Lv. 36, item details"><span data-ui=iw-item-name class="iw-item-name">Enchanted Belt Lv. 36</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 10 · +7 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="belt" data-gn-item="Enchanted Belt Lv. 36" aria-label="Add Enchanted Belt Lv. 36 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Enchanted Belt Lv. 37" aria-expanded="false" aria-label="Enchanted Belt Lv. 37, item details"><span data-ui=iw-item-name class="iw-item-name">Enchanted Belt Lv. 37</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 10 · +7 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="belt" data-gn-item="Enchanted Belt Lv. 37" aria-label="Add Enchanted Belt Lv. 37 to the Gear UI">Add</button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta">Showing the top 4 of 5 useful alternatives.</div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">🧤</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Gloves</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Eternal Weave Gloves+3</span></span><span data-ui=gn-rec-count class="gn-rec-count">8 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Gloves" aria-expanded="false" aria-label="Cotton Gloves, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Gloves</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="gloves" data-gn-item="Cotton Gloves" aria-label="Add Cotton Gloves to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Gloves+1" aria-expanded="false" aria-label="Cotton Gloves+1, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Gloves+1</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="gloves" data-gn-item="Cotton Gloves+1" aria-label="Add Cotton Gloves+1 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Gloves+2" aria-expanded="false" aria-label="Cotton Gloves+2, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Gloves+2</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="gloves" data-gn-item="Cotton Gloves+2" aria-label="Add Cotton Gloves+2 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Cotton Gloves+3" aria-expanded="false" aria-label="Cotton Gloves+3, item details"><span data-ui=iw-item-name class="iw-item-name">Cotton Gloves+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag">Sidegrade</span> · ATK 0 · Matches the best Attack result.</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="gloves" data-gn-item="Cotton Gloves+3" aria-label="Add Cotton Gloves+3 to the Gear UI">Add</button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta">Showing the top 4 of 8 useful alternatives.</div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">💍</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Ring</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Lapis Ring of Attack</span></span><span data-ui=gn-rec-count class="gn-rec-count">4 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Throne-Ash Signet" aria-expanded="false" aria-label="Throne-Ash Signet, item details"><span data-ui=iw-item-name class="iw-item-name">Throne-Ash Signet</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 26 · +8% Fire Resist · +36% 2× Gather</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="ring" data-gn-item="Throne-Ash Signet" aria-label="Add Throne-Ash Signet to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Dreadguard Signet" aria-expanded="false" aria-label="Dreadguard Signet, item details"><span data-ui=iw-item-name class="iw-item-name">Dreadguard Signet</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 22 · +12% Gold Find · +32% 2× Gather</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="ring" data-gn-item="Dreadguard Signet" aria-label="Add Dreadguard Signet to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Eternium Ring+3" aria-expanded="false" aria-label="Eternium Ring+3, item details"><span data-ui=iw-item-name class="iw-item-name">Eternium Ring+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 46 · +67% 2× Gather · +33 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="ring" data-gn-item="Eternium Ring+3" aria-label="Add Eternium Ring+3 to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Kingssteel Ring+3" aria-expanded="false" aria-label="Kingssteel Ring+3, item details"><span data-ui=iw-item-name class="iw-item-name">Kingssteel Ring+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 44 · +63% 2× Gather · +32 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="ring" data-gn-item="Kingssteel Ring+3" aria-label="Add Kingssteel Ring+3 to the Gear UI">Add</button></div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">📿</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Amulet</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Lapis Amulet of Attack</span></span><span data-ui=gn-rec-count class="gn-rec-count">4 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Veilbound Torc" aria-expanded="false" aria-label="Veilbound Torc, item details"><span data-ui=iw-item-name class="iw-item-name">Veilbound Torc</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 27 · +8% Frost Resist · +16% Item Find</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="amulet" data-gn-item="Veilbound Torc" aria-label="Add Veilbound Torc to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Kingsfall Choker" aria-expanded="false" aria-label="Kingsfall Choker, item details"><span data-ui=iw-item-name class="iw-item-name">Kingsfall Choker</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 25 · +15% Item Find · +36% 2× Gather</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="amulet" data-gn-item="Kingsfall Choker" aria-label="Add Kingsfall Choker to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Eye of the Tempest" aria-expanded="false" aria-label="Eye of the Tempest, item details"><span data-ui=iw-item-name class="iw-item-name">Eye of the Tempest</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 23 · +14% Gold Find · +34% 2× Gather</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="amulet" data-gn-item="Eye of the Tempest" aria-label="Add Eye of the Tempest to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Eternium Amulet+3" aria-expanded="false" aria-label="Eternium Amulet+3, item details"><span data-ui=iw-item-name class="iw-item-name">Eternium Amulet+3</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 46 · +67% 2× Gather · +33 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="amulet" data-gn-item="Eternium Amulet+3" aria-label="Add Eternium Amulet+3 to the Gear UI">Add</button></div></div></details><details data-ui=gn-rec-group class="gn-rec-group"><summary data-ui=gn-rec-summary class="gn-rec-summary"><span data-ui=gn-rec-summary-icon aria-hidden="true">🔮</span><span data-ui=gn-rec-summary-main class="gn-rec-summary-main"><span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Trinket</span><span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Best: Eternium Relic</span></span><span data-ui=gn-rec-count class="gn-rec-count">4 alternatives</span></summary><div data-ui=gn-rec-options class="gn-rec-options"><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Arcane Effigy" aria-expanded="false" aria-label="Arcane Effigy, item details"><span data-ui=iw-item-name class="iw-item-name">Arcane Effigy</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +8% Item Find · +10% Gold Find</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="trinket" data-gn-item="Arcane Effigy" aria-label="Add Arcane Effigy to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Wanderer&#39;s Token" aria-expanded="false" aria-label="Wanderer&#39;s Token, item details"><span data-ui=iw-item-name class="iw-item-name">Wanderer's Token</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +8% Item Find · +10% Gold Find</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="trinket" data-gn-item="Wanderer&#39;s Token" aria-label="Add Wanderer&#39;s Token to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Sovereign&#39;s Mark" aria-expanded="false" aria-label="Sovereign&#39;s Mark, item details"><span data-ui=iw-item-name class="iw-item-name">Sovereign's Mark</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +15% Gold Find · +18 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="trinket" data-gn-item="Sovereign&#39;s Mark" aria-label="Add Sovereign&#39;s Mark to the Gear UI">Add</button></div><div data-ui=gn-rec-option class="gn-rec-option"><div data-ui=gn-rec-option-main class="gn-rec-option-main"><div data-ui=gn-rec-option-name class="gn-rec-option-name"><button type="button" class="iw-item-ref" data-iw-item-name="Ancient&#39;s Reagent Coil" aria-expanded="false" aria-label="Ancient&#39;s Reagent Coil, item details"><span data-ui=iw-item-name class="iw-item-name">Ancient's Reagent Coil</span><span data-ui=iw-item-info class="iw-item-info" aria-hidden="true">i</span></button></div><div data-ui=gn-rec-option-meta class="gn-rec-option-meta"><span data-ui=gn-rec-tag class="gn-rec-tag tradeoff">Trade-off</span> · ATK 0 · +6% Frost Resist · +20 XP/task</div></div><button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" data-gn-slot="trinket" data-gn-item="Ancient&#39;s Reagent Coil" aria-label="Add Ancient&#39;s Reagent Coil to the Gear UI">Add</button></div></div></details></div></div>
@@ -11398,7 +11633,7 @@
          have no set-bonus interaction. Rendered entirely by
          iwRenderVillageAddons(); this is a static shell. -->
     <div data-ui=iw-village-panel class="panel" id="iw-village-panel">
-      <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot" style="background:var(--sk-construction);"></span>Village Add-ons</div>
+      <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--construction"></span>Village Add-ons</div>
       <div data-ui=iw-village-body class="panel-body" id="iw-village-body">
         <div data-ui=iw-village-content class="va-loading">Loading…</div>
       </div>
@@ -11432,10 +11667,9 @@
 
     <div data-ui=panel-item-db class="panel" id="panel-item-db">
       <div data-ui=panel-head class="panel-head">
-        <span data-ui=dot class="dot" style="background:var(--blue);"></span>
+        <span data-ui=dot class="dot dot--blue"></span>
         Item Database
-        <span data-ui=idb-header-count style="margin-left:auto;font-size:10px;color:var(--text3);font-weight:400;
-                     text-transform:none;letter-spacing:0;" id="idb-header-count" title="Source: embedded">4,349 items · offline data</span>
+        <span data-ui=idb-header-count class="idb-header-count" id="idb-header-count" title="Source: embedded">4,349 items · offline data</span>
       </div>
       <div data-ui=panel-body class="panel-body">
 
@@ -11462,7 +11696,7 @@
           <div data-ui=idb-placeholder class="idb-empty" id="idb-placeholder" style="display: none;">
             <div data-ui=idb-empty-icon class="idb-empty-icon">📦</div>
             <div data-ui=idb-placeholder-content>Select a tier or search to browse items.<br>
-            <span data-ui=idb-placeholder-text style="font-size:12px;">Supports partial, case-insensitive, and fuzzy matching.</span></div>
+            <span data-ui=idb-placeholder-text class="idb-hint">Supports partial, case-insensitive, and fuzzy matching.</span></div>
           </div>
           <div data-ui=idb-grid class="idb-results-grid" id="idb-grid" style="display: grid;"><div data-ui=eternium-ore class="idb-result-card" data-id="eternium_ore" role="button" tabindex="0" onclick="idbSelectItem(&#39;eternium_ore&#39;)" onkeydown="if(event.key===&#39;Enter&#39;||event.key===&#39; &#39;)idbSelectItem(&#39;eternium_ore&#39;)">
       <div data-ui=idb-rc-icon class="idb-rc-icon">⛏️</div>
@@ -11603,7 +11837,7 @@
     <button class="tab-btn" data-tab="gear-new" role="tab" aria-selected="false" aria-controls="tab-gear-new" onclick="switchTab(&#39;gear-new&#39;)">
       <span data-ui=tab-icon class="tab-icon" aria-hidden="true">🗡️</span>
       <span data-ui=tab-label class="tab-label">Gear</span>
-      <span data-ui=tab-badge class="tab-badge" data-badge="badge-gear" style="background:var(--orange);"></span>
+      <span data-ui=tab-badge class="tab-badge tab-badge--orange" data-badge="badge-gear"></span>
     </button>
     <button class="tab-btn" data-tab="work-order" role="tab" aria-selected="false" aria-controls="tab-work-order" onclick="switchTab(&#39;work-order&#39;)">
       <span data-ui=tab-icon class="tab-icon" aria-hidden="true">📜</span>
@@ -14624,8 +14858,8 @@ function applyActionToCalculator(action){
   ['action-time-display','action-xp','action-cost'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.style.borderColor = 'var(--teal)';
-    setTimeout(() => el.style.borderColor = '', 800);
+    el.classList.add('flash-teal');
+    setTimeout(() => el.classList.remove('flash-teal'), 800);
   });
 }
 
@@ -15251,7 +15485,7 @@ function calculate() {
     resEl.textContent    = fmt(acts * actionCost);
     resSubEl.textContent = fmt(acts) + ' actions';
   } else if (actionCostVal === '' || actionCost === 0) {
-    resEl.innerHTML      = '<span data-ui=result-resource-unset style="font-size:12px;color:var(--text3);font-style:italic;font-weight:400;">not set</span>';
+    resEl.innerHTML      = '<span data-ui=result-resource-unset class="tc-text3" style="font-size:12px;font-style:italic;font-weight:400;">not set</span>';
     resSubEl.textContent = '';
   } else {
     resEl.textContent = '—'; resSubEl.textContent = '';
@@ -20892,7 +21126,7 @@ function iwOpenReplaceWarning(slot, socketIndex, gemName){
     var html = '<div data-ui=iw-tile-picker class="iw-tile-picker-panel" id="iw-tile-picker">' +
       '<div data-ui=itp-head class="itp-head">Replace a real socketed gem?' +
         '<button type="button" class="itp-close" onclick="document.getElementById(\'iw-tile-picker\').remove()">\u2715</button></div>' +
-      '<div data-ui=iw-tile-picker-content style="padding:12px;font-size:12px;line-height:1.6;color:var(--text2);">' +
+      '<div data-ui=iw-tile-picker-content class="tc-text2" style="padding:12px;font-size:12px;line-height:1.6;">' +
         'This socket has a REAL socketed <strong>' + iwTipEsc(gemName) + '</strong> from your import.<br><br>' +
         'Choosing a different gem here only updates the PLAN in this tool, but if you actually make this ' +
         'change in-game, the original gem is destroyed and cannot be recovered.' +
@@ -21096,7 +21330,7 @@ function renderShoppingList(){
       '<div data-ui=shop-list-card class="shop-list-card">' +
         '<div data-ui=shop-list-head class="shop-list-head">' +
           '<span data-ui=shop-list-title class="shop-list-title">Shopping List</span>' +
-          (entries.length ? '<span data-ui=shop-text style="color:var(--text-3);font-size:11px;margin-left:4px;">(' + entries.length + ' item' + (entries.length === 1 ? '' : 's') + ')</span>' : '') +
+          (entries.length ? '<span data-ui=shop-text class="tc-text-3" style="font-size:11px;margin-left:4px;">(' + entries.length + ' item' + (entries.length === 1 ? '' : 's') + ')</span>' : '') +
           '<button type="button" class="gut-btn" style="margin-left:auto" onclick="iwToggleShoppingHidden()">Show</button>' +
         '</div>' +
       '</div>';
@@ -21112,7 +21346,7 @@ function renderShoppingList(){
           '<span data-ui=shop-list-title class="shop-list-title">Shopping List</span>' +
           '<button type="button" class="gut-btn" style="margin-left:auto" onclick="iwToggleShoppingHidden()">Hide</button>' +
         '</div>' +
-        '<div data-ui=shop-list-body class="shop-list-body" style="padding:8px 12px;color:var(--text-3);font-size:12px;">No items yet.</div>' +
+        '<div data-ui=shop-list-body class="shop-list-body tc-text-3" style="padding:8px 12px;font-size:12px;">No items yet.</div>' +
       '</div>';
     hosts.forEach(function(host){ host.innerHTML = emptyHtml; });
     return;
@@ -26150,14 +26384,14 @@ function renderItemCard(item) {
 
   // Info grid — populated strictly from CSV fields, omitting empties
   const infoItems = [];
-  infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Item ID</div><div data-ui=req-val class="req-val" style="font-size:11px">${esc(item.id)}</div></div>`);
+  infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Item ID</div><div data-ui=req-val class="req-val req-val--sm">${esc(item.id)}</div></div>`);
   if (item.tier != null)
     infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Tier</div><div data-ui=req-val class="req-val">${item.tier}</div></div>`);
-  infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Category</div><div data-ui=req-val class="req-val" style="font-size:11px">${esc(item.category)}</div></div>`);
+  infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Category</div><div data-ui=req-val class="req-val req-val--sm">${esc(item.category)}</div></div>`);
   if (item.sub)
-    infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Sub-category</div><div data-ui=req-val class="req-val" style="font-size:11px">${esc(item.sub)}</div></div>`);
+    infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Sub-category</div><div data-ui=req-val class="req-val req-val--sm">${esc(item.sub)}</div></div>`);
   if (item.requirements)
-    infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Requirements</div><div data-ui=req-val class="req-val orange" style="font-size:11px">${esc(item.requirements)}</div></div>`);
+    infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Requirements</div><div data-ui=req-val class="req-val orange req-val--sm">${esc(item.requirements)}</div></div>`);
   if (item.price)
     infoItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">Price</div><div data-ui=req-val class="req-val amber">${esc(item.price)}</div></div>`);
 
@@ -26176,13 +26410,13 @@ function renderItemCard(item) {
   // it here with the same flat regex as iwParseGearStats. Flat value, no %.
   const idbWarfare = (((item.description||'')+' '+(item.specialEffect||'')).match(/\+(\d+)\s*warfare/i)||[])[1];
   if (idbWarfare) statsItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">⚔️🏰 Warfare</div><div data-ui=req-val class="req-val">${idbWarfare}</div></div>`);
-  if (item.skillBonus)   statsItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">📈 Skill Bonus</div><div data-ui=req-val class="req-val" style="font-size:11px">${esc(item.skillBonus)}</div></div>`);
+  if (item.skillBonus)   statsItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">📈 Skill Bonus</div><div data-ui=req-val class="req-val req-val--sm">${esc(item.skillBonus)}</div></div>`);
   // v41.7: same wards/procs the tooltip now shows. One parser, two
   // surfaces — a second copy here is exactly how the two would drift.
   if (typeof iwExtraStatRows === 'function') iwExtraStatRows(item).forEach(function (r) {
     statsItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">${r.icon} ${esc(r.label)}</div><div data-ui=req-val class="req-val">${esc(r.value)}</div></div>`);
   });
-  if (item.specialEffect) statsItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">⭐ Special</div><div data-ui=req-val class="req-val" style="font-size:11px">${esc(item.specialEffect)}</div></div>`);
+  if (item.specialEffect) statsItems.push(`<div data-ui=idb-req-item class="idb-req-item"><div data-ui=req-lbl class="req-lbl">⭐ Special</div><div data-ui=req-val class="req-val req-val--sm">${esc(item.specialEffect)}</div></div>`);
   const statsSection = statsItems.length
     ? `<div data-ui=item-card-content><div data-ui=idb-section-title class="idb-section-title">Stats</div><div data-ui=idb-req-grid class="idb-req-grid">${statsItems.join('')}</div></div>`
     : '';
@@ -27661,7 +27895,7 @@ function renderResultGrid(results, query, page) {
 
   if (!total) {
     grid.style.display = 'none'; pgn.style.display = 'none'; ph.style.display = 'block';
-    ph.innerHTML = `<div data-ui=idb-empty-icon class="idb-empty-icon">🔍</div><div data-ui=result-content>No items found for <strong>"${query}"</strong>.<br><span data-ui=result-text style="font-size:12px">Try a shorter term or check the spelling.</span></div>`;
+    ph.innerHTML = `<div data-ui=idb-empty-icon class="idb-empty-icon">🔍</div><div data-ui=result-content>No items found for <strong>"${query}"</strong>.<br><span data-ui=result-text class="idb-hint">Try a shorter term or check the spelling.</span></div>`;
     return;
   }
 
@@ -27726,7 +27960,7 @@ function renderStats(total, shown, hasQuery) {
   if (!IDB_STATE.ready) { el.innerHTML=''; return; }
   if (!hasQuery) {
     const pool = idbCurrentPool();
-    el.innerHTML = `<strong>${pool.length.toLocaleString()}</strong> items &nbsp;<span data-ui=idb-stats-sep class="idb-stats-sep">·</span>&nbsp; ${Object.keys(IDB_CATEGORIES).length} categories &nbsp;<span data-ui=idb-stats-sep class="idb-stats-sep">·</span>&nbsp; <span data-ui=stats-text style="color:var(--green)">●</span> ${IDB_STATE.dataSource}`;
+    el.innerHTML = `<strong>${pool.length.toLocaleString()}</strong> items &nbsp;<span data-ui=idb-stats-sep class="idb-stats-sep">·</span>&nbsp; ${Object.keys(IDB_CATEGORIES).length} categories &nbsp;<span data-ui=idb-stats-sep class="idb-stats-sep">·</span>&nbsp; <span data-ui=stats-text class="tc-green">●</span> ${IDB_STATE.dataSource}`;
     return;
   }
   el.innerHTML = `<strong>${shown.toLocaleString()}</strong> results <span data-ui=idb-stats-sep class="idb-stats-sep">of</span> ${total.toLocaleString()} shown`;
@@ -28118,8 +28352,8 @@ function idbApplyToCalc(itemId) {
   ['action-time-display','action-xp'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.style.borderColor = 'var(--blue)';
-    setTimeout(() => el.style.borderColor = '', 900);
+    el.classList.add('flash-blue');
+    setTimeout(() => el.classList.remove('flash-blue'), 900);
   });
 }
 
@@ -28179,7 +28413,7 @@ function idbRunSearch() {
 
   if (nothingToShow) {
     document.getElementById('idb-placeholder').style.display = 'block';
-    document.getElementById('idb-placeholder').innerHTML = `<div data-ui=idb-empty-icon class="idb-empty-icon">📦</div><div data-ui=idb-run-search-content>Select a tier or search to browse items.<br><span data-ui=idb-run-search-text style="font-size:12px">Supports partial, case-insensitive, and fuzzy matching.</span></div>`;
+    document.getElementById('idb-placeholder').innerHTML = `<div data-ui=idb-empty-icon class="idb-empty-icon">📦</div><div data-ui=idb-run-search-content>Select a tier or search to browse items.<br><span data-ui=idb-run-search-text class="idb-hint">Supports partial, case-insensitive, and fuzzy matching.</span></div>`;
     document.getElementById('idb-grid').style.display = 'none';
     document.getElementById('idb-pagination').style.display = 'none';
     renderStats(0, 0, false);
@@ -28275,7 +28509,7 @@ function initItemDatabase() {
       document.getElementById('idb-pagination').style.display = 'none';
       const ph = document.getElementById('idb-placeholder');
       ph.style.display='block';
-      ph.innerHTML=`<div data-ui=idb-empty-icon class="idb-empty-icon">📦</div><div data-ui=init-item-database-content>Select a tier or search to browse items.<br><span data-ui=init-item-database-text style="font-size:12px">Supports partial, case-insensitive, and fuzzy matching.</span></div>`;
+      ph.innerHTML=`<div data-ui=idb-empty-icon class="idb-empty-icon">📦</div><div data-ui=init-item-database-content>Select a tier or search to browse items.<br><span data-ui=init-item-database-text class="idb-hint">Supports partial, case-insensitive, and fuzzy matching.</span></div>`;
       renderStats(0,0,false);
     }
     input.focus();
@@ -28906,18 +29140,10 @@ function syncCombatLevel(val) {
   });
 })();
 </script>
-<footer data-ui=init-gear-expanders-footer style="
-  margin-top: 48px;
-  border-top: 1px solid var(--border);
-  padding: 32px 16px 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-">
+<footer data-ui=init-gear-expanders-footer class="site-footer">
 
   <!-- Links -->
-  <nav data-ui=init-gear-expanders-footer-nav style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px 4px;">
+  <nav data-ui=init-gear-expanders-footer-nav class="site-footer-nav">
     <a href="https://idleworlds.com/" target="_blank" rel="noopener noreferrer" class="footer-link">IdleWorlds</a>
     <span data-ui=footer-sep class="footer-sep">·</span>
     <a href="https://idleworlds.com/wiki" target="_blank" rel="noopener noreferrer" class="footer-link">Wiki</a>
@@ -28938,13 +29164,7 @@ function syncCombatLevel(val) {
   </nav>
 
   <!-- Disclaimer -->
-  <p style="
-    max-width: 560px;
-    text-align: center;
-    font-size: 11px;
-    line-height: 1.6;
-    color: var(--text3);
-  ">
+  <p class="site-footer-note">
     This tool is an independent, fan-made utility and is not affiliated with, endorsed by, or officially associated with IdleWorlds.com or its developers in any capacity. All game data, names, and related content are the property of their respective owners. Use of IdleWorlds trademarks or content does not imply any official connection.
   </p>
 
@@ -29983,7 +30203,7 @@ function syncCombatLevel(val) {
       s += ', and needs <b>' + res + '</b>';
     s += '.';
     var sub = txt('res-time-sub');
-    if (sub) s += ' <span data-ui=paint-summary-text style="color:var(--text3);">' + sub + '</span>';
+    if (sub) s += ' <span data-ui=paint-summary-text class="tc-text3">' + sub + '</span>';
     out.innerHTML = s;
     box.style.display = 'flex';
   }
@@ -31144,7 +31364,7 @@ function syncCombatLevel(val) {
           'max-width:min(520px, calc(100vw - 28px));background:var(--overlay);border:1px solid var(--border-2);' +
           'border-radius:var(--r);box-shadow:var(--lift);padding:16px 18px;font-size:13px;color:var(--text)';
         box.innerHTML = '<div data-ui=tooltip-preview-title style="font-weight:650;margin-bottom:4px">Tooltip preview</div>' +
-          '<div data-ui=tooltip-preview-help style="color:var(--text-3);font-size:11.5px;margin-bottom:10px">' +
+          '<div data-ui=tooltip-preview-help class="tc-text-3" style="font-size:11.5px;margin-bottom:10px">' +
           'One item per acquisition type. Hover, tap, or Tab to each name. Esc closes.</div>' +
           '<div data-ui=tooltip-preview-items style="display:flex;flex-wrap:wrap;gap:6px 14px;line-height:2">' +
           picks.map(function (i) { return iwItemRef(i); }).join('') + '</div>' +
@@ -31300,18 +31520,18 @@ function syncCombatLevel(val) {
     names.forEach(function (n) { try { window[n](); ran++; } catch (e) { msgs.push(['error', n + ' threw: ' + e.message]); } });
     console.warn = ow; console.error = oe;
     var html = '<b>' + ran + ' self-check suite' + (ran === 1 ? '' : 's') + ' run.</b>';
-    if (!msgs.length) html += ' <span data-ui=run-self-checks-text style="color:var(--positive)">All silent — no failures.</span>';
+    if (!msgs.length) html += ' <span data-ui=run-self-checks-text class="tc-positive">All silent — no failures.</span>';
     else html += '<br>' + msgs.map(function (m) {
       return '<span data-ui=run-self-checks-text style="color:' + (m[0] === 'error' ? 'var(--danger)' : 'var(--warn)') + '">' +
              m[0] + ':</span> ' + String(m[1]).slice(0, 300);
     }).join('<br>');
-    if (!names.length) html += '<br><span data-ui=run-self-checks-text style="color:var(--text-3)">Suites that run once at load are not re-runnable.</span>';
+    if (!names.length) html += '<br><span data-ui=run-self-checks-text class="tc-text-3">Suites that run once at load are not re-runnable.</span>';
     devOut(html);
   }
 
   function showRaw() {
     var p = window.IWProfile;
-    if (!p) { devOut('<span data-ui=show-raw-text style="color:var(--text-3)">No profile imported.</span>'); return; }
+    if (!p) { devOut('<span data-ui=show-raw-text class="tc-text-3">No profile imported.</span>'); return; }
     var json = '';
     try { json = JSON.stringify(p, null, 2); } catch (e) { json = String(p); }
     var clipped = json.length > 20000;
@@ -31528,12 +31748,12 @@ function syncCombatLevel(val) {
   function gnActiveSetSummary(loadout) {
     var sets = loadout && loadout.optimization && loadout.optimization.activeSets || [];
     if (!sets.length) return '';
-    return '<div data-ui=gn-rec-empty class="gn-rec-empty" style="margin-bottom:8px;color:var(--teal);">' +
+    return '<div data-ui=gn-rec-empty class="gn-rec-empty tc-teal" style="margin-bottom:8px;">' +
       '🏅 Whole-loadout optimizer active: ' +
       sets.map(function(s){
         return '<strong>' + gnEsc(s.label) + '</strong> (' + s.pieces + ' pcs) — ' +
           gnEsc(s.bonus && s.bonus.label || '');
-      }).join(' <span data-ui=gn-rec-empty-text style="color:var(--text-3);">+</span> ') +
+      }).join(' <span data-ui=gn-rec-empty-text class="tc-text-3">+</span> ') +
       '</div>';
   }
 
@@ -31731,7 +31951,7 @@ function syncCombatLevel(val) {
         '<div data-ui=gn-rec-option-main class="gn-rec-option-main">' +
           '<div data-ui=gn-rec-option-name class="gn-rec-option-name">' + itemHtml + '</div>' +
           '<div data-ui=gn-rec-option-meta class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) +
-            (item._iwDerivedPlanner ? ' · <span data-ui=gn-rec-option-meta-text style="color:var(--text-3);">derived +4 fallback</span>' : '') +
+            (item._iwDerivedPlanner ? ' · <span data-ui=gn-rec-option-meta-text class="tc-text-3">derived +4 fallback</span>' : '') +
           '</div>' +
         '</div>' + button +
       '</div>';
@@ -31977,7 +32197,7 @@ function syncCombatLevel(val) {
             if (cell.stats.gather)    parts.push(cell.stats.gather   + '% Gather');
           }
           statEl.textContent = parts.join(' · ') || '—';
-          statEl.style.color = parts.length ? '' : 'var(--text-3)';
+          statEl.classList.toggle('tc-text-3', !parts.length);
         } else {
           statEl.textContent = '';
         }
@@ -32219,7 +32439,7 @@ function syncCombatLevel(val) {
       });
       html += '<div data-ui=gn-enhancements-wrap class="gn-enhancements-wrap">' + enhancementCards.join('') + '</div>';
     } else {
-      html += '<div data-ui=gear-enhancements-empty style="color:var(--text-3);font-size:12px;padding:4px 0;">No active enchants, gems or plates.</div>';
+      html += '<div data-ui=gear-enhancements-empty class="tc-text-3" style="font-size:12px;padding:4px 0;">No active enchants, gems or plates.</div>';
     }
 
     // Planned state is useful, but it must never masquerade as current gear.
@@ -32291,7 +32511,7 @@ function syncCombatLevel(val) {
     }catch(e){}
     if(planned.length){
       html += '<div data-ui=gn-section-head class="gn-section-head">Planned Enhancements</div>'+
-        '<div data-ui=gear-enhancement-plan-summary style="font-size:12px;color:var(--text-2);line-height:1.65;">'+planned.map(enhEsc).join('<br>')+'</div>';
+        '<div data-ui=gear-enhancement-plan-summary class="tc-text-2" style="font-size:12px;line-height:1.65;">'+planned.map(enhEsc).join('<br>')+'</div>';
     }
 
     // Imported combatStats are the game's own aggregate. Keep a visible audit
@@ -32318,9 +32538,9 @@ function syncCombatLevel(val) {
           if(Math.abs(diff)>0.000001) mismatches++;
           var suffix=c[3]?'%':'';
           auditRows += row(c[0], '+'+displayWhole(live)+suffix+
-            (Math.abs(diff)>0.000001 ? ' <small style="color:var(--warn);font-weight:600;">model '+
+            (Math.abs(diff)>0.000001 ? ' <small class="tc-warn" style="font-weight:600;">model '+
               (model>=0?'+':'')+displayWhole(model)+suffix+' · Δ '+(diff>=0?'+':'')+displayWhole(diff)+suffix+'</small>' :
-              ' <small style="color:var(--positive);font-weight:600;">✓ model matches</small>'), false);
+              ' <small class="tc-positive" style="font-weight:600;">✓ model matches</small>'), false);
         });
         if(auditRows){
           html += '<div data-ui=gn-section-head class="gn-section-head">Live Profile Check'+(mismatches?' · ⚠ '+mismatches+' mismatch'+(mismatches===1?'':'es'):' · ✓')+'</div>'+auditRows;
@@ -32336,11 +32556,11 @@ function syncCombatLevel(val) {
     var out = document.getElementById('gn-bis-output');
     if (!out) return;
     if (!GN_COMBAT_LV || GN_COMBAT_LV < 1) {
-      out.innerHTML = '<div data-ui=gear-best-in-slot-level-required style="color:var(--text-3);font-size:12.5px;">Enter your combat level above.</div>';
+      out.innerHTML = '<div data-ui=gear-best-in-slot-level-required class="tc-text-3" style="font-size:12.5px;">Enter your combat level above.</div>';
       return;
     }
     if (typeof iwBestInSlot !== 'function' || typeof SLOT_ORDER === 'undefined') {
-      out.innerHTML = '<div data-ui=gear-best-in-slot-unavailable style="color:var(--text-3);font-size:12.5px;">BIS data unavailable.</div>';
+      out.innerHTML = '<div data-ui=gear-best-in-slot-unavailable class="tc-text-3" style="font-size:12.5px;">BIS data unavailable.</div>';
       return;
     }
 
@@ -32389,7 +32609,7 @@ function syncCombatLevel(val) {
     if (typeof IW_GEAR_GOAL !== 'undefined') { try { window.IW_GEAR_GOAL = savedGoal; } catch(e){} }
 
     if (!rows) {
-      out.innerHTML = '<div data-ui=gear-best-in-slot-empty style="color:var(--text-3);font-size:12.5px;">No BIS results found for this combat level.</div>';
+      out.innerHTML = '<div data-ui=gear-best-in-slot-empty class="tc-text-3" style="font-size:12.5px;">No BIS results found for this combat level.</div>';
       return;
     }
 
@@ -32461,7 +32681,7 @@ function syncCombatLevel(val) {
 
     var plannerStatus = (typeof iwGearPlannerDataStatus === 'function') ? iwGearPlannerDataStatus() : null;
     if(plannerStatus && plannerStatus.derivedPlus4 > 0){
-      progression += '<div data-ui=gn-rec-empty class="gn-rec-empty" style="margin-top:8px;color:var(--text-3);">' +
+      progression += '<div data-ui=gn-rec-empty class="gn-rec-empty tc-text-3" style="margin-top:8px;">' +
         'Planner fallback: ' + plannerStatus.derivedPlus4 +
         ' missing +4 equipment variants are formula-derived from their verified base/+1/+2/+3 families. ' +
         'Live items.json replaces them automatically when available.</div>';
@@ -32715,7 +32935,7 @@ function syncCombatLevel(val) {
           var upTxt = cell.cloakUpgrade.lines.map(function(l){
             return gnEsc(String(l).replace(/\s*\(upgrade\)\s*$/i, ''));
           }).join(' &nbsp;·&nbsp; ');
-          html += '<div data-ui=gn-tt-stats-line class="gn-tt-stats-line" style="color:var(--accent,#8f7bff);">' +
+          html += '<div data-ui=gn-tt-stats-line class="gn-tt-stats-line tc-accent">' +
             '✧ Upgrade +' + gnEsc(cell.cloakUpgrade.tier) + ': ' + upTxt + '</div>';
         }
       } else {
@@ -32892,14 +33112,14 @@ function syncCombatLevel(val) {
           var isBest = nm && bisN === nm;
           var setAware = bisN !== bisRes.winner.name;
           html += isBest
-            ? '<div data-ui=gear-suggestion-already-best style="color:var(--positive);font-size:12.5px;">✓ You already have the whole-loadout best item for this slot.</div>'
+            ? '<div data-ui=gear-suggestion-already-best class="tc-positive" style="font-size:12.5px;">✓ You already have the whole-loadout best item for this slot.</div>'
             : '<div data-ui=gear-suggestion-result style="font-size:12.5px;">Suggested' + (setAware ? ' for the optimal set combination' : '') + ': ' +
               gnEsc(bisN) + '</div>';
         } else {
-          html += '<div data-ui=gear-suggestion-empty style="color:var(--text-3);font-size:12.5px;">No suggestion — try adjusting your gear goal or combat level.</div>';
+          html += '<div data-ui=gear-suggestion-empty class="tc-text-3" style="font-size:12.5px;">No suggestion — try adjusting your gear goal or combat level.</div>';
         }
       } else {
-        html += '<div data-ui=gear-suggestion-level-required style="color:var(--text-3);font-size:12.5px;">Enter combat level in the BIS panel to see suggestions.</div>';
+        html += '<div data-ui=gear-suggestion-level-required class="tc-text-3" style="font-size:12.5px;">Enter combat level in the BIS panel to see suggestions.</div>';
       }
 
       body.innerHTML = html;
@@ -35738,9 +35958,9 @@ function syncCombatLevel(val) {
       });
       var gain = Number(opt.gain || 0);
       var gainText = (typeof iwFormatGearScore === 'function') ? iwFormatGearScore(gain) : String(gain);
-      return '<div data-ui=gear-set-sub class="gear-set-sub" style="color:var(--teal,#2ec4a0);margin-top:2px;">'+
-        '🏅 Set-aware loadout: '+parts.join(' <span data-ui=gear-set-sub-text style="color:var(--text3);">+</span> ')+
-        (gain > 1e-9 ? ' <span data-ui=gear-set-sub-text style="color:var(--text3);">·</span> +'+gainText+(unit||'')+' vs isolated per-slot picks.' : '')+
+      return '<div data-ui=gear-set-sub class="gear-set-sub tc-teal" style="margin-top:2px;">'+
+        '🏅 Set-aware loadout: '+parts.join(' <span data-ui=gear-set-sub-text class="tc-text3">+</span> ')+
+        (gain > 1e-9 ? ' <span data-ui=gear-set-sub-text class="tc-text3">·</span> +'+gainText+(unit||'')+' vs isolated per-slot picks.' : '')+
         '</div>';
     }catch(e){ return ''; }
   }
@@ -37184,6 +37404,11 @@ function syncCombatLevel(val) {
       } else {
         fail.push('settings key lists unavailable');
       }
+      // Nothing may widen the page: on a phone that grows the layout viewport
+      // and the page loads zoomed out (a closed tooltip did, 2026-09-22).
+      var docEl = document.documentElement;
+      ok('page is no wider than the viewport (' + docEl.scrollWidth + ' > ' + docEl.clientWidth + ')',
+         docEl.scrollWidth <= docEl.clientWidth + 1);
       ok('iwGetSkin/iwSetSkin/iwApplySkinSheets exist',
          typeof window.iwGetSkin === 'function' && typeof window.iwSetSkin === 'function' &&
          typeof window.iwApplySkinSheets === 'function');
