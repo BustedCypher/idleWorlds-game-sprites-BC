@@ -6079,6 +6079,10 @@
      Delete this block with the rest of the legacy sheet at cutover. */
   .panel-body.panel-body--tight { padding: 10px 14px !important; }
   .calc-override-field { margin-top: 10px !important; transition: opacity 0.15s !important; }
+  /* Daily-bonus override picker: collapsed until "Override daily bonus" is
+     ticked (initDailyOverrideControls toggles the class). Behaviour — the
+     Ashen parity block mirrors it. */
+  .calc-override-field.is-collapsed { display: none; }
   .field-label-note { opacity: .7 !important; font-weight: 400 !important; }
   .check-grid-2 { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; }
   .step-label--tight { margin-bottom: 8px !important; }
@@ -6664,6 +6668,7 @@
   .active-skill-banner.visible { display: flex; }
   .steprail::-webkit-scrollbar { display: none; }
   .char-pill.req { display: none; }
+  .calc-override-field.is-collapsed { display: none; }
   .char-card.race.race-required .char-pill.req { display: inline-flex; }
   .lookup-result { display: none; }
   .lookup-result.show { display: block; }
@@ -7806,6 +7811,46 @@
   .cp-xp { display: block; font-size: 11px; color: var(--ash-faint); }
   .cp-go { flex-shrink: 0; color: var(--ash-faint); font-size: 13px; }
   .cp-skill.is-link:hover .cp-go { color: var(--ash-accent); }
+  /* Hero medallions: the Fantasy Skin's skill-card art
+     (assets/ashen/skills_icons_atlas.webp, a fixed 6x2 sheet of 112px
+     painted medallions, frame included) replaces the line glyph and its slot
+     box on the profile cards. Cells are addressed as percentages of a
+     600% x 200% background, so the art scales with whatever size the card
+     (or the collapsed tile) gives the icon. Woodcutting and Construction
+     have no medallion of their own; like the skin, they borrow Gathering's
+     and Crafting's (Curtis, 2026-09-22). */
+  .cp-skill[data-skill="combat"]        { --cp-med: 0% 0%; }
+  .cp-skill[data-skill="mining"]        { --cp-med: 20% 0%; }
+  .cp-skill[data-skill="smithing"]      { --cp-med: 40% 0%; }
+  .cp-skill[data-skill="gathering"]     { --cp-med: 60% 0%; }
+  .cp-skill[data-skill="alchemy"]       { --cp-med: 80% 0%; }
+  .cp-skill[data-skill="jewelcrafting"] { --cp-med: 100% 0%; }
+  .cp-skill[data-skill="spellcrafting"] { --cp-med: 0% 100%; }
+  .cp-skill[data-skill="tailoring"]     { --cp-med: 20% 100%; }
+  .cp-skill[data-skill="woodcutting"]   { --cp-med: 60% 0%; }
+  .cp-skill[data-skill="construction"]  { --cp-med: 40% 100%; }
+  .cp-skill[data-skill="combat"] .cp-icon, .cp-skill[data-skill="mining"] .cp-icon, .cp-skill[data-skill="smithing"] .cp-icon,
+  .cp-skill[data-skill="gathering"] .cp-icon, .cp-skill[data-skill="alchemy"] .cp-icon, .cp-skill[data-skill="jewelcrafting"] .cp-icon,
+  .cp-skill[data-skill="spellcrafting"] .cp-icon, .cp-skill[data-skill="tailoring"] .cp-icon, .cp-skill[data-skill="woodcutting"] .cp-icon,
+  .cp-skill[data-skill="construction"] .cp-icon {
+    width: 64px; height: 64px;
+    border: 0; border-radius: 50%;
+    background: url('./assets/ashen/skills_icons_atlas.webp') var(--cp-med) / 600% 200% no-repeat;
+    box-shadow: 0 3px 9px rgba(0,0,0,.55);
+    transition: width .3s cubic-bezier(.4,0,.2,1), height .3s cubic-bezier(.4,0,.2,1), filter .15s;
+  }
+  .cp-skill[data-skill] .cp-icon::before { content: none; }
+  .cp-skill.is-link:hover .cp-icon { filter: brightness(1.12) saturate(1.05); }
+  @media (max-width: 520px) {
+    .cp-skill[data-skill="combat"] .cp-icon, .cp-skill[data-skill="mining"] .cp-icon, .cp-skill[data-skill="smithing"] .cp-icon,
+    .cp-skill[data-skill="gathering"] .cp-icon, .cp-skill[data-skill="alchemy"] .cp-icon, .cp-skill[data-skill="jewelcrafting"] .cp-icon,
+    .cp-skill[data-skill="spellcrafting"] .cp-icon, .cp-skill[data-skill="tailoring"] .cp-icon, .cp-skill[data-skill="woodcutting"] .cp-icon,
+    .cp-skill[data-skill="construction"] .cp-icon { width: 54px; height: 54px; }
+  }
+  /* Collapsed tiles: the medallion is the tile's picture, so it runs a
+     little larger than the old glyph box did. */
+  .cp-skills.collapsed .cp-skill[data-skill] .cp-icon { width: clamp(24px, 3.6vw, 44px); height: clamp(24px, 3.6vw, 44px); box-shadow: 0 2px 5px rgba(0,0,0,.5); }
+  @media (max-width: 520px) { .cp-skills.collapsed .cp-skill[data-skill] .cp-icon { width: 24px; height: 24px; } }
   /* Collapsed: a row of tiles, in a fixed skill order. The order is part of
      the design (legacy's), so it is copied rule for rule. */
   .cp-skills.collapsed { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; justify-content: stretch; }
@@ -10487,13 +10532,15 @@
              twice been burned by. -->
         <div data-ui=check-group class="check-group" data-adv="">
           <label class="check-row" id="row-daily-override">
-            <input type="checkbox" id="daily-override-toggle">
+            <input type="checkbox" id="daily-override-toggle" aria-controls="daily-override-field" aria-expanded="false">
             <span data-ui=check-box class="check-box">✓</span>
             <span data-ui=check-label class="check-label">Override daily bonus</span>
             <span data-ui=check-badge class="check-badge amber">manual</span>
           </label>
         </div>
-        <div data-ui=daily-override-field class="field calc-override-field" id="daily-override-field" data-adv="" style="opacity:0.4;pointer-events:none;">
+        <!-- Collapsed until the override is ticked: the panel shows only
+             today's bonus and the toggle (initDailyOverrideControls). -->
+        <div data-ui=daily-override-field class="field calc-override-field is-collapsed" id="daily-override-field" data-adv="">
           <label>Simulated boosted skills <span data-ui=field-label-note class="field-label-note">(leave all clear for no boost)</span></label>
           <div data-ui=check-group class="check-group check-grid-2" id="daily-override-skills"></div>
         </div>
@@ -14361,12 +14408,10 @@ function initDailyOverrideControls() {
     // .check-row hides the real input and paints the tick off .active,
     // so this class is what actually makes the checkbox look checked.
     if (row) row.classList.toggle('active', cb.checked);
-    // Dim the field the same way toggleGather() does, instead of the
-    // browser's default disabled styling (which ignores the theme).
-    if (fld) {
-      fld.style.opacity       = cb.checked ? '1'    : '0.4';
-      fld.style.pointerEvents = cb.checked ? 'auto' : 'none';
-    }
+    // The skill picker is collapsed until the override is on; the panel
+    // otherwise shows just today's bonus and this toggle.
+    if (fld) fld.classList.toggle('is-collapsed', !cb.checked);
+    cb.setAttribute('aria-expanded', cb.checked ? 'true' : 'false');
     // calculate() repaints the bonus panels and re-runs all XP math.
     if (typeof calculate === 'function') calculate();
     else renderDailyBonus();

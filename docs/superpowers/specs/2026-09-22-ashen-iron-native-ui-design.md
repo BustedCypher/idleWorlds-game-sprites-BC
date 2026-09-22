@@ -377,6 +377,21 @@ unconverted tab is usable in Ashen mode from day one.
     - **Not migrated:** inline styles inside the dead old-Gear renderers
       (listed above). Delete them at cutover rather than migrate them.
 
+- **Start profile cards: hero medallions (2026-09-22).** The profile skill
+  cards (`.cp-skill` / `.cp-icon`) show the Fantasy Skin's painted
+  skill-card medallions in place of the small line glyph.
+  - **Art:** `assets/ashen/skills_icons_atlas.webp`, copied from the skin's
+    `assets/skills_icons_atlas.webp`. It is a fixed 6×2 sheet of 112px
+    cells, 70 KB.
+  - **Cell addressing:** percentage positions on a 600% × 200% background,
+    so one rule scales with the card. Sizes are 64px on cards, 54px at
+    ≤520px, and `clamp(24px, 3.6vw, 44px)` on collapsed tiles (24px at
+    ≤520px).
+  - **Woodcutting and Construction** have no medallion of their own. As the
+    skin does, they borrow Gathering's and Crafting's (Curtis's choice).
+    Replace those two positions when real art exists.
+  - **Ashen only:** the legacy look is untouched.
+
 ## Lessons (read before converting the next tab)
 
 - **Positional reads of engine markup.** Before wrapping anything, grep for
