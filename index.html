@@ -31224,8 +31224,16 @@ function syncCombatLevel(val) {
       keys: ['remember','autoReimport','_profileInfo','_reimport'] },
     { id: 'developer', title: 'Developer tools', icon: '\uD83D\uDD27', dev: true,
       help: 'Diagnostics, test utilities, item-database maintenance and local-data reset.',
-      keys: ['devMode','verbose','_selfcheck','_rawprofile','_rebuild','_apirefresh','_apiimport','_tippreview','_diag','_forget'] }
+      keys: ['devMode','verbose','ashenSkin','_selfcheck','_rawprofile','_rebuild','_apirefresh','_apiimport','_tippreview','_diag','_forget'] }
   ];
+  /* Every registry key must be placed in a section, or it is registered and
+     applied but never drawn (ashenSkin shipped that way on 2026-09-22).
+     Suite L checks this list against iwSettingsKeys(). */
+  window.iwSettingsSectionKeys = function () {
+    var out = [];
+    SETTINGS_SECTIONS.forEach(function (s) { (s.keys || []).forEach(function (k) { out.push(k); }); });
+    return out;
+  };
 
   var SETTINGS_OPEN_KEY = 'iw-settings-open-v1';
   function readOpenSections() {
@@ -37164,6 +37172,18 @@ function syncCombatLevel(val) {
     var fail = [];
     function ok(label, cond) { if (!cond) fail.push(label); }
     try {
+      /* The preview toggle must be REACHABLE, not just registered: the
+         Settings page draws only keys listed in SETTINGS_SECTIONS, and
+         ashenSkin first shipped registered-but-undrawn. Checked for every
+         setting, since any key can fall through the same gap. */
+      if (typeof window.iwSettingsKeys === 'function' && typeof window.iwSettingsSectionKeys === 'function') {
+        var placed = window.iwSettingsSectionKeys();
+        var unplaced = window.iwSettingsKeys().filter(function (k) { return placed.indexOf(k) < 0; });
+        ok('every registered setting is drawn in a Settings section (unplaced: ' + unplaced.join(', ') + ')', unplaced.length === 0);
+        ok('Ashen Iron preview toggle is in a Settings section', placed.indexOf('ashenSkin') >= 0);
+      } else {
+        fail.push('settings key lists unavailable');
+      }
       ok('iwGetSkin/iwSetSkin/iwApplySkinSheets exist',
          typeof window.iwGetSkin === 'function' && typeof window.iwSetSkin === 'function' &&
          typeof window.iwApplySkinSheets === 'function');
