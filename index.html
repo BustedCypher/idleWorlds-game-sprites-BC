@@ -7772,53 +7772,22 @@
   .switch.on .knob { transform: translateX(20px); background: radial-gradient(circle at 35% 30%, #C9E4CD, #6FA579); }
   .switch:hover { border-color: var(--ash-edge); }
 
-  .cp-skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 8px; transition: gap .3s cubic-bezier(.4,0,.2,1); }
-  .cp-skill {
-    --cp-tint: var(--sk-tint, var(--ash-accent));
-    display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 11px; text-align: left;
-    border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control);
-    background: linear-gradient(180deg, #1E1B16, #100F0D);
-    box-shadow: inset 0 1px 0 rgba(255,235,190,.04);
-    color: var(--ash-text);
-    transition: border-color .15s, background .15s, padding .3s cubic-bezier(.4,0,.2,1);
-  }
-  .cp-skill.is-link { cursor: pointer; }
-  .cp-skill.is-link:hover { border-color: color-mix(in srgb, var(--cp-tint) 50%, var(--ash-edge)); }
-  /* The skill's own artwork replaces the emoji (which stays in the DOM). */
-  .cp-icon {
-    position: relative; flex-shrink: 0; width: 40px; height: 40px; display: grid; place-items: center;
-    font-size: 0; color: transparent;
-    border: 1px solid color-mix(in srgb, var(--cp-tint) 40%, var(--ash-edge-soft)); border-radius: var(--ash-r-slot);
-    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--cp-tint) 14%, #15130F), #0A0A08 75%);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,.6);
-    transition: width .3s cubic-bezier(.4,0,.2,1), height .3s cubic-bezier(.4,0,.2,1);
-  }
-  .cp-icon::before {
-    content: ''; width: 100%; height: 100%;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--cp-tint) 55%, #fff), var(--cp-tint) 50%, color-mix(in srgb, var(--cp-tint) 65%, #000));
-    -webkit-mask: var(--glyph) center / contain no-repeat; mask: var(--glyph) center / contain no-repeat;
-  }
-  /* A skill with no artwork keeps its emoji. */
-  .cp-skill:not([data-skill="combat"]):not([data-skill="mining"]):not([data-skill="gathering"]):not([data-skill="alchemy"]):not([data-skill="smithing"]):not([data-skill="jewelcrafting"]):not([data-skill="spellcrafting"]):not([data-skill="tailoring"]):not([data-skill="woodcutting"]):not([data-skill="construction"]) .cp-icon { font-size: 20px; color: inherit; }
-  .cp-skill:not([data-skill="combat"]):not([data-skill="mining"]):not([data-skill="gathering"]):not([data-skill="alchemy"]):not([data-skill="smithing"]):not([data-skill="jewelcrafting"]):not([data-skill="spellcrafting"]):not([data-skill="tailoring"]):not([data-skill="woodcutting"]):not([data-skill="construction"]) .cp-icon::before { content: none; }
-  .cp-body { flex: 1 1 auto; min-width: 0; }
-  .cp-row1 { display: flex; align-items: baseline; gap: 8px; }
-  .cp-skill-name { flex: 1 1 auto; min-width: 0; font-family: var(--ash-font-ui); font-size: 14px; font-weight: 700; letter-spacing: .02em; color: color-mix(in srgb, var(--cp-tint) 70%, var(--ash-text-hi)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-size .3s cubic-bezier(.4,0,.2,1); }
-  .cp-lvl { flex-shrink: 0; font-family: var(--ash-font-head); font-size: 20px; font-weight: 700; color: var(--ash-text-hi); text-shadow: 0 1px 0 #000; transition: font-size .3s cubic-bezier(.4,0,.2,1); }
-  .cp-lvl-boost { display: block; font-family: var(--ash-font-ui); font-size: 9.5px; font-weight: 600; color: var(--ash-info); white-space: nowrap; text-shadow: none; }
-  .cp-bar { display: block; height: 4px; margin: 6px 0 4px; border-radius: 1px; background: #070806; box-shadow: inset 0 1px 1px rgba(0,0,0,.8); overflow: hidden; }
-  .cp-bar > i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--cp-tint) 55%, #000), var(--cp-tint)); transition: width .5s cubic-bezier(.2,.7,.3,1); }
-  .cp-xp { display: block; font-size: 11px; color: var(--ash-faint); }
-  .cp-go { flex-shrink: 0; color: var(--ash-faint); font-size: 13px; }
-  .cp-skill.is-link:hover .cp-go { color: var(--ash-accent); }
-  /* Hero medallions: the Fantasy Skin's skill-card art
-     (assets/ashen/skills_icons_atlas.webp, a fixed 6x2 sheet of 112px
-     painted medallions, frame included) replaces the line glyph and its slot
-     box on the profile cards. Cells are addressed as percentages of a
-     600% x 200% background, so the art scales with whatever size the card
-     (or the collapsed tile) gives the icon. Woodcutting and Construction
-     have no medallion of their own; like the skin, they borrow Gathering's
-     and Crafting's (Curtis, 2026-09-22). */
+  /* ── Profile skill cards: the skin's skill-card hero ──────────────────
+     Every card leads with the hero group from the Fantasy Skin's skill
+     card: the painted medallion (assets/ashen/skills_icons_atlas.webp, a
+     6x2 sheet of 112px cells) inside a progress ring in the skill's colour,
+     with a level plaque hanging off its foot. The renderer writes the level
+     progress as --cp-pct on the card, and three Ashen-only nodes carrying
+     `hidden` (cp-plaque, cp-boost, cp-xp-short): the legacy page never
+     shows them and needs no rule for them; this sheet shows them.
+     cp-body and cp-row1 are `display: contents` here, so every leaf is
+     placed directly by the card's own layout.
+       expanded  - the hero on the left; name, gear boost, a full XP bar and
+                   the exact figures on the right; the go-arrow top right.
+       collapsed - the hero stacked like the skin's card: medallion, plaque,
+                   NAME, boost, short XP.
+     Woodcutting and Construction have no medallion of their own; like the
+     skin, they borrow Gathering's and Crafting's (Curtis, 2026-09-22). */
   .cp-skill[data-skill="combat"]        { --cp-med: 0% 0%; }
   .cp-skill[data-skill="mining"]        { --cp-med: 20% 0%; }
   .cp-skill[data-skill="smithing"]      { --cp-med: 40% 0%; }
@@ -7829,31 +7798,105 @@
   .cp-skill[data-skill="tailoring"]     { --cp-med: 20% 100%; }
   .cp-skill[data-skill="woodcutting"]   { --cp-med: 60% 0%; }
   .cp-skill[data-skill="construction"]  { --cp-med: 40% 100%; }
-  .cp-skill[data-skill="combat"] .cp-icon, .cp-skill[data-skill="mining"] .cp-icon, .cp-skill[data-skill="smithing"] .cp-icon,
-  .cp-skill[data-skill="gathering"] .cp-icon, .cp-skill[data-skill="alchemy"] .cp-icon, .cp-skill[data-skill="jewelcrafting"] .cp-icon,
-  .cp-skill[data-skill="spellcrafting"] .cp-icon, .cp-skill[data-skill="tailoring"] .cp-icon, .cp-skill[data-skill="woodcutting"] .cp-icon,
-  .cp-skill[data-skill="construction"] .cp-icon {
-    width: 64px; height: 64px;
-    border: 0; border-radius: 50%;
-    background: url('./assets/ashen/skills_icons_atlas.webp') var(--cp-med) / 600% 200% no-repeat;
+
+  .cp-skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(292px, 1fr)); gap: 10px; }
+  .cp-skill {
+    --cp-tint: var(--sk-tint, var(--ash-accent));
+    --cp-med-size: 60px; --cp-ring-gap: 6px; --cp-ring-w: 3px;
+    position: relative; isolation: isolate;
+    display: grid; width: 100%; text-align: left;
+    grid-template-columns: 88px minmax(0, 1fr) 16px;
+    grid-template-rows: auto auto auto;
+    grid-template-areas: "hero name go" "hero boost go" "hero prog prog";
+    column-gap: 14px; align-items: center;
+    padding: 14px 14px 12px 10px;
+    border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-panel);
+    background:
+      radial-gradient(120px 110px at 50px 42%, color-mix(in srgb, var(--cp-tint) 16%, transparent), transparent 70%),
+      linear-gradient(180deg, #1E1B16, #100F0D);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,235,190,.05), 0 3px 10px rgba(0,0,0,.25);
+    color: var(--ash-text);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  /* Gold hairline across the top, as on every forged surface. */
+  .cp-skill::before { content: ""; position: absolute; left: 10px; right: 10px; top: 0; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cp-tint) 55%, var(--ash-hairline)) 50%, transparent); opacity: .7; }
+  .cp-skill.is-link { cursor: pointer; }
+  .cp-skill.is-link:hover { border-color: color-mix(in srgb, var(--cp-tint) 45%, var(--ash-edge)); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), inset 0 0 22px color-mix(in srgb, var(--cp-tint) 10%, transparent), 0 4px 14px rgba(0,0,0,.35); }
+  .cp-skill.is-link:focus-visible { outline: 2px solid var(--ash-accent); outline-offset: 2px; }
+  .cp-body, .cp-row1 { display: contents; }
+
+  /* The medallion and its progress ring. */
+  .cp-icon {
+    grid-area: hero; justify-self: center; align-self: start;
+    position: relative; z-index: 1;
+    width: var(--cp-med-size); height: var(--cp-med-size);
+    margin: var(--cp-ring-gap) 0 22px;
+    display: grid; place-items: center; font-size: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 38%, #221E17, #0A0A08 72%);
     box-shadow: 0 3px 9px rgba(0,0,0,.55);
-    transition: width .3s cubic-bezier(.4,0,.2,1), height .3s cubic-bezier(.4,0,.2,1), filter .15s;
   }
-  .cp-skill[data-skill] .cp-icon::before { content: none; }
-  .cp-skill.is-link:hover .cp-icon { filter: brightness(1.12) saturate(1.05); }
+  .cp-skill[data-skill] .cp-icon { font-size: 0; color: transparent; background: url('./assets/ashen/skills_icons_atlas.webp') var(--cp-med, 50% 50%) / 600% 200% no-repeat; }
+  .cp-icon::before { content: none; }
+  .cp-icon::after {
+    content: ""; position: absolute; inset: calc(-1 * var(--cp-ring-gap)); border-radius: 50%; pointer-events: none;
+    background: conic-gradient(color-mix(in srgb, var(--cp-tint) 78%, #fff) 0 var(--cp-pct, 0%), #2A241B var(--cp-pct, 0%) 100%);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--cp-ring-w)), #000 calc(100% - var(--cp-ring-w) + .5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--cp-ring-w)), #000 calc(100% - var(--cp-ring-w) + .5px));
+    filter: drop-shadow(0 0 3px color-mix(in srgb, var(--cp-tint) 55%, transparent));
+  }
+  .cp-skill.is-link:hover .cp-icon { filter: brightness(1.1) saturate(1.05); }
+
+  /* The level plaque, hung from the medallion's foot. */
+  .cp-plaque {
+    grid-area: hero; justify-self: center; align-self: end;
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 48px; padding: 1px 7px 3px;
+    border: 1px solid var(--ash-hairline); border-radius: 4px 4px 11px 11px;
+    background: linear-gradient(#1B1812, #0B0C0E);
+    box-shadow: inset 0 0 0 2px #1D1A14, 0 2px 4px rgba(0,0,0,.6);
+    line-height: 1.12; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .cp-plaque b { font-family: var(--ash-font-ui); font-size: 12.5px; font-weight: 700; color: var(--ash-text-hi); }
+  .cp-plaque small { font-size: 9.5px; font-weight: 600; color: var(--ash-dim); }
+
+  .cp-skill-name {
+    grid-area: name; align-self: end; min-width: 0;
+    font-family: var(--ash-font-head); font-size: 15.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--cp-tint) 62%, var(--ash-text-hi)); text-shadow: 0 1px 0 #000;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* The plaque carries the level; the legacy number is not repeated. */
+  .cp-lvl { display: none; }
+  .cp-boost {
+    grid-area: boost; align-self: start; display: block; margin-top: 2px;
+    font-size: 11px; font-weight: 600; color: var(--ash-info); white-space: nowrap;
+  }
+  .cp-progress { grid-area: prog; align-self: start; min-width: 0; margin-top: 9px; }
+  .cp-bar {
+    position: relative; display: block; height: 9px; margin: 0 0 5px;
+    border: 1px solid var(--ash-edge-soft); border-radius: 2px; overflow: hidden;
+    background: #070806; box-shadow: inset 0 1px 2px rgba(0,0,0,.9);
+  }
+  .cp-bar > i {
+    display: block; height: 100%;
+    background: linear-gradient(180deg, rgba(255,255,255,.22), transparent 55%), linear-gradient(90deg, color-mix(in srgb, var(--cp-tint) 45%, #000), var(--cp-tint));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--cp-tint) 45%, transparent);
+    transition: width .5s cubic-bezier(.2,.7,.3,1);
+  }
+  .cp-xp { display: block; font-size: 11.5px; font-variant-numeric: tabular-nums; color: var(--ash-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cp-xp-short { display: none; }
+  .cp-go { grid-area: go; align-self: start; justify-self: end; color: var(--ash-faint); font-size: 14px; transition: color .15s, transform .15s; }
+  .cp-skill.is-link:hover .cp-go { color: var(--ash-accent); transform: translateX(2px); }
   @media (max-width: 520px) {
-    .cp-skill[data-skill="combat"] .cp-icon, .cp-skill[data-skill="mining"] .cp-icon, .cp-skill[data-skill="smithing"] .cp-icon,
-    .cp-skill[data-skill="gathering"] .cp-icon, .cp-skill[data-skill="alchemy"] .cp-icon, .cp-skill[data-skill="jewelcrafting"] .cp-icon,
-    .cp-skill[data-skill="spellcrafting"] .cp-icon, .cp-skill[data-skill="tailoring"] .cp-icon, .cp-skill[data-skill="woodcutting"] .cp-icon,
-    .cp-skill[data-skill="construction"] .cp-icon { width: 54px; height: 54px; }
+    .cp-skill { --cp-med-size: 52px; grid-template-columns: 76px minmax(0, 1fr) 14px; column-gap: 11px; padding: 12px 11px 10px 8px; }
+    .cp-skill-name { font-size: 14px; }
   }
-  /* Collapsed tiles: the medallion is the tile's picture, so it runs a
-     little larger than the old glyph box did. */
-  .cp-skills.collapsed .cp-skill[data-skill] .cp-icon { width: clamp(24px, 3.6vw, 44px); height: clamp(24px, 3.6vw, 44px); box-shadow: 0 2px 5px rgba(0,0,0,.5); }
-  @media (max-width: 520px) { .cp-skills.collapsed .cp-skill[data-skill] .cp-icon { width: 24px; height: 24px; } }
-  /* Collapsed: a row of tiles, in a fixed skill order. The order is part of
-     the design (legacy's), so it is copied rule for rule. */
-  .cp-skills.collapsed { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; justify-content: stretch; }
+
+  /* Collapsed: the skin's hero card, one per skill, in a fixed order (the
+     order is legacy's, copied rule for rule). */
+  .cp-skills.collapsed { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 8px; }
   .cp-skills.collapsed .cp-skill[data-skill="mining"] { order: 1; }
   .cp-skills.collapsed .cp-skill[data-skill="jewelcrafting"] { order: 2; }
   .cp-skills.collapsed .cp-skill[data-skill="alchemy"] { order: 3; }
@@ -7864,17 +7907,30 @@
   .cp-skills.collapsed .cp-skill[data-skill="tailoring"] { order: 8; }
   .cp-skills.collapsed .cp-skill[data-skill="woodcutting"] { order: 9; }
   .cp-skills.collapsed .cp-skill[data-skill="construction"] { order: 10; }
-  .cp-skills.collapsed .cp-skill { flex-direction: column; justify-content: center; text-align: center; min-width: 0; aspect-ratio: 1 / 1; overflow: hidden; padding: clamp(3px, .8vw, 12px) clamp(1px, .4vw, 6px); gap: clamp(1px, .35vw, 5px); }
-  .cp-skills.collapsed .cp-row1 { flex-direction: column; gap: clamp(0px, .15vw, 2px); min-width: 0; }
-  .cp-skills.collapsed .cp-icon { width: clamp(20px, 3vw, 36px); height: clamp(20px, 3vw, 36px); flex: 0 0 auto; }
-  .cp-skills.collapsed .cp-lvl { font-size: clamp(10px, 1.3vw, 17px); line-height: 1; }
-  .cp-skills.collapsed .cp-skill-name { max-width: 100%; font-family: var(--ash-font-ui); font-size: clamp(6px, .8vw, 10px); line-height: 1.05; }
+  .cp-skills.collapsed .cp-skill {
+    --cp-med-size: 58px; --cp-ring-gap: 7px; --cp-ring-w: 4px;
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: none;
+    grid-template-areas: "med" "plq" "name" "boost" "xps";
+    justify-items: center; align-content: start; text-align: center;
+    padding: 18px 6px 12px;
+    background:
+      radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--cp-tint) 18%, transparent), transparent 62%),
+      linear-gradient(180deg, #1E1B16, #100F0D);
+  }
+  .cp-skills.collapsed .cp-icon { grid-area: med; align-self: center; margin: 0; }
+  .cp-skills.collapsed .cp-plaque { grid-area: plq; align-self: start; margin-top: calc(-1 * var(--cp-ring-gap) - 4px); }
+  .cp-skills.collapsed .cp-skill-name { margin-top: 7px; font-size: 12px; letter-spacing: .05em; max-width: 100%; }
+  .cp-skills.collapsed .cp-boost { margin-top: 1px; font-size: 9.5px; }
+  .cp-skills.collapsed .cp-xp-short { grid-area: xps; display: block; margin-top: 3px; font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ash-dim); white-space: nowrap; }
   @media (max-width: 520px) {
-    .cp-skills.collapsed { gap: 3px; }
-    .cp-skills.collapsed .cp-skill { padding: 4px 1px 3px; gap: 1px; }
-    .cp-skills.collapsed .cp-icon { width: 22px; height: 22px; }
-    .cp-skills.collapsed .cp-skill-name { font-size: 6.5px; letter-spacing: -.02em; }
-    .cp-skills.collapsed .cp-lvl { font-size: 10px; }
+    .cp-skills.collapsed { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+    .cp-skills.collapsed .cp-skill { --cp-med-size: 44px; --cp-ring-gap: 5px; --cp-ring-w: 3px; padding: 13px 3px 9px; }
+    .cp-skills.collapsed .cp-plaque { min-width: 40px; padding: 0 5px 2px; }
+    .cp-skills.collapsed .cp-plaque b { font-size: 11px; }
+    .cp-skills.collapsed .cp-plaque small { font-size: 8.5px; }
+    .cp-skills.collapsed .cp-skill-name { font-size: 10px; letter-spacing: .04em; }
+    .cp-skills.collapsed .cp-boost { font-size: 8.5px; }
+    .cp-skills.collapsed .cp-xp-short { font-size: 9.5px; }
   }
 
   /* Imported stat cards (renderInfoPanels). --acc / --racc / --e are the
@@ -30480,6 +30536,15 @@ function syncCombatLevel(val) {
     if (n == null || !isFinite(n)) return '\u2014';
     return Math.round(n).toLocaleString();
   }
+  // Compact XP for the Ashen hero card: 15.18M, 342.5K, 812.
+  function fmtShort(n) {
+    if (n == null || !isFinite(n)) return '\u2014';
+    var a = Math.abs(n);
+    if (a >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (a >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (a >= 1e4) return (n / 1e3).toFixed(1) + 'K';
+    return Math.round(n).toLocaleString();
+  }
 
   function skillsOf(profile) {
     var arr = profile && profile.skills, out = [];
@@ -30722,14 +30787,28 @@ function syncCombatLevel(val) {
         ? '<small class="cp-lvl-boost">base ' +
           s.level + ' +' + lvState.equipmentBonus + ' gear</small>'
         : '';
+      // Ashen hero card (2026-09-22): the level progress drives the ring
+      // (--cp-pct), and three nodes carry `hidden`, so the legacy page never
+      // shows them and needs no rule; the Ashen sheet shows and places them.
+      var pctText = pr ? (pr.pct * 100).toFixed(1) + '%' : '';
+      var heroPlaque = '<span data-ui=cp-plaque class="cp-plaque" hidden aria-hidden="true"><b>Lv ' +
+        (shownLevel != null ? shownLevel : '?') + '</b>' + (pctText ? '<small>' + pctText + '</small>' : '') + '</span>';
+      var heroBoost = lvState.equipmentBonus > 0
+        ? '<span data-ui=cp-boost class="cp-boost" hidden>base ' + s.level + ' +' + lvState.equipmentBonus + ' gear</span>'
+        : '';
+      var heroXp = '<span data-ui=cp-xp-short class="cp-xp-short" hidden>' +
+        (pr ? fmtShort(pr.into) + ' / ' + fmtShort(pr.need) + ' XP' : (s.xp != null ? fmtShort(s.xp) + ' XP' : '')) + '</span>';
       html += '<' + (ck ? 'button type="button" class="cp-skill is-link" onclick="iwUseSkill(\'' + ck + '\')"' +
                           ' title="Use ' + esc(pretty(s.key)) + ' in the calculator"'
                         : 'div class="cp-skill"') +
-        ' data-ui=cp-skill data-skill="' + esc(dataSkill) + '">' +
+        ' data-ui=cp-skill data-skill="' + esc(dataSkill) + '"' +
+        (pr ? ' style="--cp-pct:' + (pr.pct * 100).toFixed(1) + '%"' : '') + '>' +
         '<span data-ui=cp-icon class="cp-icon" aria-hidden="true">' + icon + '</span>' +
+        heroPlaque +
         '<span data-ui=cp-body class="cp-body">' +
           '<span data-ui=cp-row1 class="cp-row1"><span data-ui=cp-skill-name class="cp-skill-name">' + esc(pretty(s.key)) + '</span>' +
           '<span data-ui=cp-lvl class="cp-lvl">' + (shownLevel != null ? shownLevel : '?') + boostTag + '</span></span>' +
+          heroBoost +
           // v43.5: wrapped so collapsed mode can hide the whole progress
           // block in one rule instead of two separate ones drifting.
           '<span data-ui=cp-progress class="cp-progress">' +
@@ -30737,6 +30816,7 @@ function syncCombatLevel(val) {
                 '<span data-ui=cp-xp class="cp-xp">' + fmtNum(pr.into) + ' / ' + fmtNum(pr.need) + ' XP to next</span>'
               : '<span data-ui=cp-xp class="cp-xp">' + (s.xp != null ? fmtNum(s.xp) + ' XP' : '') + '</span>') +
           '</span>' +
+          heroXp +
         '</span>' +
         (ck ? '<span data-ui=cp-go class="cp-go" aria-hidden="true">\u2192</span>' : '') +
         '</' + (ck ? 'button' : 'div') + '>';

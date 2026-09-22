@@ -392,6 +392,29 @@ unconverted tab is usable in Ashen mode from day one.
     skin does, they borrow Gathering's and Crafting's (Curtis's choice).
     Replace those two positions when real art exists.
   - **Ashen only:** the legacy look is untouched.
+  - **Reworked the same day into the skin's full hero card:**
+    - The medallion sits inside a progress ring in the skill colour
+      (`--cp-pct`, a masked conic gradient).
+    - A level plaque ("Lv 63 / 74.5%") hangs off the ring's foot.
+    - **Expanded:** the hero column on the left; the name in Cinzel, the
+      gear boost, a 9px XP bar with a sheen and glow, and the exact figures
+      on the right. Card height is 115px.
+    - **Collapsed:** the hero stacked like the skin's card, with the name,
+      boost and a short XP line ("15.18M / 20.37M XP").
+  - **Ashen-only markup pattern.** The renderer emits `cp-plaque`,
+    `cp-boost` and `cp-xp-short` with the HTML `hidden` attribute.
+    - The UA rule hides them in legacy, so the legacy sheet needs no rule,
+      and suite L's parity (which reads stylesheet rules only) is not
+      involved.
+    - The Ashen sheet shows and places them. `cp-body` and `cp-row1` are
+      `display: contents` there.
+    - Legacy diff with the sample profile: 327 elements, 0 differences, in
+      both expanded and collapsed mode. The new nodes are 17, none shown.
+  - **Layout note:** do not put flexible spacer rows beside a spanning
+    item. The expanded card first used `1fr auto auto auto 1fr`, and the
+    hero cell resolved 25px taller than its contents, which detached the
+    plaque. Three `auto` rows spanned by the hero centre the right-hand
+    group naturally.
 
 - **Ashen is the default (2026-09-22, Curtis).** This is the first half of
   phase 6.
