@@ -4816,6 +4816,12 @@
   .gn-bis-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
   .gn-bis-table tbody tr:hover { background: rgb(var(--accent-rgb) / .04); }
   .gn-bis-table tbody tr:last-child td { border-bottom: none; }
+  .gn-bis-table tr.gn-bis-has-gems td,
+  .gn-bis-table tr.gn-bis-gem-row td { border-bottom: none; }
+  .gn-bis-table tr.gn-bis-gem-row td { padding-top: 0; padding-bottom: 3px; font-size: 11.5px; }
+  .gn-bis-table tr.gn-bis-gem-row.gn-bis-gem-last td { border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .gn-bis-table tbody tr.gn-bis-gem-row:last-child td { border-bottom: none; }
+  .gn-bis-gem { padding-left: 20px !important; }
 
   .gn-bis-scroll { overflow-x: auto; overscroll-behavior-inline: contain; }
   .gn-bis-action { width: 1%; white-space: nowrap; text-align: right; }
@@ -8537,6 +8543,12 @@
   .gn-bis-table th { padding: 6px 8px; border-bottom: 1px solid var(--ash-edge-soft); background: rgba(0,0,0,.3); }
   .gn-bis-table td { padding: 6px 8px; border-bottom: 1px dotted var(--ash-edge-faint); }
   .gn-bis-table tbody tr:last-child td { border-bottom: none; }
+  .gn-bis-table tr.gn-bis-has-gems td,
+  .gn-bis-table tr.gn-bis-gem-row td { border-bottom: none; }
+  .gn-bis-table tr.gn-bis-gem-row td { padding-top: 0; padding-bottom: 3px; font-size: 12px; }
+  .gn-bis-table tr.gn-bis-gem-row.gn-bis-gem-last td { border-bottom: 1px dotted var(--ash-edge-faint); padding-bottom: 6px; }
+  .gn-bis-table tbody tr.gn-bis-gem-row:last-child td { border-bottom: none; }
+  .gn-bis-gem { padding-left: 20px !important; }
   .gn-bis-action { width: 1%; white-space: nowrap; text-align: right; }
   @media (max-width: 680px) { .gn-bis-table { min-width: 520px; } }
 
@@ -25206,7 +25218,10 @@ function iwSlotKeyFromLabel(label){
  * One shared adapter avoids a second equip-swap implementation drifting
  * from the first.
  */
-function iwAddNamedItemToLoadout(slotLabel, itemName){
+// gemTiers (optional) — one cut-gem tier per socket, planned onto the new
+// piece in place of the old piece's plan. The Gear planner's best-in-slot
+// table passes the gems its optimizer scored the piece with.
+function iwAddNamedItemToLoadout(slotLabel, itemName, gemTiers){
   try{
     var combatLevel = appState && appState.combatLevel;
     if (!combatLevel || !itemName) return;
@@ -25227,7 +25242,15 @@ function iwAddNamedItemToLoadout(slotLabel, itemName){
       socketState: null, socketState2: null,
       socketEffectLine: null, socketEffectLine2: null
     };
-    try { if (typeof IW_SOCKET_PLAN !== 'undefined') { IW_SOCKET_PLAN[slotKey] = []; iwSaveSocketPlan(); } } catch(e){}
+    try {
+      if (typeof IW_SOCKET_PLAN !== 'undefined') {
+        var gems = (Array.isArray(gemTiers) ? gemTiers : []).map(function(t){ return parseInt(t, 10); })
+          .filter(function(t){ return t >= 1 && t <= 34; });
+        IW_SOCKET_PLAN[slotKey] = gems;
+        if (gems.length) IW_SOCKETS_ENABLED = true;
+        iwSaveSocketPlan();
+      }
+    } catch(e){}
     try { if (typeof IW_PLATE_PLAN  !== 'undefined') { IW_PLATE_PLAN[slotKey]  = null; iwSavePlatePlan();  } } catch(e){}
     try { if (typeof IW_ENCHANT_PLAN !== 'undefined') { IW_ENCHANT_PLAN[slotKey] = null; iwSaveEnchantPlan(); } } catch(e){}
     try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(slotKey); } catch(e){}
@@ -32688,6 +32711,68 @@ function syncCombatLevel(val) {
     body.innerHTML = html;
   }
 
+  // ── Best-in-Slot gems ────────────────────────────────────────
+  // The gems the optimizer credited to a piece: every physical socket gets the
+  // goal's iwRecommendSocketGem() pick, which is exactly what iwScoreItem()
+  // adds per socket (sockets × bestGemValueForGoal). Showing anything else
+  // would recommend gems the loadout was never scored with. Call it while
+  // IW_GEAR_GOAL is GN_GOAL. A goal no gem serves (defence, zone combat)
+  // returns the socket count with no tiers, and the row says why.
+  function gnBisGemPlan(slot, socketCount) {
+    var n = Math.max(0, Number(socketCount) || 0);
+    if (!n || typeof SOCKETABLE_SLOTS === 'undefined' || SOCKETABLE_SLOTS.indexOf(slot) < 0)
+      return { sockets: 0, rec: null, tiers: [] };
+    var rec = null;
+    try { rec = typeof iwRecommendSocketGem === 'function' ? iwRecommendSocketGem() : null; } catch(e) {}
+    var tiers = [];
+    if (rec && rec.tier) for (var i = 0; i < n; i++) tiers.push(rec.tier);
+    return { sockets: n, rec: rec && rec.tier ? rec : null, tiers: tiers };
+  }
+
+  // True when a worn piece's sockets don't yet hold (live) or plan the
+  // recommended gems, so the row offers "Add Gems" instead of "Equipped".
+  function gnBisGemsPending(slot, tiers) {
+    if (!tiers || !tiers.length) return false;
+    var live = [], plan = [];
+    try { live = (typeof iwLiveSockets === 'function' ? iwLiveSockets()[slot] : null) || []; } catch(e) {}
+    try { plan = typeof iwActiveSocketPlan === 'function' ? iwActiveSocketPlan(slot) : []; } catch(e) {}
+    var socketsOn = typeof IW_SOCKETS_ENABLED === 'undefined' || IW_SOCKETS_ENABLED;
+    return tiers.some(function(t, i) {
+      return live[i] !== t && !(socketsOn && plan[i] === t);
+    });
+  }
+
+  function gnBisGemRows(gems) {
+    if (!gems || !gems.sockets) return '';
+    var lines = [];
+    if (!gems.tiers.length) {
+      lines.push('<span data-ui=gn-bis-gem-note class="tc-text-3">' + gems.sockets + ' socket' +
+        (gems.sockets === 1 ? '' : 's') + ' — no Cut Gem serves this goal</span>');
+    } else {
+      var rec = gems.rec;
+      var lock = rec && rec.locked && typeof TIER_LVL !== 'undefined'
+        ? ' <span data-ui=gn-bis-gem-lock class="tc-warn">· needs Jewelcrafting Lv ' + TIER_LVL[rec.tier] + ' to craft</span>' : '';
+      gems.tiers.forEach(function(t, i) {
+        var name = typeof cutGemName === 'function' ? cutGemName(t) : 'Cut Gem T' + t;
+        var ref = typeof iwItemRefIfKnown === 'function' ? iwItemRefIfKnown(name) : gnEsc(name);
+        var fx = typeof cutGemEffectLabel === 'function' ? cutGemEffectLabel(t) : '';
+        lines.push('<span data-ui=gn-bis-gem-socket class="tc-text-3">Socket ' + (i + 1) + ':</span> ' + ref +
+          (fx ? ' <span data-ui=gn-bis-gem-effect class="tc-text-3">' + gnEsc(fx) + '</span>' : '') + lock);
+      });
+    }
+    return lines.map(function(line, i) {
+      return '<tr data-ui=gn-bis-gem-row class="gn-bis-gem-row' + (i === lines.length - 1 ? ' gn-bis-gem-last' : '') + '">' +
+        '<td data-ui=gn-bis-gem-cell></td><td data-ui=gn-bis-gem-cell></td>' +
+        '<td data-ui=gn-bis-gem colspan="2" class="gn-bis-gem">↳ ' + line + '</td></tr>';
+    }).join('');
+  }
+
+  // "34,34" → [34,34]; anything outside the 34 gem tiers is dropped.
+  function gnParseGemTiers(value) {
+    return String(value || '').split(',').map(function(v) { return parseInt(v, 10); })
+      .filter(function(t) { return t >= 1 && t <= 34; });
+  }
+
   // ── Best-in-Slot table ───────────────────────────────────────
   function gnRenderBIS() {
     var out = document.getElementById('gn-bis-output');
@@ -32729,18 +32814,29 @@ function syncCombatLevel(val) {
       var bisName = typeof iwItemRef === 'function' ? iwItemRef(winner.name) : winner.name;
 
       var same = wornItem && winner && wornItem.name === winner.name;
+      var fromLoadout = optimizedLoadout && optimizedLoadout.slots &&
+                        optimizedLoadout.slots[slot] && optimizedLoadout.slots[slot].winner === winner;
+      var socketCount = same && typeof iwSocketCount === 'function' ? iwSocketCount(slot)
+        : (fromLoadout && optimizedLoadout.slots[slot].sockets != null ? optimizedLoadout.slots[slot].sockets
+        : (typeof iwSlotSocketsFor === 'function' ? iwSlotSocketsFor(winner, slot) : 0));
+      var gems = gnBisGemPlan(slot, socketCount);
+      var gemsPending = !same || gnBisGemsPending(slot, gems.tiers);
+
       var action = '<button type="button" class="gut-btn gn-equip-btn" data-gn-equip="1" ' +
         'data-gn-slot="' + gnEsc(slot) + '" data-gn-item="' + gnEsc(winner.name) + '"' +
-        (same ? ' disabled aria-label="Already equipped">Equipped' :
-          ' aria-label="Add ' + gnEsc(winner.name) + ' to the Gear UI">Add to Gear') +
+        (gems.tiers.length ? ' data-gn-gems="' + gems.tiers.join(',') + '"' : '') +
+        (!same ? ' aria-label="Add ' + gnEsc(winner.name) + ' to the Gear UI' +
+                 (gems.tiers.length ? ' with its recommended gems' : '') + '">Add to Gear' :
+         gemsPending ? ' aria-label="Plan the recommended gems for ' + gnEsc(winner.name) + '">Add Gems' :
+                       ' disabled aria-label="Already equipped">Equipped') +
         '</button>';
 
-      rows += '<tr data-ui=gn-render-bis-row>' +
+      rows += '<tr data-ui=gn-render-bis-row' + (gems.sockets ? ' class="gn-bis-has-gems"' : '') + '>' +
         '<td data-ui=gn-render-bis-cell>' + (meta ? meta.icon : '?') + '</td>' +
         '<td data-ui=gn-render-bis-cell>' + (meta ? meta.label : slot) + '</td>' +
         '<td data-ui=gn-render-bis-cell>' + bisName + '</td>' +
         '<td data-ui=gn-bis-action class="gn-bis-action">' + action + '</td>' +
-        '</tr>';
+        '</tr>' + gnBisGemRows(gems);
     });
 
     if (typeof IW_GEAR_GOAL !== 'undefined') { try { window.IW_GEAR_GOAL = savedGoal; } catch(e){} }
@@ -32930,19 +33026,50 @@ function syncCombatLevel(val) {
     try { if (typeof iwInitItemTips === 'function') iwInitItemTips(out); } catch(e) {}
   }
 
-  window.gnEquipRecommendation = function(slot, itemName) {
-    if (!slot || !itemName || typeof iwAddNamedItemToLoadout !== 'function') return;
-    iwAddNamedItemToLoadout(slot, itemName);
+  // gemTiers (optional, from the BIS table's data-gn-gems) become the slot's
+  // socket plan, which is what makes them count in totals and land on the
+  // shopping list — iwShoppingEntries() derives gems from the plan, so there
+  // is no second gem counter to keep in step.
+  window.gnEquipRecommendation = function(slot, itemName, gemTiers) {
+    if (!slot || !itemName) return;
+    var gems = Array.isArray(gemTiers) ? gemTiers : gnParseGemTiers(gemTiers);
+    var gemText = '';
+    if (gems.length && typeof cutGemName === 'function') {
+      var byTier = {};
+      gems.forEach(function(t) { byTier[t] = (byTier[t] || 0) + 1; });
+      gemText = Object.keys(byTier).map(function(t) { return byTier[t] + '× ' + cutGemName(Number(t)); }).join(', ');
+    }
+    var eq = window.IWProfile && window.IWProfile.equipped;
+    var worn = !!(eq && eq[slot] && eq[slot].name === itemName);
+
+    if (worn && gems.length && typeof IW_SOCKET_PLAN !== 'undefined') {
+      // Already wearing it: plan the gems in place. Re-equipping would swap an
+      // imported item (and its live sockets) for a synthetic copy and put the
+      // gear itself on the shopping list again.
+      if (!Array.isArray(IW_SOCKET_PLAN[slot])) IW_SOCKET_PLAN[slot] = [];
+      gems.forEach(function(t, i) { IW_SOCKET_PLAN[slot][i] = t; });
+      IW_SOCKETS_ENABLED = true;
+      try { if (typeof iwSaveSocketPlan === 'function') iwSaveSocketPlan(); } catch(e) {}
+      try { if (typeof window.iwRefreshGearTab === 'function') window.iwRefreshGearTab(); } catch(e) {}
+      gnSetStatus(gemText + ' planned for ' + itemName + ' and added to your shopping list.');
+      gnRender();
+      return;
+    }
+
+    if (typeof iwAddNamedItemToLoadout !== 'function') return;
+    iwAddNamedItemToLoadout(slot, itemName, gems);
     var applied = window.IWProfile && window.IWProfile.equipped &&
       window.IWProfile.equipped[slot] && window.IWProfile.equipped[slot].name === itemName;
-    gnSetStatus(applied ? itemName + ' added to your Gear UI.' : 'That recommendation could not be applied.');
+    gnSetStatus(!applied ? 'That recommendation could not be applied.'
+      : itemName + ' added to your Gear UI' + (gemText ? ' with ' + gemText + ' planned' : '') + '.');
     gnRender();
   };
 
   document.addEventListener('click', function(e) {
     var button = e.target && e.target.closest ? e.target.closest('[data-gn-equip="1"]') : null;
     if (!button || button.disabled) return;
-    window.gnEquipRecommendation(button.getAttribute('data-gn-slot'), button.getAttribute('data-gn-item'));
+    window.gnEquipRecommendation(button.getAttribute('data-gn-slot'), button.getAttribute('data-gn-item'),
+      button.getAttribute('data-gn-gems'));
   });
 
   window.gnResetGear = function() {
