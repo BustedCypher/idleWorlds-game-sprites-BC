@@ -11692,6 +11692,18 @@
                 </div>
               </div>
             </div>
+            <div data-ui=field class="field" style="max-width:220px;">
+              <label for="gn-upgrade-cap">Max upgrade</label>
+              <select id="gn-upgrade-cap" aria-label="Highest upgrade level to recommend"
+                      onchange="if(window.gnSetUpgradeCap)gnSetUpgradeCap(this.value)">
+                <option value="4" selected>Any (up to +4)</option>
+                <option value="3">Up to +3</option>
+                <option value="2">Up to +2</option>
+                <option value="1">Up to +1</option>
+                <option value="0">Base items only</option>
+              </select>
+              <span data-ui=field-helper class="field-helper">Leaves out higher +N gear, so uniques and sets you'd actually build can win.</span>
+            </div>
             <!-- v5.1: Reinforcement & Enchantment Tier selector (live gear tab).
                  Re-tiers ONLY enhancements that already exist in the planner end-state.
                  It never invents an enhancement for an empty slot and never swaps plate
@@ -18079,6 +18091,26 @@ function iwGearUpgradeLevelFromName(name) {
   const m = /\+([1-4])$/.exec(String(name || '').trim());
   return m ? parseInt(m[1], 10) : 0;
 }
+// Highest +N the best-in-slot candidate pool may contain (2026-09-26). Most
+// players never chase +4s, and a +2/+3 can lose to a unique the uncapped pool
+// hides. The engine default is ALWAYS uncapped: only the Gear planner lowers
+// it, and only for the length of its own render via iwWithGearUpgradeCap(), in
+// the same save/swap/restore idiom it uses for IW_GEAR_GOAL. A persistent
+// global would leak the user's choice into the self-check suites and the
+// load-time checks, which assert +4 winners. Every BIS candidate loop
+// (iwBestInSlot, iwEnumerateTailoringSets, taskGoalAlternatives, the set
+// optimizer's iwBestMemberPick) filters through iwWithinGearUpgradeCap().
+var IW_GEAR_UPGRADE_CAP = IW_MAX_GEAR_UPGRADE;
+function iwWithinGearUpgradeCap(row) {
+  return iwGearUpgradeLevelFromName(row && row.name) <= IW_GEAR_UPGRADE_CAP;
+}
+function iwWithGearUpgradeCap(cap, fn) {
+  const saved = IW_GEAR_UPGRADE_CAP;
+  const n = parseInt(cap, 10);
+  IW_GEAR_UPGRADE_CAP = (n >= 0 && n <= IW_MAX_GEAR_UPGRADE) ? n : IW_MAX_GEAR_UPGRADE;
+  try { return fn(); }
+  finally { IW_GEAR_UPGRADE_CAP = saved; }
+}
 let gearEnchantLevel = 0;
 
 // ═══════════════════════════════════════════════════════════════
@@ -20217,6 +20249,7 @@ function iwBestInSlot(slot, goal, combatLevel, equippedItem){
         // Equip gate: exclude anything the player cannot actually wear —
         // combat, any-skill AND profession gates all enforced (v38.8.5).
         if(!iwCanEquip(r, clvl)) return;
+        if(!iwWithinGearUpgradeCap(r)) return;
         var sc = iwScoreItem(r, slot, IW_GEAR_GOAL);
         var s = sc.socketAdjustedGoal;
         var better = (s > bestScore) ||
@@ -23759,6 +23792,7 @@ function iwEnumerateTailoringSets(combatLevel, goal){
       if(r.cat!=='Equipment' || r.sub!==subMatch) return;
       if(iwItemClass(r) !== 'tailoring') return;
       if(!iwCanEquip(r, clvl)) return;
+      if(!iwWithinGearUpgradeCap(r)) return;
       var tier = Number(r.tier || 0);
       if(!tier) return;
       var bucket = grouped[tier] || (grouped[tier] = {});
@@ -25113,6 +25147,7 @@ function taskGoalAlternatives(slot, combatLevel){
     iwGearPlannerItems().forEach(function(r){
       if (r.cat!=='Equipment' || r.sub!==subMatch) return;
       if (!iwCanEquip(r, combatLevel)) return;
+      if (!iwWithinGearUpgradeCap(r)) return;
       if (r === best.winner) return;                       // that's the pick itself
       var sc = iwScoreItem(r, slot, IW_GEAR_GOAL);
       var s = sc.socketAdjustedGoal;
@@ -31881,7 +31916,22 @@ function syncCombatLevel(val) {
       sockets = String(typeof IW_SOCKETS_ENABLED !== 'undefined' && IW_SOCKETS_ENABLED) + ':' +
         JSON.stringify(typeof IW_SOCKET_PLAN !== 'undefined' ? IW_SOCKET_PLAN : {});
     } catch(e) {}
-    return [GN_GOAL, GN_COMBAT_LV, rev, skills, sockets].join('|');
+    return [GN_GOAL, GN_COMBAT_LV, gnUpgradeCap(), rev, skills, sockets].join('|');
+  }
+
+  // The "Max upgrade" select is the only copy of the choice, read on every
+  // render. A mirrored variable went stale on reload: the value came back
+  // without the change event that would have updated it. 4 = any (+4).
+  function gnUpgradeCap() {
+    var sel = document.getElementById('gn-upgrade-cap');
+    var n = sel ? parseInt(sel.value, 10) : 4;
+    return (n >= 0 && n <= 4) ? n : 4;
+  }
+
+  // Everything the planner asks the BIS engine runs under the "Max upgrade"
+  // choice; the engine itself stays uncapped outside these calls.
+  function gnCapped(fn) {
+    return typeof iwWithGearUpgradeCap === 'function' ? iwWithGearUpgradeCap(gnUpgradeCap(), fn) : fn();
   }
 
   function gnGetSetAwareLoadout() {
@@ -31889,7 +31939,7 @@ function syncCombatLevel(val) {
     var key = gnSetLoadoutCacheKey();
     if (GN_SET_LOADOUT_CACHE_KEY === key && GN_SET_LOADOUT_CACHE) return GN_SET_LOADOUT_CACHE;
     try {
-      GN_SET_LOADOUT_CACHE = iwBuildGoalLoadout(GN_COMBAT_LV, GN_GOAL);
+      GN_SET_LOADOUT_CACHE = gnCapped(function() { return iwBuildGoalLoadout(GN_COMBAT_LV, GN_GOAL); });
       GN_SET_LOADOUT_CACHE_KEY = key;
       return GN_SET_LOADOUT_CACHE;
     } catch(e) {
@@ -32774,7 +32824,8 @@ function syncCombatLevel(val) {
   }
 
   // ── Best-in-Slot table ───────────────────────────────────────
-  function gnRenderBIS() {
+  function gnRenderBIS() { return gnCapped(gnRenderBISUncapped); }
+  function gnRenderBISUncapped() {
     var out = document.getElementById('gn-bis-output');
     if (!out) return;
     if (!GN_COMBAT_LV || GN_COMBAT_LV < 1) {
@@ -32883,7 +32934,8 @@ function syncCombatLevel(val) {
   // Compact recommendation view using the original Gear tab's progression
   // and taskGoalAlternatives engines. It intentionally does not maintain a
   // second candidate list or score items independently.
-  function gnRenderRecommendations() {
+  function gnRenderRecommendations() { return gnCapped(gnRenderRecommendationsUncapped); }
+  function gnRenderRecommendationsUncapped() {
     var out = document.getElementById('gn-recommended-output');
     if (!out) return;
     if (!GN_COMBAT_LV || GN_COMBAT_LV < 1) {
@@ -33368,7 +33420,7 @@ function syncCombatLevel(val) {
         var savedGoal2 = (typeof IW_GEAR_GOAL !== 'undefined') ? IW_GEAR_GOAL : 'balanced';
         if (typeof IW_GEAR_GOAL !== 'undefined') { try { window.IW_GEAR_GOAL = GN_GOAL; } catch(e2){} }
         var bisRes;
-        try { bisRes = iwBestInSlot(slot, GN_GOAL, GN_COMBAT_LV, cell ? cell.item : null); } catch(e){}
+        try { bisRes = gnCapped(function() { return iwBestInSlot(slot, GN_GOAL, GN_COMBAT_LV, cell ? cell.item : null); }); } catch(e){}
         if (typeof IW_GEAR_GOAL !== 'undefined') { try { window.IW_GEAR_GOAL = savedGoal2; } catch(e2){} }
         if (bisRes && bisRes.winner) {
           var setWinner = gnSetAwareWinner(slot, bisRes.winner);
@@ -33490,6 +33542,17 @@ function syncCombatLevel(val) {
     var dd = document.getElementById('gn-goal-dd');
     if (dd) dd.classList.remove('open');
     try { if (typeof setGearGoal === 'function') setGearGoal(val); } catch(e) {}
+    gnRenderBIS();
+    gnRenderRecommendations();
+  };
+
+  // "Max upgrade" select. IWStore captures it by id, so the choice persists
+  // without a key of its own; gnUpgradeCap() reads it back on every render.
+  window.gnSetUpgradeCap = function(val) {
+    var sel = document.getElementById('gn-upgrade-cap');
+    if (sel && val != null && sel.value !== String(val)) sel.value = String(val);
+    GN_SET_LOADOUT_CACHE_KEY = null;
+    GN_SET_LOADOUT_CACHE = null;
     gnRenderBIS();
     gnRenderRecommendations();
   };
@@ -35882,6 +35945,7 @@ function syncCombatLevel(val) {
       var r = plannerItems[i];
       if(!r || r.cat !== 'Equipment' || iwItemSlotKey(r) !== slot) continue;
       if(!iwCanEquip(r, combatLevel)) continue;
+      if(!iwWithinGearUpgradeCap(r)) continue;
       if(!iwRowCountsForSet(r, desc)) continue;
       best = iwBetterPick(best, iwPickFromRow(r, slot, goal));
     }
