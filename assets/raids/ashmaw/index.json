@@ -1,6 +1,15 @@
 {
-  "version": 1,
+  "version": 2,
   "raid": "ashmaw",
+  "atlas": {
+    "path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png",
+    "sha256_png": "a2fd9bbd22777c4524ad14f553a2451c37a0999428cb720c681ed1cfdb5ede95",
+    "width": 896,
+    "height": 128,
+    "columns": 7,
+    "rows": 1,
+    "cell_count": 7
+  },
   "items": [
     {
       "item_id": "ashmaws_scale_helm",
@@ -12,15 +21,16 @@
       "source_path": "output/raid-artwork/ashmaw/ashmaws_scale_helm.png",
       "sha256_png": "be8a7d01112c2fafa8badacf989d07067a54e2362bd3075c6e12ce5234561974",
       "source_sha256_png": "288fdc6979ea414056cef27363df3897f85dcf807f47890ee5afa4bdcbc29305",
-      "atlas": "gear",
-      "index": 1160,
-      "row": 116,
+      "atlas": "raid:ashmaw",
+      "index": 0,
+      "row": 0,
       "column": 0,
       "x": 0,
-      "y": 14848,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory gear sprite, one isolated object on actual transparent background. Subject: Ashmaw's Scale Crest, a raid-unique dragon-scale helmet, enormous swept horns and overlapping blackened crimson dragon scales, molten orange seams, crown of small floating embers. Style: match the game's painted inventory icons: crisp dark contour outlines, detailed hand-painted semi-realistic fantasy shading, glossy metal edge highlights and faceted magical gems, slightly three-quarter view, not pixel art, no photorealism. Extravagant endgame equipment, visually larger and stronger than mundane gear. Compact highly readable silhouette at 64px, item occupies 85% of square, all horns and contained fire aura inside canvas with clear margins. Transparent background, no text, letters, border, badge, people or watermark."
+      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory gear sprite, one isolated object on actual transparent background. Subject: Ashmaw's Scale Crest, a raid-unique dragon-scale helmet, enormous swept horns and overlapping blackened crimson dragon scales, molten orange seams, crown of small floating embers. Style: match the game's painted inventory icons: crisp dark contour outlines, detailed hand-painted semi-realistic fantasy shading, glossy metal edge highlights and faceted magical gems, slightly three-quarter view, not pixel art, no photorealism. Extravagant endgame equipment, visually larger and stronger than mundane gear. Compact highly readable silhouette at 64px, item occupies 85% of square, all horns and contained fire aura inside canvas with clear margins. Transparent background, no text, letters, border, badge, people or watermark.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     },
     {
       "item_id": "ashmaws_scale_chest",
@@ -32,15 +42,16 @@
       "source_path": "output/raid-artwork/ashmaw/ashmaws_scale_chest.png",
       "sha256_png": "9e756dda6f9cd11dfec1d0279cd8c4c666c72bf3a51ac8252f45222f124fe8fe",
       "source_sha256_png": "b49987cf7a40fa76382eb6e320d691b17683e49de6b47d710dc16601771fca98",
-      "atlas": "gear",
-      "index": 1161,
-      "row": 116,
+      "atlas": "raid:ashmaw",
+      "index": 1,
+      "row": 0,
       "column": 1,
       "x": 128,
-      "y": 14848,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated armored torso hauberk with flared dragon-scale pauldrons, named Ashmaw's Scale Hauberk. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography."
+      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated armored torso hauberk with flared dragon-scale pauldrons, named Ashmaw's Scale Hauberk. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     },
     {
       "item_id": "tyrants_ember",
@@ -52,15 +63,16 @@
       "source_path": "output/raid-artwork/ashmaw/tyrants_ember.png",
       "sha256_png": "1982ede82b46d59c84cc9d7b29d54d7b8aa52d9904990a9d161d9b627bae4817",
       "source_sha256_png": "19af28e4f477eefb2633d282594c944a5f669a88858505f9de833919710c043d",
-      "atlas": "gear",
-      "index": 1162,
-      "row": 116,
+      "atlas": "raid:ashmaw",
+      "index": 2,
+      "row": 0,
       "column": 2,
       "x": 256,
-      "y": 14848,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated levitating burning ember relic in an ornate claw cage, named Tyrant's Ember. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography."
+      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated levitating burning ember relic in an ornate claw cage, named Tyrant's Ember. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     },
     {
       "item_id": "ashmaws_cinderheart_band",
@@ -72,15 +84,16 @@
       "source_path": "output/raid-artwork/ashmaw/ashmaws_cinderheart_band.png",
       "sha256_png": "2d1f736b1c4b5f390574373627c7af532edb1ee04c6d13a7e3c5f421e1e79445",
       "source_sha256_png": "6bb77cd7f55eb637e8178500d0547735b1eb9d0664e8579ba5ef0d794218fb01",
-      "atlas": "gear",
-      "index": 1163,
-      "row": 116,
+      "atlas": "raid:ashmaw",
+      "index": 3,
+      "row": 0,
       "column": 3,
       "x": 384,
-      "y": 14848,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated ornate ring with huge fiery heart-shaped faceted gem, named Cinderheart Band. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography."
+      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated ornate ring with huge fiery heart-shaped faceted gem, named Cinderheart Band. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     },
     {
       "item_id": "tyrants_forgehands",
@@ -92,15 +105,16 @@
       "source_path": "output/raid-artwork/ashmaw/tyrants_forgehands.png",
       "sha256_png": "e49ac479e3e2e94d5cf579097bfd3e23e18761b2915d49208fb9c1ced11f4f6c",
       "source_sha256_png": "cb33ad20aae4a632ddac03094666eecdb889098aec54927c9d89fce2f744ad9c",
-      "atlas": "gear",
-      "index": 1164,
-      "row": 116,
+      "atlas": "raid:ashmaw",
+      "index": 4,
+      "row": 0,
       "column": 4,
       "x": 512,
-      "y": 14848,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Create a BRAND-NEW transparent fantasy RPG inventory sprite depicting a PAIR of legendary wearable gauntlets. Ashmaw: two blackened dragonsteel gauntlets with broad overlapping crimson scale plates, sculpted bronze cuffs resembling a dragon's brow, one glowing ruby ember on each backhand, molten seams, only a few translucent orange fire wisps. Fierce but compact, rich painterly metal and scale texture. Hand-painted semi-realistic fantasy item art with crisp dark outlines, dimensional shading and brilliant edge highlights, matching ornate raid-unique equipment in the game. Composition: two separate gauntlets in matching three-quarter view, cuffs toward upper-left/upper-right, armored backs toward viewer, fingers pointing diagonally down and slightly inward. The gauntlets should look wearable over NORMAL HUMAN HANDS, informed by the anatomy of the input reference images. On EACH hand show exactly FIVE digits: FOUR separate fingers across a gently arched knuckle line plus ONE distinct side thumb attached LOWER than the fingers. Proportions: middle longest, index and ring a little shorter, pinky clearly shorter; each finger bends naturally at two joints and tapers toward a blunt armored tip. A thumb emerges from the side of the palm near the wrist, angled across; narrow wrist beneath decorated cuff. Show all TEN fingertips visibly separated; four finger tips and one thumb tip per hand. Keep both hands in frame with clear margins. Legendary grandeur from silhouette, focal gem, skilled metalwork and restrained translucent effects; leave hand anatomy clear. True transparent background, no text, labels, border, people, skin or extra hands. Input image 1: approved paired gauntlet pose/composition reference ONLY; reinvent armor completely. Input image 2: anatomy reference for four fingers and thumb. Input image 3: anatomy reference for flexible armored hand joints."
+      "prompt": "Use case: stylized-concept. Create a BRAND-NEW transparent fantasy RPG inventory sprite depicting a PAIR of legendary wearable gauntlets. Ashmaw: two blackened dragonsteel gauntlets with broad overlapping crimson scale plates, sculpted bronze cuffs resembling a dragon's brow, one glowing ruby ember on each backhand, molten seams, only a few translucent orange fire wisps. Fierce but compact, rich painterly metal and scale texture. Hand-painted semi-realistic fantasy item art with crisp dark outlines, dimensional shading and brilliant edge highlights, matching ornate raid-unique equipment in the game. Composition: two separate gauntlets in matching three-quarter view, cuffs toward upper-left/upper-right, armored backs toward viewer, fingers pointing diagonally down and slightly inward. The gauntlets should look wearable over NORMAL HUMAN HANDS, informed by the anatomy of the input reference images. On EACH hand show exactly FIVE digits: FOUR separate fingers across a gently arched knuckle line plus ONE distinct side thumb attached LOWER than the fingers. Proportions: middle longest, index and ring a little shorter, pinky clearly shorter; each finger bends naturally at two joints and tapers toward a blunt armored tip. A thumb emerges from the side of the palm near the wrist, angled across; narrow wrist beneath decorated cuff. Show all TEN fingertips visibly separated; four finger tips and one thumb tip per hand. Keep both hands in frame with clear margins. Legendary grandeur from silhouette, focal gem, skilled metalwork and restrained translucent effects; leave hand anatomy clear. True transparent background, no text, labels, border, people, skin or extra hands. Input image 1: approved paired gauntlet pose/composition reference ONLY; reinvent armor completely. Input image 2: anatomy reference for four fingers and thumb. Input image 3: anatomy reference for flexible armored hand joints.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     },
     {
       "item_id": "cinderforged_pendant",
@@ -112,15 +126,16 @@
       "source_path": "output/raid-artwork/ashmaw/cinderforged_pendant.png",
       "sha256_png": "5297084898ea186f7b78c9e1e6ae2f6f38cd506ffb2228b7c46976286ed59b00",
       "source_sha256_png": "8ce8213ee8dd789dcda9531692a106d3afdb43f267dff51a2fc2f66c49c068c4",
-      "atlas": "gear",
-      "index": 1165,
-      "row": 116,
+      "atlas": "raid:ashmaw",
+      "index": 5,
+      "row": 0,
       "column": 5,
       "x": 640,
-      "y": 14848,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated pendant on a chain with molten dragon fang centerpiece, named Cinderforged Pendant. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography."
+      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated pendant on a chain with molten dragon fang centerpiece, named Cinderforged Pendant. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     },
     {
       "item_id": "cindercore_fragment",
@@ -132,15 +147,16 @@
       "source_path": "output/raid-artwork/ashmaw/cindercore_fragment.png",
       "sha256_png": "66f7e3b592da85d2e27558de933ce8100765922b5915c6169ee44064d70681f1",
       "source_sha256_png": "0cf6a55d84eb9da6f678f07d89975242bff80bc2a0bdc8c5f1fbd74caa08c6d4",
-      "atlas": "items",
-      "index": 477,
-      "row": 47,
-      "column": 7,
-      "x": 896,
-      "y": 6016,
+      "atlas": "raid:ashmaw",
+      "index": 6,
+      "row": 0,
+      "column": 6,
+      "x": 768,
+      "y": 0,
       "width": 128,
       "height": 128,
-      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated jagged molten core fragment, named Cindercore Fragment. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography."
+      "prompt": "Use case: stylized-concept. Asset type: fantasy RPG inventory sprite. One isolated jagged molten core fragment, named Cindercore Fragment. Raid theme: blackened crimson dragon scales, bronze horned edges, molten orange cracks and contained ember flames. Match hand-painted fantasy RPG equipment icons with crisp dark contour outlines, semi-realistic painted shading, polished edge highlights, faceted gems, three-quarter view. This is extravagant powerful raid-unique loot: strong oversized silhouette, lavish ornament and magical effects. Keep the main object readable at 64 pixels: bold material masses, concentrated luminous accents, restrained close-fitting aura. Entire object and magical effects inside square canvas with 8% clear margins, centered filling about 84% of canvas. Actually transparent background. No text, letters, border, frame, UI, watermark, characters, scenery, ground shadow. No pixel art or photography.",
+      "atlas_path": "assets/raids/ashmaw/atlas.a2fd9bbd2277.png"
     }
   ]
 }

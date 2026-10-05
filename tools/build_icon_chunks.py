@@ -96,6 +96,28 @@ def build_icon_chunks(repo_root:Path)->Path:
             for r in records:
                 r['chunk']=ck; runtime['items']['cells'][r['cell_key']]=[ck,r['x'],r['y']]; audit['item_cells'].append(r)
     for r in index: runtime['items']['icons'][r['item_id']]=cell_keys[int(r['index'])]
+    raid_manifest = root/'raid_artwork_manifest.json'
+    if raid_manifest.exists():
+        raids = json.loads(raid_manifest.read_text(encoding='utf-8'))
+        for raid, meta in raids['atlases'].items():
+            ck = 'raid:'+raid
+            runtime['chunks'][ck] = dict(meta, path='../../'+meta['path'].removeprefix('assets/'))
+            audit['source'][ck] = dict(meta)
+        for entry in raids['items']:
+            ck = 'raid:'+entry['raid']
+            image = Image.open(root/entry['path']).convert('RGBA')
+            record = dict(name=entry['name'], source_index=entry['index'], source_x=entry['x'], source_y=entry['y'], x=entry['x'], y=entry['y'], chunk=ck, source_path=entry['atlas_path'], sha256_rgba=hashlib.sha256(image.tobytes()).hexdigest())
+            image.close()
+            if entry['category']=='Equipment':
+                record['normalised_name'] = normalise_name(entry['name'])
+                runtime['gear']['icons'][record['normalised_name']] = [ck,entry['x'],entry['y']]
+                audit['gear_records'].append(record)
+            else:
+                key = 'item.'+entry['item_id']
+                record['cell_key'] = key
+                runtime['items']['icons'][entry['item_id']] = key
+                runtime['items']['cells'][key] = [ck,entry['x'],entry['y']]
+                audit['item_cells'].append(record)
     audit['counts']={'gear_physical_cells':len(audit['gear_records']),'item_physical_cells':len(audit['item_cells']),'item_mappings':len(runtime['items']['icons']),'chunks':len(runtime['chunks'])}
     # guard-ok: brand-new hashed audit file, nothing pre-existing to destroy
     ad=compact(audit); an=f'icon-audit.{hashlib.sha256(ad).hexdigest()[:12]}.json'; (out/an).write_bytes(ad); runtime['audit_path']=an

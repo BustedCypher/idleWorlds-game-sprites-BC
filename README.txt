@@ -5,10 +5,11 @@ Runtime files:
   assets/icon-sprites-v2.js
   assets/icons/v2/icon-manifest.<hash>.json
   assets/icons/v2/*.png
+  assets/raids/<raid>/atlas.<hash>.png
 
 The legacy atlases remain deterministic build and rollback sources, but the
 browser now fetches the compact manifest and only the gear-slot or item-category
-chunks approaching the viewport. Hashed chunks are immutable and each is
+or raid chunks approaching the viewport. Hashed chunks are immutable and each is
 decoded once. Failed or missing assets keep the existing visible fallback.
 
 Safety: tools/atomic_write.py is the only sanctioned way to overwrite a file
@@ -28,8 +29,10 @@ Raid art: assets/raids/<raid>/index.json indexes seven icons per raid.
           is transparent 128 px, with up to 120 px of artwork for a larger
           raid-unique silhouette. Full-size originals and the preview sheet
           are kept locally under output/raid-artwork/ and output/.
-          python tools/import_raid_icons.py updates the legacy atlas sources;
-          python tools/sync_gear_manifest_csv.py synchronises the gear CSV.
+          Each raid has its own hashed 896×128 atlas (six gear icons and
+          its core shard). The runtime loads these raid atlases separately.
+          python tools/import_raid_icons.py rebuilds only the raid atlases,
+          indexes and artwork manifest; shared gear/item sources stay unchanged.
 Build: python tools/build_icon_chunks.py
        Then re-pin manifestUrl in index.html to the hash it prints — the
        rebuild renames every chunk.

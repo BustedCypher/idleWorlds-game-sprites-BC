@@ -41,6 +41,8 @@ class RaidImport(unittest.TestCase):
                 replace_atomically(root/filename, importer.png_bytes(Image.new('RGBA', (1280, 128))))
             write_csv(root/'item_icons_cells.csv', CELL_FIELDS, [dict(index=0, row=0, column=0, x=0, y=0, width=128, height=128, icon_key='old')])
             write_csv(root/'item_icons_index.csv', INDEX_FIELDS, [dict(item_id='old', index=0)])
+            shared_names = ['gear_icons_atlas.png', 'gear_icons_manifest.json', 'item_icons_atlas.png', 'item_icons_cells.csv', 'item_icons_index.csv']
+            shared_before = {name: (root/name).read_bytes() for name in shared_names}
             previous_root = importer.ROOT
             importer.ROOT = root
             try:
@@ -50,6 +52,8 @@ class RaidImport(unittest.TestCase):
             rebuilt = json.loads((root/'raid_artwork_manifest.json').read_text(encoding='utf-8'))
             self.assertEqual([r['source_sha256_png'] for r in rebuilt['items']], ['a'*64]*35)
             self.assertFalse((root/'output/raid-artwork').exists(), 'must not fabricate originals from normalized sprites')
+            self.assertEqual(shared_before, {name: (root/name).read_bytes() for name in shared_names}, 'raid imports must never change shared atlases')
+            self.assertEqual(len(rebuilt['atlases']), 5)
 
 
 if __name__ == '__main__':

@@ -3,14 +3,11 @@ from __future__ import annotations
 import hashlib
 import io
 import json
-import math
 import textwrap
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from atomic_write import replace_atomically
 from build_icon_chunks import items_from
-from import_construction_icons import read_csv, write_csv, CELL_FIELDS, INDEX_FIELDS
-from sync_gear_manifest_csv import sync
 
 ROOT = Path(__file__).resolve().parents[1]
 RAIDS = ['ashmaw', 'thessaly', 'morwenna', 'grimjaw', 'skarth']
@@ -36,13 +33,6 @@ def normalise(source):
         cell = Image.new('RGBA', (128, 128))
         cell.paste(image, ((128-image.width)//2, (128-image.height)//2))
         return cell
-
-
-def expanded_atlas(path, count):
-    with Image.open(path) as old:
-        image = Image.new('RGBA', (1280, max(old.height, math.ceil(count/10)*128)))
-        image.paste(old.convert('RGBA'), (0, 0))
-        return image
 
 
 def contact_sheet(records):
@@ -77,15 +67,6 @@ def import_raids():
     items = [i for i in items_from((ROOT/'index.html').read_text(encoding='utf-8')) if i.get('item_id') in prompts]
     if len(items) != 35 or any(sum(raid_by_id[i['item_id']] == raid for i in items) != 7 for raid in RAIDS):
         raise ValueError('Expected 35 explicit raid item IDs, seven per raid')
-    gear = json.loads((ROOT/'gear_icons_manifest.json').read_text(encoding='utf-8'))
-    index = read_csv(ROOT/'item_icons_index.csv')
-    cells = read_csv(ROOT/'item_icons_cells.csv')
-    gear_names = {r['name'] for r in gear['icons']}
-    item_ids = {r['item_id'] for r in index}
-    next_gear = max(r['index'] for r in gear['icons']) + 1
-    next_item = max(int(r['index']) for r in cells) + 1
-    ga = expanded_atlas(ROOT/'gear_icons_atlas.png', next_gear + sum(i['category']=='Equipment' and i['name'] not in gear_names for i in items))
-    ia = expanded_atlas(ROOT/'item_icons_atlas.png', next_item + sum(i['category']!='Equipment' and i['item_id'] not in item_ids for i in items))
     all_records = []
     for item in items:
         raid = raid_by_id[item['item_id']]
@@ -111,41 +92,31 @@ def import_raids():
             source_path = original.relative_to(ROOT).as_posix()
         encoded = png_bytes(cell)
         replace_atomically(source, encoded)
-        is_gear = item['category'] == 'Equipment'
-        existing = next((r for r in gear['icons'] if r['name']==item['name']), None) if is_gear else next((r for r in index if r['item_id']==item['item_id']), None)
-        ix = int(existing['index']) if existing else (next_gear if is_gear else next_item)
-        row, column = divmod(ix, 10)
+        ix = sum(r['raid'] == raid for r in all_records)
+        row, column = divmod(ix, 7)
         geometry = dict(index=ix, row=row, column=column, x=column*128, y=row*128, width=128, height=128)
-        if is_gear:
-            ga.paste(cell, (geometry['x'], geometry['y']))
-            if not existing:
-                gear['icons'].append(dict(name=item['name'], **geometry))
-                next_gear += 1
-        else:
-            ia.paste(cell, (geometry['x'], geometry['y']))
-            art_source = 'generated raid unique 2026-10-05'
-            if not existing:
-                cells.append(dict(geometry, icon_key='item.'+item['item_id'], name=item['name'], group='trade.raid.'+raid, shared='False', usage_count='1', art_source=art_source, sha256_rgba=hashlib.sha256(cell.tobytes()).hexdigest()))
-                index.append(dict(geometry, item_id=item['item_id'], name=item['name'], category=item['category'], subcategory=item.get('subcategory',''), tier=item.get('tier',''), group='trade.raid.'+raid, art_source=art_source, shared_icon_key='', original_r3_index='', original_r2_index=''))
-                next_item += 1
-            else:
-                next(r for r in cells if int(r['index']) == ix)['sha256_rgba'] = hashlib.sha256(cell.tobytes()).hexdigest()
-        all_records.append(dict(item_id=item['item_id'], name=item['name'], raid=raid, category=item['category'], subcategory=item.get('subcategory',''), path=relative, source_path=source_path, sha256_png=hashlib.sha256(encoded).hexdigest(), source_sha256_png=source_hash, atlas='gear' if is_gear else 'items', **geometry, prompt=prompts[item['item_id']]))
-    gear['rows'] = ga.height//128
-    gear['version'] = 10
-    replace_atomically(ROOT/'gear_icons_atlas.png', png_bytes(ga))
-    replace_atomically(ROOT/'item_icons_atlas.png', png_bytes(ia))
-    replace_atomically(ROOT/'gear_icons_manifest.json', (json.dumps(gear, indent=2, ensure_ascii=False)+'\n').encode('utf-8'))
-    sync(ROOT)
-    write_csv(ROOT/'item_icons_cells.csv', CELL_FIELDS, cells)
-    write_csv(ROOT/'item_icons_index.csv', INDEX_FIELDS, index)
+        all_records.append(dict(item_id=item['item_id'], name=item['name'], raid=raid, category=item['category'], subcategory=item.get('subcategory',''), path=relative, source_path=source_path, sha256_png=hashlib.sha256(encoded).hexdigest(), source_sha256_png=source_hash, atlas='raid:'+raid, **geometry, prompt=prompts[item['item_id']]))
+    atlases = {}
     for raid in RAIDS:
-        payload = dict(version=1, raid=raid, items=[r for r in all_records if r['raid']==raid])
+        records = [r for r in all_records if r['raid']==raid]
+        sheet = Image.new('RGBA', (896, 128))
+        for record in records:
+            with Image.open(ROOT/record['path']) as icon:
+                sheet.paste(icon.convert('RGBA'), (record['x'], record['y']))
+        data = png_bytes(sheet)
+        digest = hashlib.sha256(data).hexdigest()
+        relative = 'assets/raids/'+raid+'/atlas.'+digest[:12]+'.png'
+        replace_atomically(ROOT/relative, data)
+        atlases[raid] = dict(path=relative, sha256_png=digest, width=896, height=128, columns=7, rows=1, cell_count=7)
+        for record in records:
+            record['atlas_path'] = relative
+        payload = dict(version=2, raid=raid, atlas=atlases[raid], items=records)
         replace_atomically(ROOT/'assets/raids'/raid/'index.json', (json.dumps(payload, indent=2, ensure_ascii=False)+'\n').encode('utf-8'))
     manifest = dict(version=1, generated_at='2026-10-05', generator='built-in image_gen', item_data_source='https://idleworlds.com/items.json', item_data_generated_at='2026-10-05T03:26:31.108Z', cell_size=128, content_size=120, style='Painted fantasy gear with extravagant raid-unique silhouettes and contained elemental magic', raids={raid:'assets/raids/'+raid+'/index.json' for raid in RAIDS}, items=all_records)
+    manifest.update(version=2, atlases=atlases)
     replace_atomically(ROOT/'raid_artwork_manifest.json', (json.dumps(manifest, indent=2, ensure_ascii=False)+'\n').encode('utf-8'))
     contact_sheet(all_records)
-    print(json.dumps(dict(raid_items=len(all_records), gear_icons=len(gear['icons']), item_cells=len(cells))))
+    print(json.dumps(dict(raid_items=len(all_records), raid_atlases=len(atlases))))
 
 
 if __name__ == '__main__':

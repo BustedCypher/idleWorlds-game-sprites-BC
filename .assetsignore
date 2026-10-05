@@ -82,3 +82,7 @@ item_icons_atlas.png
 item_icons_index.csv
 item_icons_cells.csv
 construction_icon_manifest.json
+
+# Standalone raid rebuild sources; serve only the small hashed raid atlases.
+assets/raids/*/*.png
+!assets/raids/*/atlas.*.png

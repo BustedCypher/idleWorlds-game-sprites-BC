@@ -476,8 +476,3 @@ index,row,column,x,y,width,height,icon_key,name,group,shared,usage_count,art_sou
 474,47,4,512,6016,128,128,item.construction_building_tier_32,Ashspire Hall of Records,trade.village_addon,False,1,supplied construction art pack 2026-09-04,d40cd211ff860f0a20430c663a75622434d5ad765732d8006587b6106b9e8b3e
 475,47,5,640,6016,128,128,item.construction_building_tier_33,Glacirite Royal Treasury,trade.village_addon,False,1,supplied construction art pack 2026-09-04,047c55b9e6725698ad4cf4eb32c94ec841f45e0783bd08fb906f0354e263010b
 476,47,6,768,6016,128,128,item.construction_building_tier_34,Primordial Wonder,trade.village_addon,False,1,supplied construction art pack 2026-09-04,7674779e07c7eb4d70e17fc964b8f08f25de312073c681ac927e6dd164fd3630
-477,47,7,896,6016,128,128,item.cindercore_fragment,Cindercore Fragment,trade.raid.ashmaw,False,1,generated raid unique 2026-10-05,3574e9fb66f617da84cb5adb096f4f63975b0eaf26e073f743f615315d305b7c
-478,47,8,1024,6016,128,128,item.charged_core_shard,Charged Core Shard,trade.raid.thessaly,False,1,generated raid unique 2026-10-05,32f1216d170a6ae0be54fad0afe662d12374d1bf016d69f3b828064296401a2e
-479,47,9,1152,6016,128,128,item.hollow_core_shard,Hollow Core Shard,trade.raid.morwenna,False,1,generated raid unique 2026-10-05,293fe2231ac123a38fff47e778028432177c4a0e3afd603a16dd9e8412d47bc7
-480,48,0,0,6144,128,128,item.anchor_core_shard,Anchor Core Shard,trade.raid.grimjaw,False,1,generated raid unique 2026-10-05,dc8b8a72c05bcc1cd829d38e0a89bbc6ea690111d8de6ba3a9d3005cf58900e9
-481,48,1,128,6144,128,128,item.glacial_core_shard,Glacial Core Shard,trade.raid.skarth,False,1,generated raid unique 2026-10-05,092e0b81c5c960325d71d82f739ecf36d643a10de294d73d53ecd2cf9f6a9ddf
