@@ -36,7 +36,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Nineteen regression suites ship inside the file and are the safety net for
+Twenty regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -60,7 +60,7 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwGearImportIntegritySelfCheck` · `iwWoodcuttingConstructionSelfCheck` (H) ·
 `iwDailyBoostSyncSelfCheck` (I) · `iwAchievementXpSelfCheck` (J) ·
 `iwXpCurveTaperSelfCheck` (K) · `iwAshenSkinSelfCheck` (L) ·
-`iwSelfCheckIsolationSelfCheck` (M).
+`iwSelfCheckIsolationSelfCheck` (M) · `iwRaidGearSelfCheck` (N).
 
 A suite assertion may be **updated only by the stage that intentionally
 changes that mechanic**. Unrelated assertions must stay green.
@@ -320,7 +320,7 @@ inside the limits.
 
 ## Repo contents
 
-- `index.html` — **v6.0, the working file**
+- `index.html` — **v6.1, the working file**
 - `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build. Still fetches the
   legacy atlases, but from `raw.githubusercontent.com/…/main/`, **not** from
   the deploy origin — which is why `.assetsignore` can keep them off the

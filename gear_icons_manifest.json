@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "cell_size": 128,
   "display_cell_size": 64,
   "pixel_ratio": 2,
@@ -11603,6 +11603,306 @@
       "column": 0,
       "x": 0,
       "y": 19712,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Ashmaw's Scale Crest",
+      "index": 1160,
+      "row": 116,
+      "column": 0,
+      "x": 0,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Ashmaw's Scale Hauberk",
+      "index": 1161,
+      "row": 116,
+      "column": 1,
+      "x": 128,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Tyrant's Ember",
+      "index": 1162,
+      "row": 116,
+      "column": 2,
+      "x": 256,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Cinderheart Band",
+      "index": 1163,
+      "row": 116,
+      "column": 3,
+      "x": 384,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Tyrant's Forgehands",
+      "index": 1164,
+      "row": 116,
+      "column": 4,
+      "x": 512,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Cinderforged Pendant",
+      "index": 1165,
+      "row": 116,
+      "column": 5,
+      "x": 640,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Thessaly's Storm Grips",
+      "index": 1166,
+      "row": 116,
+      "column": 6,
+      "x": 768,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Thessaly's Stormstriders",
+      "index": 1167,
+      "row": 116,
+      "column": 7,
+      "x": 896,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Voltaic Sigil",
+      "index": 1168,
+      "row": 116,
+      "column": 8,
+      "x": 1024,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Stormcaller's Band",
+      "index": 1169,
+      "row": 116,
+      "column": 9,
+      "x": 1152,
+      "y": 14848,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Thessaly's Tempest Lance",
+      "index": 1170,
+      "row": 117,
+      "column": 0,
+      "x": 0,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Stormglass Hourglass",
+      "index": 1171,
+      "row": 117,
+      "column": 1,
+      "x": 128,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Morwenna's Hollow Crown",
+      "index": 1172,
+      "row": 117,
+      "column": 2,
+      "x": 256,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Morwenna's Hollow Legwraps",
+      "index": 1173,
+      "row": 117,
+      "column": 3,
+      "x": 384,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Oracle's Locket",
+      "index": 1174,
+      "row": 117,
+      "column": 4,
+      "x": 512,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Hollow Seer's Band",
+      "index": 1175,
+      "row": 117,
+      "column": 5,
+      "x": 640,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Eye of the Hollow Oracle",
+      "index": 1176,
+      "row": 117,
+      "column": 6,
+      "x": 768,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Hollow Oracle's Staff",
+      "index": 1177,
+      "row": 117,
+      "column": 7,
+      "x": 896,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Grimjaw's Bound Plate",
+      "index": 1178,
+      "row": 117,
+      "column": 8,
+      "x": 1024,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Grimjaw's Bound Greaves",
+      "index": 1179,
+      "row": 117,
+      "column": 9,
+      "x": 1152,
+      "y": 14976,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Grimjaw's Bound Gauntlets",
+      "index": 1180,
+      "row": 118,
+      "column": 0,
+      "x": 0,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Bulwark's Unbroken Band",
+      "index": 1181,
+      "row": 118,
+      "column": 1,
+      "x": 128,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Grimjaw's Unbroken March",
+      "index": 1182,
+      "row": 118,
+      "column": 2,
+      "x": 256,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Anchorstone Bulwark",
+      "index": 1183,
+      "row": 118,
+      "column": 3,
+      "x": 384,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Skarth's Rime Crown",
+      "index": 1184,
+      "row": 118,
+      "column": 4,
+      "x": 512,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Skarth's Rime Hauberk",
+      "index": 1185,
+      "row": 118,
+      "column": 5,
+      "x": 640,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Skarth's Frostheart",
+      "index": 1186,
+      "row": 118,
+      "column": 6,
+      "x": 768,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Hoarfrost Band",
+      "index": 1187,
+      "row": 118,
+      "column": 7,
+      "x": 896,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Rimeheart Aegis",
+      "index": 1188,
+      "row": 118,
+      "column": 8,
+      "x": 1024,
+      "y": 15104,
+      "width": 128,
+      "height": 128
+    },
+    {
+      "name": "Rimebound Torc",
+      "index": 1189,
+      "row": 118,
+      "column": 9,
+      "x": 1152,
+      "y": 15104,
       "width": 128,
       "height": 128
     }

@@ -1268,3 +1268,8 @@ construction_building_tier_31,Thalassic Sanctum of Tides,Trade Good,Trade good,3
 construction_building_tier_32,Ashspire Hall of Records,Trade Good,Trade good,32,trade.village_addon,supplied construction art pack 2026-09-04,,474,47,4,512,6016,128,128,,
 construction_building_tier_33,Glacirite Royal Treasury,Trade Good,Trade good,33,trade.village_addon,supplied construction art pack 2026-09-04,,475,47,5,640,6016,128,128,,
 construction_building_tier_34,Primordial Wonder,Trade Good,Trade good,34,trade.village_addon,supplied construction art pack 2026-09-04,,476,47,6,768,6016,128,128,,
+cindercore_fragment,Cindercore Fragment,Trade Good,Trade good,20,trade.raid.ashmaw,generated raid unique 2026-10-05,,477,47,7,896,6016,128,128,,
+charged_core_shard,Charged Core Shard,Trade Good,Trade good,20,trade.raid.thessaly,generated raid unique 2026-10-05,,478,47,8,1024,6016,128,128,,
+hollow_core_shard,Hollow Core Shard,Trade Good,Trade good,20,trade.raid.morwenna,generated raid unique 2026-10-05,,479,47,9,1152,6016,128,128,,
+anchor_core_shard,Anchor Core Shard,Trade Good,Trade good,20,trade.raid.grimjaw,generated raid unique 2026-10-05,,480,48,0,0,6144,128,128,,
+glacial_core_shard,Glacial Core Shard,Trade Good,Trade good,20,trade.raid.skarth,generated raid unique 2026-10-05,,481,48,1,128,6144,128,128,,

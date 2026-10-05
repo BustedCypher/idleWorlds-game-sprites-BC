@@ -33,6 +33,9 @@ tools/
 tests/
 docs/
 requirements-dev.txt
+output/
+outputs/
+tmp/
 
 # ── Source art kept in-repo for rebuilds, not loaded by any page ─────────
 # ~260 MB between them. Nothing in any shipped HTML references either path

@@ -22,6 +22,14 @@ Safety: tools/atomic_write.py is the only sanctioned way to overwrite a file
 Add art: python tools/import_construction_icons.py <art-pack-dir>
          (folds supplied per-item PNGs into item_icons_atlas.png and the two
           CSVs; idempotent. The art pack lives outside this repo.)
+Raid art: assets/raids/<raid>/index.json indexes seven icons per raid.
+          raid_artwork_manifest.json records all 35 names, IDs, prompts,
+          hashes, source paths and atlas coordinates. Each standalone sprite
+          is transparent 128 px, with up to 120 px of artwork for a larger
+          raid-unique silhouette. Full-size originals and the preview sheet
+          are kept locally under output/raid-artwork/ and output/.
+          python tools/import_raid_icons.py updates the legacy atlas sources;
+          python tools/sync_gear_manifest_csv.py synchronises the gear CSV.
 Build: python tools/build_icon_chunks.py
        Then re-pin manifestUrl in index.html to the hash it prints — the
        rebuild renames every chunk.
