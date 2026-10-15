@@ -9,7 +9,20 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v6.3</title>
+<title>IdleWorlds Toolkit v6.3.1</title>
+<!-- v6.3.1 Hollow Night went live a week early (2026-10-15; game patch
+     0.2.0+2026-10-15.20, "runs until the end of October 31 (Toronto time)"):
+     • The theme's START is now 2026-10-15 (was 10-24). The gate is otherwise
+       unchanged: on once BOTH clocks reach the start, off on Nov 1 as soon as
+       EITHER does. Banner copy updated (Lantern, candy shop to Nov 3).
+     • The Hollow Scroll planner is switched OFF (SCROLL_PLANNER_ENABLED),
+       together with the banner's "Plan your scrolls" link. Patches
+       10-15.11/.13 tied scrolls to a RANDOM skill and gave them a new,
+       unpublished level-scaled formula, so the planner's "5% of your level,
+       your choice of skill" model is wrong. The in-game tooltip shows the
+       exact XP at your level; a few readings would let it be refitted.
+-->
+
 <!-- v6.3 Hollow Night (2026-10-15; game patch 0.2.0+2026-10-15.5):
      • Event dress on EVERY page from 2026-10-24 through 10-31: ghosts
        drifting over the whole toolkit (one fixed, click-through layer),
@@ -9689,7 +9702,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.3</span>
+  <span data-ui=ver-pill class="ver-pill">v6.3.1</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- HOLLOW NIGHT (v6.3): the viewer's on/off switch for the event theme.
        Shown only while the theme is in season (Oct 24–31); the choice is
@@ -9814,8 +9827,9 @@
       </div>
       <div data-ui=hollow-copy class="iw-hollow-copy">
         <div data-ui=hollow-title class="iw-hollow-title">Hollow Night</div>
-        <div data-ui=hollow-sub class="iw-hollow-sub">Oct 24–31. Knock on up to 12 doors a day for Hollow Candy and 📜 Hollow Scrolls.
-          Each server door goal (500 / 1,200 / 2,000 / 3,000) gives everyone +6h Server XP Boost.</div>
+        <div data-ui=hollow-sub class="iw-hollow-sub">Live now, until the end of Oct 31 (Toronto time). Knock on 12 doors a day for Hollow Candy,
+          📜 Hollow Scrolls, gold, caches, gear and the rare 🏮 Hollow Lantern. Each server door goal (500 / 1,200 / 2,000 / 3,000)
+          gives everyone +6h Server XP Boost. The candy shop stays open until Nov 3.</div>
       </div>
       <a data-ui=hollow-jump class="iw-hollow-jump" href="#panel-hollow-scrolls">Plan your scrolls →</a>
     </div>
@@ -35778,10 +35792,11 @@ function syncCombatLevel(val) {
    treating yields Hollow Candy and 📜 Hollow Scrolls: "XP in a skill you
    pick, 5% of your current level".
 
-   THE GATE. Nothing shows before 2026-10-24. "The 24th" must be true in
+   THE GATE. Nothing shows before START (2026-10-15 since the event went
+   live a week early; it was 10-24). The start date must be true in
    BOTH the viewer's local calendar AND game time (America/New_York), so it
-   never appears early for anyone: in Australia it is 24 Oct local hours
-   before ET gets there, and on the US west coast ET gets there first.
+   never appears early for anyone: in Australia the local date gets there
+   hours before ET does, and on the US west coast ET gets there first.
      • started  (on and after the 24th): reveals the Hollow Scroll planner
        and keeps it. Scrolls are inventory items, so they outlive the event.
      • themed   (24th through the 31st): the banner, the html
@@ -35809,7 +35824,18 @@ function syncCombatLevel(val) {
    ═══════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  var START = '2026-10-24', END = '2026-10-31', GAME_TZ = 'America/New_York';
+  // START moved 10-24 → 10-15: game patch 0.2.0+2026-10-15.20, "Hollow Night
+  // has begun, a week early. It runs until the end of October 31 (Toronto
+  // time)". Toronto time is America/New_York, the GAME_TZ already used.
+  var START = '2026-10-15', END = '2026-10-31', GAME_TZ = 'America/New_York';
+  // The Hollow Scroll planner stays hidden even while the event runs. Its
+  // model ("5% of your current level, in a skill you pick") came from the
+  // 10-15.5 announcement. Patches 10-15.11/.13 then changed scrolls: they
+  // drop tied to a RANDOM skill and use a new, unpublished level-scaled
+  // formula. Re-enable only once that formula is known (the in-game
+  // tooltip shows the exact XP at your level, so a few readings would fit it).
+  var SCROLL_PLANNER_ENABLED = false;
+  window.iwHollowScrollPlannerEnabled = SCROLL_PLANNER_ENABLED;
   var preview = null;
 
   function ymdIn(date, tz){
@@ -35986,7 +36012,9 @@ function syncCombatLevel(val) {
     state = state || window.iwHollowNightState();
     state.off = userOff();
     var dressed = state.themed && !state.off;
-    show(document.getElementById('panel-hollow-scrolls'), state.started);
+    show(document.getElementById('panel-hollow-scrolls'), state.started && SCROLL_PLANNER_ENABLED);
+    var jumpLink = document.querySelector('.iw-hollow-jump');
+    if (jumpLink) show(jumpLink, SCROLL_PLANNER_ENABLED);
     show(document.getElementById('iw-hollow-banner'), dressed);
     paintToggle(state);
     if (dressed) {
@@ -36429,13 +36457,14 @@ function syncCombatLevel(val) {
       if(actual !== expected) fail.push(label + ': got ' + String(actual) + ', expected ' + String(expected));
     }
     try {
-      // ── Gate: on and after the 24th on BOTH clocks; dress off on Nov 1 as
+      // ── Gate: on and after START (10-15, the early launch) on BOTH clocks; dress off on Nov 1 as
       // soon as EITHER clock reaches it.
       var G = window.iwHollowNightGate;
-      [['2026-10-23','2026-10-23',false,false,'the 23rd everywhere'],
-       ['2026-10-24','2026-10-23',false,false,'local 24th, game still 23rd (Australia)'],
-       ['2026-10-23','2026-10-24',false,false,'game 24th, local still 23rd (US west)'],
-       ['2026-10-24','2026-10-24',true,true,'the 24th everywhere'],
+      [['2026-10-14','2026-10-14',false,false,'the 14th everywhere'],
+       ['2026-10-15','2026-10-14',false,false,'local 15th, game still 14th (Australia)'],
+       ['2026-10-14','2026-10-15',false,false,'game 15th, local still 14th (US west)'],
+       ['2026-10-15','2026-10-15',true,true,'launch day everywhere'],
+       ['2026-10-24','2026-10-24',true,true,'the 24th (the old start)'],
        ['2026-10-31','2026-10-31',true,true,'the 31st'],
        ['2026-11-01','2026-10-31',true,false,'local Nov 1, game still 31st (Australia): off'],
        ['2026-10-31','2026-11-01',true,false,'game Nov 1, local still 31st (US west): off'],
@@ -36445,10 +36474,10 @@ function syncCombatLevel(val) {
         eq('gate ' + c[4] + ': started', g.started, c[2]);
         eq('gate ' + c[4] + ': themed', g.themed, c[3]);
       });
-      eq('game clock: 03:59Z on the 24th is still the 23rd in ET',
-         iwHollowNightGameDate(new Date('2026-10-24T03:59:00Z')), '2026-10-23');
-      eq('game clock: 04:00Z on the 24th is the 24th in ET',
-         iwHollowNightGameDate(new Date('2026-10-24T04:00:00Z')), '2026-10-24');
+      eq('game clock: 03:59Z on the 15th is still the 14th in ET',
+         iwHollowNightGameDate(new Date('2026-10-15T03:59:00Z')), '2026-10-14');
+      eq('game clock: 04:00Z on the 15th is the 15th in ET',
+         iwHollowNightGameDate(new Date('2026-10-15T04:00:00Z')), '2026-10-15');
       // No early unhide anywhere any more, staging included (v6.3 release).
       ok('no staging early-unhide', typeof window.iwHollowNightStaging === 'undefined');
       ok('today’s state is the real gate’s', (function(){
@@ -36467,14 +36496,18 @@ function syncCombatLevel(val) {
       }
       iwHollowNightApply({started:false, themed:false}, true);
       var s0 = snapshot();
-      ok('before the 24th: planner hidden', !s0.planner);
-      ok('before the 24th: banner hidden', !s0.banner);
-      ok('before the 24th: no event flag', !s0.flag);
-      eq('before the 24th: decorations', s0.deco, 0);
-      ok('before the 24th: no theme button', !seen(document.getElementById('iw-hollow-toggle')));
+      ok('before the start: planner hidden', !s0.planner);
+      ok('before the start: banner hidden', !s0.banner);
+      ok('before the start: no event flag', !s0.flag);
+      eq('before the start: decorations', s0.deco, 0);
+      ok('before the start: no theme button', !seen(document.getElementById('iw-hollow-toggle')));
       iwHollowNightApply({started:true, themed:true}, true);
       var s1 = snapshot();
-      ok('event week: planner shown', s1.planner);
+      // The planner follows its own switch (off until the new scroll formula
+      // is known; see SCROLL_PLANNER_ENABLED).
+      var planOn = !!window.iwHollowScrollPlannerEnabled;
+      eq('event week: planner follows its switch', s1.planner, planOn);
+      eq('event week: "Plan your scrolls" link follows it too', seen(document.querySelector('.iw-hollow-jump')), planOn);
       ok('event week: banner shown', s1.banner);
       ok('event week: event flag set', s1.flag);
       ok('event week: decorations injected (' + s1.deco + ')', s1.deco >= 3);
@@ -36502,7 +36535,7 @@ function syncCombatLevel(val) {
       ok('switched off: no event flag', !sOff.flag);
       eq('switched off: decorations removed', sOff.deco, 0);
       ok('switched off: banner hidden', !sOff.banner);
-      ok('switched off: planner still shown', sOff.planner);
+      eq('switched off: planner unaffected by the theme switch', sOff.planner, planOn);
       ok('switched off: the button stays so it can be turned back on', seen(toggle));
       eq('switched off: button reads off', toggle && toggle.getAttribute('aria-pressed'), 'false');
       try { localStorage.removeItem(key); } catch(e){}
@@ -36512,7 +36545,7 @@ function syncCombatLevel(val) {
       try { if (savedOff === null) localStorage.removeItem(key); else localStorage.setItem(key, savedOff); } catch(e){}
       iwHollowNightApply({started:true, themed:false}, true);
       var s2 = snapshot();
-      ok('after the event: planner still shown', s2.planner);
+      eq('after the event: planner follows its switch', s2.planner, planOn);
       ok('after the event: banner hidden', !s2.banner && !s2.flag);
       eq('after the event: decorations removed', s2.deco, 0);
       ok('after the event: no theme button', !seen(document.getElementById('iw-hollow-toggle')));
