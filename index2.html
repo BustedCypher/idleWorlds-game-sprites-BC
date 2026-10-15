@@ -6,7 +6,9 @@
 <!-- STAGING COPY. index2.html is where a new patch is tested live before it
      is promoted to index.html. Nothing links here; noindex keeps search
      engines off it. Promote by copying it over index.html and removing
-     this comment and the robots tag. -->
+     this comment and the robots tag. Path-keyed staging behaviour (e.g.
+     Hollow Night shown early: iwHollowNightStaging) switches itself off
+     under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
 <title>IdleWorlds Toolkit v6.3</title>
 <!-- v6.3 Hollow Night (2026-10-15; game patch 0.2.0+2026-10-15.5):
@@ -35606,6 +35608,14 @@ function syncCombatLevel(val) {
   'use strict';
   var START = '2026-10-24', END = '2026-10-31', GAME_TZ = 'America/New_York';
   var preview = null;
+  // STAGING: on index2.html (the noindex staging copy) Hollow Night shows
+  // BEFORE the 24th, so it can be tested on the live deploy. It is keyed on
+  // the path, so index.html always waits for the real date, and copying
+  // index2 over index on promotion cannot leak it. It still ends with the
+  // event, like the real gate.
+  // Cloudflare static assets serve it as /index2 (".html" dropped) as well.
+  var STAGING = /\/index2(\.html)?\/?$/i.test(location.pathname);
+  window.iwHollowNightStaging = STAGING;
 
   function ymdIn(date, tz){
     var p = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' })
@@ -35629,7 +35639,9 @@ function syncCombatLevel(val) {
     now = now || new Date();
     var dates = { local: localYmd(now), game: ymdIn(now, GAME_TZ) };
     var g = (preview === null) ? gate(dates.local, dates.game) : { started: preview, themed: preview };
-    return { started: g.started, themed: g.themed, preview: preview !== null, dates: dates };
+    if (preview === null && STAGING && !g.started)
+      g = { started: true, themed: dates.local <= END || dates.game <= END };
+    return { started: g.started, themed: g.themed, preview: preview !== null, staging: STAGING, dates: dates };
   };
 
   // ── Decorations ────────────────────────────────────────────────
@@ -36095,6 +36107,9 @@ function syncCombatLevel(val) {
          iwHollowNightGameDate(new Date('2026-10-24T03:59:00Z')), '2026-10-23');
       eq('game clock: 04:00Z on the 24th is the 24th in ET',
          iwHollowNightGameDate(new Date('2026-10-24T04:00:00Z')), '2026-10-24');
+      // The early unhide belongs to the staging copy alone.
+      eq('staging early-unhide only on index2.html', window.iwHollowNightStaging,
+         /\/index2(\.html)?\/?$/i.test(location.pathname));
 
       // ── What each state shows.
       var planner = document.getElementById('panel-hollow-scrolls');
