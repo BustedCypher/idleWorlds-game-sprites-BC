@@ -6,6 +6,8 @@ Runtime files:
   assets/icons/v2/icon-manifest.<hash>.json
   assets/icons/v2/*.png
   assets/raids/<raid>/atlas.<hash>.png
+  assets/raidforged/<set>/atlas.<hash>.png
+  assets/item-expansions/october-items/atlas.<hash>.png
 
 The legacy atlases remain deterministic build and rollback sources, but the
 browser now fetches the compact manifest and only the gear-slot or item-category
@@ -36,6 +38,13 @@ Raid art: assets/raids/<raid>/index.json indexes seven icons per raid.
 Build: python tools/build_icon_chunks.py
        Then re-pin manifestUrl in index.html to the hash it prints — the
        rebuild renames every chunk.
+October art: raidforged_artwork_manifest.json records the 28 Raidforged icons
+             and four additional items. Each set has its own seven-cell atlas
+             and index.json under assets/raidforged/<set>/. The four additional
+             items have a separate four-cell atlas and index.json under
+             assets/item-expansions/october-items/. Shared atlases and the
+             original raid atlases are not modified.
+             python tools/import_raidforged_icons.py rebuilds these five sheets.
 Validate: python tools/verify_icon_migration.py
           python -m unittest discover -s tests
           node --test tests/icon-sprites-v2.test.js

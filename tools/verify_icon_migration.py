@@ -7,9 +7,8 @@ def norm(v):
  s=unicodedata.normalize('NFKD',str(v or '').strip());s=''.join(c for c in s if not unicodedata.combining(c));s=re.sub("[\u2018\u2019\u02bc`\u00b4]","'",s).replace('&',' and ').replace("'",'');s=re.sub(r'\blv\.\s*','lv ',s,flags=re.I);return re.sub(r'[^a-z0-9]+',' ',s,flags=re.I).strip().lower()
 # Items the atlas deliberately does not cover yet. Every other non-equipment
 # record must resolve to a cell, so a NEW uncovered item still fails this gate.
-# premium_token (Premium Membership Token) arrived with the v5.4 payload
-# refresh and no artwork was supplied for it.
-ITEM_ICON_GAPS={'premium_token'}
+# October expansion art also covers the formerly missing Premium Token.
+ITEM_ICON_GAPS=set()
 def section(s,a,b):
  x=s.find(a);y=s.find(b,x+len(a)) if x>=0 else -1;return s[x:y] if x>=0 and y>=0 else ''
 def verify(root:Path):
@@ -54,7 +53,7 @@ def verify(root:Path):
  checks={'external_loader':'assets/icon-sprites-v2.js' in h,'no_legacy_requests':'gear_icons_atlas.png?v=' not in h and 'item_icons_atlas.png?v=' not in h and 'raw.githubusercontent.com/BustedCypher/idleWorlds-game-sprites-BC/main/' not in h,'gear_tip_markup':'IW_GEAR_SPRITES.markup(item.name' in render,'item_tip_markup':'IW_ITEM_SPRITES.markup(item.id' in render,'gear_tip_hydrate':'IW_GEAR_SPRITES.hydrate(el)' in tip,'item_tip_hydrate':'IW_ITEM_SPRITES.hydrate(el)' in tip,'mannequin_mount':'IW_GEAR_SPRITES.mount' in man,'mannequin_tip':'IW_GEAR_SPRITES.hydrate(head)' in mantip,'ready_css':'.iw-gear-sprite-host[data-iw-sprite-state="ready"] .iw-gear-sprite-base' in h and '.iw-item-sprite-host[data-iw-item-sprite-state="ready"] .iw-item-sprite-base' in h,'serialized_ready_absent':not re.search(r'<(?:span|div)\b[^>]*(?:data-iw-sprite-state|data-iw-item-sprite-state)="ready"',h,re.I)}
  unhashed=[x.name for x in mp.parent.glob('*.png') if not re.search(r'\.[0-9a-f]{12}\.png$',x.name)]
  unexpected=[x for x in im if x not in ITEM_ICON_GAPS]
- ok=len(items)==4501 and len(gear)==3226 and len(other)==1275 and len(a['gear_records'])==1190 and len(a['item_cells'])==482 and ups=={'1':510,'2':510,'3':510,'4':510} and len(m['chunks'])==22 and not(gm or unexpected or static or errors or mismatches or unhashed) and all(checks.values())
+ ok=len(items)==4532 and len(gear)==3254 and len(other)==1278 and len(a['gear_records'])==1218 and len(a['item_cells'])==486 and ups=={'1':510,'2':510,'3':510,'4':510} and len(m['chunks'])==27 and not(gm or unexpected or static or errors or mismatches or unhashed) and all(checks.values())
  return {'status':'ok' if ok else 'failed','items':len(items),'gear':len(gear),'other':len(other),'gear_cells':len(a['gear_records']),'item_cells':len(a['item_cells']),'upgrades':ups,'chunks':len(m['chunks']),'gear_missing':gm,'item_missing':im,'item_missing_unexpected':unexpected,'static_missing':static,'chunk_errors':errors,'pixel_mismatches':mismatches,'unhashed':unhashed,'checks':checks}
 if __name__=='__main__':
  import sys;result=verify(Path(__file__).resolve().parents[1]);print(json.dumps(result,indent=2,sort_keys=True));raise SystemExit(0 if result['status']=='ok' else 1)

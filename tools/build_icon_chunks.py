@@ -96,15 +96,17 @@ def build_icon_chunks(repo_root:Path)->Path:
             for r in records:
                 r['chunk']=ck; runtime['items']['cells'][r['cell_key']]=[ck,r['x'],r['y']]; audit['item_cells'].append(r)
     for r in index: runtime['items']['icons'][r['item_id']]=cell_keys[int(r['index'])]
-    raid_manifest = root/'raid_artwork_manifest.json'
-    if raid_manifest.exists():
+    for manifest_name in ['raid_artwork_manifest.json', 'raidforged_artwork_manifest.json']:
+        raid_manifest = root/manifest_name
+        if not raid_manifest.exists():
+            continue
         raids = json.loads(raid_manifest.read_text(encoding='utf-8'))
         for raid, meta in raids['atlases'].items():
-            ck = 'raid:'+raid
+            ck = raid if ':' in raid else 'raid:'+raid
             runtime['chunks'][ck] = dict(meta, path='../../'+meta['path'].removeprefix('assets/'))
             audit['source'][ck] = dict(meta)
         for entry in raids['items']:
-            ck = 'raid:'+entry['raid']
+            ck = entry['atlas']
             image = Image.open(root/entry['path']).convert('RGBA')
             record = dict(name=entry['name'], source_index=entry['index'], source_x=entry['x'], source_y=entry['y'], x=entry['x'], y=entry['y'], chunk=ck, source_path=entry['atlas_path'], sha256_rgba=hashlib.sha256(image.tobytes()).hexdigest())
             image.close()
