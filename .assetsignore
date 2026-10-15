@@ -68,8 +68,10 @@ iw-quests-capture.json
 #     them, fetches from raw.githubusercontent.com/BustedCypher/
 #     idleWorlds-game-sprites-BC/main/ — GitHub, not this origin. Excluding
 #     them here cannot break it.
-#   • Skillsim/index.html references neither. (index2.html did, and was
-#     retired 2026-09-06.)
+#   • Skillsim/index.html references neither. The OLD index2.html did,
+#     and was retired 2026-09-06. Since 2026-10-15 index2.html is the
+#     staging copy of index.html, so like index.html it loads only the
+#     hashed v2 chunks.
 #
 # This also retires the 24.5 MB vs 25 MiB per-file cliff that gear_icons_
 # atlas.png was sitting half a megabyte under. Keep it retired: if a page
@@ -86,3 +88,9 @@ construction_icon_manifest.json
 # Standalone raid rebuild sources; serve only the small hashed raid atlases.
 assets/raids/*/*.png
 !assets/raids/*/atlas.*.png
+
+# New Raidforged and October sources also use their own small runtime atlases.
+assets/raidforged/*/*.png
+!assets/raidforged/*/atlas.*.png
+assets/item-expansions/*/*.png
+!assets/item-expansions/*/atlas.*.png

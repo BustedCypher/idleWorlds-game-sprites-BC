@@ -9580,6 +9580,19 @@
     .iw-hollow-toggle-label { display: none; }
   }
 
+  /* Potion picker (v6.3): the Super box beside the tier list. Not Hollow
+     Night; it just lives in this late block. */
+  /* The chip is taken out of flow so the label row keeps a plain label's
+     height and the select lines up with its neighbours' inputs. */
+  .potion-label-row { position: relative; display: block !important; }
+  .potion-label-row > .potion-super { position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
+  .potion-super { padding: 2px 9px; border: 1px solid var(--ash-line-hi); border-radius: var(--ash-r-control, 2px);
+    background: var(--ash-plate, #0B0C0E); color: var(--ash-text); font-size: 11.5px; font-weight: 650;
+    letter-spacing: .06em; text-transform: uppercase; }
+  .potion-super input { margin: 0; }
+  .potion-super:has(input:checked) { border-color: var(--ash-hairline); color: var(--ash-accent); box-shadow: 0 0 10px -4px rgba(212,173,99,.6); }
+  .potion-super.is-disabled { opacity: .45; cursor: not-allowed; }
+
   /* The planner itself: styled whether or not the event dress is on. */
   .iw-hollow-planner .grid { margin-top: 10px; }
   .iw-hollow-fill { margin-top: 10px; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; }
@@ -11191,11 +11204,23 @@
               <span data-ui=field-helper class="field-helper">From in-game Character Stats.</span>
             </div>
             <div data-ui=field class="field">
-              <label for="potion-tier">Potion</label>
+              <!-- v6.3: one entry per tier; Super is its own box, so a normal
+                   and a Super pick can never look alike. #potion-helper names
+                   the potion actually applied. See iwPotionSelection(). The
+                   box sits on the label line so the select keeps full width
+                   (beside it, the tier name was cut off). -->
+              <div data-ui=potion-label-row class="potion-label-row" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <label for="potion-tier">Potion</label>
+                <label class="potion-super" for="potion-super" title="Tick for a Super XP Potion (double the XP/task)"
+                       style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;margin:0">
+                  <input type="checkbox" id="potion-super" disabled>
+                  <span data-ui=potion-super-label>Super</span>
+                </label>
+              </div>
               <select id="potion-tier">
                 <option value="0" selected>None</option>
               </select>
-              <span data-ui=field-helper class="field-helper">Choose a normal or Super XP potion. Adds flat XP per action.</span>
+              <span data-ui=field-helper class="field-helper" id="potion-helper">Pick the tier, then tick Super if it is a Super XP Potion. Adds flat XP per action.</span>
             </div>
             <div data-ui=field class="field">
               <label for="zc-leaderboard">ZC Leaderboard Rank</label>
@@ -15500,10 +15525,15 @@ function syncCheckbox(rowId, inputId) {
 });
 
 // Numeric / select inputs that affect the calculation
-['xp-per-task','potion-tier','housing-tier','zc-leaderboard','achievement-xp','skill-boost-skill'].forEach(id => {
+['xp-per-task','potion-tier','potion-super','housing-tier','zc-leaderboard','achievement-xp','skill-boost-skill'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', calculate);
   if (el) el.addEventListener('change', calculate);
+});
+// The potion helper line names the potion actually applied (v6.3).
+['potion-tier','potion-super'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', iwRefreshPotionUi);
 });
 
 // Achievements: repaint the "Your bonuses" row and helper on every change,
@@ -15613,49 +15643,124 @@ function potionFlatForTier(tier) {
 }
 
 /** getPotionFlat() — current flat bonus from the Potion dropdown. */
-function getPotionFlat() {
+// ── Potion picker (v6.3): ONE entry per tier + a separate "Super" box ─────
+// Normal and Super used to be two 34-row lists in one dropdown, and the two
+// looked identical once picked ("T18 – Kingssteel"). Picking the normal one
+// while drinking the Super one silently halved the potion's flat XP; that is
+// exactly how a live check came out 18 XP/task short. Now the select holds
+// the tier ("normal:T"), #potion-super doubles it, and #potion-helper spells
+// out the potion actually applied, so a wrong pick is visible.
+// The internal selection strings are unchanged (potionFlatForSelection
+// still takes "normal:T" / "super:T" / "item:<id>"); only the UI changed.
+function iwPotionSelection() {
   const sel = document.getElementById('potion-tier');
-  return sel ? potionFlatForSelection(sel.value) : 0;
+  const sup = document.getElementById('potion-super');
+  const v = sel ? String(sel.value || '0') : '0';
+  if (sup && sup.checked && v.indexOf('normal:') === 0) return 'super:' + v.slice(7);
+  return v;
 }
+function getPotionFlat() {
+  return potionFlatForSelection(iwPotionSelection());
+}
+/** Repaint the Super box's enabled state and the plain-words helper line. */
+function iwRefreshPotionUi() {
+  const sel = document.getElementById('potion-tier');
+  const sup = document.getElementById('potion-super');
+  const help = document.getElementById('potion-helper');
+  if (!sel) return;
+  const tiered = String(sel.value || '').indexOf('normal:') === 0;
+  if (sup) {
+    sup.disabled = !tiered;
+    const wrap = sup.closest('.potion-super');
+    if (wrap) wrap.classList.toggle('is-disabled', !tiered);
+  }
+  if (!help) return;
+  const s = iwPotionSelection();
+  if (s === '0' || !s) {
+    help.textContent = 'Pick the tier, then tick Super if it is a Super XP Potion. Adds flat XP per action.';
+    return;
+  }
+  const flat = potionFlatForSelection(s);
+  let name;
+  if (s.indexOf('item:') === 0) {
+    const it = iwOtherXpPotion(s.slice(5));
+    name = it ? it.name : 'XP Potion';
+  } else {
+    const t = parseInt(s.split(':')[1], 10);
+    name = (s.indexOf('super:') === 0 ? 'Super ' : '') + TIER_NAMES[t] + ' XP Potion';
+  }
+  help.textContent = 'Applying ' + name + ': +' + flat + ' XP/task. Check it matches your in-game Active Buffs.';
+}
+/**
+ * One-time migration of a saved potion choice from the old two-list picker.
+ * A saved "super:T" (or a bare legacy "T") has no option any more, and
+ * IWStore restores by setting the select's value, so it would silently fall
+ * back to None. Rewrites the saved controls to "normal:T" + Super ticked.
+ * Pure on the object passed in; returns true when it changed anything.
+ */
+function iwMigratePotionControls(controls) {
+  if (!controls || !controls['potion-tier']) return false;
+  const v = String(controls['potion-tier'].v == null ? '' : controls['potion-tier'].v);
+  let m = /^super:(\d+)$/.exec(v);
+  if (m) {
+    controls['potion-tier'].v = 'normal:' + m[1];
+    controls['potion-super'] = { c: true };
+    return true;
+  }
+  m = /^(\d+)$/.exec(v);
+  if (m && v !== '0') {
+    controls['potion-tier'].v = 'normal:' + m[1];
+    controls['potion-super'] = { c: false };
+    return true;
+  }
+  return false;
+}
+// Runs here, while the engine script evaluates: before the IWStore script
+// further down the file has restored anything.
+(function migrateSavedPotion() {
+  try {
+    const raw = localStorage.getItem('iw_state_v2');
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (state && iwMigratePotionControls(state.controls))
+      localStorage.setItem('iw_state_v2', JSON.stringify(state));
+  } catch (e) {}
+})();
 
 /**
- * Builds both normal and Super XP potion options from items.json semantics.
- * The option value stores family + tier, preventing normal and Super potions
- * from colliding at the same numeric tier.
+ * Builds the tier list (one entry per tier; Super is the #potion-super box)
+ * plus one-off potions, from items.json semantics.
  */
 function populateFlatBonusDropdowns() {
   const potionSel = document.getElementById('potion-tier');
   if (potionSel) {
     // Preserve the current selection when the item DB finishes loading and
-    // this function runs again. Legacy numeric values migrate to normal:tier.
+    // this function runs again. Legacy values migrate: "T" → normal:T, and
+    // "super:T" → normal:T with the Super box ticked.
     const previousRaw = String(potionSel.value || '0');
-    const previous = /^\d+$/.test(previousRaw) && previousRaw !== '0'
+    let previous = /^\d+$/.test(previousRaw) && previousRaw !== '0'
       ? `normal:${previousRaw}`
       : previousRaw;
+    const legacySuper = /^super:(\d+)$/.exec(previous);
+    if (legacySuper) {
+      previous = `normal:${legacySuper[1]}`;
+      const sup = document.getElementById('potion-super');
+      if (sup) sup.checked = true;
+    }
 
     potionSel.replaceChildren();
     potionSel.appendChild(new Option('None', '0'));
 
     const normalGroup = document.createElement('optgroup');
-    normalGroup.label = 'XP Potions';
-    const superGroup = document.createElement('optgroup');
-    superGroup.label = 'Super XP Potions';
+    normalGroup.label = 'XP Potions (tick Super for a Super potion)';
 
+    // Short labels on purpose: the select shares its row with the Super box,
+    // and a longer label was cut off mid-name. #potion-helper gives the XP.
     for (let t = 1; t <= 34; t++) {
-      const normalFlat = potionFlatForSelection(`normal:${t}`);
-      const superFlat = potionFlatForSelection(`super:${t}`);
-
-      normalGroup.appendChild(new Option(
-        `T${t} – ${TIER_NAMES[t]} (+${normalFlat} XP/task)`,
-        `normal:${t}`
-      ));
-      superGroup.appendChild(new Option(
-        `T${t} – ${TIER_NAMES[t]} (+${superFlat} XP/task)`,
-        `super:${t}`
-      ));
+      normalGroup.appendChild(new Option(`T${t} ${TIER_NAMES[t]}`, `normal:${t}`));
     }
 
-    potionSel.append(normalGroup, superGroup);
+    potionSel.append(normalGroup);
 
     const others = iwOtherXpPotions();
     if (others.length) {
@@ -15668,6 +15773,7 @@ function populateFlatBonusDropdowns() {
     potionSel.value = Array.from(potionSel.options).some(o => o.value === previous)
       ? previous
       : '0';
+    iwRefreshPotionUi();
   }
 
   const houseSel = document.getElementById('housing-tier');
@@ -19807,7 +19913,7 @@ function iwReadEquippedSet(){
    compact atlas chunk is fetched and decoded once, on first use.
    ═══════════════════════════════════════════════════════════════ */
 var IW_ICON_SPRITES = window.IWIconSpritesV2.install(window, {
-  manifestUrl: './assets/icons/v2/icon-manifest.3ae5c8de8a0f.json'
+  manifestUrl: './assets/icons/v2/icon-manifest.341f7faaed60.json'
 });
 var IW_GEAR_SPRITES = window.IW_GEAR_SPRITES;
 var IW_ITEM_SPRITES = window.IW_ITEM_SPRITES;
@@ -19825,15 +19931,17 @@ var IW_ITEM_SPRITES = window.IW_ITEM_SPRITES;
    Console:   iwItemsNeedingArt().then(console.table)
    Settings:  Developer → "Items needing art" (table + Copy CSV)
 
-   As of the 2026-10-15 items.json this is 32 items: the 28 Raidforged
-   pieces, Welcome-Back XP Potion, Hollow Candy, Hollow Scroll, and
-   Premium Token (missing since before v6.2).
+   The 32 previously missing October items now have art: 28 Raidforged
+   pieces plus Welcome-Back XP Potion, Hollow Candy, Hollow Scroll and
+   Premium Membership Token. Each Raidforged set has its own atlas and
+   index under assets/raidforged/; the four other items share a separate
+   atlas under assets/item-expansions/october-items/. Provenance and
+   generation prompts are in raidforged_artwork_manifest.json.
 
-   Adding the art (CLAUDE.md "Adding new art"): paint 128 px cells
-   (64 px logical at 2×) into gear_icons_atlas.png or item_icons_atlas.png,
-   add the CSV/manifest rows, run tools/build_icon_chunks.py, and re-pin
-   manifestUrl above to the hash it prints. An un-repinned page 404s the
-   manifest and EVERY icon falls back to its emoji.
+   Rebuild these five atlases with tools/import_raidforged_icons.py, then
+   tools/build_icon_chunks.py, and re-pin manifestUrl above to its hash.
+   Shared gear/item source atlases and the original raid sheets are
+   untouched. This live check will list any future item without artwork.
    ═══════════════════════════════════════════════════════════════ */
 function iwArtBrief(item){
   var forged = (typeof iwRaidforgedSetForName === 'function') ? iwRaidforgedSetForName(item.name) : null;
@@ -36278,6 +36386,34 @@ function syncCombatLevel(val) {
       ok('Welcome-Back XP Potion is listed', iwOtherXpPotions().some(function(i){ return i.id === 'welcome_back_xp_potion'; }));
       eq('Welcome-Back XP Potion flat', potionFlatForSelection('item:welcome_back_xp_potion'), 50);
       eq('Super Bloodstone potion read from the DB', potionFlatForSelection('super:13'), 26);
+
+      // Potion picker: one entry per tier, Super as its own box (v6.3).
+      var pSel = document.getElementById('potion-tier'), pSup = document.getElementById('potion-super');
+      if(pSel && pSup){
+        var savedSel = pSel.value, savedSup = pSup.checked;
+        try {
+          var vals = [].map.call(pSel.options, function(o){ return o.value; });
+          eq('potion list: one entry per tier', vals.filter(function(v){ return /^normal:\d+$/.test(v); }).length, 34);
+          eq('potion list: no separate Super entries', vals.filter(function(v){ return /^super:/.test(v); }).length, 0);
+          pSel.value = 'normal:18'; pSup.checked = false;
+          eq('Kingssteel, Super off', getPotionFlat(), 18);
+          pSup.checked = true;
+          eq('Kingssteel, Super on', getPotionFlat(), 36);
+          iwRefreshPotionUi();
+          ok('helper names the Super potion', /Super Kingssteel XP Potion: \+36/.test(document.getElementById('potion-helper').textContent));
+          pSel.value = '0';
+          eq('Super box ignored with no potion', getPotionFlat(), 0);
+          pSel.value = 'item:welcome_back_xp_potion';
+          eq('Super box ignored for a one-off potion', getPotionFlat(), 50);
+        } finally { pSel.value = savedSel; pSup.checked = savedSup; iwRefreshPotionUi(); }
+      } else fail.push('potion picker controls missing');
+      var mig = {'potion-tier':{v:'super:18'}};
+      ok('migration: saved super:18 becomes normal:18 + Super',
+         iwMigratePotionControls(mig) && mig['potion-tier'].v === 'normal:18' && mig['potion-super'].c === true);
+      var mig2 = {'potion-tier':{v:'13'}};
+      ok('migration: bare legacy "13" becomes normal:13',
+         iwMigratePotionControls(mig2) && mig2['potion-tier'].v === 'normal:13' && mig2['potion-super'].c === false);
+      ok('migration: normal:18 is left alone', !iwMigratePotionControls({'potion-tier':{v:'normal:18'}}));
 
       // ── Art worklist
       ok('iwItemsNeedingArt is exposed', typeof window.iwItemsNeedingArt === 'function');
