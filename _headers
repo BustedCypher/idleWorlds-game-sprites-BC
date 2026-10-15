@@ -2,6 +2,8 @@
   Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
+/index2.html
+  Cache-Control: no-cache
 /assets/icon-sprites-v2.js
   Cache-Control: no-cache
 /assets/icons/v2/*
