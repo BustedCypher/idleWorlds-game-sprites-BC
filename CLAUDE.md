@@ -10,16 +10,45 @@ reskin extension). Nothing is shared between them.
 
 ## Commits
 
-**Do not commit, push or stage anything.** Curtis batches a whole version's
-worth of work into one commit he makes himself. Edit the working tree, report
-what changed, and stop there. Offering is fine; doing it is not.
+**Do not commit, push or stage anything unprompted.** Edit the working tree,
+report what changed, and stop there. Offering is fine; doing it is not. Push
+only on an explicit ask in that message; a past approval never carries over.
+
+**Before every push, ask: `index.html` or `index2.html`?** Unless the message
+already names one. Since 2026-10-15 a new patch goes live first as the
+staging copy, `index2.html`, so Curtis can test it on the real deploy
+(same-origin `items.json` and profile import only work there) before players
+get it.
+
+- **Staging push.** `index2.html` must be exactly `index.html` plus a staging
+  header: the STAGING COPY comment and `<meta name="robots"
+  content="noindex, nofollow">`, after the viewport meta. Rebuild it from
+  `index.html` each time, never hand-edit it, and prove it with
+  `diff <(sed '6,11d' index2.html) index.html`. Commit `index2.html` only;
+  `index.html` and any test pins that follow it stay uncommitted, so the
+  public page is untouched. Nothing links to index2, but it is public to
+  anyone with the URL.
+- **Staging-only behaviour** goes in `index.html`, keyed on the path:
+  `/\/index2(\.html)?\/?$/i` (Cloudflare also serves it as `/index2`). Then
+  it is inert at `/index.html`, and promoting index2 by a straight copy
+  cannot leak it. Example (removed at the v6.3 release): `iwHollowNightStaging`
+  showed Hollow Night before 2026-10-24 on staging only. Take such switches
+  out before promoting, as that one was.
+- **Promotion** copies `index2.html` over `index.html`, removes the staging
+  header from the copy, and commits it together with its test pins.
+- **Every push**, either file: first refresh the clean backup clone
+  (`Desktop/idleWorlds-game-sprites-BC-CLEAN-BACKUP`). Clone the new one,
+  verify it is clean, at `origin/main` and without the work being pushed,
+  then delete the stale one and rename. After that: the parse gate, the
+  `ver-pill` check (it must match `<title>`), commit, push, and confirm
+  local == remote.
 
 ## Running it
 
 Open `index.html` in a browser. There is nothing to install and nothing to
 build. Verify JS still parses after an edit — this is the cheapest real gate,
-and it compiles every inline block without executing any of it (27 blocks, all
-passing as of 2026-09-22):
+and it compiles every inline block without executing any of it (28 blocks, all
+passing as of 2026-10-15). Swap in `index2.html` to gate the staging copy:
 
 ```bash
 node -e "const fs=require('fs'),vm=require('vm');const src=fs.readFileSync('index.html','utf8');let m,i=0,bad=0;const re=/<script([^>]*)>([\s\S]*?)<\/script>/gi;while((m=re.exec(src))){if(/type\s*=\s*[\"'](?!text\/javascript)/i.test(m[1]))continue;const line=src.slice(0,m.index).split('\n').length;i++;try{new vm.Script(m[2]);}catch(e){bad++;console.log('FAIL block at line '+line+': '+e.message);}}console.log(i+' blocks checked, '+bad+' failed');"
@@ -36,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Twenty regression suites ship inside the file and are the safety net for
+Twenty-two regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -60,7 +89,16 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwGearImportIntegritySelfCheck` · `iwWoodcuttingConstructionSelfCheck` (H) ·
 `iwDailyBoostSyncSelfCheck` (I) · `iwAchievementXpSelfCheck` (J) ·
 `iwXpCurveTaperSelfCheck` (K) · `iwAshenSkinSelfCheck` (L) ·
-`iwSelfCheckIsolationSelfCheck` (M) · `iwRaidGearSelfCheck` (N).
+`iwSelfCheckIsolationSelfCheck` (M) · `iwRaidGearSelfCheck` (N) ·
+`iwOctober2026PatchSelfCheck` (O) · `iwHollowNightSelfCheck` (P).
+
+Suite O pins the fitted upgrade-share formulas against **every** +N row the
+embedded data prints, and pins the row counts (1,148 Smithing / 920
+Tailoring) so an empty comparison cannot pass. Suite P drives the Hollow Night
+gate through `iwHollowNightApply(state, quiet)` and restores the real date's
+state, so it passes before, during and after the event. Its
+`iwHollowNightGate(local, game)` is pure: test dates there, not with the
+clock.
 
 A suite assertion may be **updated only by the stage that intentionally
 changes that mechanic**. Unrelated assertions must stay green.
@@ -290,7 +328,9 @@ inline on their host elements.
 `iwPlatePlanV1` · `iwEnchantPlanV1` · `iwEnhancementRemovalPlanV1` ·
 `iwReTierSettingV1` · `iwShoppingOwned` · `iwShoppingGear` ·
 `iwCollapseSkills` · `iw_gem_alltiers_v1` · `iwVisitedTool` ·
-`iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1` · `iw_skin_v1`.
+`iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1` · `iw_skin_v1` ·
+`iwHollowThemeOffV1` (v6.3: the viewer turned the Hollow Night theme off with
+the header button).
 
 Two rules govern `IWStore`: **capture is generic** (every `<input>`/`<select>`
 carrying an id is snapshotted by id, so new controls persist automatically),
@@ -315,17 +355,26 @@ Two rules:
    publishes the whole history as fetchable objects on the public site.
 
 Per-file limit is a hard **25 MiB** and is not raisable; the answer for
-anything bigger is R2. Current upload after exclusions: ~53 files, well
+anything bigger is R2. Current upload after exclusions: ~54 files, well
 inside the limits.
+
+`index2.html` (staging, see Commits) deploys like `index.html`: it is not in
+`.assetsignore`, and `_headers` gives both `Cache-Control: no-cache`, so a
+re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **v6.1, the working file**
+- `index.html` — **the working file**, v6.3 (October game patches + Hollow
+  Night), live since 2026-10-15. Hollow Night's theme shows Oct 24–31 only;
+  see the HOLLOW NIGHT script.
+- `index2.html` — **the staging copy** (since 2026-10-15): `index.html` plus a
+  noindex staging header, pushed for live testing before promotion. Never
+  hand-edit it; see Commits. The name was used before for a stale v5.2
+  near-duplicate, retired 2026-09-06, and is unrelated to this.
 - `IdleWorlds_Toolkit_v4_8.html` — v4.8 fallback build. Still fetches the
   legacy atlases, but from `raw.githubusercontent.com/…/main/`, **not** from
   the deploy origin — which is why `.assetsignore` can keep them off the
-  site without breaking it. (`index2.html`, the stale v5.2 near-duplicate,
-  was retired 2026-09-06; git history still has it.)
+  site without breaking it.
 - `gear_icons_atlas.png` + `gear_icons_manifest.json`/`.csv` — 1280×19584,
   10×153 grid, 128 px cells (64 px logical at 2×), 1146 icons, manifest v7.
   **Legacy build source only** since the 2026-09-01 icon-split — `index.html`

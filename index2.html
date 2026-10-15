@@ -6,9 +6,8 @@
 <!-- STAGING COPY. index2.html is where a new patch is tested live before it
      is promoted to index.html. Nothing links here; noindex keeps search
      engines off it. Promote by copying it over index.html and removing
-     this comment and the robots tag. Path-keyed staging behaviour (e.g.
-     Hollow Night shown early: iwHollowNightStaging) switches itself off
-     under /index.html, so a straight copy is safe. -->
+     this comment and the robots tag. Any path-keyed staging behaviour
+     switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
 <title>IdleWorlds Toolkit v6.3</title>
 <!-- v6.3 Hollow Night (2026-10-15; game patch 0.2.0+2026-10-15.5):
@@ -35786,8 +35785,9 @@ function syncCombatLevel(val) {
      • started  (on and after the 24th): reveals the Hollow Scroll planner
        and keeps it. Scrolls are inventory items, so they outlive the event.
      • themed   (24th through the 31st): the banner, the html
-       data-iw-event="hollow" flag and the injected decorations. It ends
-       once BOTH clocks have passed the 31st.
+       data-iw-event="hollow" flag and the injected decorations. It switches
+       off on November 1 as soon as EITHER clock reaches it, mirroring the
+       start: never early, never late.
    It is re-evaluated every minute and when the tab becomes visible again,
    so a page left open flips at the boundary with no reload.
 
@@ -35811,14 +35811,6 @@ function syncCombatLevel(val) {
   'use strict';
   var START = '2026-10-24', END = '2026-10-31', GAME_TZ = 'America/New_York';
   var preview = null;
-  // STAGING: on index2.html (the noindex staging copy) Hollow Night shows
-  // BEFORE the 24th, so it can be tested on the live deploy. It is keyed on
-  // the path, so index.html always waits for the real date, and copying
-  // index2 over index on promotion cannot leak it. It still ends with the
-  // event, like the real gate.
-  // Cloudflare static assets serve it as /index2 (".html" dropped) as well.
-  var STAGING = /\/index2(\.html)?\/?$/i.test(location.pathname);
-  window.iwHollowNightStaging = STAGING;
 
   function ymdIn(date, tz){
     var p = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' })
@@ -35833,7 +35825,7 @@ function syncCombatLevel(val) {
   /** Pure gate from two calendar dates (YYYY-MM-DD). Exposed for Suite P. */
   function gate(local, game){
     var started = local >= START && game >= START;
-    return { started: started, themed: started && (local <= END || game <= END) };
+    return { started: started, themed: started && local <= END && game <= END };
   }
   window.iwHollowNightGate = gate;
   window.iwHollowNightGameDate = function(date){ return ymdIn(date || new Date(), GAME_TZ); };
@@ -35842,9 +35834,7 @@ function syncCombatLevel(val) {
     now = now || new Date();
     var dates = { local: localYmd(now), game: ymdIn(now, GAME_TZ) };
     var g = (preview === null) ? gate(dates.local, dates.game) : { started: preview, themed: preview };
-    if (preview === null && STAGING && !g.started)
-      g = { started: true, themed: dates.local <= END || dates.game <= END };
-    return { started: g.started, themed: g.themed, preview: preview !== null, staging: STAGING, dates: dates };
+    return { started: g.started, themed: g.themed, preview: preview !== null, dates: dates };
   };
 
   // ── Decorations ────────────────────────────────────────────────
@@ -36439,14 +36429,16 @@ function syncCombatLevel(val) {
       if(actual !== expected) fail.push(label + ': got ' + String(actual) + ', expected ' + String(expected));
     }
     try {
-      // ── Gate: on and after the 24th on BOTH clocks; dress through the 31st.
+      // ── Gate: on and after the 24th on BOTH clocks; dress off on Nov 1 as
+      // soon as EITHER clock reaches it.
       var G = window.iwHollowNightGate;
       [['2026-10-23','2026-10-23',false,false,'the 23rd everywhere'],
        ['2026-10-24','2026-10-23',false,false,'local 24th, game still 23rd (Australia)'],
        ['2026-10-23','2026-10-24',false,false,'game 24th, local still 23rd (US west)'],
        ['2026-10-24','2026-10-24',true,true,'the 24th everywhere'],
        ['2026-10-31','2026-10-31',true,true,'the 31st'],
-       ['2026-11-01','2026-10-31',true,true,'local past, game still 31st'],
+       ['2026-11-01','2026-10-31',true,false,'local Nov 1, game still 31st (Australia): off'],
+       ['2026-10-31','2026-11-01',true,false,'game Nov 1, local still 31st (US west): off'],
        ['2026-11-01','2026-11-01',true,false,'after the event: planner stays, dress goes'],
        ['2027-03-01','2027-03-01',true,false,'months later']].forEach(function(c){
         var g = G(c[0], c[1]);
@@ -36457,9 +36449,12 @@ function syncCombatLevel(val) {
          iwHollowNightGameDate(new Date('2026-10-24T03:59:00Z')), '2026-10-23');
       eq('game clock: 04:00Z on the 24th is the 24th in ET',
          iwHollowNightGameDate(new Date('2026-10-24T04:00:00Z')), '2026-10-24');
-      // The early unhide belongs to the staging copy alone.
-      eq('staging early-unhide only on index2.html', window.iwHollowNightStaging,
-         /\/index2(\.html)?\/?$/i.test(location.pathname));
+      // No early unhide anywhere any more, staging included (v6.3 release).
+      ok('no staging early-unhide', typeof window.iwHollowNightStaging === 'undefined');
+      ok('today’s state is the real gate’s', (function(){
+        var s = iwHollowNightState(), g = G(s.dates.local, s.dates.game);
+        return s.preview || (s.started === g.started && s.themed === g.themed);
+      })());
 
       // ── What each state shows.
       var planner = document.getElementById('panel-hollow-scrolls');
