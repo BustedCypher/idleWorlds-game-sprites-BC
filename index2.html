@@ -12,9 +12,14 @@
 <meta name="robots" content="noindex, nofollow">
 <title>IdleWorlds Toolkit v6.3</title>
 <!-- v6.3 Hollow Night (2026-10-15; game patch 0.2.0+2026-10-15.5):
-     • Calculator event dress (banner, bats, flickering pumpkins on every
-       panel head, cobwebs, candle-orange results) from 2026-10-24 through
-       10-31. The Hollow Scroll planner appears on the 24th and stays: the
+     • Event dress on EVERY page from 2026-10-24 through 10-31: ghosts
+       drifting over the whole toolkit (one fixed, click-through layer),
+       pumpkins on every panel head plus one per panel that grows, glows and
+       fades, swaying webs in panel corners, spiders dropping on threads, and
+       the Calculator banner. A "Spooky: on/off" button sits top right beside
+       Settings during the event; each viewer's choice is kept in localStorage
+       iwHollowThemeOffV1. Re-rendered pages are re-dressed by a debounced
+       MutationObserver that runs only while the dress is on. The Hollow Scroll planner appears on the 24th and stays: the
        scrolls are items. Nothing renders before the 24th, and "the 24th"
        must hold in BOTH the viewer's local date and game time (ET). See
        the HOLLOW NIGHT script; the look is the Ashen sheet's HOLLOW NIGHT
@@ -9439,8 +9444,8 @@
   .footer-sep { font-size: 12px; color: var(--ash-edge-mid); user-select: none; }
 
   /* ── HOLLOW NIGHT (v6.3) ─────────────────────────────────────────────
-     Calculator-only event dress, live 2026-10-24 … 31 (the HOLLOW NIGHT
-     script owns the gate). Everything keys off html[data-iw-event="hollow"]
+     Event dress for EVERY page, live 2026-10-24 … 31 (the HOLLOW NIGHT
+     script owns the gate and the viewer's on/off button). Everything keys off html[data-iw-event="hollow"]
      or an element that only exists while it is set, so nothing here can
      show outside the event. Banner and planner hide with the hidden
      attribute plus an inline display:none, not with CSS, so the legacy
@@ -9484,23 +9489,96 @@
     60% { filter: drop-shadow(0 0 10px rgba(255,170,60,.7)); }
   }
 
-  /* While themed: the Calculator picks up candle-orange and a hint of dusk. */
-  html[data-iw-event="hollow"] #tab-calculator .pane-title {
+  /* While themed: every page picks up candle-orange and a hint of dusk. */
+  html[data-iw-event="hollow"] .pane-title {
     color: #F2A04A; text-shadow: 0 0 16px rgba(232,118,31,.35);
   }
-  html[data-iw-event="hollow"] #tab-calculator .pane-eyebrow::after { content: ' \00B7  Hollow Night'; color: #C77BE0; }
-  html[data-iw-event="hollow"] #tab-calculator .panel-head > .iw-hollow-pumpkin {
+  html[data-iw-event="hollow"] .pane-eyebrow::after { content: ' \00B7  Hollow Night'; color: #C77BE0; }
+  html[data-iw-event="hollow"] .panel-head > .iw-hollow-pumpkin {
     display: inline-flex; margin-left: 8px; vertical-align: -3px; animation: iwHollowFlicker 4s ease-in-out infinite;
   }
-  html[data-iw-event="hollow"] #tab-calculator .iw-hollow-pumpkin svg { display: block; }
+  html[data-iw-event="hollow"] .iw-hollow-pumpkin svg { display: block; }
   html[data-iw-event="hollow"] #panel-results,
   html[data-iw-event="hollow"] #panel-hollow-scrolls {
     border-color: #8A4A1A;
     box-shadow: 0 0 0 1px rgba(0,0,0,.5), 0 0 24px -6px rgba(232,118,31,.35);
   }
   html[data-iw-event="hollow"] #panel-results .big { color: #FFB866; text-shadow: 0 0 18px rgba(232,118,31,.45); }
-  html[data-iw-event="hollow"] #panel-results > .iw-hollow-web,
-  html[data-iw-event="hollow"] #panel-hollow-scrolls > .iw-hollow-web { position: absolute; z-index: 2; }
+  /* Living decorations (all injected by the HOLLOW NIGHT script; position and
+     size inline). Webs sway from their corner; the left web is the right one
+     mirrored by its host, so the sway sits on the inner svg. */
+  html[data-iw-event="hollow"] .iw-hollow-web { opacity: .58; }
+  html[data-iw-event="hollow"] .iw-hollow-web svg {
+    display: block; transform-origin: 100% 0; animation: iwHollowSway 7s ease-in-out infinite;
+  }
+  html[data-iw-event="hollow"] .iw-hollow-web--l svg { animation-delay: -3.5s; }
+  @keyframes iwHollowSway { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-3deg) scale(1.02); } }
+
+  /* Pumpkins that grow, glow and fade, then rest before the next bloom. */
+  html[data-iw-event="hollow"] .iw-hollow-bloom {
+    transform-origin: 50% 100%; opacity: 0; animation: iwHollowBloom 7s ease-in-out infinite;
+  }
+  html[data-iw-event="hollow"] .iw-hollow-bloom svg { display: block; width: 100%; height: 100%; }
+  @keyframes iwHollowBloom {
+    0%   { transform: scale(.3);  opacity: 0;  filter: drop-shadow(0 0 0 rgba(255,150,40,0)); }
+    18%  { transform: scale(1);   opacity: 1;  filter: drop-shadow(0 0 8px rgba(255,150,40,.6)); }
+    38%  { transform: scale(1.25); opacity: 1; filter: drop-shadow(0 0 16px rgba(255,170,60,.95)); }
+    58%  { transform: scale(1);   opacity: .9; filter: drop-shadow(0 0 8px rgba(255,150,40,.6)); }
+    76%, 100% { transform: scale(.3); opacity: 0; filter: drop-shadow(0 0 0 rgba(255,150,40,0)); }
+  }
+
+  /* Spiders drop on their threads and climb back up. */
+  html[data-iw-event="hollow"] .iw-hollow-thread,
+  html[data-iw-event="hollow"] .iw-hollow-banner .iw-hollow-thread { animation: iwHollowDrop 5.5s ease-in-out infinite; }
+  html[data-iw-event="hollow"] .iw-hollow-spider svg { display: block; animation: iwHollowWiggle 1.1s ease-in-out infinite; }
+  @keyframes iwHollowDrop {
+    0%, 100% { height: var(--drop, 30px); }
+    45%, 60% { height: calc(var(--drop, 30px) * 2.4); }
+  }
+  @keyframes iwHollowWiggle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+
+  /* Ghosts drift across the whole Calculator (alternate ones the other way),
+     fading in and out at the edges and bobbing as they go. */
+  html[data-iw-event="hollow"] .iw-hollow-ghost {
+    animation-name: iwHollowGhost; animation-timing-function: linear; animation-iteration-count: infinite;
+  }
+  html[data-iw-event="hollow"] .iw-hollow-ghost:nth-child(even) { animation-direction: reverse; }
+  html[data-iw-event="hollow"] .iw-hollow-ghost-body {
+    animation: iwHollowBob 3.2s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(200,180,255,.45));
+  }
+  html[data-iw-event="hollow"] .iw-hollow-ghost:nth-child(3n) .iw-hollow-ghost-body { animation-duration: 2.6s; }
+  @keyframes iwHollowGhost {
+    0%   { left: -12%; opacity: 0; }
+    10%  { opacity: .82; }
+    45%  { opacity: .62; }
+    55%  { opacity: .85; }
+    90%  { opacity: .75; }
+    100% { left: 104%; opacity: 0; }
+  }
+  @keyframes iwHollowBob {
+    0%, 100% { transform: translateY(0) rotate(-6deg); }
+    50%      { transform: translateY(-22px) rotate(6deg); }
+  }
+
+
+  /* The viewer's on/off button, top right of every page beside Settings. */
+  .iw-hollow-toggle {
+    display: inline-flex; align-items: center; gap: 6px; margin-right: 8px; padding: 6px 11px;
+    border: 1px solid #8A4A1A; border-radius: var(--ash-r-control, 6px); cursor: pointer;
+    background: linear-gradient(180deg, #3A1A0C, #1E0D08); color: #FFD9A8;
+    font: 650 12.5px/1 var(--ash-font-ui, inherit); letter-spacing: .02em; white-space: nowrap;
+    box-shadow: 0 0 14px -4px rgba(232,118,31,.7);
+  }
+  .iw-hollow-toggle[hidden] { display: none !important; }
+  .iw-hollow-toggle:hover { border-color: #D26A22; color: #FFF0DC; }
+  .iw-hollow-toggle:focus-visible { outline: 2px solid var(--ash-accent); outline-offset: 2px; }
+  .iw-hollow-toggle svg { flex: 0 0 auto; animation: iwHollowFlicker 3.4s ease-in-out infinite; }
+  .iw-hollow-toggle.is-off { background: var(--ash-plate, #0B0C0E); border-color: var(--ash-line-hi); color: var(--ash-dim); box-shadow: none; }
+  .iw-hollow-toggle.is-off svg { animation: none; filter: grayscale(1) opacity(.55); }
+  @media (max-width: 560px) {
+    .iw-hollow-toggle { padding: 6px 8px; margin-right: 6px; }
+    .iw-hollow-toggle-label { display: none; }
+  }
 
   /* The planner itself: styled whether or not the event dress is on. */
   .iw-hollow-planner .grid { margin-top: 10px; }
@@ -9518,8 +9596,16 @@
     .iw-hollow-jump { width: 100%; text-align: center; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .iw-hollow-bat, .iw-hollow-pumpkins svg,
-    html[data-iw-event="hollow"] #tab-calculator .panel-head > .iw-hollow-pumpkin { animation: none; }
+    .iw-hollow-bat, .iw-hollow-pumpkins svg, .iw-hollow-toggle svg,
+    html[data-iw-event="hollow"] .panel-head > .iw-hollow-pumpkin,
+    html[data-iw-event="hollow"] .iw-hollow-web svg,
+    html[data-iw-event="hollow"] .iw-hollow-thread,
+    html[data-iw-event="hollow"] .iw-hollow-spider svg,
+    html[data-iw-event="hollow"] .iw-hollow-ghost,
+    html[data-iw-event="hollow"] .iw-hollow-ghost-body { animation: none; }
+    /* Still there, just still: pumpkins shown, ghosts faint where they stand. */
+    html[data-iw-event="hollow"] .iw-hollow-bloom { animation: none; opacity: .85; }
+    html[data-iw-event="hollow"] .iw-hollow-ghost { opacity: .22; }
   }
 </style>
 
@@ -9593,6 +9679,14 @@
   </div>
   <span data-ui=ver-pill class="ver-pill">v6.3</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
+  <!-- HOLLOW NIGHT (v6.3): the viewer's on/off switch for the event theme.
+       Shown only while the theme is in season (Oct 24–31); the choice is
+       kept per device in localStorage iwHollowThemeOffV1. -->
+  <button type="button" class="iw-hollow-toggle" id="iw-hollow-toggle" hidden style="display:none"
+          aria-pressed="true" title="Turn off the Hollow Night Halloween theme" onclick="iwHollowNightToggle()">
+    <svg width="18" height="15" viewBox="0 0 48 40" aria-hidden="true"><path d="M24 9c-1-5 1-8 5-9" stroke="#5d7d2c" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="14" cy="25" rx="11" ry="13.5" fill="#b9501a"/><ellipse cx="34" cy="25" rx="11" ry="13.5" fill="#b9501a"/><ellipse cx="24" cy="25" rx="11.5" ry="14.5" fill="#e8761f"/><path d="M14 21l4.5-5.5L23 21zM25 21l4.5-5.5L34 21z" fill="#ffd36b"/><path d="M13 28c4 6 18 6 22 0l-3 1.5-2-2-2.5 2.5-2.5-2.5-2.5 2.5-2.5-2.5-2 2z" fill="#ffd36b"/></svg>
+    <span data-ui=hollow-toggle-label class="iw-hollow-toggle-label">Spooky: on</span>
+  </button>
   <button type="button" class="tab-btn gearbtn" data-tab="settings" role="tab" aria-controls="tab-settings" aria-label="Settings" title="Settings" onclick="switchTab(&#39;settings&#39;)" aria-selected="false">
     <span data-ui=tab-icon class="tab-icon" aria-hidden="true">⚙️</span>
     <span data-ui=tab-label class="tab-label">Settings</span>
@@ -35646,31 +35740,125 @@ function syncCombatLevel(val) {
 
   // ── Decorations ────────────────────────────────────────────────
   var PUMPKIN = '<svg width="20" height="17" viewBox="0 0 48 40" aria-hidden="true"><path d="M24 9c-1-5 1-8 5-9" stroke="#5d7d2c" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="14" cy="25" rx="11" ry="13.5" fill="#b9501a"/><ellipse cx="34" cy="25" rx="11" ry="13.5" fill="#b9501a"/><ellipse cx="24" cy="25" rx="11.5" ry="14.5" fill="#e8761f"/><path d="M14 21l4.5-5.5L23 21zM25 21l4.5-5.5L34 21z" fill="#ffd36b"/><path d="M13 28c4 6 18 6 22 0l-3 1.5-2-2-2.5 2.5-2.5-2.5-2.5 2.5-2.5-2.5-2 2z" fill="#ffd36b"/></svg>';
-  var WEB = '<svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true" fill="none" stroke="#d8cfe0" stroke-width="1"><path d="M72 0L10 62M72 0L34 66M72 0L58 70M72 0L6 38M72 0L4 14"/><path d="M60 2c2 6 4 9 10 10M46 2c3 11 9 18 24 22M32 2c4 17 14 30 38 36M18 2c5 23 20 42 52 50"/></svg>';
+  // A corner web anchored at the top-RIGHT (72,0); the left copy is mirrored.
+  var WEB = '<svg width="100%" height="100%" viewBox="0 0 72 72" aria-hidden="true" fill="none" stroke="#e4dcef" stroke-width=".9" stroke-linecap="round">' +
+    '<path d="M72 0L4 4M72 0L8 34M72 0L22 58M72 0L44 70M72 0L68 72"/>' +
+    '<path d="M60 1.5c.6 3 1.4 5.6 2.6 7.6 2 1.8 4.6 2.6 8 2.9"/>' +
+    '<path d="M47 2.3c.8 6 2.6 11 5.4 15.2 4.2 3.6 9.4 5.6 18.6 6.6"/>' +
+    '<path d="M34 3c1 9 3.8 17 8.2 23 6.4 5.4 14.4 8.6 27.8 10.4"/>' +
+    '<path d="M20 3.8c1.3 12 5.2 23 11.2 31 8.6 7.4 19.6 11.8 38.8 14.4"/>' +
+    '<path d="M7 4.5c1.6 15 6.4 29 14 39 10.8 9.4 25 15 48.6 18.2"/></svg>';
+  var GHOST = '<svg width="100%" height="100%" viewBox="0 0 46 56" aria-hidden="true">' +
+    '<path d="M23 2C11 2 4 11 4 23v29l6.4-5 6 5 6.6-5 6.6 5 6-5 6.4 5V23C42 11 35 2 23 2z" fill="#f3efff" fill-opacity=".9"/>' +
+    '<ellipse cx="16" cy="22" rx="3.2" ry="4.4" fill="#1b1424"/><ellipse cx="30" cy="22" rx="3.2" ry="4.4" fill="#1b1424"/>' +
+    '<ellipse cx="23" cy="33" rx="3.6" ry="4.6" fill="#1b1424"/></svg>';
+  var SPIDER = '<svg width="18" height="16" viewBox="0 0 18 16" aria-hidden="true"><g stroke="#cdbfe0" stroke-width="1.1" fill="none" stroke-linecap="round">' +
+    '<path d="M9 8 2 2.5M9 8 1 8M9 8 2 13.5M9 8 16 2.5M9 8 17 8M9 8 16 13.5"/></g>' +
+    '<ellipse cx="9" cy="8.5" rx="3.6" ry="4.4" fill="#2a1d36" stroke="#cdbfe0" stroke-width=".8"/>' +
+    '<circle cx="7.6" cy="7.6" r=".8" fill="#ff8a3d"/><circle cx="10.4" cy="7.6" r=".8" fill="#ff8a3d"/></svg>';
 
-  function decorate(){
-    var tab = document.getElementById('tab-calculator');
-    if (!tab || tab.querySelector('.iw-hollow-deco')) return;
-    tab.querySelectorAll('.panel > .panel-head').forEach(function(head){
-      var s = document.createElement('span');
-      s.className = 'iw-hollow-deco iw-hollow-pumpkin';
-      s.setAttribute('aria-hidden', 'true');
-      s.innerHTML = PUMPKIN;
-      head.appendChild(s);
-    });
-    ['panel-results', 'panel-hollow-scrolls'].forEach(function(id){
-      var p = document.getElementById(id);
-      if (!p) return;
-      var w = document.createElement('span');
-      w.className = 'iw-hollow-deco iw-hollow-web';
-      w.setAttribute('aria-hidden', 'true');
-      w.style.cssText = 'position:absolute;top:0;right:0;width:72px;height:72px;pointer-events:none;opacity:.28;z-index:2';
-      w.innerHTML = WEB;
-      p.appendChild(w);
+  // Every decoration carries .iw-hollow-deco, so undecorate() removes them all.
+  // Position and size are inline (Ashen gives .panel children position:relative;
+  // the legacy sheets know nothing of these), and the motion is in the sheet.
+  function deco(tag, cls, css, html){
+    var n = document.createElement(tag);
+    n.className = 'iw-hollow-deco ' + cls;
+    n.setAttribute('aria-hidden', 'true');
+    if (css) n.style.cssText = css;
+    if (html) n.innerHTML = html;
+    return n;
+  }
+  function webs(host, size){
+    var base = 'position:absolute;top:0;width:' + size + 'px;height:' + size + 'px;pointer-events:none;z-index:3;';
+    host.appendChild(deco('span', 'iw-hollow-web iw-hollow-web--r', base + 'right:0;', WEB));
+    host.appendChild(deco('span', 'iw-hollow-web iw-hollow-web--l', base + 'left:0;transform:scaleX(-1);', WEB));
+  }
+  function spider(host, right, drop){
+    var s = deco('span', 'iw-hollow-spider',
+      'position:absolute;top:0;right:' + right + 'px;width:18px;pointer-events:none;z-index:3;--drop:' + drop + 'px;');
+    s.innerHTML = '<span class="iw-hollow-thread" style="display:block;width:1px;height:' + drop +
+      'px;margin:0 auto;background:rgba(228,220,239,.55)"></span>' + SPIDER;
+    host.appendChild(s);
+  }
+
+  // ── Every page (v6.3) ──────────────────────────────────────────
+  // The dress covers every tab. Panels get webs and a blooming pumpkin, panel
+  // heads a pumpkin, and the ghosts fly in one fixed layer over the viewport.
+  // Pages that re-render (Gear, Items, Work Orders, …) replace their panels,
+  // so a debounced MutationObserver re-dresses any new panel. It only runs
+  // while the dress is on, and adding the decorations is idempotent, so it
+  // cannot loop: a second pass finds nothing left to add.
+  var HOLLOW_OFF_KEY = 'iwHollowThemeOffV1';
+  /** The viewer's own "theme off" switch (header button). Per device. */
+  function userOff(){ try { return localStorage.getItem(HOLLOW_OFF_KEY) === '1'; } catch (e) { return false; } }
+  function setUserOff(off){
+    try { if (off) localStorage.setItem(HOLLOW_OFF_KEY, '1'); else localStorage.removeItem(HOLLOW_OFF_KEY); } catch (e) {}
+  }
+
+  var bloomIndex = 0;
+  function dressPanel(p){
+    if (p.hasAttribute('data-iw-hollow')) return;
+    if (p.parentElement && p.parentElement.closest('.panel')) return;   // nested: the outer one carries it
+    p.setAttribute('data-iw-hollow', '1');
+    var head = p.querySelector(':scope > .panel-head');
+    if (head) head.appendChild(deco('span', 'iw-hollow-pumpkin', '', PUMPKIN));
+    webs(p, 74);
+    var i = bloomIndex++;
+    var side = (i % 2) ? 'left:12px;' : 'right:14px;';
+    p.appendChild(deco('span', 'iw-hollow-bloom',
+      'position:absolute;bottom:10px;' + side + 'width:36px;height:31px;pointer-events:none;z-index:3;' +
+      'animation-delay:' + (-(i * 1.7) % 7).toFixed(1) + 's;', PUMPKIN));
+  }
+  function dressAll(){
+    // .set-accordion: Settings has no .panel; its sections are <details>.
+    document.querySelectorAll('.tab-pane .panel, .tab-pane .set-accordion').forEach(dressPanel);
+    var banner = document.getElementById('iw-hollow-banner');
+    if (banner && !banner.hasAttribute('data-iw-hollow')) {
+      banner.setAttribute('data-iw-hollow', '1');
+      webs(banner, 46);
+      spider(banner, 120, 22);
+    }
+    [['panel-results', 74, 34], ['panel-hollow-scrolls', 64, 26]].forEach(function(s){
+      var p = document.getElementById(s[0]);
+      if (p && !p.querySelector(':scope > .iw-hollow-spider')) spider(p, s[1], s[2]);
     });
   }
+
+  var observer = null, dressTimer = 0;
+  function decorate(){
+    dressAll();
+    // Ghosts: one fixed layer for the whole toolkit. z-index 150 sits over
+    // page content but under dropdowns (200+), the header (300), the bottom
+    // nav (320) and tooltips (1000). It is clipped and takes no pointer
+    // events, so it can neither scroll the page nor block a click.
+    if (!document.getElementById('iw-hollow-haunt')) {
+      var haunt = deco('div', 'iw-hollow-haunt',
+        'position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:150;');
+      haunt.id = 'iw-hollow-haunt';
+      [[8, 34, 0], [27, 41, -12], [48, 30, -5], [66, 38, -21], [84, 33, -16]].forEach(function(g, i){
+        var size = i % 2 ? 52 : 66;
+        haunt.appendChild(deco('span', 'iw-hollow-ghost',
+          'position:absolute;top:' + g[0] + '%;left:' + (8 + i * 19) + '%;width:' + size + 'px;height:' +
+          Math.round(size * 1.22) + 'px;opacity:.3;animation-duration:' + g[1] + 's;animation-delay:' + g[2] + 's;',
+          '<span class="iw-hollow-ghost-body" style="display:block;width:100%;height:100%">' + GHOST + '</span>'));
+      });
+      document.body.appendChild(haunt);
+    }
+    if (!observer && typeof MutationObserver === 'function') {
+      observer = new MutationObserver(function(){
+        if (dressTimer) return;
+        dressTimer = setTimeout(function(){ dressTimer = 0; dressAll(); }, 300);
+      });
+      var root = document.querySelector('main') || document.body;
+      observer.observe(root, { childList: true, subtree: true });
+    }
+  }
   function undecorate(){
+    if (observer) { observer.disconnect(); observer = null; }
+    if (dressTimer) { clearTimeout(dressTimer); dressTimer = 0; }
     document.querySelectorAll('.iw-hollow-deco').forEach(function(n){ n.remove(); });
+    document.querySelectorAll('[data-iw-hollow]').forEach(function(n){ n.removeAttribute('data-iw-hollow'); });
+    bloomIndex = 0;
   }
   function show(el, on){
     if (!el) return;
@@ -35678,14 +35866,31 @@ function syncCombatLevel(val) {
     el.style.display = on ? '' : 'none';
   }
 
+  // Header button (top right of every page, beside Settings). Shown only
+  // during the event; it switches the dress for this viewer, not the planner.
+  function paintToggle(state){
+    var btn = document.getElementById('iw-hollow-toggle');
+    if (!btn) return;
+    show(btn, state.themed);
+    var off = state.off;
+    btn.setAttribute('aria-pressed', off ? 'false' : 'true');
+    btn.title = off ? 'Turn the Hollow Night Halloween theme back on' : 'Turn off the Hollow Night Halloween theme';
+    var label = btn.querySelector('.iw-hollow-toggle-label');
+    if (label) label.textContent = off ? 'Spooky: off' : 'Spooky: on';
+    btn.classList.toggle('is-off', off);
+  }
+
   var prefilled = false;
   // `quiet` (Suite P): toggle visibility only. No prefill and no render, so
   // a self-check run before the 24th writes nothing into the planner inputs.
   function apply(state, quiet){
     state = state || window.iwHollowNightState();
+    state.off = userOff();
+    var dressed = state.themed && !state.off;
     show(document.getElementById('panel-hollow-scrolls'), state.started);
-    show(document.getElementById('iw-hollow-banner'), state.themed);
-    if (state.themed) {
+    show(document.getElementById('iw-hollow-banner'), dressed);
+    paintToggle(state);
+    if (dressed) {
       document.documentElement.setAttribute('data-iw-event', 'hollow');
       decorate();
     } else {
@@ -35698,6 +35903,8 @@ function syncCombatLevel(val) {
     return state;
   }
   window.iwHollowNightApply = apply;
+  window.iwHollowNightSetOff = function(off){ setUserOff(!!off); return apply(); };
+  window.iwHollowNightToggle = function(){ return window.iwHollowNightSetOff(!userOff()); };
   window.iwHollowNightPreview = function(on){
     preview = (on === undefined || on === null) ? null : !!on;
     return apply();
@@ -36126,6 +36333,7 @@ function syncCombatLevel(val) {
       ok('before the 24th: banner hidden', !s0.banner);
       ok('before the 24th: no event flag', !s0.flag);
       eq('before the 24th: decorations', s0.deco, 0);
+      ok('before the 24th: no theme button', !seen(document.getElementById('iw-hollow-toggle')));
       iwHollowNightApply({started:true, themed:true}, true);
       var s1 = snapshot();
       ok('event week: planner shown', s1.planner);
@@ -36134,11 +36342,43 @@ function syncCombatLevel(val) {
       ok('event week: decorations injected (' + s1.deco + ')', s1.deco >= 3);
       iwHollowNightApply({started:true, themed:true}, true);
       eq('decorations are not duplicated', snapshot().deco, s1.deco);
+
+      // Every page, not just the Calculator: other tabs' panels are dressed,
+      // the ghosts fly in one fixed layer, and a panel a page re-renders is
+      // dressed again.
+      var otherPanels = [].filter.call(document.querySelectorAll('.tab-pane:not(#tab-calculator) .panel'),
+        function(p){ return !p.parentElement.closest('.panel'); });
+      ok('other tabs have panels to dress', otherPanels.length > 0);
+      ok('every top-level panel on other tabs is dressed', otherPanels.every(function(p){ return p.hasAttribute('data-iw-hollow'); }));
+      var haunt = document.getElementById('iw-hollow-haunt');
+      ok('ghost layer is fixed over the viewport', !!haunt && haunt.style.position === 'fixed');
+      ok('ghost layer takes no clicks', !!haunt && haunt.style.pointerEvents === 'none');
+
+      // The viewer's switch (header button). It is stored per device; the
+      // planner is a tool, not dress, so it is unaffected.
+      var toggle = document.getElementById('iw-hollow-toggle');
+      var key = 'iwHollowThemeOffV1', savedOff = null;
+      try { savedOff = localStorage.getItem(key); localStorage.setItem(key, '1'); } catch(e){}
+      iwHollowNightApply({started:true, themed:true}, true);
+      var sOff = snapshot();
+      ok('switched off: no event flag', !sOff.flag);
+      eq('switched off: decorations removed', sOff.deco, 0);
+      ok('switched off: banner hidden', !sOff.banner);
+      ok('switched off: planner still shown', sOff.planner);
+      ok('switched off: the button stays so it can be turned back on', seen(toggle));
+      eq('switched off: button reads off', toggle && toggle.getAttribute('aria-pressed'), 'false');
+      try { localStorage.removeItem(key); } catch(e){}
+      iwHollowNightApply({started:true, themed:true}, true);
+      ok('switched back on: dress returns', snapshot().flag && snapshot().deco > 0);
+      eq('switched on: button reads on', toggle && toggle.getAttribute('aria-pressed'), 'true');
+      try { if (savedOff === null) localStorage.removeItem(key); else localStorage.setItem(key, savedOff); } catch(e){}
       iwHollowNightApply({started:true, themed:false}, true);
       var s2 = snapshot();
       ok('after the event: planner still shown', s2.planner);
       ok('after the event: banner hidden', !s2.banner && !s2.flag);
       eq('after the event: decorations removed', s2.deco, 0);
+      ok('after the event: no theme button', !seen(document.getElementById('iw-hollow-toggle')));
+      ok('after the event: ghost layer gone', !document.getElementById('iw-hollow-haunt'));
 
       // ── Scroll maths: 5% of the XP the current level takes.
       eq('one scroll at 66', iwHollowScrollXp(66), Math.round(xpForLevel(66) * 0.05));
