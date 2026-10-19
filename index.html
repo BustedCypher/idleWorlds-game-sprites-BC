@@ -11,6 +11,17 @@
      • One shared table, IW_STAT_FILTERS, read through iwParseGearStats, so a
        filter agrees with what Gear scores (upgrade shares included).
      • Suite Q (iwSlotStatFilterSelfCheck).
+     player.json loadouts (2026-10-19; player request, Discord 10-16):
+     • Gear gains "Import player.json" (file or paste, read locally). It
+       extracts the worn gear and every in-game loadout the payload carries,
+       with per-copy gems, enchants and cloak upgrades, into the profile's
+       own equipped-item shape. "Load into planner" puts one on the doll;
+       Save changes / Save as new keep edits in iwPlayerLoadoutsV1.
+     • The same day's game patch shipped player.loadouts in the shape we
+       requested (docs/player-json-loadouts-request.md). The picker shows
+       each loadout's bound skills (boundSkillKeys), marks the one that
+       matches the worn gear (the game sends no isActive), and flags gear
+       the player no longer owns. Suite R (iwPlayerJsonImportSelfCheck).
 -->
 <!-- v6.3.1 Hollow Night went live a week early (2026-10-15; game patch
      0.2.0+2026-10-15.20, "runs until the end of October 31 (Toronto time)"):
@@ -1344,6 +1355,35 @@
   }
   .quick-link-btn .ql-icon { font-size: 12px; }
 
+  /* Rail head: the way back to the game, above the tabs. */
+  .rail-back {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 0 6px 10px; padding: 8px 12px;
+    background: var(--brass-glow);
+    border: 1px solid var(--brass-dim);
+    border-radius: var(--r);
+    color: var(--brass);
+    font-family: var(--font); font-size: 13px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .rail-back:hover { color: var(--text); border-color: var(--brass); }
+  .rail-back-icon { font-size: 14px; line-height: 1; }
+  .appbar-back {
+    display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+    padding: 6px 11px 6px 9px;
+    background: var(--brass-glow);
+    border: 1px solid var(--brass-dim);
+    border-radius: var(--r);
+    color: var(--brass);
+    font-family: var(--font); font-size: 12.5px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    transition: color .15s, border-color .15s;
+  }
+  .appbar-back:hover { color: var(--text); border-color: var(--brass); }
+  .appbar-back-icon { font-size: 13px; line-height: 1; }
+  @media (max-width: 420px) { .appbar-back { padding: 6px 9px; } .appbar-back-label { display: none; } }
+
   /* ── Bottom nav (mobile / tablet) ── */
   .botnav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 320;
@@ -1452,6 +1492,7 @@
   @media (min-width: 1060px) {
     .rail { display: flex; }
     .botnav { display: none; }
+    .appbar-back { display: none; }
     body { padding-bottom: 0; }
   }
   @media (max-width: 1059px) {
@@ -6776,7 +6817,8 @@
      set `display` on either, or it beats this breakpoint by source order. */
   .rail { display: none; }
   .botnav { display: flex; }
-  @media (min-width: 1060px) { .rail { display: flex; } .botnav { display: none; } }
+  .appbar-back { display: inline-flex; }
+  @media (min-width: 1060px) { .rail { display: flex; } .botnav { display: none; } .appbar-back { display: none; } }
   body.mode-expert .why { display: none; }
   body.mode-simple [data-adv] { display: none !important; }
   .panel-head[data-step] .dot { display: none; }
@@ -7190,6 +7232,39 @@
   }
   .quick-link-btn:hover { color: var(--ash-accent); border-color: var(--ash-edge); }
   .quick-link-btn .ql-icon { font-size: 12px; }
+
+  /* Rail head: the way back to the game, an ember plate above the tabs. */
+  .rail-back {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 36px; margin: 0 0 10px; padding: 7px 12px;
+    border: 1px solid var(--ash-cta-hi); border-radius: var(--ash-r-control);
+    background: linear-gradient(180deg, var(--ash-cta-hi), var(--ash-cta));
+    color: var(--ash-on-cta); font-family: var(--ash-font-head); font-size: 13.5px; font-weight: 600; letter-spacing: .05em;
+    text-decoration: none; white-space: nowrap;
+    box-shadow: inset 0 1px 0 rgba(255,220,150,.22), 0 2px 8px rgba(0,0,0,.35);
+    transition: filter .15s, box-shadow .15s;
+  }
+  .rail-back:hover { filter: brightness(1.1); box-shadow: inset 0 1px 0 rgba(255,220,150,.3), 0 0 12px rgba(209,90,34,.45); }
+  .rail-back:focus-visible { outline: 2px solid var(--ash-accent); outline-offset: 2px; }
+  .rail-back-icon { font-size: 15px; line-height: 1; }
+  /* The same way back on mobile/tablet, in the appbar (shown by the parity block). */
+  .appbar-back {
+    align-items: center; gap: 6px; flex: 0 0 auto;
+    min-height: var(--ash-control-h); padding: 5px 12px 5px 10px;
+    border: 1px solid var(--ash-cta-hi); border-radius: var(--ash-r-control);
+    background: linear-gradient(180deg, var(--ash-cta-hi), var(--ash-cta));
+    color: var(--ash-on-cta); font-family: var(--ash-font-ui); font-size: 12.5px; font-weight: 650; letter-spacing: .02em;
+    text-decoration: none; white-space: nowrap;
+    box-shadow: inset 0 1px 0 rgba(255,220,150,.22);
+  }
+  .appbar-back:hover { filter: brightness(1.1); }
+  .appbar-back:focus-visible { outline: 2px solid var(--ash-accent); outline-offset: 2px; }
+  .appbar-back-icon { font-size: 14px; line-height: 1; }
+  /* Phones: icon only, and the bar tightens so the title is not clipped. */
+  @media (max-width: 420px) {
+    .appbar-back { padding: 5px 9px; } .appbar-back-label { display: none; }
+    .appbar { gap: 6px; } .brandname { font-size: 15px; }
+  }
 
   /* Bottom nav (<1060px): a forged bar, thumb-reachable. */
   .botnav {
@@ -9709,6 +9784,12 @@
   </div>
   <span data-ui=ver-pill class="ver-pill">v6.4</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
+  <!-- Back to the game, below 1060px only: the rail's own button carries it
+       on desktop, and the bottom nav has no room for an eighth item. -->
+  <a data-ui=appbar-back class="appbar-back" href="https://idleworlds.com/" aria-label="Back to the game" title="Leave the toolkit and return to IdleWorlds">
+    <span data-ui=appbar-back-icon class="appbar-back-icon" aria-hidden="true">←</span>
+    <span data-ui=appbar-back-label class="appbar-back-label">Game</span>
+  </a>
   <!-- HOLLOW NIGHT (v6.3): the viewer's on/off switch for the event theme.
        Shown only while the theme is in season (Oct 24–31); the choice is
        kept per device in localStorage iwHollowThemeOffV1. -->
@@ -9729,6 +9810,8 @@
        RAIL NAV (desktop)
   ════════════════════════════════════════════ -->
   <nav data-ui=rail class="rail" aria-label="Sections">
+    <a data-ui=rail-back class="rail-back" href="https://idleworlds.com/" title="Leave the toolkit and return to IdleWorlds">
+      <span data-ui=rail-back-icon class="rail-back-icon" aria-hidden="true">←</span>Back to the game</a>
     <div data-ui=rail-eyebrow class="rail-eyebrow">Tools</div>
     <div data-ui=tab-bar class="tab-bar" role="tablist" aria-label="Tool sections">
     <button class="tab-btn active" data-tab="home" role="tab" aria-selected="true" aria-controls="tab-home" onclick="switchTab(&#39;home&#39;)">
@@ -11962,11 +12045,48 @@
          swap items, manage gems, enchants and reinforcement plates.</p>
     </div>
 
+    <!-- ── player.json import + saved loadouts (v6.4) ──────
+         Driven by the PLAYER.JSON IMPORT & SAVED LOADOUTS script. The
+         controls carry no ids on purpose: IWStore snapshots every
+         input/select with an id, and neither a 300 KB file nor the
+         loadout picker belongs in iw_state_v2. -->
+    <div data-ui=iwpj-panel class="panel iwpj-panel" data-iwpj-panel style="margin-bottom:14px;">
+      <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--accent"></span>Loadouts from player.json</div>
+      <div data-ui=panel-body class="panel-body" style="display:flex;flex-direction:column;gap:10px;">
+        <p data-ui=iwpj-help style="margin:0;font-size:12px;color:var(--text-3);">
+          Load any of your in-game loadouts into the planner without swapping gear in game.
+          You can find your player.json here:
+          <a href="https://idleworlds.com/api/player" target="_blank" rel="noopener">idleworlds.com/api/player</a>.
+          Save that page or copy all of it, then import or paste it below.
+          It is read on this device only; nothing is uploaded.</p>
+        <div data-ui=iwpj-row style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button type="button" class="gut-btn" data-iwpj-action="pick">Import player.json</button>
+          <button type="button" class="gut-btn" data-iwpj-action="toggle-paste" aria-expanded="false">Paste JSON</button>
+          <input type="file" accept=".json,application/json" data-iwpj-file hidden style="display:none;">
+          <span data-ui=iwpj-status data-iwpj-status role="status" aria-live="polite" style="font-size:12px;color:var(--text-3);"></span>
+        </div>
+        <div data-ui=iwpj-paste data-iwpj-paste hidden style="display:none;flex-direction:column;gap:6px;">
+          <textarea data-iwpj-text rows="4" spellcheck="false" aria-label="player.json contents"
+            placeholder="Paste the whole player.json response here" style="width:100%;box-sizing:border-box;font:11px 'JetBrains Mono',monospace;"></textarea>
+          <div><button type="button" class="gut-btn" data-iwpj-action="paste-import">Import pasted JSON</button></div>
+        </div>
+        <div data-ui=iwpj-loadout-row data-iwpj-loadout-row hidden style="display:none;flex-wrap:wrap;gap:8px;align-items:center;">
+          <select data-iwpj-select aria-label="Saved loadout" style="min-width:220px;max-width:100%;"></select>
+          <button type="button" class="gut-btn" data-iwpj-action="apply">Load into planner</button>
+          <button type="button" class="gut-btn" data-iwpj-action="save" title="Overwrite this loadout with the gear the planner shows now">Save changes</button>
+          <button type="button" class="gut-btn" data-iwpj-action="save-new" title="Save the gear the planner shows now as a new loadout">Save as new</button>
+          <button type="button" class="gut-btn" data-iwpj-action="rename">Rename</button>
+          <button type="button" class="gut-btn danger" data-iwpj-action="delete">Delete</button>
+        </div>
+        <div data-ui=iwpj-summary data-iwpj-summary style="font-size:12px;color:var(--text-2);"></div>
+      </div>
+    </div>
+
     <!-- ── Placeholder when no profile imported ───────────── -->
     <div data-ui=gn-no-profile id="gn-no-profile" class="panel" style="display: none;">
       <div data-ui=panel-body class="panel-body tc-text-3" style="padding:20px;text-align:center;font-size:13px;">
         <div data-ui=gear-empty-icon style="font-size:2rem;margin-bottom:8px;">🗡️</div>
-        Import your character on the <strong class="tc-accent" style="cursor:pointer;" onclick="switchTab(&#39;home&#39;)">Start</strong> page to see your loadout here.
+        Import your character on the <strong class="tc-accent" style="cursor:pointer;" onclick="switchTab(&#39;home&#39;)">Start</strong> page, or import player.json above, to see your loadout here.
       </div>
     </div>
 
@@ -34932,6 +35052,941 @@ function syncCombatLevel(val) {
 
 
 <script>
+/* ═════════════════════════════════════════════════════════════════
+   PLAYER.JSON IMPORT & SAVED LOADOUTS (v6.4, 2026-10-19)
+   ─────────────────────────────────────────────────────────────────
+   Player request (Discord, 2026-10-16): theorycraft a loadout you are not
+   wearing without swapping it on in game and re-importing. The public
+   /api/player-profile only carries what is equipped, so the Gear tab gains
+   "Import player.json": the player picks or pastes the game's own private
+   payload and it is read here, locally. Nothing is uploaded.
+
+   Extracted loadouts:
+     • "Equipped (in game)" — always, from equipped<Slot>Key / <Slot>VariantId.
+     • Every saved in-game loadout, from player.loadouts (shipped by the
+       2026-10-19 game patch in the shape we requested:
+       docs/player-json-loadouts-request.md), with its boundSkillKeys. The
+       tolerant variants in LOADOUT_FIELDS / slotRefs() stay, in case the
+       game reshapes it. The game sends no isActive, so the loadout that
+       matches the worn gear in all 12 slots (item and copy) is marked
+       wornMatch instead.
+     • preCombatGearSnapshot, when non-null, as "Pre-combat gear".
+
+   Per-copy state comes from the exact owned copy (inventory row, merged
+   over its itemVariants row): gems become socketEffectLine, enchantTier is
+   kept, cloak upgrades become cloakUpgradeLine. The output is the SAME
+   equipped-item shape /api/player-profile gives, so every Gear reader
+   (totals, sockets, enchants, plates, skill boosts) works unchanged.
+   Absent stays absent: a stat the item lacks is null, never 0.
+
+   Editing: "Load into planner" replaces IWProfile.equipped in place, the
+   way Reset and Add to Loadout do, so every Gear tool edits it, and Reset
+   still returns to the gear the profile import says is worn. "Save changes"
+   and "Save as new" write the doll back. Loadouts persist in
+   iwPlayerLoadoutsV1; the doll itself stays session state, as before.
+
+   With no profile loaded, the import also builds one from player.json
+   (skills, race, housing, enchants, plates) so Gear has levels to gate on.
+   An existing profile is never replaced: /api/player-profile carries
+   combatStats, which player.json does not.
+   Suite R: iwPlayerJsonImportSelfCheck.
+   ═════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  var STORE_KEY = 'iwPlayerLoadoutsV1';
+  var MAX_BYTES = 10 * 1024 * 1024;
+  var SLOTS = (typeof SLOT_ORDER !== 'undefined' && Array.isArray(SLOT_ORDER)) ? SLOT_ORDER.slice()
+    : ['helmet','chest','legs','gloves','boots','weapon','shield','ring','amulet','belt','trinket','cloak'];
+  var SLOT_ALIAS = {
+    offhand:'shield', head:'helmet', helm:'helmet', hat:'helmet', hood:'helmet',
+    body:'chest', torso:'chest', armor:'chest', armour:'chest', robe:'chest',
+    hands:'gloves', glove:'gloves', leg:'legs', leggings:'legs', pants:'legs',
+    feet:'boots', boot:'boots', back:'cloak', cape:'cloak',
+    neck:'amulet', necklace:'amulet', waist:'belt', mainhand:'weapon'
+  };
+  // Where a game loadout list may live, on player or on the payload root.
+  var LOADOUT_FIELDS = ['loadouts', 'gearLoadouts', 'equipmentLoadouts', 'savedLoadouts'];
+
+  // Game stat key → the toolkit's parser key, and the label each parser reads.
+  var API_STAT = {
+    attackBonus:'atk', defenseBonus:'def', hpBonus:'hp', xpTaskBonus:'xpPerTask',
+    goldFindPercent:'goldFind', itemFindPercent:'itemFind', doubleGatherChancePercent:'gather',
+    fireResist:'fire', frostResist:'frost', lightningResist:'lightning'
+  };
+  var STAT_LABEL = {
+    atk:'ATK', def:'DEF', hp:'HP', xpPerTask:'XP per Task', goldFind:'Gold Find',
+    itemFind:'Item Find', gather:'2x Gather Chance', fire:'Fire Resist',
+    frost:'Frost Resist', lightning:'Lightning Resist'
+  };
+  var PCT_STAT = { goldFind:1, itemFind:1, gather:1 };
+  // Per-copy fields: the inventory row wins, its itemVariants row fills gaps.
+  var COPY_FIELDS = ['enchantTier','enchantExpiresAt','socketedGemKey','socketEffect',
+    'socketedGemKey2','socketEffect2','cloakUpgradeTier','cloakUpgradeStatKey',
+    'cloakUpgradeStatValue','cloakUpgradeStatKey2','cloakUpgradeStatValue2'];
+
+  function num(v){
+    if (v === '' || v == null) return null;
+    var n = Number(v);
+    return isFinite(n) ? n : null;
+  }
+  function clone(v){ try { return v == null ? v : JSON.parse(JSON.stringify(v)); } catch(e){ return null; } }
+  function cap(s){ s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function slotName(s){
+    var k = String(s == null ? '' : s).toLowerCase().replace(/[^a-z]/g, '');
+    if (SLOTS.indexOf(k) >= 0) return k;
+    return SLOT_ALIAS[k] || null;
+  }
+  function prettyKey(k){
+    return String(k || '').replace(/_plus_(\d+)$/, '+$1').replace(/_/g, ' ')
+      .replace(/\b[a-z]/g, function(c){ return c.toUpperCase(); });
+  }
+
+  // "+6 XP per Task", "+8% 2x Gather Chance" — the wording iwParseSocketEffect
+  // and iwParseCloakUpgradeLine both read. Unknown stat → null, never a guess.
+  function effectLine(stat, value){
+    var s = API_STAT[stat] || stat;
+    var label = STAT_LABEL[s];
+    var n = num(value);
+    if (!label || n == null) return null;
+    return (n < 0 ? '' : '+') + n + (PCT_STAT[s] ? '%' : '') + ' ' + label;
+  }
+  // itemVariants rows name the gem (cut_opal) but not its effect.
+  function gemKeyEffect(gemKey){
+    var m = /^cut_(.+)$/i.exec(String(gemKey || ''));
+    if (!m) return null;
+    var want = m[1].toLowerCase().replace(/[^a-z]/g, '');
+    try {
+      for (var t = 1; t <= 34; t++) {
+        var nm = GEM_NAMES[t];
+        if (nm && nm.toLowerCase().replace(/[^a-z]/g, '') === want) {
+          var fx = CUT_GEM_EFFECT[t];
+          return fx ? effectLine(fx.stat, fx.value) : null;
+        }
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  function dbRow(key){
+    try {
+      if (key && typeof IDB_STATE !== 'undefined' && IDB_STATE && IDB_STATE.idMap)
+        return IDB_STATE.idMap.get(String(key)) || null;
+    } catch(e) {}
+    return null;
+  }
+
+  // One slot entry → { itemKey, variantId, item? }. Accepts a bare key, a
+  // {itemKey, variantId} ref, or an item object carrying its own key.
+  function refFrom(v){
+    if (v == null || v === '') return null;
+    if (typeof v === 'string') return { itemKey:v, variantId:null, item:null };
+    if (typeof v !== 'object') return null;
+    var item = (v.item && typeof v.item === 'object') ? v.item : null;
+    var key = v.itemKey || v.item_key || (item && item.key) ||
+              (typeof v.item === 'string' ? v.item : null) || v.key || null;
+    var vid = v.variantId || v.itemVariantId || v.variant_id || v.inventoryItemId || null;
+    if (!key && !vid) return null;
+    return { itemKey:key ? String(key) : null, variantId:vid ? String(vid) : null, item:item };
+  }
+
+  function slotRefs(raw){
+    var out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    var box = raw.slots || raw.equipment || raw.equipped || raw.items || raw.gear || null;
+    if (Array.isArray(box)) {
+      box.forEach(function(e){
+        if (!e || typeof e !== 'object') return;
+        var s = slotName(e.slot || e.slotKey || e.equipmentSlot || (e.item && e.item.equipmentSlot));
+        var r = refFrom(e);
+        if (s && r) out[s] = r;
+      });
+    } else if (box && typeof box === 'object') {
+      Object.keys(box).forEach(function(k){
+        var s = slotName(k), r = refFrom(box[k]);
+        if (s && r) out[s] = r;
+      });
+    }
+    // Flat form: equippedWeaponKey / weaponKey / weaponItemKey (+ VariantId).
+    SLOTS.forEach(function(s){
+      if (out[s]) return;
+      var C = cap(s);
+      var key = raw['equipped' + C + 'Key'] || raw[s + 'Key'] || raw[s + 'ItemKey'] || null;
+      var vid = raw['equipped' + C + 'VariantId'] || raw[s + 'VariantId'] || null;
+      if (key || vid) out[s] = { itemKey:key ? String(key) : null, variantId:vid ? String(vid) : null, item:null };
+    });
+    return out;
+  }
+
+  function buildContext(root, player){
+    var inv = Array.isArray(root.inventory) ? root.inventory
+            : (Array.isArray(player.inventory) ? player.inventory : []);
+    var ctx = { invById:{}, invByKey:{}, variantById:{}, defByKey:{}, owned:0, bankIds:{}, bankKeys:{} };
+    // Banked copies still count as owned. bankEntries has been empty in every
+    // payload seen so far, so only the obvious id/key fields are read.
+    [root.bankEntries, player.bankEntries].forEach(function(list){
+      (Array.isArray(list) ? list : []).forEach(function(b){
+        if (!b || typeof b !== 'object') return;
+        var k = b.itemKey || (b.item && b.item.key);
+        if (k) ctx.bankKeys[k] = true;
+        if (b.item && b.item.key && !ctx.defByKey[b.item.key]) ctx.defByKey[b.item.key] = b.item;
+        if (b.variantId) ctx.bankIds[b.variantId] = true;
+        if (b.id) ctx.bankIds[b.id] = true;
+      });
+    });
+    inv.forEach(function(r){
+      if (!r || typeof r !== 'object') return;
+      if (r.id) ctx.invById[r.id] = r;
+      if (r.variantId) ctx.invById[r.variantId] = r;
+      if (r.itemKey) {
+        // A plain (non-variant) row is the best stand-in for a key-only ref.
+        var prev = ctx.invByKey[r.itemKey];
+        if (!prev || (prev.variantId && !r.variantId)) ctx.invByKey[r.itemKey] = r;
+      }
+      if (r.item && r.item.key) ctx.defByKey[r.item.key] = r.item;
+      if (r.item && r.item.equipmentSlot) ctx.owned++;
+    });
+    (Array.isArray(player.itemVariants) ? player.itemVariants : []).forEach(function(v){
+      if (v && v.id) ctx.variantById[v.id] = v;
+    });
+    var worn = [player.equippedWeapon];
+    if (player.equippedArmor && typeof player.equippedArmor === 'object')
+      Object.keys(player.equippedArmor).forEach(function(k){ worn.push(player.equippedArmor[k]); });
+    worn.forEach(function(d){ if (d && d.key && !ctx.defByKey[d.key]) ctx.defByKey[d.key] = d; });
+    return ctx;
+  }
+
+  // ref → the equipped-item shape /api/player-profile uses, plus a note when
+  // something could not be resolved exactly.
+  function resolveItem(ref, slot, ctx){
+    var row  = ref.variantId ? (ctx.invById[ref.variantId] || null) : null;
+    var vrow = ref.variantId ? (ctx.variantById[ref.variantId] || null) : null;
+    var key  = ref.itemKey || (row && row.itemKey) || (vrow && vrow.itemKey) || null;
+    if (!key) return { item:null, note:cap(slot) + ': no item key' };
+    // A copy id that names a different item is not this item's copy.
+    if (row && row.itemKey && row.itemKey !== key) row = null;
+    if (vrow && vrow.itemKey && vrow.itemKey !== key) vrow = null;
+    var copyMissing = !!(ref.variantId && !row && !vrow);
+    if (!ref.variantId && key) row = ctx.invByKey[key] || null;
+    // Owned = an inventory row (worn gear is in inventory too) or the bank.
+    // An itemVariants row alone does not prove it: three of them in the
+    // 2026-10-19 payload have no inventory row. A game loadout can also name
+    // an item since consumed, e.g. Enchanted Belt Lv. 31 after it grew to 36.
+    var owned = ref.variantId ? !!(row || ctx.bankIds[ref.variantId]) : !!(row || ctx.bankKeys[key]);
+
+    var copy = {};
+    COPY_FIELDS.forEach(function(f){
+      var a = row ? row[f] : null, b = vrow ? vrow[f] : null;
+      copy[f] = (a != null) ? a : (b != null ? b : null);
+    });
+
+    var def = (row && row.item && row.item.key === key) ? row.item
+            : (ref.item && ref.item.key === key ? ref.item : (ctx.defByKey[key] || null));
+    var db = dbRow(key);
+    // Absent is not zero: with the game's own item definition in hand, a
+    // missing field is a stat the item lacks. Only without one fall back to
+    // the item database.
+    function stat(apiKey, dbKey){ return def ? num(def[apiKey]) : (db ? num(db[dbKey]) : null); }
+
+    var it = {
+      key: key,
+      name: (def && def.name) || (db && db.name) || prettyKey(key),
+      variantId: ref.variantId || (row && row.variantId) || null,
+      atk: stat('attackBonus', 'atk'),
+      def: stat('defenseBonus', 'def'),
+      hp:  stat('hpBonus', 'hp'),
+      xp:  stat('xpTaskBonus', 'xpPerTask'),
+      statLines: [],
+      socketEffectLine: null, socketState: 'none',
+      socketEffectLine2: null, socketState2: 'none',
+      enchantTier: num(copy.enchantTier),
+      enchantExpiresAt: copy.enchantExpiresAt || null,
+      __iwSource: 'player.json'
+    };
+    var sk = def ? def.skillBonusKey : (db && db.skillBonusSkill);
+    var sv = def ? num(def.skillBonusAmount) : (db ? num(db.skillBonusValue) : null);
+    if (sk && sv > 0) { it.skillBonusSkill = String(sk); it.skillBonusValue = sv; }
+
+    var sockets = def && def.socketCount != null ? (num(def.socketCount) || 0) : null;
+    if (sockets == null) {
+      try { sockets = (db && typeof iwSlotSocketsFor === 'function') ? Number(iwSlotSocketsFor(db, slot)) || 0 : 0; }
+      catch(e) { sockets = 0; }
+    }
+    [[copy.socketedGemKey, copy.socketEffect], [copy.socketedGemKey2, copy.socketEffect2]].forEach(function(g, i){
+      var line = (g[1] && g[1].stat != null) ? effectLine(g[1].stat, g[1].value) : null;
+      if (!line && g[0]) line = gemKeyEffect(g[0]);
+      var sKey = i ? 'socketState2' : 'socketState', lKey = i ? 'socketEffectLine2' : 'socketEffectLine';
+      if (g[0] || line) { it[sKey] = 'filled'; it[lKey] = line || String(g[0]); }
+      else if (i < sockets) it[sKey] = 'empty';
+    });
+
+    var ct = num(copy.cloakUpgradeTier);
+    if (ct > 0) {
+      var up = function(k, v){ var l = k ? effectLine(k, v) : null; return l ? l + ' (upgrade)' : null; };
+      it.cloakUpgradeTier = ct;
+      it.cloakUpgradeLine = up(copy.cloakUpgradeStatKey, copy.cloakUpgradeStatValue);
+      it.cloakUpgradeLine2 = up(copy.cloakUpgradeStatKey2, copy.cloakUpgradeStatValue2);
+    }
+
+    if (it.atk != null) it.statLines.push('ATK +' + it.atk);
+    if (it.def != null) it.statLines.push('DEF +' + it.def);
+    if (it.hp != null) it.statLines.push('HP +' + it.hp);
+    if (it.xp != null) it.statLines.push('XP +' + it.xp + '/task');
+    if (it.skillBonusSkill) it.statLines.push(cap(it.skillBonusSkill) + ' Level +' + it.skillBonusValue);
+    if (sockets > 0) it.statLines.push(sockets + (sockets === 1 ? ' Socket' : ' Sockets'));
+
+    // Ownership as of this player.json, recorded on the item so the summary
+    // can mark the row. Only set when false: gear added later from Gear
+    // search carries no flag, because nothing says whether it is owned.
+    if (!owned) it.__iwNotOwned = true;
+
+    var note = null;
+    if (!def && !db) note = cap(slot) + ': ' + key + ' is not in player.json or the item data';
+    else if (!owned) note = cap(slot) + ': ' + it.name + ' is not in your inventory any more' +
+      (copyMissing ? '; its gems and enchant are unknown' : '');
+    else if (copyMissing) note = cap(slot) + ': ' + it.name + ' copy not found; gems and enchants unknown';
+    return { item:it, note:note };
+  }
+
+  function buildLoadout(id, name, origin, refs, ctx){
+    var equipped = {}, notes = [];
+    SLOTS.forEach(function(s){
+      if (!refs[s]) return;
+      var res = resolveItem(refs[s], s, ctx);
+      if (res.item) equipped[s] = res.item;
+      if (res.note) notes.push(res.note);
+    });
+    return { id:id, name:name, origin:origin, equipped:equipped, notes:notes };
+  }
+
+  function findLoadoutList(player, root){
+    for (var i = 0; i < LOADOUT_FIELDS.length; i++) {
+      var f = LOADOUT_FIELDS[i];
+      var v = (player[f] != null) ? player[f] : root[f];
+      if (v == null) continue;
+      if (Array.isArray(v)) return { field:f, list:v.filter(function(x){ return x && typeof x === 'object'; }) };
+      if (typeof v === 'object') {
+        return { field:f, list:Object.keys(v).map(function(k){
+          var x = v[k];
+          if (!x || typeof x !== 'object') return null;
+          var o = Object.assign({}, x);
+          if (o.name == null && o.label == null) o.name = k;
+          if (o.id == null) o.id = k;
+          return o;
+        }).filter(Boolean) };
+      }
+    }
+    return { field:null, list:[] };
+  }
+
+  function profileSeed(player, root, equipped){
+    var skills = Array.isArray(root.skills) ? root.skills : (Array.isArray(player.skills) ? player.skills : []);
+    var seed = {
+      skills: skills.filter(Boolean).map(function(s){
+        return { skillKey: s.skillKey != null ? s.skillKey : s.key, level: s.level, xp: s.xp };
+      }),
+      equipped: clone(equipped) || {},
+      itemEnchants: (Array.isArray(player.itemEnchants) ? player.itemEnchants : []).map(function(e){
+        return { itemKey:e.itemKey, tier:e.tier, expiresAt:e.expiresAt, variantId:e.variantId };
+      }),
+      itemReinforcements: (Array.isArray(player.itemReinforcements) ? player.itemReinforcements : []).map(function(r){
+        return { itemKey:r.itemKey, tier:r.tier, actionsRemaining:r.actionsRemaining, variantId:r.variantId };
+      }),
+      __iwSource: 'player.json'
+    };
+    ['id','displayName','level','leagueType','race','housingTier','teamColor','createdAt',
+     'achievementXpBoostPercent','unlockedAchievementKeys','equippedTitleKey'].forEach(function(k){
+      if (player[k] !== undefined && player[k] !== null) seed[k] = clone(player[k]);
+    });
+    return seed;
+  }
+
+  /** Pure: player.json (text or object) → { player, loadouts, … }. Throws
+      an Error with a player-facing message when it is not a player.json. */
+  function parsePlayerJson(input){
+    var root = input;
+    if (typeof input === 'string') {
+      // trim() also drops a leading byte-order mark: U+FEFF is whitespace to JS.
+      var txt = input.trim();
+      if (!txt) throw new Error('The file is empty.');
+      try { root = JSON.parse(txt); }
+      catch(e) { throw new Error('That is not valid JSON (' + e.message + ').'); }
+    }
+    if (!root || typeof root !== 'object' || Array.isArray(root))
+      throw new Error('That JSON is not a player.json object.');
+    var player = (root.player && typeof root.player === 'object') ? root.player : root;
+    var found = findLoadoutList(player, root);
+    var hasGameShape = ('equippedWeaponKey' in player) || !!player.equippedArmor ||
+      Array.isArray(player.itemVariants) || Array.isArray(root.inventory) || found.list.length > 0;
+    if (!hasGameShape) {
+      if (player.equipped && typeof player.equipped === 'object')
+        throw new Error('This is the public profile, which only lists worn gear. Use player.json from the game.');
+      throw new Error('No player data found. Use the player.json response from the game.');
+    }
+
+    var ctx = buildContext(root, player);
+    // Skill display names come from the payload's own skills[] (herbing →
+    // "Herbalism"), so they read the way the game prints them.
+    var skillNames = {};
+    (Array.isArray(root.skills) ? root.skills : (Array.isArray(player.skills) ? player.skills : [])).forEach(function(s){
+      var k = s && (s.key != null ? s.key : s.skillKey);
+      if (k != null && s.name) skillNames[String(k)] = String(s.name);
+    });
+    var worn = buildLoadout('game:equipped', 'Equipped (in game)', 'equipped', slotRefs(player), ctx);
+    var loadouts = [worn];
+    found.list.forEach(function(raw, i){
+      var name = String(raw.name || raw.label || raw.title || ('Loadout ' + (i + 1)));
+      var id = 'game:' + String(raw.id != null ? raw.id : (raw.key != null ? raw.key : i));
+      var lo = buildLoadout(id, name, 'game', slotRefs(raw), ctx);
+      if (raw.isActive === true || (player.activeLoadoutId != null && String(player.activeLoadoutId) === String(raw.id))) lo.active = true;
+      // The game binds a loadout to skills (it swaps to it for that skill).
+      if (Array.isArray(raw.boundSkillKeys)) {
+        lo.boundSkills = raw.boundSkillKeys.filter(function(k){ return k != null && k !== ''; }).map(function(k){
+          return { key:String(k), name:skillNames[String(k)] || cap(String(k)) };
+        });
+      }
+      // No isActive in the 2026-10-19 payload, so "worn" is a comparison:
+      // the same item and copy in all 12 slots as the equipped gear.
+      if (Object.keys(lo.equipped).length && changedSlots(worn.equipped, lo.equipped).length === 0) lo.wornMatch = true;
+      loadouts.push(lo);
+    });
+    var snap = player.preCombatGearSnapshot;
+    if (snap && typeof snap === 'object') {
+      var pre = buildLoadout('game:precombat', 'Pre-combat gear', 'snapshot', slotRefs(snap), ctx);
+      if (Object.keys(pre.equipped).length) loadouts.push(pre);
+    }
+    return {
+      player: { id: player.id || null, displayName: player.displayName || null,
+                leagueType: player.leagueType || null, canUseLoadouts: player.canUseLoadouts === true },
+      renderedAt: root.renderedAt || null,
+      loadouts: loadouts,
+      gameLoadoutField: found.field,
+      gameLoadoutCount: found.list.length,
+      ownedEquipment: ctx.owned,
+      profileSeed: profileSeed(player, root, loadouts[0].equipped)
+    };
+  }
+
+  // ── Store ──────────────────────────────────────────────────────
+  function emptyStore(){ return { v:1, source:null, profileSeed:null, loadouts:[], selectedId:null }; }
+  function readStore(){
+    try {
+      var s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+      if (s && typeof s === 'object' && Array.isArray(s.loadouts)) return s;
+    } catch(e) {}
+    return emptyStore();
+  }
+  function writeStore(s){
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); return true; }
+    catch(e) { return false; }
+  }
+  function findIn(s, id){
+    for (var i = 0; i < s.loadouts.length; i++) if (s.loadouts[i] && s.loadouts[i].id === id) return i;
+    return -1;
+  }
+  function newUserId(){ return 'user:' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  // A fresh import replaces every imported loadout and keeps the player's own.
+  function storeImport(parsed){
+    var s = readStore(), now = Date.now();
+    var mine = s.loadouts.filter(function(l){ return l && l.origin === 'user'; });
+    var fresh = parsed.loadouts.map(function(l){
+      var o = { id:l.id, name:l.name, origin:l.origin, equipped:l.equipped, notes:l.notes || [], active:!!l.active, savedAt:now };
+      if (l.wornMatch) o.wornMatch = true;
+      if (l.boundSkills) o.boundSkills = l.boundSkills;
+      return o;
+    });
+    s.loadouts = fresh.concat(mine);
+    s.source = { playerId: parsed.player.id, displayName: parsed.player.displayName,
+                 renderedAt: parsed.renderedAt, importedAt: now,
+                 gameLoadoutField: parsed.gameLoadoutField, canUseLoadouts: parsed.player.canUseLoadouts };
+    s.profileSeed = parsed.profileSeed;
+    // Preselect the game's active loadout, else the one being worn.
+    var act = fresh.filter(function(l){ return l.active; })[0] ||
+              fresh.filter(function(l){ return l.wornMatch; })[0];
+    s.selectedId = (act || fresh[0]).id;
+    return writeStore(s) ? s : null;
+  }
+  function storeSaveNew(name, equipped){
+    var s = readStore();
+    var lo = { id:newUserId(), name:String(name), origin:'user', equipped:clone(equipped) || {}, notes:[], savedAt:Date.now() };
+    s.loadouts.push(lo);
+    s.selectedId = lo.id;
+    return writeStore(s) ? lo : null;
+  }
+  // Saving over an imported loadout turns it into the player's own, so the
+  // next import cannot overwrite the edit.
+  function storeOverwrite(id, equipped){
+    var s = readStore(), i = findIn(s, id);
+    if (i < 0) return null;
+    var lo = s.loadouts[i];
+    // Once edited it is no longer the game's loadout: drop the game's
+    // binding and worn/active status rather than carry stale claims.
+    if (lo.origin !== 'user') {
+      lo.origin = 'user'; lo.id = newUserId(); lo.notes = [];
+      delete lo.active; delete lo.wornMatch; delete lo.boundSkills;
+    }
+    lo.equipped = clone(equipped) || {};
+    lo.savedAt = Date.now();
+    s.selectedId = lo.id;
+    return writeStore(s) ? lo : null;
+  }
+  function storeRename(id, name){
+    var s = readStore(), i = findIn(s, id);
+    if (i < 0) return false;
+    s.loadouts[i].name = String(name);
+    return writeStore(s);
+  }
+  function storeRemove(id){
+    var s = readStore(), i = findIn(s, id);
+    if (i < 0) return false;
+    s.loadouts.splice(i, 1);
+    if (s.selectedId === id) s.selectedId = s.loadouts[0] ? s.loadouts[0].id : null;
+    return writeStore(s);
+  }
+
+  // ── Doll ───────────────────────────────────────────────────────
+  function itemSig(it){ return it ? [it.key || '', it.variantId || '', it.name || ''].join('|') : ''; }
+  function changedSlots(cur, next){
+    return SLOTS.filter(function(s){ return itemSig(cur && cur[s]) !== itemSig(next && next[s]); });
+  }
+  function isUsableProfile(p){
+    return !!(p && typeof p === 'object' && !Object.keys(p).every(function(k){ return k === 'skills'; }));
+  }
+  function dollMatches(lo){
+    var eq = window.IWProfile && window.IWProfile.equipped;
+    return !!(lo && eq && changedSlots(eq, lo.equipped).length === 0);
+  }
+
+  function applyLoadout(id){
+    var s = readStore(), i = findIn(s, id);
+    if (i < 0) return { ok:false, msg:'That loadout no longer exists.' };
+    var lo = s.loadouts[i];
+    var created = false;
+    if (!isUsableProfile(window.IWProfile)) {
+      if (!s.profileSeed) return { ok:false, msg:'Import player.json or your profile first.' };
+      // The seed carries the WORN gear, so Reset returns there.
+      var seeded = clone(s.profileSeed);
+      window.IWProfile = seeded;
+      try { if (typeof window.applyIWProfile === 'function') window.applyIWProfile(seeded); } catch(e) {}
+      created = true;
+    }
+    var prof = window.IWProfile;
+    var next = clone(lo.equipped) || {};
+    var changed = changedSlots(prof.equipped || {}, next);
+    prof.equipped = next;
+    // A new piece does not inherit the old piece's plans (as gnResetGear).
+    changed.forEach(function(slot){
+      try { if (typeof IW_SOCKET_PLAN !== 'undefined') IW_SOCKET_PLAN[slot] = []; } catch(e) {}
+      try { if (typeof IW_PLATE_PLAN !== 'undefined') IW_PLATE_PLAN[slot] = null; } catch(e) {}
+      try { if (typeof IW_ENCHANT_PLAN !== 'undefined') IW_ENCHANT_PLAN[slot] = null; } catch(e) {}
+      try { if (typeof iwClearEnhancementRemoval === 'function') iwClearEnhancementRemoval(slot); } catch(e) {}
+    });
+    if (changed.length) {
+      try { if (typeof iwSaveSocketPlan === 'function') iwSaveSocketPlan(); } catch(e) {}
+      try { if (typeof iwSavePlatePlan === 'function') iwSavePlatePlan(); } catch(e) {}
+      try { if (typeof iwSaveEnchantPlan === 'function') iwSaveEnchantPlan(); } catch(e) {}
+    }
+    try { if (typeof iwNotifyEquipmentChanged === 'function') iwNotifyEquipmentChanged('player.json loadout'); } catch(e) {}
+    try { if (typeof window.iwRefreshGearTab === 'function') window.iwRefreshGearTab(); } catch(e) {}
+    s.selectedId = lo.id;
+    writeStore(s);
+    var other = s.source && s.source.playerId && prof.id && s.source.playerId !== prof.id;
+    return { ok:true, created:created, changed:changed.length, otherPlayer:!!other, loadout:lo };
+  }
+
+  // ── UI ─────────────────────────────────────────────────────────
+  function q(sel){ return document.querySelector('[data-iwpj-panel] ' + sel); }
+  function show(el, on, disp){ if (!el) return; el.hidden = !on; el.style.display = on ? (disp || '') : 'none'; }
+  function setStatus(msg){ var el = q('[data-iwpj-status]'); if (el) el.textContent = msg || ''; }
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+  var ORIGIN_LABEL = { equipped:'in game, worn', game:'in game', snapshot:'in game', user:'saved here' };
+
+  function selectedId(){ var sel = q('[data-iwpj-select]'); return sel ? sel.value : null; }
+  function lostCount(lo){
+    return SLOTS.filter(function(sl){ var it = lo && lo.equipped && lo.equipped[sl]; return it && it.__iwNotOwned; }).length;
+  }
+
+  function render(){
+    var panel = document.querySelector('[data-iwpj-panel]');
+    if (!panel) return;
+    var s = readStore();
+    var sel = q('[data-iwpj-select]');
+    show(q('[data-iwpj-loadout-row]'), s.loadouts.length > 0, 'flex');
+    if (sel) {
+      var want = sel.value || s.selectedId;
+      sel.innerHTML = s.loadouts.map(function(l){
+        var n = Object.keys(l.equipped || {}).length;
+        var gone = lostCount(l);
+        return '<option value="' + esc(l.id) + '">' + esc(l.name) + ' — ' +
+          esc(ORIGIN_LABEL[l.origin] || l.origin) + (l.wornMatch ? ' · worn now' : '') +
+          (dollMatches(l) ? ' · in planner' : '') +
+          ' (' + n + '/' + SLOTS.length + ')' + (gone ? ' ⚠ ' + gone + ' not owned' : '') + '</option>';
+      }).join('');
+      if (want && findIn(s, want) >= 0) sel.value = want;
+    }
+    var lo = s.loadouts[findIn(s, selectedId())] || null;
+    var hasDoll = !!(window.IWProfile && window.IWProfile.equipped);
+    var btn = function(a){ return q('[data-iwpj-action="' + a + '"]'); };
+    ['apply','rename','delete'].forEach(function(a){ var b = btn(a); if (b) b.disabled = !lo; });
+    if (btn('save')) btn('save').disabled = !lo || !hasDoll || dollMatches(lo);
+    if (btn('save-new')) btn('save-new').disabled = !hasDoll;
+
+    var sum = q('[data-iwpj-summary]');
+    if (!sum) return;
+    if (!lo) { sum.innerHTML = ''; return; }
+    var rows = SLOTS.filter(function(sl){ return lo.equipped && lo.equipped[sl]; }).map(function(sl){
+      var it = lo.equipped[sl];
+      var gems = [it.socketEffectLine, it.socketEffectLine2].filter(Boolean);
+      var extra = [];
+      if (it.enchantTier > 0) extra.push('enchant T' + it.enchantTier);
+      if (gems.length) extra.push(gems.join(', '));
+      if (it.cloakUpgradeTier > 0) extra.push('upgrade T' + it.cloakUpgradeTier);
+      return '<li><span style="color:var(--text-3);">' + esc(cap(sl)) + ':</span> ' + esc(it.name) +
+        (extra.length ? ' <span style="color:var(--text-3);">(' + esc(extra.join('; ')) + ')</span>' : '') +
+        (it.__iwNotOwned ? ' <span style="color:var(--warn,#e8a428);">not owned</span>' : '') + '</li>';
+    });
+    var notes = (lo.notes || []).map(function(n){ return '<li style="color:var(--warn,#e8a428);">' + esc(n) + '</li>'; });
+    var facts = [];
+    if (lo.boundSkills && lo.boundSkills.length)
+      facts.push('Bound in game to ' + lo.boundSkills.map(function(b){ return b.name; }).join(', '));
+    else if (lo.origin === 'game') facts.push('Not bound to a skill in game');
+    if (lo.wornMatch) facts.push('this is the gear you are wearing now');
+    sum.innerHTML = (facts.length ? '<p style="margin:0 0 6px;color:var(--text-2);">' + esc(facts.join(' · ')) + '.</p>' : '') +
+      '<ul style="margin:0;padding-left:18px;columns:2 260px;column-gap:24px;">' +
+      (rows.join('') || '<li>Empty loadout</li>') + '</ul>' +
+      (notes.length ? '<ul style="margin:6px 0 0;padding-left:18px;">' + notes.join('') + '</ul>' : '');
+  }
+
+  function importText(text){
+    var parsed;
+    try { parsed = parsePlayerJson(text); }
+    catch(e) { setStatus('Import failed: ' + e.message); return false; }
+    if (!storeImport(parsed)) { setStatus('Import failed: this browser would not save the loadouts.'); return false; }
+    var created = false;
+    if (!isUsableProfile(window.IWProfile) && parsed.profileSeed) {
+      var seeded = clone(parsed.profileSeed);
+      window.IWProfile = seeded;
+      try { if (typeof window.applyIWProfile === 'function') window.applyIWProfile(seeded); } catch(e) {}
+      created = true;
+    }
+    var who = parsed.player.displayName || 'player';
+    var n = parsed.gameLoadoutCount;
+    var msg = 'Imported ' + who + "'s player.json: equipped gear" +
+      (n ? ' and ' + n + ' in-game loadout' + (n === 1 ? '' : 's') : '') + '.';
+    if (!n && !parsed.gameLoadoutField) msg += ' This player.json has no saved loadouts, so only your worn gear came in.';
+    var wornAs = parsed.loadouts.filter(function(l){ return l.wornMatch; })[0];
+    if (wornAs) msg += ' You are wearing "' + wornAs.name + '".';
+    var stale = parsed.loadouts.filter(function(l){ return lostCount(l) > 0; });
+    if (stale.length) msg += ' ' + stale.length + ' loadout' + (stale.length === 1 ? ' names' : 's name') +
+      ' gear you no longer own: ' + stale.map(function(l){ return l.name; }).join(', ') + '.';
+    if (created) msg += ' It is also your profile now, so Gear knows your levels.';
+    var prof = window.IWProfile;
+    if (!created && prof && prof.id && parsed.player.id && prof.id !== parsed.player.id)
+      msg += ' Note: this player.json is not the character your profile was imported for.';
+    setStatus(msg);
+    var paste = q('[data-iwpj-paste]');
+    if (paste) { show(paste, false); var t = q('[data-iwpj-text]'); if (t) t.value = ''; }
+    var tg = q('[data-iwpj-action="toggle-paste"]'); if (tg) tg.setAttribute('aria-expanded', 'false');
+    render();
+    return true;
+  }
+
+  function onAction(action){
+    var id = selectedId(), s = readStore(), i = findIn(s, id), lo = i >= 0 ? s.loadouts[i] : null;
+    var eq = window.IWProfile && window.IWProfile.equipped;
+    if (action === 'pick') { var f = q('[data-iwpj-file]'); if (f) { f.value = ''; f.click(); } return; }
+    if (action === 'toggle-paste') {
+      var p = q('[data-iwpj-paste]'), open = !!(p && p.hidden);
+      show(p, open, 'flex');
+      var tg = q('[data-iwpj-action="toggle-paste"]'); if (tg) tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) { var t = q('[data-iwpj-text]'); if (t) t.focus(); }
+      return;
+    }
+    if (action === 'paste-import') { var ta = q('[data-iwpj-text]'); importText(ta ? ta.value : ''); return; }
+    if (action === 'apply' && lo) {
+      var r = applyLoadout(lo.id);
+      if (!r.ok) { setStatus(r.msg); return; }
+      setStatus('Loaded "' + lo.name + '" into the planner' +
+        (r.changed ? ' (' + r.changed + ' slot' + (r.changed === 1 ? '' : 's') + ' changed).' : '; it was already showing.') +
+        (r.created ? ' Your profile was built from player.json.' : '') +
+        (r.otherPlayer ? ' This loadout is from a different character than your profile.' : '') +
+        ' Edit it with the Gear tools, then Save changes.');
+    } else if (action === 'save' && lo && eq) {
+      var saved = storeOverwrite(lo.id, eq);
+      setStatus(saved ? 'Saved the planner gear to "' + saved.name + '".' : 'Could not save.');
+    } else if (action === 'save-new' && eq) {
+      var name = window.prompt('Name this loadout:', lo ? lo.name + ' (copy)' : 'My loadout');
+      if (name == null || !String(name).trim()) return;
+      var made = storeSaveNew(String(name).trim(), eq);
+      setStatus(made ? 'Saved the planner gear as "' + made.name + '".' : 'Could not save.');
+    } else if (action === 'rename' && lo) {
+      var nn = window.prompt('Rename loadout:', lo.name);
+      if (nn == null || !String(nn).trim()) return;
+      storeRename(lo.id, String(nn).trim());
+    } else if (action === 'delete' && lo) {
+      if (!window.confirm('Delete the loadout "' + lo.name + '"?' +
+          (lo.origin !== 'user' ? ' The next player.json import brings it back.' : ''))) return;
+      storeRemove(lo.id);
+      setStatus('Deleted "' + lo.name + '".');
+    }
+    render();
+  }
+
+  function init(){
+    var panel = document.querySelector('[data-iwpj-panel]');
+    if (!panel || panel.getAttribute('data-iwpj-ready') === '1') return;
+    panel.setAttribute('data-iwpj-ready', '1');
+    panel.addEventListener('click', function(e){
+      var b = e.target && e.target.closest ? e.target.closest('[data-iwpj-action]') : null;
+      if (!b || b.disabled) return;
+      onAction(b.getAttribute('data-iwpj-action'));
+    });
+    var file = q('[data-iwpj-file]');
+    if (file) file.addEventListener('change', function(){
+      var f = file.files && file.files[0];
+      if (!f) return;
+      if (f.size > MAX_BYTES) { setStatus('Import failed: that file is over 10 MB, so it is not player.json.'); return; }
+      setStatus('Reading ' + f.name + '…');
+      var rd = new FileReader();
+      rd.onload = function(){ importText(String(rd.result || '')); };
+      rd.onerror = function(){ setStatus('Import failed: the file could not be read.'); };
+      rd.readAsText(f);
+    });
+    var sel = q('[data-iwpj-select]');
+    if (sel) sel.addEventListener('change', function(){
+      var s = readStore();
+      if (findIn(s, sel.value) >= 0) { s.selectedId = sel.value; writeStore(s); }
+      render();
+    });
+    window.addEventListener('iw:profile', function(){ setTimeout(render, 0); });
+    window.addEventListener('iw:equipment', function(){ setTimeout(render, 0); });
+    render();
+  }
+
+  window.iwParsePlayerJson = parsePlayerJson;
+  window.iwPlayerLoadouts = {
+    list: function(){ return clone(readStore().loadouts); },
+    apply: function(id){ var r = applyLoadout(id); render(); return r; },
+    importText: importText,
+    render: render,
+    _internal: { effectLine:effectLine, gemKeyEffect:gemKeyEffect, changedSlots:changedSlots,
+                 storeImport:storeImport, storeSaveNew:storeSaveNew, storeOverwrite:storeOverwrite,
+                 storeRename:storeRename, storeRemove:storeRemove, readStore:readStore, STORE_KEY:STORE_KEY }
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+/* Suite R — player.json import. Pure parser plus the loadout store; the store
+   writes localStorage, which the self-check storage guard restores. Calls
+   window.iwParsePlayerJson so a broken parser can be swapped in from the
+   console to prove the suite fails. */
+(function(){
+  'use strict';
+  window.iwPlayerJsonImportSelfCheck = function iwPlayerJsonImportSelfCheck(){
+    var fail = [];
+    function ok(label, cond){ if (!cond) fail.push(label); }
+    var parse = window.iwParsePlayerJson;
+    var api = window.iwPlayerLoadouts;
+    if (typeof parse !== 'function' || !api) return ['player.json importer missing'];
+    var inv = [
+      { id:'v1', itemKey:'zz_fx_pick', variantId:'v1', enchantTier:19, enchantExpiresAt:'2099-01-01T00:00:00Z',
+        item:{ key:'zz_fx_pick', name:'Fixture Pick', equipmentSlot:'weapon', attackBonus:112, xpTaskBonus:12,
+               skillBonusKey:'mining', skillBonusAmount:4 } },
+      { id:'v2', itemKey:'zz_fx_hood', variantId:'v2', socketedGemKey:'cut_zircon',
+        socketEffect:{ stat:'xpTaskBonus', value:6 }, socketedGemKey2:null, socketEffect2:null,
+        item:{ key:'zz_fx_hood', name:'Fixture Hood', equipmentSlot:'helmet', defenseBonus:14, socketCount:2 } },
+      { id:'r1', itemKey:'zz_fx_ring', variantId:null,
+        item:{ key:'zz_fx_ring', name:'Fixture Ring', equipmentSlot:'ring', doubleGatherChancePercent:95 } },
+      { id:'s1', itemKey:'zz_fx_sword', variantId:null,
+        item:{ key:'zz_fx_sword', name:'Fixture Sword', equipmentSlot:'weapon', attackBonus:50 } },
+      { id:'s2', itemKey:'zz_fx_shield', variantId:null,
+        item:{ key:'zz_fx_shield', name:'Fixture Shield', equipmentSlot:'shield', defenseBonus:30 } },
+      // Inventory copy with null cloak fields; its itemVariants row has them.
+      { id:'v3', itemKey:'zz_fx_cloak', variantId:'v3', cloakUpgradeTier:null,
+        item:{ key:'zz_fx_cloak', name:'Fixture Cloak', equipmentSlot:'cloak', defenseBonus:10 } }
+    ];
+    var fx = {
+      renderedAt: 1,
+      player: {
+        id:'zz_fixture', displayName:'Fixture', race:'elf', housingTier:3, canUseLoadouts:true,
+        equippedWeaponKey:'zz_fx_pick', equippedWeaponVariantId:'v1',
+        equippedHelmetKey:'zz_fx_hood', equippedHelmetVariantId:'v2',
+        equippedRingKey:'zz_fx_ring', equippedCloakKey:'zz_fx_cloak', equippedCloakVariantId:'v3',
+        equippedShieldKey:null, equippedShieldVariantId:null,
+        itemVariants: [
+          { id:'v3', itemKey:'zz_fx_cloak', cloakUpgradeTier:3, cloakUpgradeStatKey:'defenseBonus', cloakUpgradeStatValue:12,
+            cloakUpgradeStatKey2:'doubleGatherChancePercent', cloakUpgradeStatValue2:3 },
+          { id:'v4', itemKey:'zz_fx_hood', socketedGemKey:'cut_opal', socketedGemKey2:null }
+        ],
+        itemEnchants: [], itemReinforcements: [],
+        loadouts: [
+          { id:'L1', name:'Combat', isActive:true, boundSkillKeys:['combat'],
+            slots:{ weapon:{ itemKey:'zz_fx_sword', variantId:null },
+                    helmet:{ itemKey:'zz_fx_hood', variantId:'v4' }, offhand:'zz_fx_shield' } },
+          { name:'Flat', weaponKey:'zz_fx_pick', weaponVariantId:'v1' },
+          { id:'L3', name:'Ghost', boundSkillKeys:['zz_skill'], slots:{ weapon:{ itemKey:'zz_fx_not_a_real_item' } } },
+          // Same item and copy in every slot as the worn gear (shield empty in both).
+          { id:'L4', name:'Twin', boundSkillKeys:['herbing'],
+            slots:{ weapon:{ itemKey:'zz_fx_pick', variantId:'v1' }, helmet:{ itemKey:'zz_fx_hood', variantId:'v2' },
+                    ring:{ itemKey:'zz_fx_ring', variantId:null }, cloak:{ itemKey:'zz_fx_cloak', variantId:'v3' },
+                    shield:null } },
+          { id:'L5', name:'Banked', boundSkillKeys:[], slots:{ belt:{ itemKey:'zz_fx_banked', variantId:null } } }
+        ],
+        bankEntries: [{ itemKey:'zz_fx_banked', item:{ key:'zz_fx_banked', name:'Fixture Banked Belt', equipmentSlot:'belt' } }]
+      },
+      skills: [{ key:'combat', name:'Combat', level:40, xp:1000 }, { key:'herbing', name:'Herbalism', level:30, xp:10 }],
+      inventory: inv
+    };
+    try {
+      var r = parse(JSON.stringify(fx));
+      ok('six loadouts (worn + five game)', r.loadouts.length === 6);
+      ok('game loadout count', r.gameLoadoutCount === 5 && r.gameLoadoutField === 'loadouts');
+      var worn = r.loadouts[0], eq = worn.equipped;
+      ok('worn loadout first', worn.id === 'game:equipped' && worn.origin === 'equipped');
+      ok('null shield key leaves the slot empty', !('shield' in eq));
+      var w = eq.weapon || {};
+      ok('weapon resolved by copy', w.name === 'Fixture Pick' && w.variantId === 'v1');
+      ok('weapon stats', w.atk === 112 && w.xp === 12);
+      ok('absent DEF/HP stay null, not 0', w.def === null && w.hp === null);
+      ok('per-copy enchant kept', w.enchantTier === 19 && !!w.enchantExpiresAt);
+      ok('skill boost structured', w.skillBonusSkill === 'mining' && w.skillBonusValue === 4);
+      ok('skill boost readable by the engine', typeof iwSkillBonusFromEquippedItem !== 'function' ||
+        ((iwSkillBonusFromEquippedItem(w) || {}).value === 4));
+      var h = eq.helmet || {};
+      var g1 = typeof iwParseSocketEffect === 'function' ? iwParseSocketEffect(h.socketEffectLine) : null;
+      ok('socket effect parses', h.socketState === 'filled' && g1 && g1.stat === 'xpPerTask' && g1.value === 6);
+      ok('second declared socket is open', h.socketState2 === 'empty');
+      var ring = eq.ring || {};
+      ok('ring has no sockets', ring.socketState === 'none' && ring.socketState2 === 'none');
+      var c = eq.cloak || {};
+      var up1 = typeof iwParseCloakUpgradeLine === 'function' ? iwParseCloakUpgradeLine(c.cloakUpgradeLine) : null;
+      var up2 = typeof iwParseCloakUpgradeLine === 'function' ? iwParseCloakUpgradeLine(c.cloakUpgradeLine2) : null;
+      ok('cloak upgrade from itemVariants', c.cloakUpgradeTier === 3);
+      ok('cloak upgrade lines parse', up1 && up1.stat === 'def' && up1.value === 12 &&
+        up2 && up2.stat === 'gather' && up2.value === 3 && up2.pct === true);
+      ok('worn loadout has no notes', worn.notes.length === 0);
+
+      var combat = r.loadouts[1], ce = combat.equipped;
+      ok('game loadout named and active', combat.name === 'Combat' && combat.id === 'game:L1' && combat.active === true);
+      ok('offhand alias → shield', ce.shield && ce.shield.name === 'Fixture Shield');
+      ok('key-only ref resolves', ce.weapon && ce.weapon.name === 'Fixture Sword' && ce.weapon.variantId === null);
+      var g4 = (ce.helmet && typeof iwParseSocketEffect === 'function') ? iwParseSocketEffect(ce.helmet.socketEffectLine) : null;
+      ok('variant-only copy: gem from its key, not another copy', g4 && g4.stat === 'xpPerTask' && g4.value === 4);
+      ok('flat loadout form', r.loadouts[2].name === 'Flat' && r.loadouts[2].equipped.weapon &&
+        r.loadouts[2].equipped.weapon.variantId === 'v1');
+      var ghost = r.loadouts[3];
+      ok('unknown item named and flagged', ghost.equipped.weapon && ghost.equipped.weapon.name === 'Zz Fx Not A Real Item' &&
+        ghost.notes.length === 1);
+
+      // Bound skills: the game's own skill names, a fallback for unknown keys,
+      // absent when the game sends no list, empty list kept as empty.
+      var twin = r.loadouts[4], banked = r.loadouts[5];
+      ok('bound skill uses the game name', twin.boundSkills && twin.boundSkills.length === 1 &&
+        twin.boundSkills[0].key === 'herbing' && twin.boundSkills[0].name === 'Herbalism');
+      ok('bound skill on combat', combat.boundSkills && combat.boundSkills[0].name === 'Combat');
+      ok('unknown bound skill falls back to its key', ghost.boundSkills && ghost.boundSkills[0].name === 'Zz_skill');
+      ok('no boundSkillKeys → no boundSkills', r.loadouts[2].boundSkills === undefined);
+      ok('empty boundSkillKeys → empty list', banked.boundSkills && banked.boundSkills.length === 0);
+      // Worn match: all 12 slots, item AND copy.
+      ok('worn twin matches worn gear', twin.wornMatch === true);
+      ok('partial and different loadouts do not', !combat.wornMatch && !r.loadouts[2].wornMatch &&
+        !ghost.wornMatch && !banked.wornMatch && !worn.wornMatch);
+      var twinOtherCopy = JSON.parse(JSON.stringify(fx));
+      twinOtherCopy.player.loadouts[3].slots.helmet.variantId = 'v4';
+      ok('another copy of the same item is not a worn match', !parse(twinOtherCopy).loadouts[4].wornMatch);
+      // Ownership: inventory and bank count; an itemVariants row alone does not.
+      ok('worn gear all owned', Object.keys(eq).every(function(s){ return !eq[s].__iwNotOwned; }));
+      ok('variant-only copy flagged not owned', ce.helmet && ce.helmet.__iwNotOwned === true &&
+        combat.notes.length === 1 && /not in your inventory/.test(combat.notes[0]));
+      ok('owned key-only item not flagged', ce.weapon && !ce.weapon.__iwNotOwned && ce.shield && !ce.shield.__iwNotOwned);
+      ok('banked item owned, named from the bank row', banked.equipped.belt && !banked.equipped.belt.__iwNotOwned &&
+        banked.equipped.belt.name === 'Fixture Banked Belt' && banked.notes.length === 0);
+
+      var seed = r.profileSeed;
+      ok('seed maps skills', seed.skills.length === 2 && seed.skills[0].skillKey === 'combat');
+      ok('seed is persistable (not a skills-only stub)', Object.keys(seed).some(function(k){ return k !== 'skills'; }));
+      ok('seed carries worn gear and identity', seed.id === 'zz_fixture' && seed.race === 'elf' && seed.equipped.weapon);
+
+      var mapped = parse({ player:{ id:'zz_p2', equippedWeaponKey:'zz_fx_sword',
+        gearLoadouts:{ Mining:{ equipment:[{ slot:'weapon', itemKey:'zz_fx_pick' }] } } }, inventory:inv });
+      ok('object-map loadouts + array slots', mapped.loadouts.length === 2 && mapped.loadouts[1].name === 'Mining' &&
+        mapped.loadouts[1].equipped.weapon && mapped.loadouts[1].equipped.weapon.name === 'Fixture Pick');
+      // Not owned, so not in player.json: name and stats come from the item
+      // data, and (since 2026-10-19) it carries the not-owned flag and note.
+      var dbPick = (typeof IDB_STATE !== 'undefined' && IDB_STATE && IDB_STATE.idMap) ? IDB_STATE.idMap.get('prospectors_pick') : null;
+      ok('item data has prospectors_pick (fixture premise)', !!dbPick);
+      if (dbPick) {
+        var real = parse({ renderedAt:2, player:{ id:'zz_p3', equippedWeaponKey:'prospectors_pick' }, inventory:[] });
+        var rw = real.loadouts[0].equipped.weapon || {};
+        ok('item-data fallback when the item is not owned', rw.name === dbPick.name &&
+          rw.atk === (dbPick.atk == null ? null : Number(dbPick.atk)) && rw.__iwNotOwned === true &&
+          real.loadouts[0].notes.length === 1);
+      }
+    } catch(e) { fail.push('parse threw: ' + e.message); }
+
+    function throws(label, input){
+      try { parse(input); fail.push(label + ' was accepted'); } catch(e) {}
+    }
+    throws('empty text', '   ');
+    throws('invalid JSON', '{player:');
+    throws('unrelated JSON', '{"hello":1}');
+    throws('public profile', JSON.stringify({ id:'x', equipped:{ weapon:{ key:'a' } } }));
+    throws('array', '[]');
+
+    ok('effect line wording', api._internal.effectLine('itemFindPercent', 8) === '+8% Item Find' &&
+      api._internal.effectLine('xpTaskBonus', 6) === '+6 XP per Task' &&
+      api._internal.effectLine('mysteryStat', 6) === null);
+    ok('gem key → effect', api._internal.gemKeyEffect('cut_jade') === '+8% 2x Gather Chance' &&
+      api._internal.gemKeyEffect('cut_shadow_pearl') === '+8% Gold Find' &&
+      api._internal.gemKeyEffect('raw_jade') === null);
+    ok('changed slots', api._internal.changedSlots({ ring:{ key:'a' } }, { ring:{ key:'a' }, belt:{ key:'b' } }).join() === 'belt');
+
+    // Store: a re-import keeps the player's own loadouts and replaces imported ones.
+    try {
+      var I = api._internal;
+      localStorage.removeItem(I.STORE_KEY);
+      var p1 = parse(JSON.stringify(fx));
+      I.storeImport(p1);
+      ok('import stores all loadouts', I.readStore().loadouts.length === 6);
+      ok('active game loadout selected', I.readStore().selectedId === 'game:L1');
+      var storedTwin = I.readStore().loadouts.filter(function(l){ return l.id === 'game:L4'; })[0];
+      ok('store keeps bound skills and worn match', storedTwin && storedTwin.wornMatch === true &&
+        storedTwin.boundSkills && storedTwin.boundSkills[0].name === 'Herbalism');
+      var noActive = JSON.parse(JSON.stringify(fx));
+      delete noActive.player.loadouts[0].isActive;
+      I.storeImport(parse(noActive));
+      ok('without an active loadout the worn one is preselected', I.readStore().selectedId === 'game:L4');
+      I.storeImport(p1);
+      var mine = I.storeSaveNew('Mine', p1.loadouts[0].equipped);
+      ok('save as new', mine && mine.origin === 'user' && I.readStore().loadouts.length === 7);
+      var edited = I.storeOverwrite('game:L1', p1.loadouts[0].equipped);
+      ok('saving over an imported loadout makes it the player\'s', edited && edited.origin === 'user' &&
+        edited.name === 'Combat' && edited.equipped.weapon.name === 'Fixture Pick');
+      ok('an edited loadout drops the game\'s binding and status', edited && edited.boundSkills === undefined &&
+        edited.active === undefined && edited.wornMatch === undefined);
+      I.storeImport(p1);
+      var after = I.readStore().loadouts;
+      ok('re-import keeps own loadouts', after.length === 8 &&
+        after.filter(function(l){ return l.origin === 'user'; }).length === 2);
+      ok('rename', I.storeRename(mine.id, 'Renamed') &&
+        I.readStore().loadouts.some(function(l){ return l.name === 'Renamed'; }));
+      ok('remove', I.storeRemove(mine.id) && I.readStore().loadouts.length === 7);
+    } catch(e) { fail.push('store threw: ' + e.message); }
+    return fail;
+  };
+})();
+</script>
+
+
+
+
+<script>
 /* v4.7 v10 — Planner-style anchored hover tooltips with isolated modal state.
    The full mannequin body remains intact, but hover placement now follows the
    shared iwTipPosition contract: centre on the trigger, prefer below, flip
@@ -40065,7 +41120,8 @@ function syncCombatLevel(val) {
         ['Raid gear',window.iwRaidGearSelfCheck],
         ['October 2026 patches',window.iwOctober2026PatchSelfCheck],
         ['Hollow Night',window.iwHollowNightSelfCheck],
-        ['Slot/stat filters',window.iwSlotStatFilterSelfCheck]
+        ['Slot/stat filters',window.iwSlotStatFilterSelfCheck],
+        ['player.json loadouts',window.iwPlayerJsonImportSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;

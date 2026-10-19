@@ -47,8 +47,8 @@ get it.
 
 Open `index.html` in a browser. There is nothing to install and nothing to
 build. Verify JS still parses after an edit — this is the cheapest real gate,
-and it compiles every inline block without executing any of it (28 blocks, all
-passing as of 2026-10-15). Swap in `index2.html` to gate the staging copy:
+and it compiles every inline block without executing any of it (29 blocks, all
+passing as of 2026-10-19). Swap in `index2.html` to gate the staging copy:
 
 ```bash
 node -e "const fs=require('fs'),vm=require('vm');const src=fs.readFileSync('index.html','utf8');let m,i=0,bad=0;const re=/<script([^>]*)>([\s\S]*?)<\/script>/gi;while((m=re.exec(src))){if(/type\s*=\s*[\"'](?!text\/javascript)/i.test(m[1]))continue;const line=src.slice(0,m.index).split('\n').length;i++;try{new vm.Script(m[2]);}catch(e){bad++;console.log('FAIL block at line '+line+': '+e.message);}}console.log(i+' blocks checked, '+bad+' failed');"
@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Twenty-two regression suites ship inside the file and are the safety net for
+Twenty-four regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -90,7 +90,18 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwDailyBoostSyncSelfCheck` (I) · `iwAchievementXpSelfCheck` (J) ·
 `iwXpCurveTaperSelfCheck` (K) · `iwAshenSkinSelfCheck` (L) ·
 `iwSelfCheckIsolationSelfCheck` (M) · `iwRaidGearSelfCheck` (N) ·
-`iwOctober2026PatchSelfCheck` (O) · `iwHollowNightSelfCheck` (P).
+`iwOctober2026PatchSelfCheck` (O) · `iwHollowNightSelfCheck` (P) · `iwSlotStatFilterSelfCheck` (Q) ·
+`iwPlayerJsonImportSelfCheck` (R).
+
+Suite R covers the Gear tab's player.json import (search `PLAYER.JSON IMPORT &
+SAVED LOADOUTS`). `player.json` is the game's private payload, which the player
+picks or pastes in, and it is read locally. The 2026-10-19 game patch added
+`player.loadouts` in the requested shape, plus `boundSkillKeys`; the toolkit
+shows the bound skills, marks the loadout that matches the worn gear (there
+is no `isActive`), and flags gear the player no longer owns (`__iwNotOwned`).
+What is still outstanding from the developer is tracked in
+`docs/player-json-loadouts-request.md`. `itemVariants[].socketCount` is `1` on
+rings, cloaks and uniques; don't trust it.
 
 Suite O pins the fitted upgrade-share formulas against **every** +N row the
 embedded data prints, and pins the row counts (1,148 Smithing / 920
@@ -330,7 +341,8 @@ inline on their host elements.
 `iwCollapseSkills` · `iw_gem_alltiers_v1` · `iwVisitedTool` ·
 `iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1` · `iw_skin_v1` ·
 `iwHollowThemeOffV1` (v6.3: the viewer turned the Hollow Night theme off with
-the header button).
+the header button) · `iwPlayerLoadoutsV1` (v6.4: loadouts imported from
+player.json or saved from the Gear doll, plus the profile seed built from it).
 
 Two rules govern `IWStore`: **capture is generic** (every `<input>`/`<select>`
 carrying an id is snapshotted by id, so new controls persist automatically),
@@ -364,9 +376,10 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v6.3 (October game patches + Hollow
-  Night), live since 2026-10-15. Hollow Night's theme shows Oct 24–31 only;
-  see the HOLLOW NIGHT script.
+- `index.html` — **the working file**, v6.4 (slot and stat filters,
+  player.json loadouts, back-to-game button), live since 2026-10-19. v6.3
+  added the October game patches and Hollow Night, whose theme shows
+  Oct 15–31 (the event launched a week early); see the HOLLOW NIGHT script.
 - `index2.html` — **the staging copy** (since 2026-10-15): `index.html` plus a
   noindex staging header, pushed for live testing before promotion. Never
   hand-edit it; see Commits. The name was used before for a stale v5.2
