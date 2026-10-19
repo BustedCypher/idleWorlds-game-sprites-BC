@@ -3,7 +3,15 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v6.3.1</title>
+<title>IdleWorlds Toolkit v6.4</title>
+<!-- v6.4 Slot + stat filters (2026-10-19; player request, TadFish: "search
+     Gold Find and filter Rings"):
+     • Item Lookup and Gear → Search Gear both gain Slot and Has stat
+       dropdowns. A stat filter sorts biggest-first and prints the value.
+     • One shared table, IW_STAT_FILTERS, read through iwParseGearStats, so a
+       filter agrees with what Gear scores (upgrade shares included).
+     • Suite Q (iwSlotStatFilterSelfCheck).
+-->
 <!-- v6.3.1 Hollow Night went live a week early (2026-10-15; game patch
      0.2.0+2026-10-15.20, "runs until the end of October 31 (Toronto time)"):
      • The theme's START is now 2026-10-15 (was 10-24). The gate is otherwise
@@ -4949,7 +4957,7 @@
   .gn-search-body { padding: 0 9px 9px; border-top: 1px solid var(--border); }
   .gn-search-controls {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 190px;
+    grid-template-columns: minmax(0, 1fr) repeat(3, 150px);
     gap: 10px;
     align-items: end;
     padding: 10px 0;
@@ -5088,7 +5096,8 @@
     .gn-rec-progress,
     .gn-rec-groups { grid-template-columns: 1fr; }
     .gn-bis-table { min-width: 520px; }
-    .gn-search-controls { grid-template-columns: 1fr; }
+    .gn-search-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .gn-search-controls > .field:first-child { grid-column: 1 / -1; }
     .gn-search-results { max-height: 360px; }
   }
 
@@ -8673,7 +8682,7 @@
   .gn-rec-summary-best { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--ash-faint); }
   .gn-rec-count { font-size: 10.5px; color: var(--ash-faint); white-space: nowrap; }
   .gn-search-body { padding: 0 11px 11px; border-top: 1px solid var(--ash-edge-faint); }
-  .gn-search-controls { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 10px; align-items: end; padding: 10px 0; }
+  .gn-search-controls { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 150px); gap: 10px; align-items: end; padding: 10px 0; }
   .gn-search-results { max-height: 400px; overflow-y: auto; overscroll-behavior: contain; }
   .gn-search-count { padding: 0 0 7px; font-size: 11.5px; line-height: 1.4; color: var(--ash-faint); }
   .gn-search-empty { padding: 9px 2px 3px; font-family: var(--ash-font-flav); font-style: italic; font-size: 14px; line-height: 1.45; color: var(--ash-faint); }
@@ -8693,7 +8702,9 @@
   .gn-rec-tag.tradeoff { color: var(--ash-warn); }
   .gn-rec-empty { padding: 8px 0 2px; font-family: var(--ash-font-flav); font-style: italic; font-size: 14px; color: var(--ash-faint); }
   @media (max-width: 680px) {
-    .gn-rec-progress, .gn-rec-groups, .gn-search-controls { grid-template-columns: 1fr; }
+    .gn-rec-progress, .gn-rec-groups { grid-template-columns: 1fr; }
+    .gn-search-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .gn-search-controls > .field:first-child { grid-column: 1 / -1; }
     .gn-search-results { max-height: 360px; }
   }
 
@@ -9696,7 +9707,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.3.1</span>
+  <span data-ui=ver-pill class="ver-pill">v6.4</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- HOLLOW NIGHT (v6.3): the viewer's on/off switch for the event theme.
        Shown only while the theme is in season (Oct 24–31); the choice is
@@ -12133,7 +12144,7 @@
           <span data-ui=gn-rec-summary-icon aria-hidden="true">⌕</span>
           <span data-ui=gn-rec-summary-main class="gn-rec-summary-main">
             <span data-ui=gn-rec-summary-slot class="gn-rec-summary-slot">Search Gear</span>
-            <span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Find any equipment item to add to your loadout</span>
+            <span data-ui=gn-rec-summary-best class="gn-rec-summary-best">Find equipment by name, tier, slot or stat to add to your loadout</span>
           </span>
         </summary>
         <div data-ui=gn-search-body class="gn-search-body">
@@ -12146,6 +12157,18 @@
               <label for="gn-search-tier">Tier</label>
               <select id="gn-search-tier" aria-label="Filter gear search by tier">
                 <option value="">All tiers</option>
+              </select>
+            </div>
+            <div data-ui=field class="field">
+              <label for="gn-search-slot">Slot</label>
+              <select id="gn-search-slot" aria-label="Filter gear search by slot">
+                <option value="">All slots</option><option value="weapon">Weapon</option><option value="shield">Shield</option><option value="helmet">Helmet</option><option value="chest">Chest</option><option value="legs">Legs</option><option value="gloves">Gloves</option><option value="boots">Boots</option><option value="belt">Belt</option><option value="cloak">Cloak</option><option value="ring">Ring</option><option value="amulet">Amulet</option><option value="trinket">Trinket</option>
+              </select>
+            </div>
+            <div data-ui=field class="field">
+              <label for="gn-search-stat">Has stat</label>
+              <select id="gn-search-stat" aria-label="Filter gear search by stat">
+                <option value="">Any stat</option><option value="atk">ATK</option><option value="def">DEF</option><option value="xpPerTask">XP per Task</option><option value="goldFind">Gold Find</option><option value="itemFind">Item Find</option><option value="gather">Double Gather</option><option value="warfare">Warfare</option><option value="fire">Fire Resist</option><option value="frost">Frost Resist</option><option value="lightning">Lightning Resist</option>
               </select>
             </div>
           </div>
@@ -12222,6 +12245,14 @@
           <div data-ui=idb-tier-wrap class="idb-tier-wrap">
             <label class="idb-tier-label" for="idb-tier-select">Tier</label>
             <select id="idb-tier-select" class="idb-tier-select" aria-label="Filter by tier"><option value="all">All tiers</option><option value="0">T0</option><option value="1">T1 · Copper</option><option value="2">T2 · Iron</option><option value="3">T3 · Silver</option><option value="4">T4 · Gold</option><option value="5">T5 · Mythril</option><option value="6">T6 · Starsteel</option><option value="7">T7 · Obsidian</option><option value="8">T8 · Runite</option><option value="9">T9 · Dragonsteel</option><option value="10">T10 · Aethersteel</option><option value="11">T11 · Voidiron</option><option value="12">T12 · Celestium</option><option value="13">T13 · Bloodstone</option><option value="14">T14 · Moonsteel</option><option value="15">T15 · Sunforged</option><option value="16">T16 · Netherite</option><option value="17">T17 · Stormglass</option><option value="18">T18 · Kingssteel</option><option value="19">T19 · Eternium</option><option value="20">T20 · Astralium</option><option value="21">T21 · Gravite</option><option value="22">T22 · Frostiron</option><option value="23">T23 · Dusksteel</option><option value="24">T24 · Titanium</option><option value="25">T25 · Skysteel</option><option value="26">T26 · Emberium</option><option value="27">T27 · Soulsteel</option><option value="28">T28 · Chronite</option><option value="29">T29 · Worldforge</option><option value="30">T30 · Voidglass</option><option value="31">T31 · Thalassic</option><option value="32">T32 · Ashspire</option><option value="33">T33 · Glacirite</option><option value="34">T34 · Primordite</option><option value="35">T35</option><option value="36">T36</option><option value="37">T37</option><option value="38">T38</option><option value="39">T39</option><option value="40">T40</option></select>
+          </div>
+          <div data-ui=idb-slot-wrap class="idb-tier-wrap">
+            <label class="idb-tier-label" for="idb-slot-select">Slot</label>
+            <select id="idb-slot-select" class="idb-tier-select" aria-label="Filter by equipment slot"><option value="all">All slots</option><option value="weapon">Weapon</option><option value="shield">Shield</option><option value="helmet">Helmet</option><option value="chest">Chest</option><option value="legs">Legs</option><option value="gloves">Gloves</option><option value="boots">Boots</option><option value="belt">Belt</option><option value="cloak">Cloak</option><option value="ring">Ring</option><option value="amulet">Amulet</option><option value="trinket">Trinket</option></select>
+          </div>
+          <div data-ui=idb-stat-wrap class="idb-tier-wrap">
+            <label class="idb-tier-label" for="idb-stat-select">Has stat</label>
+            <select id="idb-stat-select" class="idb-tier-select" aria-label="Filter by stat"><option value="all">Any stat</option><option value="atk">ATK</option><option value="def">DEF</option><option value="xpPerTask">XP per Task</option><option value="goldFind">Gold Find</option><option value="itemFind">Item Find</option><option value="gather">Double Gather</option><option value="warfare">Warfare</option><option value="fire">Fire Resist</option><option value="frost">Frost Resist</option><option value="lightning">Lightning Resist</option></select>
           </div>
         </div>
 
@@ -16435,7 +16466,7 @@ document.getElementById('housing-tier').addEventListener('change', function(){
   if (card) card.classList.add('house-selected');
 });
 document.querySelectorAll(
-  'input[type=number]:not(#combat-level), select:not(#sel-tier):not(#sel-skill):not(#idb-tier-select):not(#race-select)'
+  'input[type=number]:not(#combat-level), select:not(#sel-tier):not(#sel-skill):not(#idb-tier-select):not(#idb-slot-select):not(#idb-stat-select):not(#gn-search-slot):not(#gn-search-stat):not(#race-select)'
 ).forEach(el => el.addEventListener('input', calculate));
 
 // Initial calculation pass (runs with defaults, panels hidden until skill is selected)
@@ -20767,6 +20798,58 @@ function iwParseGearStats(item){
   } catch(e){}
 
   return out;
+}
+
+// v6.4 — SLOT + STAT FILTERS, shared by Item Lookup and Gear → Search Gear
+// (player request: "search Gold Find and filter Rings"). Stat values come
+// from iwParseGearStats, the normaliser Gear scores with, so a filter cannot
+// disagree with a recommendation: structured fields first, effect text as
+// the fallback, Tailoring and upgrade shares exact. Keys are its out keys.
+// The <option> values in both dropdowns must be keys of this table.
+var IW_STAT_FILTERS = {
+  atk:       { label: 'ATK' },
+  def:       { label: 'DEF' },
+  xpPerTask: { label: 'XP per Task' },
+  goldFind:  { label: 'Gold Find', pct: true },
+  itemFind:  { label: 'Item Find', pct: true },
+  gather:    { label: 'Double Gather', pct: true },
+  warfare:   { label: 'Warfare' },
+  fire:      { label: 'Fire Resist' },
+  frost:     { label: 'Frost Resist' },
+  lightning: { label: 'Lightning Resist' }
+};
+// Per record object. A live items.json refresh builds new objects, so a
+// stale entry can never be read back; it is simply never looked up again.
+var IW_STAT_FILTER_CACHE = (typeof WeakMap === 'function') ? new WeakMap() : null;
+
+/** iwItemSlotKey(item) → 'ring' for a "Ring slot" record; null when not gear. */
+function iwItemSlotKey(item){
+  var m = /^(.+?)\s+slot$/i.exec(String(item && (item.sub || item.subcategory) || '').trim());
+  if(!m) return null;
+  var key = iwSlotKeyFromLabel(m[1].trim());
+  return SLOT_META[key] ? key : null;
+}
+
+/** iwItemStatValue(item, key) → the stat's value, 0 when the item lacks it. */
+function iwItemStatValue(item, key){
+  if(!item || !IW_STAT_FILTERS[key]) return 0;
+  var cat = item.category || item.cat;
+  if(cat !== 'Equipment') return 0;
+  var stats = IW_STAT_FILTER_CACHE && IW_STAT_FILTER_CACHE.get(item);
+  if(!stats){
+    try { stats = iwParseGearStats(item); } catch(e){ stats = {}; }
+    if(IW_STAT_FILTER_CACHE) IW_STAT_FILTER_CACHE.set(item, stats);
+  }
+  var v = Number(stats[key]);
+  return Number.isFinite(v) ? v : 0;
+}
+
+/** iwItemStatText(item, key) → '+3% Gold Find', or '' when the item lacks it. */
+function iwItemStatText(item, key){
+  var v = iwItemStatValue(item, key);
+  if(!(v > 0)) return '';
+  var meta = IW_STAT_FILTERS[key];
+  return '+' + (Math.round(v * 100) / 100) + (meta.pct ? '%' : '') + ' ' + meta.label;
 }
 
 // Score an item for the current goal (higher = better fit).
@@ -29098,7 +29181,8 @@ function renderResultGrid(results, query, page) {
     const hlName  = highlightMatch(item.name, query);
     const isSel   = IDB_STATE.selectedId === item.id;
     // Meta line uses CSV SubCategory; tier shown only when present
-    const subStr  = item.sub ? ` · ${item.sub}` : '';
+    const statTxt = IDB_STATE.activeStat !== 'all' ? iwItemStatText(item, IDB_STATE.activeStat) : '';
+    const subStr  = (item.sub ? ` · ${item.sub}` : '') + (statTxt ? ` · ${statTxt}` : '');
     const tierStr = item.tier != null ? `T${item.tier} · ` : '';
     return `<div data-ui=idb-result-card class="idb-result-card${isSel?' selected':''}" data-id="${item.id}"
       role="button" tabindex="0"
@@ -29159,9 +29243,23 @@ function renderStats(total, shown, hasQuery) {
 // ───────────────────────────────────────────────────────────────
 function idbCurrentPool() {
   const t = IDB_STATE.activeTier;
-  if (t === 'all') return IDB_STATE.items;
-  const tn = parseInt(t, 10);
-  return IDB_STATE.items.filter(i => i.tier === tn);
+  const slot = IDB_STATE.activeSlot, stat = IDB_STATE.activeStat;
+  let pool = IDB_STATE.items;
+  if (t !== 'all') {
+    const tn = parseInt(t, 10);
+    pool = pool.filter(i => i.tier === tn);
+  }
+  // v6.4: a slot or stat filter narrows the pool to Equipment by itself,
+  // so the category chips and counts follow it like they follow the tier.
+  if (slot !== 'all') pool = pool.filter(i => iwItemSlotKey(i) === slot);
+  if (stat !== 'all') pool = pool.filter(i => iwItemStatValue(i, stat) > 0);
+  return pool;
+}
+
+/** True when any dropdown filter is set, so browsing without a search shows results. */
+function idbFiltersActive() {
+  return IDB_STATE.activeTier !== 'all' || IDB_STATE.activeSlot !== 'all' ||
+         IDB_STATE.activeStat !== 'all';
 }
 
 // ───────────────────────────────────────────────────────────────
@@ -29529,7 +29627,9 @@ const IDB_STATE = {
   apiGeneratedAt:null, apiError:null,   // v40.2 — live item API
   apiUrlUsed:null,                      // v5.3 — which candidate URL actually answered
   itemDataRevision:0, compatSyncError:null, // Stage B — normalized/legacy bridge health
-  query:'',activeCategory:'all',activeTier:'all',currentPage:1,lastResults:[],selectedId:null,
+  query:'',activeCategory:'all',activeTier:'all',currentPage:1,
+  activeSlot:'all',activeStat:'all',    // v6.4 — SLOT + STAT FILTERS
+  lastResults:[],selectedId:null,
   dropdownFocusIdx:-1,_debounceTimer:null,
 };
 
@@ -29589,6 +29689,18 @@ function idbSetTier(tier) {
   idbRunSearch();
 }
 
+// v6.4: slot / stat dropdowns. Either one means Equipment, so a category
+// chip that no longer has anything in it is dropped back to All.
+function idbSetSlotOrStat(field, value) {
+  IDB_STATE[field]      = value;
+  IDB_STATE.currentPage = 1;
+  if ((IDB_STATE.activeSlot !== 'all' || IDB_STATE.activeStat !== 'all') &&
+      IDB_STATE.activeCategory !== 'Equipment')
+    IDB_STATE.activeCategory = 'all';
+  renderFilters();
+  idbRunSearch();
+}
+
 function idbGoPage(page) {
   IDB_STATE.currentPage = page;
   renderResultGrid(IDB_STATE.lastResults, IDB_STATE.query, page);
@@ -29620,11 +29732,20 @@ function idbRunSearch() {
     results = filtered.map(i => ({item: i, score: 50}));
   }
 
+  // v6.4: with a stat chosen, the biggest value of it comes first — that is
+  // the question the filter asks. Ties keep the search/name order.
+  const stat = IDB_STATE.activeStat;
+  if (stat !== 'all') {
+    results = results.slice().sort((a, b) =>
+      iwItemStatValue(b.item, stat) - iwItemStatValue(a.item, stat) ||
+      b.score - a.score || a.item.name.localeCompare(b.item.name));
+  }
+
   IDB_STATE.lastResults = results;
   IDB_STATE.currentPage = 1;
 
-  // Show placeholder if nothing selected yet and no tier/search active
-  const tierActive   = IDB_STATE.activeTier !== 'all';
+  // Show placeholder if nothing selected yet and no filter/search active
+  const tierActive   = idbFiltersActive();
   const nothingToShow = !hasSearch && !tierActive;
 
   if (nothingToShow) {
@@ -29684,6 +29805,11 @@ function initItemDatabase() {
   tierSel.addEventListener('change', () => {
     idbSetTier(tierSel.value === 'all' ? 'all' : parseInt(tierSel.value, 10));
   });
+  const slotSel = document.getElementById('idb-slot-select');
+  const statSel = document.getElementById('idb-stat-select');
+  slotSel.addEventListener('change', () => idbSetSlotOrStat('activeSlot', slotSel.value));
+  statSel.addEventListener('change', () =>
+    idbSetSlotOrStat('activeStat', IW_STAT_FILTERS[statSel.value] ? statSel.value : 'all'));
 
   // ── Search input ───────────────────────────────────────────────
   input.addEventListener('input', () => {
@@ -29717,8 +29843,8 @@ function initItemDatabase() {
     input.value=''; IDB_STATE.query=''; IDB_STATE.selectedId=null;
     clearBtn.classList.remove('visible'); idbCloseDropdown();
     document.getElementById('idb-detail').style.display = 'none';
-    // If a tier is active, re-run to show tier browse; otherwise show placeholder
-    if (IDB_STATE.activeTier !== 'all') {
+    // If a filter is active, re-run to show its browse; otherwise show placeholder
+    if (idbFiltersActive()) {
       idbRunSearch();
     } else {
       document.getElementById('idb-grid').style.display = 'none';
@@ -33164,6 +33290,8 @@ function syncCombatLevel(val) {
   function gnRenderGearSearch() {
     var input = document.getElementById('gn-search-input');
     var tierEl = document.getElementById('gn-search-tier');
+    var slotEl = document.getElementById('gn-search-slot');
+    var statEl = document.getElementById('gn-search-stat');
     var resultsEl = document.getElementById('gn-search-results');
     var countEl = document.getElementById('gn-search-count');
     if (!input || !tierEl || !resultsEl || !countEl) return;
@@ -33171,10 +33299,13 @@ function syncCombatLevel(val) {
     var rawQuery = String(input.value || '').trim();
     var query = rawQuery.toLowerCase();
     var tier = parseInt(tierEl.value, 10) || 0;
+    // v6.4 — SLOT + STAT FILTERS (shared table: IW_STAT_FILTERS).
+    var slot = slotEl && GN_SLOT_ORDER.indexOf(slotEl.value) >= 0 ? slotEl.value : '';
+    var stat = statEl && IW_STAT_FILTERS[statEl.value] ? statEl.value : '';
 
-    if (!query && !tier) {
+    if (!query && !tier && !slot && !stat) {
       countEl.textContent = '';
-      resultsEl.innerHTML = '<div data-ui=gn-search-empty class="gn-search-empty">Type at least 2 characters or choose a tier to browse equipment.</div>';
+      resultsEl.innerHTML = '<div data-ui=gn-search-empty class="gn-search-empty">Type at least 2 characters, or choose a tier, slot or stat to browse equipment.</div>';
       return;
     }
     if (query && query.length < 2) {
@@ -33185,11 +33316,18 @@ function syncCombatLevel(val) {
 
     var matches = gnGetEquipmentIndex().filter(function(item) {
       if (tier && Number(item.tier) !== tier) return false;
+      if (slot && gnSearchItemSlot(item) !== slot) return false;
       if (query && String(item.name || '').toLowerCase().indexOf(query) < 0) return false;
+      if (stat && !(iwItemStatValue(item, stat) > 0)) return false;
       return true;
     });
 
     matches.sort(function(a, b) {
+      // A chosen stat ranks first, biggest value on top; only 50 rows show.
+      if (stat) {
+        var d = iwItemStatValue(b, stat) - iwItemStatValue(a, stat);
+        if (d) return d;
+      }
       var at = Number(a.tier) || 0, bt = Number(b.tier) || 0;
       if (at !== bt) return at - bt;
       var as = gnSearchItemSlot(a), bs = gnSearchItemSlot(b);
@@ -33221,6 +33359,10 @@ function syncCombatLevel(val) {
         '<div data-ui=gn-rec-option-main class="gn-rec-option-main">' +
           '<div data-ui=gn-rec-option-name class="gn-rec-option-name">' + itemHtml + '</div>' +
           '<div data-ui=gn-rec-option-meta class="gn-rec-option-meta">' + gnEsc(gnSearchMeta(item, slot)) +
+            // The sorted-on value, as Gear scores it (upgrade share included,
+            // so it can exceed the raw ATK/DEF printed just before it).
+            (stat ? ' · <span data-ui=gn-rec-option-meta-stat class="gn-rec-tag">' +
+              gnEsc(iwItemStatText(item, stat)) + '</span>' : '') +
             (item._iwDerivedPlanner ? ' · <span data-ui=gn-rec-option-meta-text class="tc-text-3">derived +4 fallback</span>' : '') +
           '</div>' +
         '</div>' + button +
@@ -33271,6 +33413,10 @@ function syncCombatLevel(val) {
 
     input.addEventListener('input', gnQueueGearSearch);
     tierEl.addEventListener('change', gnRenderGearSearch);
+    ['gn-search-slot', 'gn-search-stat'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', gnRenderGearSearch);
+    });
     panel.addEventListener('toggle', function() {
       if (panel.open) gnRenderGearSearch();
     });
@@ -36565,6 +36711,56 @@ function syncCombatLevel(val) {
     } catch(e){ fail.push('Hollow Night suite threw: ' + (e && e.message ? e.message : String(e))); }
     finally {
       try { iwHollowNightApply(null, true); } catch(e){}
+    }
+    return fail;
+  };
+
+  /* Suite Q (v6.4) — slot + stat filters in Item Lookup and Gear → Search
+     Gear (IW_STAT_FILTERS). Pins the dropdown values to the shared table,
+     every "X slot" record to a real slot, and Ring + Gold Find to the rings
+     whose effect text names gold find. Item Lookup filter state is put back. */
+  window.iwSlotStatFilterSelfCheck = function iwSlotStatFilterSelfCheck(){
+    var fail = [];
+    function ok(label, condition){ if(!condition) fail.push(label); }
+    var saved = { slot: IDB_STATE.activeSlot, stat: IDB_STATE.activeStat, tier: IDB_STATE.activeTier };
+    try {
+      function values(id){
+        var el = document.getElementById(id);
+        return el ? Array.prototype.map.call(el.options, function(o){ return o.value; })
+                      .filter(function(v){ return v && v !== 'all'; }) : [];
+      }
+      var statKeys = Object.keys(IW_STAT_FILTERS).sort().join(',');
+      ['idb-stat-select', 'gn-search-stat'].forEach(function(id){
+        ok(id + ' offers exactly the IW_STAT_FILTERS keys', values(id).sort().join(',') === statKeys);
+      });
+      var slotKeys = SLOT_ORDER.slice().sort().join(',');
+      ['idb-slot-select', 'gn-search-slot'].forEach(function(id){
+        ok(id + ' offers exactly the SLOT_ORDER slots', values(id).sort().join(',') === slotKeys);
+      });
+
+      var gear = IDB_STATE.items.filter(function(i){ return /\sslot$/i.test(i.sub || ''); });
+      ok('there is slotted gear to check (' + gear.length + ')', gear.length > 1000);
+      var lost = gear.filter(function(i){ return !iwItemSlotKey(i); }).map(function(i){ return i.sub; });
+      ok('every "X slot" record maps to a slot (unmapped: ' + lost.slice(0, 3).join(', ') + ')', !lost.length);
+
+      var expected = IDB_STATE.items.filter(function(i){
+        return i.category === 'Equipment' && /^ring slot$/i.test(i.sub || '') && /gold find/i.test(i.description || '');
+      }).map(function(i){ return i.id; }).sort().join(',');
+      IDB_STATE.activeTier = 'all'; IDB_STATE.activeSlot = 'ring'; IDB_STATE.activeStat = 'goldFind';
+      var got = idbCurrentPool().map(function(i){ return i.id; }).sort().join(',');
+      ok('Ring + Gold Find finds some rings', expected.length > 0);
+      ok('Ring + Gold Find = the rings whose effect names gold find', got === expected);
+      var ring = idbCurrentPool()[0];
+      ok('stat text reads like "+20% Gold Find"', !!ring && /^\+\d+(\.\d+)?% Gold Find$/.test(iwItemStatText(ring, 'goldFind')));
+
+      var potion = IDB_STATE.items.find(function(i){ return i.category === 'Consumable'; });
+      ok('a non-Equipment item has no stat to filter on', !!potion && Object.keys(IW_STAT_FILTERS).every(function(k){
+        return iwItemStatValue(potion, k) === 0 && iwItemStatText(potion, k) === '';
+      }));
+      ok('an unknown stat key is 0, not a throw', iwItemStatValue(ring, 'nope') === 0);
+    } catch(e){ fail.push('Slot/stat filter suite threw: ' + (e && e.message ? e.message : String(e))); }
+    finally {
+      IDB_STATE.activeSlot = saved.slot; IDB_STATE.activeStat = saved.stat; IDB_STATE.activeTier = saved.tier;
     }
     return fail;
   };
@@ -39868,7 +40064,8 @@ function syncCombatLevel(val) {
         ['Self-check isolation',window.iwSelfCheckIsolationSelfCheck],
         ['Raid gear',window.iwRaidGearSelfCheck],
         ['October 2026 patches',window.iwOctober2026PatchSelfCheck],
-        ['Hollow Night',window.iwHollowNightSelfCheck]
+        ['Hollow Night',window.iwHollowNightSelfCheck],
+        ['Slot/stat filters',window.iwSlotStatFilterSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;
