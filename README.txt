@@ -49,3 +49,17 @@ Validate: python tools/verify_icon_migration.py
           python -m unittest discover -s tests
           node --test tests/icon-sprites-v2.test.js
           node tools/check-inline-scripts.js index.html
+
+October 19 additions: nine trinkets are appended to gear_icons_atlas.png,
+             and Skeleton Key to item_icons_atlas.png. Ten skill-specific
+             Hollow Scroll IDs share the existing October scroll sprite.
+             october_item_artwork_manifest.json records all ten new sprites,
+             atlas coordinates, source hashes and exact generation prompts.
+             Normalized sources and the 20-record live-data extract are in
+             assets/item-expansions/october-2026-additions/.
+             python tools/import_october_item_icons.py rebuilds the shared
+             atlas cells from the normalized sources in a clean checkout.
+             Then run tools/build_icon_chunks.py and re-pin manifestUrl.
+             The embedded data is an additive update: 4,551 current records
+             plus the retired generic scroll retained for older imports.
+             Its older snapshot timestamp remains unchanged.

@@ -120,6 +120,16 @@ def build_icon_chunks(repo_root:Path)->Path:
                 runtime['items']['icons'][entry['item_id']] = key
                 runtime['items']['cells'][key] = [ck,entry['x'],entry['y']]
                 audit['item_cells'].append(record)
+    additions_manifest = root/'october_item_artwork_manifest.json'
+    if additions_manifest.exists():
+        additions = json.loads(additions_manifest.read_text(encoding='utf-8'))
+        for entry in additions['shared_items']:
+            item_id, source_id = entry['item_id'], entry['source_item_id']
+            if item_id not in by_id:
+                raise ValueError('unknown shared item '+item_id)
+            if source_id not in runtime['items']['icons']:
+                raise ValueError('missing shared sprite '+source_id)
+            runtime['items']['icons'][item_id] = runtime['items']['icons'][source_id]
     audit['counts']={'gear_physical_cells':len(audit['gear_records']),'item_physical_cells':len(audit['item_cells']),'item_mappings':len(runtime['items']['icons']),'chunks':len(runtime['chunks'])}
     # guard-ok: brand-new hashed audit file, nothing pre-existing to destroy
     ad=compact(audit); an=f'icon-audit.{hashlib.sha256(ad).hexdigest()[:12]}.json'; (out/an).write_bytes(ad); runtime['audit_path']=an

@@ -476,3 +476,4 @@ index,row,column,x,y,width,height,icon_key,name,group,shared,usage_count,art_sou
 474,47,4,512,6016,128,128,item.construction_building_tier_32,Ashspire Hall of Records,trade.village_addon,False,1,supplied construction art pack 2026-09-04,d40cd211ff860f0a20430c663a75622434d5ad765732d8006587b6106b9e8b3e
 475,47,5,640,6016,128,128,item.construction_building_tier_33,Glacirite Royal Treasury,trade.village_addon,False,1,supplied construction art pack 2026-09-04,047c55b9e6725698ad4cf4eb32c94ec841f45e0783bd08fb906f0354e263010b
 476,47,6,768,6016,128,128,item.construction_building_tier_34,Primordial Wonder,trade.village_addon,False,1,supplied construction art pack 2026-09-04,7674779e07c7eb4d70e17fc964b8f08f25de312073c681ac927e6dd164fd3630
+477,47,7,896,6016,128,128,item.hollow_skeleton_key,Skeleton Key,trade.hollow_night,False,1,built-in image_gen 2026-10-19,d01965d9bbacd489537a30abcc10a9899d9e419b9098a70f4d0eef0a284b7d9b

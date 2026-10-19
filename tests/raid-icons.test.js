@@ -40,7 +40,7 @@ test('Items results, suggestions and full entries render raid artwork hosts', ()
   ];
   const nodes = new Map(['idb-grid', 'idb-pagination', 'idb-placeholder'].map(id => [id, {style:{}, innerHTML:''}]));
   const rendering = api.install({document:{documentElement:null, querySelectorAll:()=>[]}}, {manifestUrl:'./manifest.json'});
-  const context = vm.createContext({IDB_CATEGORIES:{Equipment:{icon:'🛡️',label:'Equipment'},'Trade Good':{icon:'💰',label:'Trade Good'}}, IDB_STATE:{selectedId:null}, IDB_PAGE_SIZE:20,
+  const context = vm.createContext({IDB_CATEGORIES:{Equipment:{icon:'🛡️',label:'Equipment'},'Trade Good':{icon:'💰',label:'Trade Good'}}, IDB_STATE:{selectedId:null,activeStat:'all'}, IDB_PAGE_SIZE:20,
     IW_GEAR_SPRITES:rendering.gear,
     IW_ITEM_SPRITES:rendering.items,
     document:{getElementById:id=>nodes.get(id)}, wikiXPFor:()=>null, highlightMatch:name=>name, iwItemRef:item=>item.name});
