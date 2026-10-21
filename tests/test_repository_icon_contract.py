@@ -12,7 +12,7 @@ class Contract(unittest.TestCase):
   embedded=json.loads(re.search(r'<script[^>]*id=["\']iw-embedded-items["\'][^>]*>([\s\S]*?)</script>',h,re.I).group(1))
   items=embedded if isinstance(embedded,list) else embedded['items']
   icons=json.loads((ROOT/'gear_icons_manifest.json').read_text(encoding='utf-8'))['icons']
-  self.assertEqual(len(items),4552)
+  self.assertEqual(len(items),4553)
   self.assertEqual({i['name'] for i in items if i.get('item_id') in {'rimewrought_greatblade','glacial_bulwark','sentinels_frosted_plate','coronet_of_the_rime_court','frostforge_gauntlets','band_of_the_unbroken_frost','wanderers_frozen_pendant','glaciers_last_gasp'}},expected)
   self.assertTrue(expected.issubset({i['name'] for i in icons}))
  def test_runtime(self):

@@ -376,10 +376,16 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v6.4 (slot and stat filters,
-  player.json loadouts, back-to-game button), live since 2026-10-19. v6.3
-  added the October game patches and Hollow Night, whose theme shows
-  Oct 15–31 (the event launched a week early); see the HOLLOW NIGHT script.
+- `index.html` — **the working file**, v6.5 (Work Order Board: Plate,
+  Woodcutting and Construction orders; crafting-time order pricing; T23+
+  tier levels; T21+ Smithing set ATK/DEF), live since 2026-10-21.
+  Woodcutting and Construction orders have no `items.json` value: they are
+  derived (Mining's value; the patch-note time rule) and marked (est.), and
+  the Work Order self-check pins them to the in-game board at T19 and the
+  published T20. v6.4 added slot and stat filters, player.json loadouts and
+  the back-to-game button. v6.3 added the October game patches and Hollow
+  Night, whose theme shows Oct 15–31 (the event launched a week early); see
+  the HOLLOW NIGHT script.
 - `index2.html` — **the staging copy** (since 2026-10-15): `index.html` plus a
   noindex staging header, pushed for live testing before promotion. Never
   hand-edit it; see Commits. The name was used before for a stale v5.2

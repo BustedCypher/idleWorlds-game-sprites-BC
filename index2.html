@@ -20,9 +20,10 @@
      • Work Orders: Plate, Woodcutting and Construction rows (Work Order
        Board, 10-15.24); Bonus Enhance extra copies (10-20.67) and Bonus
        Build inputs. Woodcutting and Construction have no items.json value
-       and are marked (est.): Woodcutting is assumed equal to Mining;
+       and are marked (est.): Woodcutting pays what Mining pays;
        Construction follows the patch-note time rule, -25% (10-19.20), and
-       reproduces the published T20 = 7,850.
+       reproduces the published T20 = 7,850. Both match the in-game board
+       at T19 (Woodcutting 3,480; Construction 3 parts for 7,097).
      • TIER_LVL: Tier 23+ crafting/gathering needs 2 levels per tier from 85
        (10-17.11). Zone access, combat tiers and Building Parts XP keep 4.
      • SET_BONUS T21-T34 from the wiki (10-17.9); T21 lost its 2x Gather.
@@ -11746,7 +11747,7 @@
             <li data-ui=wo-assume-entry>Bonus Brew is a chance for one extra potion and is capped at 100%, so expected output ranges from 1 to 2 potions per brewing action.</li>
             <li data-ui=wo-assume-entry>Bonus Enhance also gives the same chance of a free extra plain copy of a Smithing or Tailoring craft (game patch of 20 October 2026), and Bonus Build the same chance to double a Building Parts craft. Both use the same expected-output model as Bonus Brew.</li>
             <li data-ui=wo-assume-entry>A Reinforcement Plate takes a chest's bars and forge time and pays what a chest of its tier pays.</li>
-            <li data-ui=wo-assume-entry><code>items.json</code> carries no value for Woodcutting or Construction orders, so both are marked <em>(est.)</em>. Woodcutting is assumed to pay what a Mining order of the same tier pays. Construction uses the rule from the game's patch notes: the order's time at base speed (gathering the wood and ore, plus a 10-second craft per part) × Alchemy's gold per second, minus 25%. That reproduces the published Tier 20 reward of 7,850 gold.</li>
+            <li data-ui=wo-assume-entry><code>items.json</code> carries no value for Woodcutting or Construction orders, so both are marked <em>(est.)</em>. Woodcutting pays what a Mining order of the same tier pays. Construction uses the rule from the game's patch notes: the order's time at base speed (gathering the wood and ore, plus a 10-second craft per part) × Alchemy's gold per second, minus 25%. That reproduces the published Tier 20 reward of 7,850 gold, and both match the in-game board at Tier 19 (Woodcutting 3,480; Construction 3 parts for 7,097).</li>
             <li data-ui=wo-assume-entry>Housing uses the toolkit's shared live-game action-speed formula for 10-second gathering/processing/brewing actions and 180-second equipment crafts.</li>
             <li data-ui=wo-assume-entry>Early-tier Smithing/Tailoring recipes use their real T1–T4 material curves instead of assuming mature T5+ costs.</li>
             <li data-ui=wo-assume-entry>Turn-in gold is read directly from IdleWorlds <code>items.json</code> via <code>work_order_turn_in_gold</code>. That game-provided value already includes the profession's pricing (Smithing and Tailoring are priced by crafting time at Alchemy's rate since the game patch of 15 October 2026); the calculator only applies the submitted batch quantity and your Gold Find.</li>
@@ -36296,8 +36297,8 @@ function syncCombatLevel(val) {
     'Construction':  { icon:'🏗️', batch:'Building Parts', process:'Parts crafting', estimate:true }
   };
   var ESTIMATE_NOTE = {
-    'Wood': 'Estimate: items.json has no Woodcutting order value. Assumed to pay what a Mining order of the same tier pays (100 × the ore value).',
-    'Construction': 'Estimate: items.json has no Construction order value. Uses the patch-note rule (time at base speed × Alchemy gold per second, then −25%), which matches the published Tier 20 reward of 7,850 gold.'
+    'Wood': 'Estimate: items.json has no Woodcutting order value. It pays what a Mining order of the same tier pays (100 × the ore value), as the in-game board showed at Tier 19 (3,480 gold, 2026-10-21).',
+    'Construction': 'Estimate: items.json has no Construction order value. Uses the patch-note rule (time at base speed × Alchemy gold per second, then −25%), which matches the published Tier 20 reward of 7,850 gold and the in-game board at Tier 19 (3 parts, 7,097 gold, 2026-10-21).'
   };
   // Alchemy base seconds per order: 20 potions × (3 herbs × 10s + 10s brew).
   var ALCHEMY_ORDER_SEC = 20 * (RAW_PER_POTION * 10 + 10);
@@ -36712,6 +36713,9 @@ function syncCombatLevel(val) {
     if(constructionOrderGoldBeforeCut(20)!==10466) fail.push('T20 Construction before the 25% cut should be 10,466; got '+constructionOrderGoldBeforeCut(20));
     if(constructionOrderGold(20)!==7850) fail.push('T20 Construction order should be 7,850; got '+constructionOrderGold(20));
     if(Math.abs(unitValue(20,'Wood')*100-3660)>1e-9) fail.push('T20 Woodcutting estimate should equal the Mining order (3,660)');
+    // Read off the in-game Work Order Board at Tier 19 on 2026-10-21.
+    if(constructionOrderParts(19)!==3||constructionOrderGold(19)!==7097) fail.push('T19 Construction order should be 3 parts for 7,097 (in-game board); got '+constructionOrderParts(19)+' for '+constructionOrderGold(19));
+    if(Math.abs(unitValue(19,'Wood')*100-3480)>1e-6) fail.push('T19 Woodcutting order should pay 3,480 (in-game board)');
     if(Math.abs(perCraft(14)-1.14)>1e-12||perCraft(150)!==2||perCraft(-5)!==1) fail.push('extra-output chance model mismatch');
 
     if(fail.length&&typeof console!=='undefined')console.warn('[Work Orders] self-check FAILED:',fail.join(' | '));
