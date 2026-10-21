@@ -3,7 +3,14 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v6.5</title>
+<title>IdleWorlds Toolkit v6.5.1</title>
+<!-- v6.5.1 Plates are not copied by Bonus Enhance (2026-10-21, Curtis):
+     the Work Order Plate row reused the chest's maths, so with Bonus
+     Enhance it showed as many plate orders a day as chest orders. Bonus
+     Enhance's free extra copy is a gear mechanic; a Reinforcement Plate
+     always comes out single, so it now fills fewer orders than a chest.
+     enhanceCopies() holds the rule and the Work Order self-check pins it.
+-->
 <!-- v6.5 Work Order Board and the October 15-20 game patches (2026-10-21):
      • Items: full re-embed of the 2026-10-20 items.json (4,552 current +
        the archived generic Hollow Scroll = 4,553 rows; adds Possessed Shard).
@@ -9811,7 +9818,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.5</span>
+  <span data-ui=ver-pill class="ver-pill">v6.5.1</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -11660,7 +11667,7 @@
           <div data-ui=field class="field wo-field">
             <label for="wo-enhance">Bonus Enhance %</label>
             <div data-ui=wo-input-affix class="wo-input-affix"><input id="wo-enhance" type="number" min="0" max="100" step="1" value="0" inputmode="decimal"><span data-ui=wo-input-affix-text>%</span></div>
-            <span data-ui=field-helper class="field-helper">Chance for a free extra plain copy per Smithing/Tailoring craft; capped at 100%.</span>
+            <span data-ui=field-helper class="field-helper">Chance for a free extra plain copy per Smithing/Tailoring gear craft (not plates); capped at 100%.</span>
           </div>
           <div data-ui=field class="field wo-field">
             <label for="wo-build">Bonus Build %</label>
@@ -11739,8 +11746,8 @@
           <ul data-ui=wo-assume-list class="wo-assume-list">
             <li data-ui=wo-assume-entry>2x Gather Chance uses expected long-run yield: 1 + chance/100 resources per gathering action; values above 100% include guaranteed extra resources.</li>
             <li data-ui=wo-assume-entry>Bonus Brew is a chance for one extra potion and is capped at 100%, so expected output ranges from 1 to 2 potions per brewing action.</li>
-            <li data-ui=wo-assume-entry>Bonus Enhance also gives the same chance of a free extra plain copy of a Smithing or Tailoring craft (game patch of 20 October 2026), and Bonus Build the same chance to double a Building Parts craft. Both use the same expected-output model as Bonus Brew.</li>
-            <li data-ui=wo-assume-entry>A Reinforcement Plate takes a chest's bars and forge time and pays what a chest of its tier pays.</li>
+            <li data-ui=wo-assume-entry>Bonus Enhance also gives the same chance of a free extra plain copy of a Smithing or Tailoring gear craft (game patch of 20 October 2026), but not of a Reinforcement Plate, and Bonus Build the same chance to double a Building Parts craft. Both use the same expected-output model as Bonus Brew.</li>
+            <li data-ui=wo-assume-entry>A Reinforcement Plate takes a chest's bars and forge time, gives the same craft XP and pays what a chest of its tier pays. With Bonus Enhance it fills fewer orders a day than a chest, because plates never come out doubled.</li>
             <li data-ui=wo-assume-entry><code>items.json</code> carries no value for Woodcutting or Construction orders, so both are marked <em>(est.)</em>. Woodcutting pays what a Mining order of the same tier pays. Construction uses the rule from the game's patch notes: the order's time at base speed (gathering the wood and ore, plus a 10-second craft per part) × Alchemy's gold per second, minus 25%. That reproduces the published Tier 20 reward of 7,850 gold, and both match the in-game board at Tier 19 (Woodcutting 3,480; Construction 3 parts for 7,097).</li>
             <li data-ui=wo-assume-entry>Housing uses the toolkit's shared live-game action-speed formula for 10-second gathering/processing/brewing actions and 180-second equipment crafts.</li>
             <li data-ui=wo-assume-entry>Early-tier Smithing/Tailoring recipes use their real T1–T4 material curves instead of assuming mature T5+ costs.</li>
@@ -36383,6 +36390,10 @@ function syncCombatLevel(val) {
   // Bonus Enhance's extra plain copy since 2026-10-20.67, Bonus Build's
   // doubled Building Parts loop). Capped at 100%: at most one extra.
   function perCraft(pct) { return 1 + Math.min(100, Math.max(0, Number(pct) || 0)) / 100; }
+  // Bonus Enhance's extra copy is a gear mechanic: a Reinforcement Plate costs
+  // and pays what a chest does, but never comes out doubled (Curtis, in-game,
+  // 2026-10-21), so the Plate row must fill fewer orders than the Chest row.
+  function enhanceCopies(name, enhanceOutput) { return name === 'Plate' ? 1 : enhanceOutput; }
   function orePerProcessed(tier) {
     if (typeof oresPerBar === 'function') return Number(oresPerBar(tier));
     return tier===1?2:tier===2?4:tier===3?6:tier===4?7:8;
@@ -36540,14 +36551,15 @@ function syncCombatLevel(val) {
         return finish(name,tier,n,n*rawPerOrder,0,n*qty,n*secGather,0,n*secBrew,v,goldPct,sec,
           '20 potions ÷ '+fmt(brewOutput,4)+' expected/brew = '+fmt(brewActions,4)+' brews; '+fmt(rawPerOrder,4)+' raw/order; total '+fmt(sec,4)+'s/order');
       }
-      // Bonus Enhance's free extra copy means 1 ÷ enhanceOutput crafts fill an order.
+      // Bonus Enhance's free extra copy means 1 ÷ copies crafts fill a gear order.
       var processed=equipmentProcessedCount(tier,name), rawEach=processed*orePerProcessed(tier);
-      var craftsPer=1/enhanceOutput, rawPer=rawEach*craftsPer, procPer=processed*craftsPer;
+      var copies=enhanceCopies(name,enhanceOutput);
+      var craftsPer=1/copies, rawPer=rawEach*craftsPer, procPer=processed*craftsPer;
       var gatherActions=rawPer/gatherYield;
       var secGather=gatherActions*gatherTime, secProcess=procPer*processTime, secCraft=craftsPer*craftTime, sec=secGather+secProcess+secCraft, n=maxWhole(sec);
       return finish(name,tier,n,n*rawPer,n*procPer,n,n*secGather,n*secProcess,n*secCraft,v,goldPct,sec,
         processed+' processed material × '+orePerProcessed(tier)+' raw = '+rawEach+' raw/item'+
-        (enhanceOutput>1?'; ÷ '+fmt(enhanceOutput,4)+' expected items/craft':'')+'; '+fmt(sec,4)+'s per complete order');
+        (copies>1?'; ÷ '+fmt(copies,4)+' expected items/craft':(name==='Plate'&&enhanceOutput>1?'; Bonus Enhance does not copy plates':''))+'; '+fmt(sec,4)+'s per complete order');
     }).filter(Boolean);
   }
 
@@ -36711,6 +36723,8 @@ function syncCombatLevel(val) {
     if(constructionOrderParts(19)!==3||constructionOrderGold(19)!==7097) fail.push('T19 Construction order should be 3 parts for 7,097 (in-game board); got '+constructionOrderParts(19)+' for '+constructionOrderGold(19));
     if(Math.abs(unitValue(19,'Wood')*100-3480)>1e-6) fail.push('T19 Woodcutting order should pay 3,480 (in-game board)');
     if(Math.abs(perCraft(14)-1.14)>1e-12||perCraft(150)!==2||perCraft(-5)!==1) fail.push('extra-output chance model mismatch');
+    if(enhanceCopies('Plate',1.14)!==1) fail.push('Bonus Enhance must not copy Reinforcement Plates');
+    if(enhanceCopies('Chest',1.14)!==1.14) fail.push('Bonus Enhance must copy gear pieces');
 
     if(fail.length&&typeof console!=='undefined')console.warn('[Work Orders] self-check FAILED:',fail.join(' | '));
     return fail;
@@ -36737,7 +36751,7 @@ function syncCombatLevel(val) {
         ROWS.map(function(r){return r.tier+'\t'+r.name+'\t'+r.subcategory+'\t'+r.turn_in_value+'\t'+(r.turn_in_note||'');}).join('\n');
     }
     var fs=document.getElementById('wo-formula-summary');
-    if(fs)fs.innerHTML='gather yield = 1 + (2x Gather Chance % ÷ 100)<br>brew output = 1 + min(Bonus Brew %, 100) ÷ 100<br>items per Smithing/Tailoring craft = 1 + min(Bonus Enhance %, 100) ÷ 100<br>parts per Building Parts craft = 1 + min(Bonus Build %, 100) ÷ 100<br>base Work Order reward = submitted quantity × items.json work_order_turn_in_gold<br>final Work Order reward = base Work Order reward × (1 + Gold Find % ÷ 100)<br>complete orders = floor(86,400 ÷ production seconds per order)';
+    if(fs)fs.innerHTML='gather yield = 1 + (2x Gather Chance % ÷ 100)<br>brew output = 1 + min(Bonus Brew %, 100) ÷ 100<br>items per Smithing/Tailoring gear craft = 1 + min(Bonus Enhance %, 100) ÷ 100 (plates: always 1)<br>parts per Building Parts craft = 1 + min(Bonus Build %, 100) ÷ 100<br>base Work Order reward = submitted quantity × items.json work_order_turn_in_gold<br>final Work Order reward = base Work Order reward × (1 + Gold Find % ÷ 100)<br>complete orders = floor(86,400 ÷ production seconds per order)';
 
     if(!wired){
       wired=true;
