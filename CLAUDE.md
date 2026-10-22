@@ -47,8 +47,8 @@ get it.
 
 Open `index.html` in a browser. There is nothing to install and nothing to
 build. Verify JS still parses after an edit — this is the cheapest real gate,
-and it compiles every inline block without executing any of it (29 blocks, all
-passing as of 2026-10-19). Swap in `index2.html` to gate the staging copy:
+and it compiles every inline block without executing any of it (30 blocks, all
+passing as of 2026-10-22). Swap in `index2.html` to gate the staging copy:
 
 ```bash
 node -e "const fs=require('fs'),vm=require('vm');const src=fs.readFileSync('index.html','utf8');let m,i=0,bad=0;const re=/<script([^>]*)>([\s\S]*?)<\/script>/gi;while((m=re.exec(src))){if(/type\s*=\s*[\"'](?!text\/javascript)/i.test(m[1]))continue;const line=src.slice(0,m.index).split('\n').length;i++;try{new vm.Script(m[2]);}catch(e){bad++;console.log('FAIL block at line '+line+': '+e.message);}}console.log(i+' blocks checked, '+bad+' failed');"
@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Twenty-four regression suites ship inside the file and are the safety net for
+Twenty-five regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -91,7 +91,40 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwXpCurveTaperSelfCheck` (K) · `iwAshenSkinSelfCheck` (L) ·
 `iwSelfCheckIsolationSelfCheck` (M) · `iwRaidGearSelfCheck` (N) ·
 `iwOctober2026PatchSelfCheck` (O) · `iwHollowNightSelfCheck` (P) · `iwSlotStatFilterSelfCheck` (Q) ·
-`iwPlayerJsonImportSelfCheck` (R).
+`iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S).
+
+Suite S covers the Housing Planner (Skill Tools; search `HOUSING PLANNER  (v6.6`).
+It plans the fastest way to pay for a housing goal: Gold from Work Orders,
+Salvage Material from salvaging, leveling every skill it touches with the
+Calculator's XP formula, and swapping in level-gated gear upgrades. Rules it
+depends on:
+- Salvaging (player-supplied 2026-10-22, read off the in-game salvage
+  window): a raw resource gives its tier (Gravite Ore, T21: 21), a crafted
+  item its raw resources × its tier, and it is instant. Recipe sizes come
+  from `orderModel()`'s `rawEach` / `rawPerProcessed`. Prospecting gives the
+  same Salvage per ore plus an action, so the planner never prospects. Each
+  order family has a salvage twin (`…SV`) that makes the same things and
+  salvages them. The "stock" option salvages the raw resources, bars, cloth
+  and Building Parts in player.json at once (never gems, gear, potions or
+  `salvageBlocked` items).
+- Every order is priced and timed by the Work Orders tab's own
+  `orderModel()`, exposed as `iwWorkOrderOrder(name, tier, inputs)`; the tab's
+  table comes from the same function. Never copy a payout or an order time.
+  The planner covers all 12 types in `iwWorkOrderTypes` (seven families:
+  Mining, Herbing, Woodcutting, Potions, Smithing, Tailoring, Construction),
+  and suite S fails if the tab gains a type the planner does not consider.
+  A Construction order is several parts (`qty`: 3 at T20), not one.
+- Work Order Gold Find is capped by the game:
+  `player.maxWorkOrderGoldFindPercent`, 255 on 2026-10-22.
+- Housing prices are not in any feed. Only Citadel has a default (1B Gold +
+  100M Salvage, player-supplied 2026-10-22). Absent is not zero, so an unpriced
+  step stops the plan.
+- Its controls carry no ids, so IWStore never sees them. It keeps a player.json
+  summary in `iwHousingPlanV1`, never the payload. Its player.json import also
+  feeds the Gear tab's loadout store.
+- `combatStats` already include village add-on buffs (2026-10-22 payload: 2x
+  Gather 14 = add-ons 4 + 10 with no gear 2x Gather). The profile-only fallback
+  relies on that; `IW_ADDON_BUFFS_IN_COMBATSTATS` still says `false`.
 
 Suite R covers the Gear tab's player.json import (search `PLAYER.JSON IMPORT &
 SAVED LOADOUTS`). `player.json` is the game's private payload, which the player
@@ -163,6 +196,7 @@ Line numbers drift — grep the anchor instead. Ordered as they appear:
 | Persistence | `IWStore — persistence` | Generic capture by element id |
 | Work Order | `WORK ORDER CALCULATOR MODULE` | |
 | Village Add-ons | `VILLAGE ADD-ONS  (v5.4)` | Own IIFE, isolated from the gnModule doll/set-bonus system; feeds `iwSkillLevels()` |
+| Housing Planner | `HOUSING PLANNER  (v6.6` | Engine (`window.iwHousingPlan`), tab IIFE and suite S in one script, just before the regression suites |
 | Regression suites | `AUGUST 2026 REGRESSION` | Stages A–G plus later audit suites, including Stage H (Woodcutting & Construction) |
 
 Engine landmarks, in order: game-data constants (`const TIER_NAMES`) →
@@ -175,8 +209,8 @@ database, search and tooltips (`function buildItemDatabase`) → `function
 switchTab` → Work Order module → **Village Add-ons module** (v5.4, its own
 IIFE) → regression suites A–H.
 
-Tabs: Start · Calculator · Planner · Gear · Community Tools (Work Order,
-Jewelry) · Items · Settings.
+Tabs: Start · Calculator · Planner · Gear · Work Orders · Skill Tools
+(Construction Planner, Jewelry Calculator, Housing Planner) · Items · Settings.
 
 ## Non-negotiable rules
 
@@ -342,7 +376,9 @@ inline on their host elements.
 `iw_gear_expanders_v1` · `iwVillageAddonsV1` · `iwDailyBoostV1` · `iw_skin_v1` ·
 `iwHollowThemeOffV1` (v6.3: the viewer turned the Hollow Night theme off with
 the header button) · `iwPlayerLoadoutsV1` (v6.4: loadouts imported from
-player.json or saved from the Gear doll, plus the profile seed built from it).
+player.json or saved from the Gear doll, plus the profile seed built from it) ·
+`iwHousingPlanV1` (v6.6: the Housing Planner's goal, prices, options and its
+player.json summary).
 
 Two rules govern `IWStore`: **capture is generic** (every `<input>`/`<select>`
 carrying an id is snapshotted by id, so new controls persist automatically),
@@ -376,9 +412,11 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v6.5 (Work Order Board: Plate,
-  Woodcutting and Construction orders; crafting-time order pricing; T23+
-  tier levels; T21+ Smithing set ATK/DEF), live since 2026-10-21.
+- `index.html` — **the working file**, v6.6 (Housing Planner in Skill
+  Tools: Work Orders and salvaging to pay for a house, levels and gear
+  upgrades on the way; suite S), live since 2026-10-22. v6.5 added the Work
+  Order Board: Plate, Woodcutting and Construction orders; crafting-time
+  order pricing; T23+ tier levels; T21+ Smithing set ATK/DEF.
   Woodcutting and Construction orders have no `items.json` value: they are
   derived (Mining's value; the patch-note time rule) and marked (est.), and
   the Work Order self-check pins them to the in-game board at T19 and the

@@ -52,6 +52,7 @@ the stale v5.2 near-duplicate, was retired on 2026-09-06.)
 | Construction scenery | `cv-scene`, `cv-terrain`, `cv-path`, `cv-house`, `cv-plot` |
 | Construction panels | `cv-building-panel`, `cv-material-panel`, `cv-production-panel` |
 | Jewelry | `tab-jewelry`, `jewelry-settings-panel`, `jpc-detail-card` |
+| Housing Planner | `tab-housing-planner`, `hp-goal-panel`, `hp-profile-panel`, `hp-pj-panel`, `hp-options-panel`, `hp-results-panel`, `hp-plan-table`, `hp-upgrade-table` |
 | Item database | `tab-database`, `panel-item-db` |
 | Settings | `tab-settings`, `settings-root` |
 | Item tooltip / developer preview | `iw-tip`, `iw-tip-preview` |

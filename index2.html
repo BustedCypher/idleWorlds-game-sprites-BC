@@ -9,27 +9,22 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v6.5.1</title>
-<!-- v6.5.1 Plates are not copied by Bonus Enhance (2026-10-21, Curtis):
-     the Work Order Plate row reused the chest's maths, so with Bonus
-     Enhance it showed as many plate orders a day as chest orders. Bonus
-     Enhance's free extra copy is a gear mechanic; a Reinforcement Plate
-     always comes out single, so it now fills fewer orders than a chest.
-     enhanceCopies() holds the rule and the Work Order self-check pins it.
--->
-<!-- v6.6 Housing Planner (2026-10-22, not yet released; pill still v6.5.1):
+<title>IdleWorlds Toolkit v6.6</title>
+<!-- v6.6 Housing Planner (2026-10-22):
      • Skill Tools → Housing Planner. It is asked in order: pick a house, import
        the profile, import player.json. It then finds the fastest mix of Work
        Orders (Gold) and salvaging (Salvage Material) to pay for each step.
+       It simulates the work an in-game hour at a time with the Calculator's
+       XP formula, and unlocks tiers as effective levels rise.
      • Salvage rule (player-supplied 2026-10-22, from the in-game salvage
        window): a raw resource gives its tier, a crafted item its raw
        resources × its tier, instantly. So the planner salvages what it
        gathers (or crafts, when Bonus Enhance/Brew/Build copies pay), never
        prospects (same Salvage per ore, plus an action), and can salvage the
        raw resources, bars, cloth and Building Parts held (an option, on by
-       default; gems, gear and potions are kept).
-       It simulates the work an in-game hour at a time with the Calculator's
-       XP formula, and unlocks tiers as effective levels rise.
+       default; gems, gear and potions are kept). A player.json summary saved
+       before that (v1) kept only ore: it is counted as ore and flagged for a
+       re-import, never shown as everything held.
      • Gear upgrades as levels rise: single-slot, set-aware swaps gated by base
        levels, from a chosen source (owned / craftable at my level / bought
        from players / anything). Listed with the day they unlock.
@@ -42,6 +37,13 @@
        each in the loadout its steps are done in. Gold Find is capped at
        player.maxWorkOrderGoldFindPercent (255).
      • Suite S (iwHousingPlannerSelfCheck). State lives in iwHousingPlanV1.
+-->
+<!-- v6.5.1 Plates are not copied by Bonus Enhance (2026-10-21, Curtis):
+     the Work Order Plate row reused the chest's maths, so with Bonus
+     Enhance it showed as many plate orders a day as chest orders. Bonus
+     Enhance's free extra copy is a gear mechanic; a Reinforcement Plate
+     always comes out single, so it now fills fewer orders than a chest.
+     enhanceCopies() holds the rule and the Work Order self-check pins it.
 -->
 <!-- v6.5 Work Order Board and the October 15-20 game patches (2026-10-21):
      • Items: full re-embed of the 2026-10-20 items.json (4,552 current +
@@ -9934,7 +9936,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.5.1</span>
+  <span data-ui=ver-pill class="ver-pill">v6.6</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
