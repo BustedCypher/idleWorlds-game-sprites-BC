@@ -38056,7 +38056,9 @@ function syncCombatLevel(val) {
                skill: a.skillBonusKey ? skillKey(a.skillBonusKey) : null, skillAmount: num(a.skillBonusAmount) || 0 };
     });
     return {
-      v: 1, id: P.id || null, displayName: P.displayName || null, renderedAt: now,
+      // v2 carries `stock` (every salvageable material). A v1 summary, read
+      // before salvaging was modelled, kept only `ores`.
+      v: 2, id: P.id || null, displayName: P.displayName || null, renderedAt: now,
       housingTier: num(P.housingTier) != null ? num(P.housingTier) : num(P.housing && P.housing.tier),
       gold: num(P.gold), salvage: salvage, stock: stock, skills: skills,
       race: P.race || null, achievementPct: num(P.achievementXpBoostPercent),
@@ -38419,8 +38421,13 @@ function syncCombatLevel(val) {
       roles.goldfind = gfLo.pieces; loSource.goldfind = gfLo.name;
     }
     var fallback = (!pj || !pj.loadouts || !pj.loadouts.length) ? profileLoadout(prof) : null;
-    // A summary saved before salvaging was modelled holds only `ores`.
-    var held = stockSalvage(pj && opts.useStock !== false ? (pj.stock || (pj.ores ? { res: pj.ores } : null)) : null);
+    // A summary saved before salvaging was modelled (v1) holds only `ores`.
+    // Count that ore, but flag it: the herbs, mana, bars and the rest it
+    // never kept are not zero, they are unknown until player.json is
+    // imported again.
+    var oreOnly = !!(pj && !pj.stock);
+    var held = stockSalvage(pj && opts.useStock !== false ? (oreOnly ? (pj.ores ? { res: pj.ores } : null) : pj.stock) : null);
+    held.oreOnly = oreOnly;
     var salvHeld = num(pj && pj.salvage) || 0;
     return {
       name: (pj && pj.displayName) || (prof && prof.displayName) || null,
@@ -38668,7 +38675,7 @@ function syncCombatLevel(val) {
       yield { done: done, total: total, tier: tier };
       // The stock on hand is salvaged at once, before the first step's work.
       if (tier === ctx.housing + 1 && ctx.stock && ctx.stock.total > 0)
-        run.segs.unshift({ kind: 'salvage', act: 'stock', t0: 0, t1: 0, tierFrom: ctx.stock.tierFrom, tierTo: ctx.stock.tierTo, amount: ctx.stock.total, units: ctx.stock.units, pieces: [] });
+        run.segs.unshift({ kind: 'salvage', act: 'stock', t0: 0, t1: 0, tierFrom: ctx.stock.tierFrom, tierTo: ctx.stock.tierTo, amount: ctx.stock.total, units: ctx.stock.units, oreOnly: ctx.stock.oreOnly, pieces: [] });
       steps.push({ tier: tier, name: HOUSING_NAMES[tier], cost: cost, housingDuring: tier - 1, method: best.method, split: best.split,
         startDay: state.t / 86400, days: run.t / 86400, endDay: (state.t + run.t) / 86400, segs: run.segs, ups: run.ups,
         alternatives: Object.keys(byMethod).map(function (k) { return { method: k, days: byMethod[k].t / 86400, split: byMethod[k].split }; }).sort(function (a, b) { return a.days - b.days; }),
@@ -38725,7 +38732,7 @@ function syncCombatLevel(val) {
     s.costs = (s.costs && typeof s.costs === 'object') ? s.costs : {};
     s.opts = Object.assign({}, DEFAULT_OPTS, s.opts || {});
     if (['owned', 'self', 'market', 'any'].indexOf(s.opts.source) < 0) s.opts.source = 'market';
-    s.pj = (s.pj && s.pj.v === 1) ? s.pj : null;
+    s.pj = (s.pj && (s.pj.v === 1 || s.pj.v === 2)) ? s.pj : null;
     return s;
   }
   function writeStore() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
@@ -38895,6 +38902,7 @@ function syncCombatLevel(val) {
     var age = (Date.now() - (pj.renderedAt || Date.now())) / 86400000;
     var html = '<p data-ui=hp-muted class="hp-muted">' + esc((pj.displayName || 'player') + ' · saved ' + new Date(pj.renderedAt).toLocaleString()) +
       (age > 2 ? ' · <span data-ui=hp-need class="hp-need">' + Math.floor(age) + ' days old: export a fresh one for current levels and stock</span>' : '') + '</p>';
+    if (!pj.stock) html += '<p data-ui=hp-warn class="hp-warn">This player.json was read by an earlier version of the planner, which kept only your ore. Import it again so the plan can also salvage your herbs, fibre, wood, mana, bars, cloth and Building Parts.</p>';
     html += '<ul data-ui=hp-role-list class="hp-role-list">';
     ['mining', 'jewelcrafting', 'smithing', 'tailoring', 'construction', 'woodcutting', 'herbing', 'alchemy', 'goldfind'].forEach(function (r) {
       html += roleLine(r, ctx.loSource[r] || 'worn gear', HP.aggregate(ctx.roles[r], ctx.addons));
@@ -38927,7 +38935,9 @@ function syncCombatLevel(val) {
   // ── Results ──────────────────────────────────────────────────────
   var ORE = function (t) { return (ORE_NAMES && ORE_NAMES[t]) || ('T' + t + ' ore'); };
   function actLabel(seg) {
-    if (seg.act === 'stock') return 'Salvage the materials you hold (' + big(seg.units) + ' raw resources, bars, cloth and parts)';
+    if (seg.act === 'stock') return seg.oreOnly
+      ? 'Salvage the ore you hold (' + big(seg.units) + ' ore). Import player.json again to count your other materials'
+      : 'Salvage the materials you hold (' + big(seg.units) + ' raw resources, bars, cloth and parts)';
     if (seg.act === 'miningSV') return 'Mine ' + ORE(seg.tierFrom) + (seg.tierTo !== seg.tierFrom ? ' → ' + ORE(seg.tierTo) : '') + ', then salvage it';
     var pieceName = { Helmet: 'Helm / Hood', Chest: 'Chest / Robe' };
     return (HP.METHOD_LABEL[seg.act] || seg.act) + (seg.pieces && seg.pieces.length ? ' (' + seg.pieces.map(function (x) { return pieceName[x] || x; }).join(', ') + ')' : '');
@@ -38979,7 +38989,7 @@ function syncCombatLevel(val) {
       metric(goalName + ' in', fmtDays(res.days), 'about ' + (res.days / 30.44).toFixed(1) + ' months · around ' + dateAfter(res.days)) +
       metric('Gold to earn', big(Math.max(0, need.g - ctx.gold)), big(need.g) + ' needed · ' + big(ctx.gold) + ' on hand') +
       metric('Salvage to make', big(Math.max(0, need.s - ctx.salvage)), big(need.s) + ' needed · ' + big(ctx.salvageHeld) + ' on hand' +
-        (ctx.stock.total > 0 ? ' + ' + big(ctx.stock.total) + ' from salvaging what you hold' : '')) +
+        (ctx.stock.total > 0 ? ' + ' + big(ctx.stock.total) + (ctx.stock.oreOnly ? ' from salvaging your ore (import player.json again for the rest)' : ' from salvaging what you hold') : '')) +
       (plain && !plain.error && state.opts.upgrades && ctx.upgrades ? metric('With your gear as it is', fmtDays(plain.days), 'the upgrades below save ' + fmtDays(Math.max(0, plain.days - res.days))) : '') +
       '</div>';
     steps.forEach(function (st) {
@@ -39054,7 +39064,8 @@ function syncCombatLevel(val) {
     notes.push('The chosen order type is assumed to be on your Work Order board whenever you need it. In game the board rotates professions.');
     notes.push('Work Order values come from the Work Orders tab (items.json). Construction orders have no items.json value and are estimated.');
     notes.push('Salvaging is instant. A raw resource gives its tier in Salvage (Gravite Ore, Tier 21: 21) and a crafted item its raw resources × its tier, so a craft only beats salvaging the raw resources when Bonus Enhance, Brew or Build makes extra copies. Prospecting gives the same Salvage per ore as salvaging the ore, plus a 10-second action, so the plan never prospects.');
-    if (ctx.stock.total > 0) notes.push('Salvaging what you hold: ' + big(ctx.stock.raw) + ' from raw resources, ' + big(ctx.stock.processed) + ' from bars and cloth, ' + big(ctx.stock.parts) + ' from Building Parts. Gems, gear and potions are kept; turn this off under Options to keep the materials.');
+    if (ctx.stock.oreOnly) notes.push('Only the ore you hold is counted (' + big(ctx.stock.total) + ' Salvage): this player.json was read by an earlier version of the planner. Import it again to count your other materials.');
+    else if (ctx.stock.total > 0) notes.push('Salvaging what you hold: ' + big(ctx.stock.raw) + ' from raw resources, ' + big(ctx.stock.processed) + ' from bars and cloth, ' + big(ctx.stock.parts) + ' from Building Parts. Gems, gear and potions are kept; turn this off under Options to keep the materials.');
     if (!ctx.hasPlayerJson) notes.push('No player.json: every activity uses your worn gear from the profile, with no Gold, Salvage or materials on hand.');
     notes.push('Village add-ons stay as installed; the extra slot a new house gives is not filled.');
     if (ctx.missingSkills.length) notes.push('Missing from the import, treated as level 1: ' + ctx.missingSkills.join(', ') + '.');
@@ -39258,6 +39269,12 @@ function syncCombatLevel(val) {
       ok('fixture stock should salvage for 2,000 + 21 + 1,520 + 1,764 = 5,305; got ' + held.total, held.total === 5305);
       ok('the stock should add to the Salvage on hand', HP.buildContext(null, pj, { upgrades: false }).salvage === 745240 + 5305);
       ok('with the stock option off, nothing is salvaged', HP.buildContext(null, pj, { upgrades: false, useStock: false }).salvage === 745240);
+      ok('a fresh player.json summary should be v2 and not flagged ore-only', pj.v === 2 && HP.buildContext(null, pj, { upgrades: false }).stock.oreOnly === false);
+      // A v1 summary (saved before salvaging was modelled) kept only ore. It
+      // is counted as ore and flagged, never shown as everything held.
+      var v1 = JSON.parse(JSON.stringify(pj)); delete v1.stock; v1.v = 1; v1.ores = { 20: 100 };
+      var c1 = HP.buildContext(null, v1, { upgrades: false });
+      ok('a v1 summary should count only its ore (2,000) and be flagged ore-only', c1.stock.oreOnly === true && c1.stock.total === 2000);
       ok('fixture Gold should be 1,000', pj.gold === 1000);
       ok('fixture Gold Find cap should be 255', pj.gfCap === 255);
       ok('fixture should flag Mining orders as switched off', pj.disabled.mining === true);
