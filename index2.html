@@ -9,7 +9,22 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v6.6</title>
+<title>IdleWorlds Toolkit v6.7</title>
+<!-- v6.7 Work Order chart and order-type filter (2026-10-22, Curtis):
+     • "Gold per day by 2x Gather" panel under Compare order types: an
+       inline SVG (no library) with gold per 24h across and 2x Gather 0-600%
+       up the side, one line per distinct order value, drawn from "Your
+       setup" with a marker at the player's own 2x Gather; hover or tap lists
+       every order at one gather value. calc() hands its inputs to a
+       DOM-free compute(), which runs orderModel() (the same model the
+       Housing Planner uses) for every type; gatherSeries() runs it at
+       every 10%.
+     • "Order types to compare": a box per order type, Show all / Hide all.
+       Hidden types leave the benchmark, table, cards, breakdowns and chart;
+       the boxes have ids, so IWStore remembers them.
+     • The Work Order self-check pins the chart (T20 chest 486,932/day at 0%,
+       Construction 1,075,450/day at 200%, 61 steps) and the filter.
+-->
 <!-- v6.6 Housing Planner (2026-10-22):
      • Skill Tools → Housing Planner. It is asked in order: pick a house, import
        the profile, import player.json. It then finds the fastest mix of Work
@@ -9936,7 +9951,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.6</span>
+  <span data-ui=ver-pill class="ver-pill">v6.7</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -11802,6 +11817,30 @@
             <span data-ui=field-helper class="field-helper">Applied to work-order gold rewards.</span>
           </div>
         </div>
+        <div data-ui=wo-bonus-head class="wo-bonus-head">
+          <div data-ui=wo-bonus-content>
+            <div data-ui=step-label class="step-label">Order types to compare</div>
+            <div data-ui=wo-bonus-sub class="wo-bonus-sub">Untick the ones you don't want in the results and the chart. <span data-ui=wo-show-count id="wo-show-count"></span></div>
+          </div>
+          <div data-ui=wo-show-actions style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="gut-btn" id="wo-show-all">Show all</button>
+            <button type="button" class="gut-btn" id="wo-show-none">Hide all</button>
+          </div>
+        </div>
+        <div data-ui=wo-show-list class="wo-show-list" style="display:flex;flex-wrap:wrap;gap:8px 10px;margin:0 0 12px">
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-raw" checked>⛏️ Ore / herb / fibre</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-wood" checked>🪓 Wood (est.)</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-potions" checked>🧪 Potions</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-helmet" checked>⛑️ Helmet</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-gloves" checked>🧤 Gloves</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-boots" checked>🥾 Boots</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-legs" checked>👖 Leggings</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-shield" checked>🛡️ Shield</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-weapon" checked>⚔️ Weapon</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-chest" checked>🛡️ Chest / robe</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-plate" checked>🔩 Reinforcement plate</label>
+          <label class="wo-show-opt" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="wo-show-construction" checked>🏗️ Construction (est.)</label>
+        </div>
         <div data-ui=wo-help class="wo-help" id="wo-help">Results update immediately. Imported profile values remain editable.</div>
       </div>
     </div>
@@ -11839,6 +11878,15 @@
             </table>
           </div>
           <div data-ui=wo-cardlist class="wo-cardlist" id="wo-cardlist" aria-label="Work order comparison cards"></div>
+        </div>
+      </div>
+
+      <div data-ui=work-order-gather-panel class="panel">
+        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--purple"></span>Gold per day by 2x Gather <span data-ui=wo-panel-note class="wo-panel-note">Uses your setup above</span></div>
+        <div data-ui=panel-body class="panel-body">
+          <div data-ui=wo-gather-legend id="wo-gather-legend" style="margin:0 0 6px"></div>
+          <div data-ui=wo-gather-chart id="wo-gather-chart" style="position:relative;width:100%"></div>
+          <div data-ui=wo-gather-note class="wo-help" id="wo-gather-note" style="margin-top:8px"></div>
         </div>
       </div>
     </section>
@@ -36769,10 +36817,20 @@ function syncCombatLevel(val) {
       return null;
     }
     if(help){help.textContent='Results update immediately. Imported profile values remain editable.';help.classList.remove('wo-error');}
-    var inp={housing:housing,gather:gp,brew:bp,enhance:ep,build:bb};
+    lastParams={tier:tier,housing:housing,gp:gp,bp:bp,ep:ep,bb:bb,goldPct:goldPct};
+    return compute(lastParams);
+  }
+  var lastParams=null;
+
+  // Every order type's 24-hour row for one set of inputs, with no DOM reads,
+  // so the gold-vs-2x-Gather chart (v6.7) can run it at every gather value.
+  // It goes through orderModel(), like the Housing Planner, so the table,
+  // the chart and the planner share one set of order maths.
+  function compute(p) {
+    var inp={housing:p.housing,gather:p.gp,brew:p.bp,enhance:p.ep,build:p.bb};
     return NAMES.map(function(name){
-      var m=orderModel(name,tier,inp); if(!m)return null;
-      return m.finish(maxWhole(m.sec),goldPct);
+      var m=orderModel(name,p.tier,inp); if(!m)return null;
+      return m.finish(maxWhole(m.sec),p.goldPct);
     }).filter(Boolean);
   }
 
@@ -36863,13 +36921,205 @@ function syncCombatLevel(val) {
     return { actions:actions, avg:actions*avg, guaranteed:actions*Math.floor(avg) };
   }
 
+  // ── Gold per 24h against 2x Gather (v6.6) ─────────────────────────────
+  // One line per distinct order value at the selected tier, with gold per day
+  // across and the 2x Gather chance up the side (Curtis's layout). Every other
+  // input comes from "Your setup", and a marker shows the player's own 2x
+  // Gather. Rows that always pay the same are drawn once. Colour is the
+  // skill's own --sk-* token, so it follows every theme; the four Smithing/
+  // Tailoring lines share it and differ by dash, and the readout names them.
+  var GATHER_GROUPS = [
+    // Not --sk-mining: in several themes it is the same grey-blue as
+    // --sk-construction, and those two lines would be indistinguishable.
+    { label:'Ore / herb / fibre / wood', names:['Raw Materials','Wood'], color:'var(--sk-gathering)', dash:'' },
+    { label:'Potions', names:['Potions'], color:'var(--sk-alchemy)', dash:'' },
+    { label:'Helm / gloves / boots', names:['Helmet','Gloves','Boots'], color:'var(--sk-smithing)', dash:'2 4' },
+    { label:'Legs / shield / weapon', names:['Leggings','Shield','Weapon'], color:'var(--sk-smithing)', dash:'9 5' },
+    { label:'Chest / robe', names:['Chest'], color:'var(--sk-smithing)', dash:'' },
+    { label:'Reinforcement plate', names:['Plate'], color:'var(--sk-smithing)', dash:'9 4 2 4' },
+    { label:'Construction (est.)', names:['Construction'], color:'var(--sk-construction)', dash:'' }
+  ];
+  // ── Order-type filter (v6.6) ──────────────────────────────────────────
+  // One checkbox per order type in "Your setup". A hidden type leaves the
+  // best benchmark, the table, the cards, both breakdowns and the chart; the
+  // model itself (compute, gatherSeries, the self-check) still runs every
+  // type. The boxes carry ids, so IWStore remembers them like any input.
+  var SHOW_IDS = {
+    'Raw Materials':'wo-show-raw', 'Wood':'wo-show-wood', 'Potions':'wo-show-potions',
+    'Helmet':'wo-show-helmet', 'Gloves':'wo-show-gloves', 'Boots':'wo-show-boots',
+    'Leggings':'wo-show-legs', 'Shield':'wo-show-shield', 'Weapon':'wo-show-weapon',
+    'Chest':'wo-show-chest', 'Plate':'wo-show-plate', 'Construction':'wo-show-construction'
+  };
+  var SHORT_NAME = {
+    'Raw Materials':'Ore / herb / fibre', 'Wood':'Wood (est.)', 'Potions':'Potions',
+    'Helmet':'Helm', 'Gloves':'Gloves', 'Boots':'Boots', 'Leggings':'Legs', 'Shield':'Shield',
+    'Weapon':'Weapon', 'Chest':'Chest / robe', 'Plate':'Reinforcement plate', 'Construction':'Construction (est.)'
+  };
+  function isShown(name) { var el = document.getElementById(SHOW_IDS[name]); return !el || el.checked; }
+  // Chart lines still showing, each labelled by the types it still stands for.
+  function visibleGroups() {
+    return GATHER_GROUPS.map(function(grp, i){
+      var on = grp.names.filter(isShown);
+      if (!on.length) return null;
+      return { grp:grp, i:i, label: on.length === grp.names.length ? grp.label
+        : on.map(function(n){ return SHORT_NAME[n]; }).join(' / ') };
+    }).filter(Boolean);
+  }
+  function setAllShown(on) {
+    Object.keys(SHOW_IDS).forEach(function(n){ var el = document.getElementById(SHOW_IDS[n]); if (el) el.checked = on; });
+    render();
+    if (window.IWStore && window.IWStore.saveSoon) window.IWStore.saveSoon();
+  }
+
+  function gatherSeries(p) {
+    var top = Math.max(600, Math.ceil((Number(p.gp) || 0) / 100) * 100);
+    var steps = [];
+    for (var g = 0; g <= top; g += 10) steps.push(g);
+    var series = GATHER_GROUPS.map(function(){ return []; });
+    steps.forEach(function(g){
+      var q = {}; for (var k in p) q[k] = p[k];
+      q.gp = g;
+      var rows = compute(q);
+      GATHER_GROUPS.forEach(function(grp, i){
+        var row = rows.find(function(r){ return grp.names.indexOf(r.name) >= 0; });
+        series[i].push(row ? { g:g, gold:row.final, n:row.n } : null);
+      });
+    });
+    return { steps:steps, series:series };
+  }
+  function niceMax(v) {
+    if (!(v > 0)) return 1;
+    var m = Math.pow(10, Math.floor(Math.log10(v))), f = v / m;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * m;
+  }
+  function shortGold(v) {
+    return v >= 1e6 ? (v / 1e6).toFixed(v >= 1e7 ? 0 : 1) + 'M' : v >= 1e3 ? Math.round(v / 1e3) + 'k' : String(Math.round(v));
+  }
+  function renderGatherChart() {
+    var host = document.getElementById('wo-gather-chart');
+    if (!host || !lastParams) return;
+    var legend = document.getElementById('wo-gather-legend'), note = document.getElementById('wo-gather-note');
+    var vis = visibleGroups();
+    if (!vis.length) {
+      host.innerHTML = '<div data-ui=wo-gather-empty class="wo-help" style="padding:24px 0;text-align:center">Tick at least one order type in Your setup to draw the chart.</div>';
+      if (legend) legend.innerHTML = '';
+      if (note) note.textContent = '';
+      return;
+    }
+    var data = gatherSeries(lastParams), steps = data.steps;
+    // Only the lines still showing, each keeping its own colour and dash.
+    var series = vis.map(function(v){ return data.series[v.i]; });
+    // Drawn at the container's own width so 12px text stays 12px on a phone;
+    // 760 when the panel is hidden and has no width yet.
+    var W = Math.max(300, Math.round(host.clientWidth) || 760), H = W < 520 ? 400 : 440, L = 58, R = 16, T = 14, B = 46;
+    var xTicks = W < 520 ? 4 : 5;
+    var maxGold = 0;
+    series.forEach(function(s){ s.forEach(function(pt){ if (pt && pt.gold > maxGold) maxGold = pt.gold; }); });
+    var xMax = niceMax(maxGold / xTicks) * xTicks, gTop = steps[steps.length - 1];
+    var X = function(v){ return L + (W - L - R) * v / xMax; };
+    var Y = function(g){ return T + (H - T - B) * (1 - g / gTop); };
+    var svg = '';
+    for (var i = 0; i <= xTicks; i++) {
+      var xv = xMax * i / xTicks, xp = X(xv).toFixed(1);
+      svg += '<line x1="' + xp + '" y1="' + T + '" x2="' + xp + '" y2="' + (H - B) + '" stroke="var(--border)" stroke-width="1"/>' +
+             '<text x="' + xp + '" y="' + (H - B + 18) + '" text-anchor="middle" font-size="12" fill="var(--text-2)">' + shortGold(xv) + '</text>';
+    }
+    for (var g = 0; g <= gTop; g += 100) {
+      var yp = Y(g).toFixed(1);
+      svg += '<line x1="' + L + '" y1="' + yp + '" x2="' + (W - R) + '" y2="' + yp + '" stroke="var(--border)" stroke-width="1"/>' +
+             '<text x="' + (L - 8) + '" y="' + (Number(yp) + 4) + '" text-anchor="end" font-size="12" fill="var(--text-2)">' + g + '%</text>';
+    }
+    svg += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="12" fill="var(--text-2)">Gold per 24 hours (Gold Find included)</text>' +
+           '<text transform="translate(14 ' + ((T + H - B) / 2) + ') rotate(-90)" text-anchor="middle" font-size="12" fill="var(--text-2)">2x Gather chance</text>';
+    series.forEach(function(s, i){
+      var pts = s.filter(Boolean).map(function(pt){ return X(pt.gold).toFixed(1) + ',' + Y(pt.g).toFixed(1); }).join(' ');
+      if (!pts) return;
+      var grp = vis[i].grp;
+      svg += '<polyline points="' + pts + '" fill="none" stroke="' + grp.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"' +
+             (grp.dash ? ' stroke-dasharray="' + grp.dash + '"' : '') + '><title>' + esc(vis[i].label) + '</title></polyline>';
+    });
+    var you = Math.min(gTop, Math.max(0, Number(lastParams.gp) || 0)), youY = Y(you).toFixed(1);
+    svg += '<line x1="' + L + '" y1="' + youY + '" x2="' + (W - R) + '" y2="' + youY + '" stroke="var(--text)" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>' +
+           '<text x="' + (W - R - 4) + '" y="' + (Number(youY) - 6) + '" text-anchor="end" font-size="12" fill="var(--text)">You: ' + you + '%</text>' +
+           '<line class="wo-gx-guide" x1="' + L + '" x2="' + (W - R) + '" y1="-10" y2="-10" stroke="var(--text-2)" stroke-width="1"/>' +
+           '<rect class="wo-gx-hit" x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="transparent"/>';
+    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Gold per 24 hours for each work order type against 2x Gather chance, Tier ' + lastParams.tier + '" style="display:block;touch-action:pan-y">' + svg + '</svg>' +
+      '<div data-ui=wo-gx-tip class="wo-gx-tip" style="position:absolute;display:none;pointer-events:none;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;min-width:200px;z-index:2"></div>';
+
+    if (legend) legend.innerHTML = vis.map(function(v){
+      return '<span data-ui=wo-gx-key style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0;font-size:12px;color:var(--text-2)">' +
+        '<svg width="24" height="10" aria-hidden="true"><line x1="1" y1="5" x2="23" y2="5" stroke="' + v.grp.color + '" stroke-width="2" stroke-linecap="round"' +
+        (v.grp.dash ? ' stroke-dasharray="' + v.grp.dash + '"' : '') + '/></svg>' + esc(v.label) + '</span>';
+    }).join('');
+
+    var best = function(idx){
+      var b = -1;
+      series.forEach(function(s, k){ if (s[idx] && (b < 0 || s[idx].gold > series[b][idx].gold)) b = k; });
+      return b < 0 ? '' : vis[b].label + ' (' + shortGold(series[b][idx].gold) + ')';
+    };
+    // Where Construction takes the lead: only said when it is showing and
+    // something else is showing to be beaten.
+    var con = vis.findIndex(function(v){ return v.grp.names.indexOf('Construction') >= 0; }), lead = null;
+    if (con >= 0 && vis.length > 1) {
+      for (var s = 0; s < steps.length && lead === null; s++) {
+        if (series[con][s] && series.every(function(sr, k){ return k === con || !sr[s] || series[con][s].gold >= sr[s].gold; })) lead = steps[s];
+      }
+    }
+    var bestAt = [0, 200, 400, gTop].filter(function(g, k, a){ return a.indexOf(g) === k; });
+    if (note) note.textContent = 'Tier ' + lastParams.tier + '. ' + bestAt.map(function(g){ return 'Best at ' + g + '%: ' + best(steps.indexOf(g)) + '.'; }).join(' ') + ' ' +
+      (lead !== null ? 'Construction leads from ' + lead + '% 2x Gather. ' : '') + 'Lines step because only whole orders count. Hover or tap for every order at one 2x Gather value.';
+
+    var svgEl = host.querySelector('svg'), hit = host.querySelector('.wo-gx-hit'), guide = host.querySelector('.wo-gx-guide'), tip = host.querySelector('.wo-gx-tip');
+    var show = function(ev){
+      var box = svgEl.getBoundingClientRect(); if (!box.height) return;
+      var vy = (ev.clientY - box.top) * H / box.height;
+      var gv = Math.round(gTop * (1 - (vy - T) / (H - T - B)) / 10) * 10;
+      gv = Math.max(0, Math.min(gTop, gv));
+      var idx = steps.indexOf(gv); if (idx < 0) return;
+      var gy = Y(gv).toFixed(1);
+      guide.setAttribute('y1', gy); guide.setAttribute('y2', gy);
+      var rows = vis.map(function(v, k){ return { grp:v.grp, label:v.label, pt:series[k][idx] }; })
+        .filter(function(r){ return r.pt; }).sort(function(a, b){ return b.pt.gold - a.pt.gold; });
+      tip.innerHTML = '<div data-ui=wo-gx-tip-head style="font-weight:600;margin-bottom:4px">2x Gather ' + gv + '%</div>' + rows.map(function(r){
+        return '<div data-ui=wo-gx-tip-row style="display:flex;justify-content:space-between;gap:12px"><span data-ui=wo-gx-tip-name style="display:inline-flex;align-items:center;gap:6px">' +
+          '<svg width="16" height="8" aria-hidden="true"><line x1="1" y1="4" x2="15" y2="4" stroke="' + r.grp.color + '" stroke-width="2"' + (r.grp.dash ? ' stroke-dasharray="' + r.grp.dash + '"' : '') + '/></svg>' +
+          esc(r.label) + '</span><span data-ui=wo-gx-tip-val style="font-variant-numeric:tabular-nums">' + fmt(r.pt.gold, 0) + ' g · ' + r.pt.n + '</span></div>';
+      }).join('');
+      tip.style.display = 'block';
+      var hostBox = host.getBoundingClientRect();
+      var left = ev.clientX - hostBox.left + 14, topPx = ev.clientY - hostBox.top + 14;
+      if (left + tip.offsetWidth > hostBox.width) left = Math.max(0, ev.clientX - hostBox.left - tip.offsetWidth - 14);
+      if (topPx + tip.offsetHeight > hostBox.height) topPx = Math.max(0, hostBox.height - tip.offsetHeight);
+      tip.style.left = left + 'px'; tip.style.top = topPx + 'px';
+    };
+    var hide = function(){ tip.style.display = 'none'; guide.setAttribute('y1', -10); guide.setAttribute('y2', -10); };
+    hit.addEventListener('pointermove', show);
+    hit.addEventListener('pointerdown', show);
+    hit.addEventListener('pointerleave', hide);
+  }
+  var gatherResizeTimer = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(gatherResizeTimer);
+    gatherResizeTimer = setTimeout(renderGatherChart, 150);
+  });
+
   function label(x) {
     return META[x.name].icon+' '+esc(x.name)+(x.estimate
       ? ' <span data-ui=wo-est class="wo-est" title="'+esc(ESTIMATE_NOTE[x.name]||'Estimate')+'">(est.)</span>' : '');
   }
 
   function render() {
-    var r=calc(); if(!r||!r.length)return;
+    var all=calc(); if(!all||!all.length)return;
+    var r=all.filter(function(x){return isShown(x.name);});
+    var countEl=document.getElementById('wo-show-count');
+    if(countEl)countEl.textContent=r.length+' of '+all.length+' shown';
+    if(!r.length){
+      var none='<div data-ui=wo-show-empty class="wo-help">No order types are ticked. Tick at least one under "Order types to compare" above.</div>';
+      ['wo-best','wo-gold-break','wo-time-break'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=none;});
+      ['wo-body','wo-cardlist'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML='';});
+      renderGatherChart();
+      return;
+    }
     var ranked=r.slice().sort(function(a,b){return b.final-a.final;});
     var best=ranked[0];
     var bestEl=document.getElementById('wo-best');
@@ -36923,6 +37173,8 @@ function syncCombatLevel(val) {
           '<div data-ui=wo-formula class="wo-formula">'+esc(x.formula)+'<br>Total used: '+clock(x.total)+' · unused: '+clock(x.remain)+'</div></div></article>';
       }).join('');
     }
+
+    renderGatherChart();
   }
 
   function selfCheck(){
@@ -37002,6 +37254,36 @@ function syncCombatLevel(val) {
     if(enhanceCopies('Plate',1.14)!==1) fail.push('Bonus Enhance must not copy Reinforcement Plates');
     if(enhanceCopies('Chest',1.14)!==1.14) fail.push('Bonus Enhance must copy gear pieces');
 
+    // Gold-vs-2x-Gather chart: T20, no housing or bonuses. 43 chest orders
+    // (1,980s each) and 137 Construction orders at 200% (630s each) a day.
+    var gxBase={tier:20,housing:0,gp:0,bp:0,ep:0,bb:0,goldPct:0};
+    var gx=gatherSeries(gxBase);
+    var gxAt=function(label,g){var i=GATHER_GROUPS.findIndex(function(x){return x.label===label;});var pt=gx.series[i]&&gx.series[i][gx.steps.indexOf(g)];return pt?pt.gold:null;};
+    if(gx.steps.length!==61) fail.push('gather chart should plot 0-600% in 61 steps; got '+gx.steps.length);
+
+    // Order-type filter: untick Helmet and Construction, read what is left,
+    // then put every box back exactly as it was (no events, nothing saved).
+    var boxes=Object.keys(SHOW_IDS).map(function(n){return document.getElementById(SHOW_IDS[n]);});
+    if(boxes.every(Boolean)){
+      var was=boxes.map(function(b){return b.checked;});
+      try{
+        boxes.forEach(function(b){b.checked=true;});
+        document.getElementById(SHOW_IDS.Helmet).checked=false;
+        document.getElementById(SHOW_IDS.Construction).checked=false;
+        var vg=visibleGroups(), labels=vg.map(function(v){return v.label;});
+        if(vg.length!==6) fail.push('filter should leave 6 chart lines with Construction hidden; got '+vg.length);
+        if(labels.indexOf('Gloves / Boots')<0) fail.push('a part-hidden chart line should name only the types still shown; got '+labels.join(', '));
+        if(isShown('Helmet')||!isShown('Chest')) fail.push('isShown does not follow the order-type boxes');
+      } finally { boxes.forEach(function(b,i){b.checked=was[i];}); }
+    } else fail.push('order-type filter boxes missing from the Work Order markup');
+    if(gxAt('Chest / robe',0)!==486932) fail.push('gather chart T20 chest at 0% should be 486,932/day; got '+gxAt('Chest / robe',0));
+    if(gxAt('Construction (est.)',200)!==1075450) fail.push('gather chart T20 Construction at 200% should be 1,075,450/day; got '+gxAt('Construction (est.)',200));
+    GATHER_GROUPS.forEach(function(grp){
+      var rows=compute({tier:20,housing:0,gp:200,bp:0,ep:0,bb:0,goldPct:0}).filter(function(r){return grp.names.indexOf(r.name)>=0;});
+      if(rows.length!==grp.names.length) fail.push('gather chart group '+grp.label+' is missing a row');
+      else if(rows.some(function(r){return r.final!==rows[0].final;})) fail.push('gather chart group '+grp.label+' merges rows that pay differently');
+    });
+
     if(fail.length&&typeof console!=='undefined')console.warn('[Work Orders] self-check FAILED:',fail.join(' | '));
     return fail;
   }
@@ -37032,6 +37314,9 @@ function syncCombatLevel(val) {
     if(!wired){
       wired=true;
       ['wo-house','wo-tier','wo-gather','wo-brew','wo-enhance','wo-build','wo-gold'].forEach(function(id){var el=document.getElementById(id);if(el){el.addEventListener('input',render);el.addEventListener('change',render);}});
+      Object.keys(SHOW_IDS).forEach(function(n){var el=document.getElementById(SHOW_IDS[n]);if(el)el.addEventListener('change',render);});
+      var sa=document.getElementById('wo-show-all'); if(sa)sa.addEventListener('click',function(){setAllShown(true);});
+      var sn=document.getElementById('wo-show-none'); if(sn)sn.addEventListener('click',function(){setAllShown(false);});
       var pb=document.getElementById('wo-profile-btn'); if(pb)pb.addEventListener('click',function(){autofillFromProfile();render();});
       document.querySelectorAll('#tab-work-order [data-wo-tab]').forEach(function(btn){btn.addEventListener('click',function(){
         document.querySelectorAll('#tab-work-order [data-wo-tab]').forEach(function(b){var on=b===btn;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');});
