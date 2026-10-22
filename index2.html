@@ -28,8 +28,12 @@
        from players / anything). Listed with the day they unlock.
      • Citadel defaults to 1B Gold + 100M Salvage (player-supplied). Other
        prices are entered on the tab, and an unpriced step stops the plan.
-     • Work Order Gold Find is capped at player.maxWorkOrderGoldFindPercent
-       (255). The Work Order module exposes read-only value hooks for it.
+     • Every order is priced and timed by the Work Orders tab's own
+       orderModel() (window.iwWorkOrderOrder), which the tab's table now
+       comes from too: all 12 order types in seven families (Mining,
+       Herbing, Woodcutting, Potions, Smithing, Tailoring, Construction),
+       each in the loadout its steps are done in. Gold Find is capped at
+       player.maxWorkOrderGoldFindPercent (255).
      • Suite S (iwHousingPlannerSelfCheck). State lives in iwHousingPlanV1.
 -->
 <!-- v6.5 Work Order Board and the October 15-20 game patches (2026-10-21):
@@ -36756,43 +36760,70 @@ function syncCombatLevel(val) {
       return null;
     }
     if(help){help.textContent='Results update immediately. Imported profile values remain editable.';help.classList.remove('wo-error');}
-    var gatherYield=1+gp/100;
-    var brewOutput=perCraft(bp), enhanceOutput=perCraft(ep), buildOutput=perCraft(bb);
-    var gatherTime=actionSec(10,housing), processTime=actionSec(10,housing), craftTime=actionSec(180,housing);
-
+    var inp={housing:housing,gather:gp,brew:bp,enhance:ep,build:bb};
     return NAMES.map(function(name){
-      var v=unitValue(tier,name); if(v===null)return null;
-      var qty=ORDER_QTY[name]||1;
-      if(name==='Raw Materials'||name==='Wood'){
-        var rawPerOrder=qty, gatherActions=rawPerOrder/gatherYield, sec=gatherActions*gatherTime, n=maxWhole(sec);
-        return finish(name,tier,n,n*rawPerOrder,0,n*qty,n*gatherActions*gatherTime,0,0,v,goldPct,sec,
-          '100 '+(name==='Wood'?'wood':'resources')+' ÷ '+fmt(gatherYield,4)+' expected/action × '+fmt(gatherTime,0)+'s = '+fmt(sec,4)+'s per complete order');
-      }
-      if(name==='Construction'){
-        var parts=constructionOrderParts(tier), partRaw=constructionPartRaw(tier);
-        var crafts=parts/buildOutput, rawC=crafts*partRaw, gatherC=rawC/gatherYield;
-        var secG=gatherC*gatherTime, secC=crafts*processTime, secTot=secG+secC, nC=maxWhole(secTot);
-        return finish(name,tier,nC,nC*rawC,0,nC*parts,nC*secG,0,nC*secC,v,goldPct,secTot,
-          parts+' parts ÷ '+fmt(buildOutput,4)+' expected/craft = '+fmt(crafts,4)+' crafts × '+partRaw+' wood + ore = '+fmt(rawC,4)+' raw/order; total '+fmt(secTot,4)+'s/order',
-          parts, parts+' '+(typeof partsName==='function'?partsName(tier):'Building Parts'));
-      }
-      if(name==='Potions'){
-        var brewActions=qty/brewOutput, rawPerOrder=brewActions*RAW_PER_POTION;
-        var gatherActions=rawPerOrder/gatherYield;
-        var secGather=gatherActions*gatherTime, secBrew=brewActions*processTime, sec=secGather+secBrew, n=maxWhole(sec);
-        return finish(name,tier,n,n*rawPerOrder,0,n*qty,n*secGather,0,n*secBrew,v,goldPct,sec,
-          '20 potions ÷ '+fmt(brewOutput,4)+' expected/brew = '+fmt(brewActions,4)+' brews; '+fmt(rawPerOrder,4)+' raw/order; total '+fmt(sec,4)+'s/order');
-      }
-      // Bonus Enhance's free extra copy means 1 ÷ copies crafts fill a gear order.
-      var processed=equipmentProcessedCount(tier,name), rawEach=processed*orePerProcessed(tier);
-      var copies=enhanceCopies(name,enhanceOutput);
-      var craftsPer=1/copies, rawPer=rawEach*craftsPer, procPer=processed*craftsPer;
-      var gatherActions=rawPer/gatherYield;
-      var secGather=gatherActions*gatherTime, secProcess=procPer*processTime, secCraft=craftsPer*craftTime, sec=secGather+secProcess+secCraft, n=maxWhole(sec);
-      return finish(name,tier,n,n*rawPer,n*procPer,n,n*secGather,n*secProcess,n*secCraft,v,goldPct,sec,
-        processed+' processed material × '+orePerProcessed(tier)+' raw = '+rawEach+' raw/item'+
-        (copies>1?'; ÷ '+fmt(copies,4)+' expected items/craft':(name==='Plate'&&enhanceOutput>1?'; Bonus Enhance does not copy plates':''))+'; '+fmt(sec,4)+'s per complete order');
+      var m=orderModel(name,tier,inp); if(!m)return null;
+      return m.finish(maxWhole(m.sec),goldPct);
     }).filter(Boolean);
+  }
+
+  // One complete order of one type, at one tier, for one set of inputs:
+  // its value, the seconds it takes and the actions in it. calc() turns it
+  // into a 24-hour row; the Housing Planner (v6.6) reads it per order, with
+  // the loadout each step is done in. This is the only place the order
+  // maths lives, so the two can never disagree.
+  //   inp: { housing, gather (2x Gather %), brew, enhance, build (%s) }
+  //   gatherActions / processActions (10s smelt, weave) / craftActions:
+  //   brews and Building Parts take processTime, gear crafts craftTime.
+  function orderModel(name,tier,inp){
+    var v=unitValue(tier,name); if(v===null)return null;
+    var housing=+inp.housing||0, gp=Math.max(0,+inp.gather||0);
+    var gatherYield=1+gp/100;
+    var brewOutput=perCraft(inp.brew), enhanceOutput=perCraft(inp.enhance), buildOutput=perCraft(inp.build);
+    var gatherTime=actionSec(10,housing), processTime=actionSec(10,housing), craftTime=actionSec(180,housing);
+    var qty=ORDER_QTY[name]||1;
+    var base={name:name,tier:tier,unitV:v,qty:qty,estimate:!!META[name].estimate,gatherTime:gatherTime,processTime:processTime,craftTime:craftTime};
+    if(name==='Raw Materials'||name==='Wood'){
+      var rawPerOrder=qty, gatherActions=rawPerOrder/gatherYield, sec=gatherActions*gatherTime;
+      return Object.assign(base,{sec:sec,raw:rawPerOrder,gatherActions:gatherActions,processActions:0,craftActions:0,craftSec:0,
+        finish:function(n,goldPct){
+          return finish(name,tier,n,n*rawPerOrder,0,n*qty,n*gatherActions*gatherTime,0,0,v,goldPct,sec,
+            '100 '+(name==='Wood'?'wood':'resources')+' ÷ '+fmt(gatherYield,4)+' expected/action × '+fmt(gatherTime,0)+'s = '+fmt(sec,4)+'s per complete order');
+        }});
+    }
+    if(name==='Construction'){
+      var parts=constructionOrderParts(tier), partRaw=constructionPartRaw(tier);
+      var crafts=parts/buildOutput, rawC=crafts*partRaw, gatherC=rawC/gatherYield;
+      var secG=gatherC*gatherTime, secC=crafts*processTime, secTot=secG+secC;
+      return Object.assign(base,{qty:parts,sec:secTot,raw:rawC,gatherActions:gatherC,processActions:0,craftActions:crafts,craftSec:processTime,parts:parts,
+        finish:function(nC,goldPct){
+          return finish(name,tier,nC,nC*rawC,0,nC*parts,nC*secG,0,nC*secC,v,goldPct,secTot,
+            parts+' parts ÷ '+fmt(buildOutput,4)+' expected/craft = '+fmt(crafts,4)+' crafts × '+partRaw+' wood + ore = '+fmt(rawC,4)+' raw/order; total '+fmt(secTot,4)+'s/order',
+            parts, parts+' '+(typeof partsName==='function'?partsName(tier):'Building Parts'));
+        }});
+    }
+    if(name==='Potions'){
+      var brewActions=qty/brewOutput, rawPot=brewActions*RAW_PER_POTION;
+      var gatherPot=rawPot/gatherYield;
+      var secGather=gatherPot*gatherTime, secBrew=brewActions*processTime, secPot=secGather+secBrew;
+      return Object.assign(base,{sec:secPot,raw:rawPot,gatherActions:gatherPot,processActions:0,craftActions:brewActions,craftSec:processTime,
+        finish:function(n,goldPct){
+          return finish(name,tier,n,n*rawPot,0,n*qty,n*secGather,0,n*secBrew,v,goldPct,secPot,
+            '20 potions ÷ '+fmt(brewOutput,4)+' expected/brew = '+fmt(brewActions,4)+' brews; '+fmt(rawPot,4)+' raw/order; total '+fmt(secPot,4)+'s/order');
+        }});
+    }
+    // Bonus Enhance's free extra copy means 1 ÷ copies crafts fill a gear order.
+    var processed=equipmentProcessedCount(tier,name), rawEach=processed*orePerProcessed(tier);
+    var copies=enhanceCopies(name,enhanceOutput);
+    var craftsPer=1/copies, rawPer=rawEach*craftsPer, procPer=processed*craftsPer;
+    var gatherGear=rawPer/gatherYield;
+    var secGatherG=gatherGear*gatherTime, secProcess=procPer*processTime, secCraft=craftsPer*craftTime, secGear=secGatherG+secProcess+secCraft;
+    return Object.assign(base,{sec:secGear,raw:rawPer,gatherActions:gatherGear,processActions:procPer,craftActions:craftsPer,craftSec:craftTime,copies:copies,
+      finish:function(n,goldPct){
+        return finish(name,tier,n,n*rawPer,n*procPer,n,n*secGatherG,n*secProcess,n*secCraft,v,goldPct,secGear,
+          processed+' processed material × '+orePerProcessed(tier)+' raw = '+rawEach+' raw/item'+
+          (copies>1?'; ÷ '+fmt(copies,4)+' expected items/craft':(name==='Plate'&&enhanceOutput>1?'; Bonus Enhance does not copy plates':''))+'; '+fmt(secGear,4)+'s per complete order');
+      }});
   }
 
   // ── Theoretical gather output over a full session ────────────────────
@@ -37012,11 +37043,11 @@ function syncCombatLevel(val) {
   };
   window.iwWorkOrderAutofill=autofillFromProfile;
   window.iwWorkOrderSelfCheck=selfCheck;
-  // Read-only hooks for the Housing Planner (v6.6): it prices orders through
-  // these, so a Work Order value is never reconstructed anywhere else.
-  window.iwWorkOrderUnitValue=function(tier,name){ if(!ROWS.length) ROWS=loadRows(); return unitValue(tier,name); };
-  window.iwWorkOrderConstructionGold=function(tier){ if(!ROWS.length) ROWS=loadRows(); return constructionOrderGold(tier); };
-  window.iwWorkOrderConstructionParts=constructionOrderParts;
+  // Read-only hooks for the Housing Planner (v6.6). It runs every order
+  // through orderModel(), the same code this tab's table comes from, so an
+  // order is never priced or timed anywhere else.
+  window.iwWorkOrderOrder=function(name,tier,inp){ if(!ROWS.length) ROWS=loadRows(); return orderModel(name,tier,inp||{}); };
+  window.iwWorkOrderTypes=NAMES.slice();
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init); else init();
 })();
@@ -37791,8 +37822,9 @@ function syncCombatLevel(val) {
        2x Gather. The profile-only fallback must not add them again.
      • Absent is not zero. An unknown housing price stays empty and the
        planner refuses to plan through it rather than treat it as free.
-     • Work Order values come from the Work Order module
-       (iwWorkOrderUnitValue / iwWorkOrderConstructionGold), never a copy.
+     • Every Work Order is priced and timed by the Work Orders tab's own
+       orderModel() (window.iwWorkOrderOrder): all its order types, with
+       the loadout each step is done in. The order maths is never copied.
      • Gear gates use BASE levels (iwCanEquip's rule): any-skill gates read
        the highest base level, Combat gates Combat, profession gates that
        profession.
@@ -37810,14 +37842,18 @@ function syncCombatLevel(val) {
   var DAILY_BOOST_EXPECTED_PCT = 6;    // 3 of 10 skills a day at +20%
   var CHUNK_SEC = 3600;                // simulation step: one in-game hour
   var SLOTS = ['weapon', 'shield', 'helmet', 'chest', 'gloves', 'legs', 'boots', 'ring', 'amulet', 'belt', 'trinket', 'cloak'];
-  var SKILLS = ['mining', 'herbing', 'jewelcrafting', 'smithing', 'alchemy', 'construction', 'woodcutting'];
-  var ROLES = ['mining', 'herbing', 'jewelcrafting', 'smithing', 'alchemy', 'construction', 'woodcutting', 'goldfind'];
-  var ROLE_LABEL = { mining: 'Mining', herbing: 'Gathering', jewelcrafting: 'Jewelcrafting', smithing: 'Smithing', alchemy: 'Alchemy', construction: 'Construction', woodcutting: 'Woodcutting', goldfind: 'Gold Find' };
+  var SKILLS = ['mining', 'herbing', 'jewelcrafting', 'smithing', 'tailoring', 'alchemy', 'construction', 'woodcutting'];
+  var ROLES = ['mining', 'herbing', 'jewelcrafting', 'smithing', 'tailoring', 'alchemy', 'construction', 'woodcutting', 'goldfind'];
+  var ROLE_LABEL = { mining: 'Mining', herbing: 'Gathering', jewelcrafting: 'Jewelcrafting', smithing: 'Smithing', tailoring: 'Tailoring', alchemy: 'Alchemy', construction: 'Construction', woodcutting: 'Woodcutting', goldfind: 'Gold Find' };
   var DEF_STAT = { doubleGatherChancePercent: 'dg', goldFindPercent: 'gf', itemFindPercent: 'itf', xpTaskBonus: 'xp', bonusEnhanceChancePercent: 'enh', bonusBrewChancePercent: 'brew', bonusBuildChancePercent: 'build' };
   var GEM_STAT = { gather: 'dg', goldFind: 'gf', itemFind: 'itf', xpPerTask: 'xp' };
   var ENCHANT_STAT = { boots: 'dg', helmet: 'gf', gloves: 'itf', ring: 'xp' };
-  var METHODS = ['auto', 'smithWO', 'miningWO', 'consWO', 'herbWO', 'potionWO'];
-  var METHOD_LABEL = { auto: 'Best available order', smithWO: 'Smithing Chest orders', miningWO: 'Mining orders', consWO: 'Construction orders (est.)', herbWO: 'Gathering orders', potionWO: 'Potion orders', prospect: 'Mine + prospect', stock: 'Prospect ore on hand' };
+  // Gold methods: one per Work Orders tab order family, plus 'auto' (the
+  // best-paying order at each moment). Gear orders pick their best piece.
+  var GOLD_ACTS = ['miningWO', 'herbWO', 'woodWO', 'potionWO', 'smithWO', 'tailorWO', 'consWO'];
+  var METHODS = ['auto'].concat(GOLD_ACTS);
+  var METHOD_LABEL = { auto: 'Best available order', miningWO: 'Mining orders', herbWO: 'Gathering orders', woodWO: 'Woodcutting orders (est.)', potionWO: 'Potion orders',
+    smithWO: 'Smithing orders', tailorWO: 'Tailoring orders', consWO: 'Construction orders (est.)', prospect: 'Mine + prospect', stock: 'Prospect ore on hand' };
   var SPLITS = [0, 0.25, 0.5, 0.75, 1];
 
   function num(v) { var n = Number(v); return (v === null || v === undefined || v === '' || !Number.isFinite(n)) ? null : n; }
@@ -38081,7 +38117,7 @@ function syncCombatLevel(val) {
     return true;
   }
   function roleStat(role) {
-    return { mining: 'dg', herbing: 'dg', woodcutting: 'dg', construction: 'dg', goldfind: 'gf' }[role] || 'xp';
+    return { mining: 'dg', herbing: 'dg', woodcutting: 'dg', construction: 'dg', goldfind: 'gf', smithing: 'enh', tailoring: 'enh', alchemy: 'brew' }[role] || 'xp';
   }
   function roleScore(role, agg, lv, gfCap) {
     var sk = { goldfind: null }[role] === null ? null : role;
@@ -38089,7 +38125,7 @@ function syncCombatLevel(val) {
     var s = agg.st, main = 0;
     if (role === 'mining' || role === 'herbing' || role === 'woodcutting') main = s.dg;
     else if (role === 'construction') main = Math.log((1 + Math.min(100, s.build) / 100) * (1 + s.dg / 100));
-    else if (role === 'smithing') main = Math.min(100, s.enh);
+    else if (role === 'smithing' || role === 'tailoring') main = Math.min(100, s.enh);
     else if (role === 'alchemy') main = Math.min(100, s.brew);
     else if (role === 'goldfind') main = Math.min(gfCap, s.gf);
     return [tier, main, s.xp];
@@ -38115,7 +38151,7 @@ function syncCombatLevel(val) {
   function roleFeatures(role, p) {
     var sk = role === 'goldfind' ? null : role, f = [p.st[roleStat(role)] || 0, sk ? (p.skill[sk] || 0) : 0, p.sockets, p.st.xp];
     if (role === 'construction') f.push(p.st.build);
-    if (role === 'smithing') f.push(p.st.enh);
+    if (role === 'smithing' || role === 'tailoring') f.push(p.st.enh);
     if (role === 'alchemy') f.push(p.st.brew);
     return f;
   }
@@ -38358,17 +38394,9 @@ function syncCombatLevel(val) {
       (k === 'jewelcrafting' ? JEWELCRAFT_XP_EVENT_PCT : 0);
     return (1 + ctx.dailyPct / 100) * (1 + pct / 100);
   }
-  var valueCache = {};
-  function woValue(tier, name) {
-    var k = tier + '|' + name;
-    if (valueCache[k] === undefined) valueCache[k] = (typeof window.iwWorkOrderUnitValue === 'function') ? window.iwWorkOrderUnitValue(tier, name) : null;
-    return valueCache[k];
-  }
-  window.addEventListener('iw:item-data', function () { valueCache = {}; });
-
-  function simulate(ctx, step, method, split, log) {
+  function simulate(ctx, step, method, split, log, peek) {
     var S = { t: 0, gold: step.gold0, salv: step.salv0, xp: Object.assign({}, step.xp), ores: Object.assign({}, step.ores), segs: [], ups: [] };
-    var h = step.housing, A = effectiveDuration(10, h), CRAFT = effectiveDuration(180, h);
+    var h = step.housing, A = effectiveDuration(10, h);
     var DFA = getDurationFactor(10, h), DFC = getDurationFactor(180, h);
     var c = cum();
     // Base levels, advanced incrementally as XP lands; `ver` moves on every
@@ -38411,8 +38439,27 @@ function syncCombatLevel(val) {
       var g = ctx.gfMode === 'activity' ? lo[role].st.gf : lo.goldfind.st.gf;
       return 1 + Math.min(ctx.gfCap, g) / 100;
     }
-    var chestXp = {};
-    function chestCraftXp(t) { if (chestXp[t] === undefined) chestXp[t] = (getActions(t, 'smith_chest')[0] || {}).xp || 0; return chestXp[t]; }
+    // Craft XP for one gear order, from the same tables getActions() reads.
+    function craftXp(prof, name, t) {
+      var tb = prof === 'smithing'
+        ? { Boots: SMITH_BOOTS_XP, Gloves: SMITH_BOOTS_XP, Helmet: SMITH_BOOTS_XP, Leggings: SMITH_LEGS_XP, Chest: SMITH_CHEST_XP, Shield: SMITH_SHIELD_XP, Weapon: SMITH_SWORD_XP, Plate: PLATE_XP }[name]
+        : { Boots: TAILOR_BOOTS_XP, Gloves: TAILOR_GLOVES_XP, Helmet: TAILOR_HOOD_XP, Leggings: TAILOR_LEGGINGS_XP, Chest: TAILOR_ROBE_XP }[name];
+      return tb ? (tb[t] || 0) : 0;
+    }
+    // One order through the Work Orders tab's own model, at this house.
+    // finish() also builds the tab's display strings, so each order and its
+    // Gold are kept for the run: rates are rebuilt on every level-up, but an
+    // order's inputs change far less often.
+    var orderMemo = {};
+    function order(name, t, inp) {
+      if (typeof window.iwWorkOrderOrder !== 'function') return null;
+      var full = Object.assign({ housing: h }, inp), key = name + '|' + t + '|' + JSON.stringify(full);
+      return key in orderMemo ? orderMemo[key] : (orderMemo[key] = window.iwWorkOrderOrder(name, t, full));
+    }
+    function orderGold(mm, gfPct) {
+      var g = mm.__iwGold || (mm.__iwGold = {});
+      return gfPct in g ? g[gfPct] : (g[gfPct] = mm.finish(1, gfPct).orderFinal);
+    }
     // Activity rates, rebuilt only when a level, the server boost or the
     // ore stock on hand changes.
     var actKey = null, ACTS = null;
@@ -38433,41 +38480,67 @@ function syncCombatLevel(val) {
       var tS = Math.min(tierOf(eff('smithing', 'smithing')), tM), tA = Math.min(tierOf(eff('alchemy', 'alchemy')), tH);
       var tC = Math.min(tierOf(eff('construction', 'construction')), tierOf(eff('woodcutting', 'woodcutting')), tM);
       var p = Math.min(tM, tJ), nM = 2 / yM;
-      out.prospect = { tier: p, sec: nM * A + A, gold: 0, salv: 2 * p,
+      out.prospect = { tier: p, sec: nM * A + A, gold: 0, salv: getProspectSalvage(p),
         xp: { mining: gain('mining', nM, MINING_XP[p], yM, lo.mining.st.xp, DFA), jewelcrafting: gain('jewelcrafting', 1, JEWEL_PROSPECT_XP[p], 1, lo.jewelcrafting.st.xp, DFA) } };
-      if (q) out.stock = { tier: q, sec: A, gold: 0, salv: 2 * q, stockTier: q,
+      if (q) out.stock = { tier: q, sec: A, gold: 0, salv: getProspectSalvage(q), stockTier: q,
         xp: { jewelcrafting: gain('jewelcrafting', 1, JEWEL_PROSPECT_XP[q], 1, lo.jewelcrafting.st.xp, DFA) } };
-      var raw = woValue(tM, 'Raw Materials');
-      if (raw != null) out.miningWO = { tier: tM, sec: 100 / yM * A, gold: 100 * raw * gfMult('mining', lo), salv: 0,
-        xp: { mining: gain('mining', 100 / yM, MINING_XP[tM], yM, lo.mining.st.xp, DFA) } };
-      var herb = woValue(tH, 'Raw Materials');
-      if (herb != null) out.herbWO = { tier: tH, sec: 100 / yH * A, gold: 100 * herb * gfMult('herbing', lo), salv: 0,
-        xp: { herbing: gain('herbing', 100 / yH, GATHERING_XP[tH], yH, lo.herbing.st.xp, DFA) } };
-      var chest = woValue(tS, 'Chest');
-      if (chest != null) {
-        var cp = 1 + Math.min(100, lo.smithing.st.enh) / 100, bars = barsPerEquipmentForTier(tS, 'chest'), ore = bars * oresPerBar(tS) / cp;
-        var sm = bars / cp, cr = 1 / cp;
-        out.smithWO = { tier: tS, sec: ore / yM * A + sm * A + cr * CRAFT, gold: chest * gfMult('smithing', lo), salv: 0,
-          xp: { mining: gain('mining', ore / yM, MINING_XP[tS], yM, lo.mining.st.xp, DFA),
-                smithing: gain('smithing', sm, SMELT_XP[tS], 1, lo.smithing.st.xp, DFA) + gain('smithing', cr, chestCraftXp(tS), 1, lo.smithing.st.xp, DFC) } };
-      }
-      var pot = woValue(tA, 'Potions');
-      if (pot != null) {
-        var brews = 20 / (1 + Math.min(100, lo.alchemy.st.brew) / 100), nH = brews * 3 / yH;
-        out.potionWO = { tier: tA, sec: nH * A + brews * A, gold: 20 * pot * gfMult('alchemy', lo), salv: 0,
-          xp: { herbing: gain('herbing', nH, GATHERING_XP[tA], yH, lo.herbing.st.xp, DFA), alchemy: gain('alchemy', brews, ALCHEMY_XP[tA], 1, lo.alchemy.st.xp, DFA) } };
-      }
-      var cg = (typeof window.iwWorkOrderConstructionGold === 'function') ? window.iwWorkOrderConstructionGold(tC) : null;
-      if (cg != null) {
-        var parts = window.iwWorkOrderConstructionParts(tC), crafts = parts / (1 + Math.min(100, lo.construction.st.build) / 100);
-        var nW = crafts * constructPartsWoodInput(tC) / yW, nO = crafts * constructPartsOreInput(tC) / yM;
-        out.consWO = { tier: tC, sec: nW * A + nO * A + crafts * A, gold: cg * gfMult('construction', lo), salv: 0, estimate: true,
+      // Work Orders: every order type the Work Orders tab compares, priced and
+      // timed by that tab's own orderModel(). Each step uses the loadout the
+      // game swaps to for it (ore in Mining gear, smelting in Smithing gear,
+      // ...), and its XP follows the model's gather/process/craft counts.
+      // Gold is the tab's orderFinal: value × quantity × (1 + Gold Find),
+      // with Gold Find capped by the game.
+      var m, tWc = tierOf(eff('woodcutting', 'woodcutting'));
+      var tT = Math.min(tierOf(eff('tailoring', 'tailoring')), tH);
+      // The order's Gold is the tab's own orderFinal for one order.
+      function goldOf(mm, role) { return orderGold(mm, (gfMult(role, lo) - 1) * 100); }
+      if ((m = order('Raw Materials', tM, { gather: lo.mining.st.dg })))
+        out.miningWO = { tier: tM, sec: m.sec, gold: goldOf(m, 'mining'), salv: 0,
+          xp: { mining: gain('mining', m.gatherActions, MINING_XP[tM], yM, lo.mining.st.xp, DFA) } };
+      if ((m = order('Raw Materials', tH, { gather: lo.herbing.st.dg })))
+        out.herbWO = { tier: tH, sec: m.sec, gold: goldOf(m, 'herbing'), salv: 0,
+          xp: { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tH], yH, lo.herbing.st.xp, DFA) } };
+      if ((m = order('Wood', tWc, { gather: lo.woodcutting.st.dg })))
+        out.woodWO = { tier: tWc, sec: m.sec, gold: goldOf(m, 'woodcutting'), salv: 0, estimate: true,
+          xp: { woodcutting: gain('woodcutting', m.gatherActions, WOODCUT_XP[tWc], yW, lo.woodcutting.st.xp, DFA) } };
+      if ((m = order('Potions', tA, { gather: lo.herbing.st.dg, brew: lo.alchemy.st.brew })))
+        out.potionWO = { tier: tA, sec: m.sec, gold: goldOf(m, 'alchemy'), salv: 0,
+          xp: { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tA], yH, lo.herbing.st.xp, DFA),
+                alchemy: gain('alchemy', m.craftActions, ALCHEMY_XP[tA], 1, lo.alchemy.st.xp, DFA) } };
+      // Gear orders: Smithing from ore, Tailoring from fibre. Each picks its
+      // best-paying piece at the moment (Plate never gets Bonus Enhance's
+      // extra copy; orderModel holds that rule).
+      [['smithWO', 'smithing', 'mining', tS, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'], SMELT_XP, MINING_XP],
+       ['tailorWO', 'tailoring', 'herbing', tT, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings'], WEAVE_XP, GATHERING_XP]].forEach(function (g) {
+        var key = g[0], prof = g[1], gath = g[2], t = g[3], best = null, yG = 1 + lo[gath].st.dg / 100;
+        g[4].forEach(function (name) {
+          var mm = order(name, t, { gather: lo[gath].st.dg, enhance: lo[prof].st.enh });
+          if (!mm) return;
+          var gold = goldOf(mm, prof);
+          if (best && gold / mm.sec <= best.gold / best.sec) return;
+          var xp = {};
+          xp[gath] = gain(gath, mm.gatherActions, g[6][t], yG, lo[gath].st.xp, DFA);
+          xp[prof] = gain(prof, mm.processActions, g[5][t], 1, lo[prof].st.xp, DFA) + gain(prof, mm.craftActions, craftXp(prof, name, t), 1, lo[prof].st.xp, DFC);
+          best = { tier: t, sec: mm.sec, gold: gold, salv: 0, piece: name, xp: xp };
+        });
+        if (best) out[key] = best;
+      });
+      // Construction (est.): Building Parts from wood (Woodcutting gear) and
+      // ore (Mining gear). orderModel takes one 2x Gather figure, so pass the
+      // blend that gives the same gathering time for this wood:ore mix.
+      var wShare = constructPartsWoodInput(tC) / constructPartsTotalInput(tC), oShare = 1 - wShare;
+      var yMix = 1 / (wShare / yW + oShare / yM);
+      if ((m = order('Construction', tC, { gather: (yMix - 1) * 100, build: lo.construction.st.build }))) {
+        var nW = m.raw * wShare / yW, nO = m.raw * oShare / yM;
+        out.consWO = { tier: tC, sec: m.sec, gold: goldOf(m, 'construction'), salv: 0, estimate: true,
           xp: { woodcutting: gain('woodcutting', nW, WOODCUT_XP[tC], yW, lo.woodcutting.st.xp, DFA), mining: gain('mining', nO, MINING_XP[tC], yM, lo.mining.st.xp, DFA),
-                construction: gain('construction', crafts, constructionPartsXpForLevel(eff('construction', 'construction')), 1, lo.construction.st.xp, DFA) } };
+                construction: gain('construction', m.craftActions, constructionPartsXpForLevel(eff('construction', 'construction')), 1, lo.construction.st.xp, DFA) } };
       }
       return (ACTS = out);
     }
-    var allow = method === 'auto' ? ['miningWO', 'herbWO', 'smithWO', 'potionWO', 'consWO'] : [method];
+    // peek: the activity rates at the start, for the self-check and the tab.
+    if (peek) return acts();
+    var allow = method === 'auto' ? GOLD_ACTS : [method];
     var phases = [['goldPre', step.gold0 + Math.max(0, step.gold - step.gold0) * split], ['salv', step.salv], ['gold', step.gold]];
     var guard = 0;
     for (var pi = 0; pi < phases.length; pi++) {
@@ -38488,7 +38561,9 @@ function syncCombatLevel(val) {
         if (log) {
           var last = S.segs[S.segs.length - 1], kind = ph === 'salv' ? 'salvage' : 'gold';
           if (last && last.act === pick && last.kind === kind) { last.tierTo = u.tier; last.amount += n * (kind === 'salvage' ? u.salv : u.gold); }
-          else S.segs.push({ kind: kind, act: pick, t0: step.t0 + t0, t1: step.t0 + S.t, tierFrom: u.tier, tierTo: u.tier, amount: n * (kind === 'salvage' ? u.salv : u.gold), estimate: !!u.estimate });
+          else S.segs.push({ kind: kind, act: pick, t0: step.t0 + t0, t1: step.t0 + S.t, tierFrom: u.tier, tierTo: u.tier, amount: n * (kind === 'salvage' ? u.salv : u.gold), estimate: !!u.estimate, pieces: [] });
+          var seg = S.segs[S.segs.length - 1];
+          if (u.piece && seg.pieces.indexOf(u.piece) < 0) seg.pieces.push(u.piece);
           S.segs[S.segs.length - 1].t1 = step.t0 + S.t;
         }
       }
@@ -38571,8 +38646,9 @@ function syncCombatLevel(val) {
   window.iwHousingPlan = {
     HOUSING_COST: HOUSING_COST, WO_GOLD_FIND_CAP: WO_GOLD_FIND_CAP, METHODS: METHODS, METHOD_LABEL: METHOD_LABEL, ROLE_LABEL: ROLE_LABEL,
     extractPlayerJson: extractPlayerJson, aggregate: aggregate, profileLoadout: profileLoadout, buildContext: buildContext,
-    simulate: simulate, plan: plan, planAsync: planAsync, levelOf: levelOf, upgradeLoadout: upgradeLoadout, gateOk: gateOk, costFor: costFor,
-    _clearCaches: function () { rowCache = null; tagCache = {}; candCache = {}; upgradeCache = {}; valueCache = {}; idbIdx = null; }
+    simulate: simulate, plan: plan, planAsync: planAsync, levelOf: levelOf, GOLD_ACTS: GOLD_ACTS,
+    ratesNow: function (ctx) { return simulate(ctx, { housing: ctx.housing, gold0: 0, salv0: 0, gold: 0, salv: 0, xp: ctx.xp, ores: ctx.ores, t0: 0 }, 'auto', 0, false, true); }, upgradeLoadout: upgradeLoadout, gateOk: gateOk, costFor: costFor,
+    _clearCaches: function () { rowCache = null; tagCache = {}; candCache = {}; upgradeCache = {}; idbIdx = null; }
   };
 })();
 
@@ -38744,7 +38820,7 @@ function syncCombatLevel(val) {
     if (role === 'goldfind') bits.push(Math.round(agg.st.gf) + '% Gold Find');
     else {
       if (agg.st.dg) bits.push(Math.round(agg.st.dg) + '% 2x Gather');
-      if (role === 'smithing' && agg.st.enh) bits.push(Math.round(agg.st.enh) + '% Bonus Enhance');
+      if ((role === 'smithing' || role === 'tailoring') && agg.st.enh) bits.push(Math.round(agg.st.enh) + '% Bonus Enhance');
       if (role === 'alchemy' && agg.st.brew) bits.push(Math.round(agg.st.brew) + '% Bonus Brew');
       if (role === 'construction' && agg.st.build) bits.push(Math.round(agg.st.build) + '% Bonus Build');
       if (agg.skill[role]) bits.push(HP.ROLE_LABEL[role] + ' +' + agg.skill[role]);
@@ -38766,7 +38842,7 @@ function syncCombatLevel(val) {
     var html = '<p data-ui=hp-muted class="hp-muted">' + esc((pj.displayName || 'player') + ' · saved ' + new Date(pj.renderedAt).toLocaleString()) +
       (age > 2 ? ' · <span data-ui=hp-need class="hp-need">' + Math.floor(age) + ' days old: export a fresh one for current levels and stock</span>' : '') + '</p>';
     html += '<ul data-ui=hp-role-list class="hp-role-list">';
-    ['mining', 'jewelcrafting', 'smithing', 'construction', 'woodcutting', 'herbing', 'alchemy', 'goldfind'].forEach(function (r) {
+    ['mining', 'jewelcrafting', 'smithing', 'tailoring', 'construction', 'woodcutting', 'herbing', 'alchemy', 'goldfind'].forEach(function (r) {
       html += roleLine(r, ctx.loSource[r] || 'worn gear', HP.aggregate(ctx.roles[r], ctx.addons));
     });
     html += '</ul>';
@@ -38799,7 +38875,8 @@ function syncCombatLevel(val) {
   function actLabel(seg) {
     if (seg.act === 'stock') return 'Prospect ore you already hold';
     if (seg.act === 'prospect') return 'Mine ' + ORE(seg.tierFrom) + (seg.tierTo !== seg.tierFrom ? ' → ' + ORE(seg.tierTo) : '') + ', then prospect it';
-    return HP.METHOD_LABEL[seg.act] || seg.act;
+    var pieceName = { Helmet: 'Helm / Hood', Chest: 'Chest / Robe' };
+    return (HP.METHOD_LABEL[seg.act] || seg.act) + (seg.pieces && seg.pieces.length ? ' (' + seg.pieces.map(function (x) { return pieceName[x] || x; }).join(', ') + ')' : '');
   }
   function gateText(g) {
     if (!g || g.type === 'none') return 'no requirement';
@@ -38875,7 +38952,7 @@ function syncCombatLevel(val) {
         html += '<p data-ui=hp-warn class="hp-warn">Part of this plan uses orders you have switched off in game.</p>';
     });
     // Levels
-    var skills = ['mining', 'jewelcrafting', 'smithing', 'construction', 'woodcutting', 'herbing', 'alchemy'];
+    var skills = ['mining', 'jewelcrafting', 'smithing', 'tailoring', 'construction', 'woodcutting', 'herbing', 'alchemy'];
     html += '<h3 data-ui=hp-section-title class="hp-h3">Your levels on the way</h3><div data-ui=hp-scroll class="hp-scroll"><table data-ui=hp-level-table class="hp-table"><thead data-ui=hp-thead><tr data-ui=hp-tr><th data-ui=hp-th>Skill</th><th data-ui=hp-th>Now</th><th data-ui=hp-th>At ' + esc(goalName) + '</th></tr></thead><tbody data-ui=hp-tbody>';
     skills.forEach(function (k) {
       var a = res.startLevels[k], b = res.endLevels[k];
@@ -39050,11 +39127,14 @@ function syncCombatLevel(val) {
     var HP = window.iwHousingPlan;
     if (!HP) return ['iwHousingPlan engine missing'];
     try {
-      // 1. Work Order values come from the Work Order module, unchanged.
-      ok('Work Order unit value hook missing', typeof window.iwWorkOrderUnitValue === 'function');
-      if (typeof window.iwWorkOrderUnitValue === 'function') {
-        ok('T1 raw order should be 240 Gold (Work Order pin)', Math.abs(window.iwWorkOrderUnitValue(1, 'Raw Materials') * 100 - 240) < 1e-9);
-        ok('T20 Construction order should be 7,850 (Work Order pin)', window.iwWorkOrderConstructionGold(20) === 7850);
+      // 1. Work Orders come from the Work Orders tab's own orderModel().
+      //    A Construction order is several parts: 3 at T20, not 1.
+      var WO = window.iwWorkOrderOrder;
+      ok('Work Order model hook missing', typeof WO === 'function');
+      if (typeof WO === 'function') {
+        var raw1 = WO('Raw Materials', 1, {}), con20 = WO('Construction', 20, {});
+        ok('T1 raw order should be 240 Gold (Work Order pin)', !!raw1 && Math.abs(raw1.finish(1, 0).orderFinal - 240) < 1e-9);
+        ok('T20 Construction order should be 3 parts for 7,850 Gold (Work Order pin)', !!con20 && con20.qty === 3 && Math.round(con20.finish(1, 0).orderFinal) === 7850);
       }
       // 2. The XP curve, against "XP for next level" read off a real
       //    player.json (BustedCypher, 2026-10-22), and level-from-XP.
@@ -39118,6 +39198,36 @@ function syncCombatLevel(val) {
       ok('an unpriced step must stop the plan', !!noPrice.error && noPrice.missing && noPrice.missing[0] === 3);
       ok('Citadel should default to 1B Gold and 100M Salvage', HP.costFor({}, 5).gold === 1e9 && HP.costFor({}, 5).salvage === 1e8);
       ok('a blank price must not read as zero', HP.costFor({ 3: { gold: null, salvage: 5 } }, 3) === null);
+
+      // 4b. Every order the planner can choose pays and takes exactly what
+      //     the Work Orders tab says, at the tier the planner picked. The
+      //     profile-only fixture wears 100% 2x Gather and 100% Gold Find for
+      //     every activity, with no Bonus Brew, Enhance or Build. Gear orders
+      //     must pick the best Gold per second of their pieces, and every
+      //     order type the tab compares must be one the planner can choose.
+      if (typeof WO === 'function') {
+        var rates = HP.ratesNow(ctx), inp = { housing: ctx.housing, gather: 100 };
+        var FAM = { miningWO: ['Raw Materials'], herbWO: ['Raw Materials'], woodWO: ['Wood'], potionWO: ['Potions'], consWO: ['Construction'],
+          smithWO: ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'], tailorWO: ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings'] };
+        ok('planner order families should be exactly ' + Object.keys(FAM).join(), HP.GOLD_ACTS.slice().sort().join() === Object.keys(FAM).sort().join());
+        var covered = {};
+        Object.keys(FAM).forEach(function (k) {
+          FAM[k].forEach(function (n) { covered[n] = 1; });
+          var r = rates[k];
+          if (!r) { fail.push('planner has no ' + k + ' rate'); return; }
+          var name = FAM[k].length > 1 ? r.piece : FAM[k][0], mm = WO(name, r.tier, inp);
+          if (!mm) { fail.push('Work Orders has no ' + name + ' order at T' + r.tier); return; }
+          var want = mm.finish(1, 100).orderFinal;
+          ok(k + ' T' + r.tier + ' should pay ' + Math.round(want) + ' Gold, as Work Orders does; got ' + Math.round(r.gold), Math.abs(r.gold - want) <= 1e-9 * want);
+          ok(k + ' T' + r.tier + ' should take ' + Math.round(mm.sec) + 's, as Work Orders does; got ' + Math.round(r.sec), Math.abs(r.sec - mm.sec) <= 1e-9 * mm.sec);
+          FAM[k].forEach(function (n) {
+            var o = WO(n, r.tier, inp);
+            if (o && o.finish(1, 100).orderFinal / o.sec > want / mm.sec * (1 + 1e-9)) fail.push(k + ' picked ' + name + ' but ' + n + ' pays more Gold per second');
+          });
+        });
+        (window.iwWorkOrderTypes || []).forEach(function (n) { ok('the planner never considers ' + n + ' orders', !!covered[n]); });
+        ok('Work Orders should list its order types', (window.iwWorkOrderTypes || []).length === 12);
+      }
 
       // 5. Two steps run in sequence, the second at the faster house.
       var costs = { 3: { gold: 2e6, salvage: 1e5 }, 4: { gold: 2e6, salvage: 1e5 } };
