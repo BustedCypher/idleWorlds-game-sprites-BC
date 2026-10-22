@@ -20,7 +20,14 @@
 <!-- v6.6 Housing Planner (2026-10-22, not yet released; pill still v6.5.1):
      • Skill Tools → Housing Planner. It is asked in order: pick a house, import
        the profile, import player.json. It then finds the fastest mix of Work
-       Orders (Gold) and prospecting (Salvage Material) to pay for each step.
+       Orders (Gold) and salvaging (Salvage Material) to pay for each step.
+     • Salvage rule (player-supplied 2026-10-22, from the in-game salvage
+       window): a raw resource gives its tier, a crafted item its raw
+       resources × its tier, instantly. So the planner salvages what it
+       gathers (or crafts, when Bonus Enhance/Brew/Build copies pay), never
+       prospects (same Salvage per ore, plus an action), and can salvage the
+       raw resources, bars, cloth and Building Parts held (an option, on by
+       default; gems, gear and potions are kept).
        It simulates the work an in-game hour at a time with the Calculator's
        XP formula, and unlocks tiers as effective levels rise.
      • Gear upgrades as levels rise: single-slot, set-aware swaps gated by base
@@ -11983,7 +11990,7 @@
     <div data-ui=pane-head class="pane-head">
       <div data-ui=pane-eyebrow class="pane-eyebrow">Housing goal</div>
       <h2 class="pane-title">Housing Planner</h2>
-      <p class="pane-sub">Pick the house you want. The planner reads your character from the profile import and your loadouts from player.json, then finds the fastest mix of Work Orders and prospecting to pay for every step, counting the levels, tiers and gear upgrades you gain on the way.</p>
+      <p class="pane-sub">Pick the house you want. The planner reads your character from the profile import and your loadouts from player.json, then finds the fastest mix of Work Orders and salvaging to pay for every step, counting the levels, tiers and gear upgrades you gain on the way.</p>
     </div>
 
     <div data-ui=hp-goal-panel class="panel" data-hp-panel="goal">
@@ -12047,7 +12054,7 @@
       <div data-ui=panel-body class="panel-body hp-stack">
         <div data-ui=hp-option-grid class="hp-option-grid">
           <label class="check-row"><input type="checkbox" data-hp-opt="upgrades"><span data-ui=check-box class="check-box">✓</span><span data-ui=check-label class="check-label">Suggest gear upgrades as my levels rise</span></label>
-          <label class="check-row"><input type="checkbox" data-hp-opt="stock"><span data-ui=check-box class="check-box">✓</span><span data-ui=check-label class="check-label">Prospect the ore I already hold</span></label>
+          <label class="check-row"><input type="checkbox" data-hp-opt="stock"><span data-ui=check-box class="check-box">✓</span><span data-ui=check-label class="check-label">Salvage the materials I hold (raw resources, bars, cloth, Building Parts; never gems or gear)</span></label>
           <label class="check-row"><input type="checkbox" data-hp-opt="daily"><span data-ui=check-box class="check-box">✓</span><span data-ui=check-label class="check-label">Count the average daily XP boost (+6%)</span></label>
         </div>
         <div data-ui=hp-option-fields class="hp-option-grid">
@@ -36775,6 +36782,10 @@ function syncCombatLevel(val) {
   //   inp: { housing, gather (2x Gather %), brew, enhance, build (%s) }
   //   gatherActions / processActions (10s smelt, weave) / craftActions:
   //   brews and Building Parts take processTime, gear crafts craftTime.
+  //   rawEach: raw resources in one delivered item (1 for raw orders, a
+  //   part's wood + ore, a potion's herbs, a piece's bars × raw per bar);
+  //   rawPerProcessed: raw resources in one bar or cloth at this tier. The
+  //   Housing Planner salvages from these (raw used × tier per item).
   function orderModel(name,tier,inp){
     var v=unitValue(tier,name); if(v===null)return null;
     var housing=+inp.housing||0, gp=Math.max(0,+inp.gather||0);
@@ -36782,10 +36793,10 @@ function syncCombatLevel(val) {
     var brewOutput=perCraft(inp.brew), enhanceOutput=perCraft(inp.enhance), buildOutput=perCraft(inp.build);
     var gatherTime=actionSec(10,housing), processTime=actionSec(10,housing), craftTime=actionSec(180,housing);
     var qty=ORDER_QTY[name]||1;
-    var base={name:name,tier:tier,unitV:v,qty:qty,estimate:!!META[name].estimate,gatherTime:gatherTime,processTime:processTime,craftTime:craftTime};
+    var base={name:name,tier:tier,unitV:v,qty:qty,rawPerProcessed:orePerProcessed(tier),estimate:!!META[name].estimate,gatherTime:gatherTime,processTime:processTime,craftTime:craftTime};
     if(name==='Raw Materials'||name==='Wood'){
       var rawPerOrder=qty, gatherActions=rawPerOrder/gatherYield, sec=gatherActions*gatherTime;
-      return Object.assign(base,{sec:sec,raw:rawPerOrder,gatherActions:gatherActions,processActions:0,craftActions:0,craftSec:0,
+      return Object.assign(base,{rawEach:1,sec:sec,raw:rawPerOrder,gatherActions:gatherActions,processActions:0,craftActions:0,craftSec:0,
         finish:function(n,goldPct){
           return finish(name,tier,n,n*rawPerOrder,0,n*qty,n*gatherActions*gatherTime,0,0,v,goldPct,sec,
             '100 '+(name==='Wood'?'wood':'resources')+' ÷ '+fmt(gatherYield,4)+' expected/action × '+fmt(gatherTime,0)+'s = '+fmt(sec,4)+'s per complete order');
@@ -36795,7 +36806,7 @@ function syncCombatLevel(val) {
       var parts=constructionOrderParts(tier), partRaw=constructionPartRaw(tier);
       var crafts=parts/buildOutput, rawC=crafts*partRaw, gatherC=rawC/gatherYield;
       var secG=gatherC*gatherTime, secC=crafts*processTime, secTot=secG+secC;
-      return Object.assign(base,{qty:parts,sec:secTot,raw:rawC,gatherActions:gatherC,processActions:0,craftActions:crafts,craftSec:processTime,parts:parts,
+      return Object.assign(base,{qty:parts,rawEach:partRaw,sec:secTot,raw:rawC,gatherActions:gatherC,processActions:0,craftActions:crafts,craftSec:processTime,parts:parts,
         finish:function(nC,goldPct){
           return finish(name,tier,nC,nC*rawC,0,nC*parts,nC*secG,0,nC*secC,v,goldPct,secTot,
             parts+' parts ÷ '+fmt(buildOutput,4)+' expected/craft = '+fmt(crafts,4)+' crafts × '+partRaw+' wood + ore = '+fmt(rawC,4)+' raw/order; total '+fmt(secTot,4)+'s/order',
@@ -36806,7 +36817,7 @@ function syncCombatLevel(val) {
       var brewActions=qty/brewOutput, rawPot=brewActions*RAW_PER_POTION;
       var gatherPot=rawPot/gatherYield;
       var secGather=gatherPot*gatherTime, secBrew=brewActions*processTime, secPot=secGather+secBrew;
-      return Object.assign(base,{sec:secPot,raw:rawPot,gatherActions:gatherPot,processActions:0,craftActions:brewActions,craftSec:processTime,
+      return Object.assign(base,{rawEach:RAW_PER_POTION,sec:secPot,raw:rawPot,gatherActions:gatherPot,processActions:0,craftActions:brewActions,craftSec:processTime,
         finish:function(n,goldPct){
           return finish(name,tier,n,n*rawPot,0,n*qty,n*secGather,0,n*secBrew,v,goldPct,secPot,
             '20 potions ÷ '+fmt(brewOutput,4)+' expected/brew = '+fmt(brewActions,4)+' brews; '+fmt(rawPot,4)+' raw/order; total '+fmt(secPot,4)+'s/order');
@@ -36818,7 +36829,7 @@ function syncCombatLevel(val) {
     var craftsPer=1/copies, rawPer=rawEach*craftsPer, procPer=processed*craftsPer;
     var gatherGear=rawPer/gatherYield;
     var secGatherG=gatherGear*gatherTime, secProcess=procPer*processTime, secCraft=craftsPer*craftTime, secGear=secGatherG+secProcess+secCraft;
-    return Object.assign(base,{sec:secGear,raw:rawPer,gatherActions:gatherGear,processActions:procPer,craftActions:craftsPer,craftSec:craftTime,copies:copies,
+    return Object.assign(base,{rawEach:rawEach,sec:secGear,raw:rawPer,gatherActions:gatherGear,processActions:procPer,craftActions:craftsPer,craftSec:craftTime,copies:copies,
       finish:function(n,goldPct){
         return finish(name,tier,n,n*rawPer,n*procPer,n,n*secGatherG,n*secProcess,n*secCraft,v,goldPct,secGear,
           processed+' processed material × '+orePerProcessed(tier)+' raw = '+rawEach+' raw/item'+
@@ -37800,8 +37811,9 @@ function syncCombatLevel(val) {
    HOUSING PLANNER  (v6.6, 2026-10-22)  — Skill Tools → Housing Planner
    ────────────────────────────────────────────────────────────────────
    Finds the fastest way to pay for a housing goal. Each step needs Gold
-   (earned from Work Orders) and Salvage Material (from Jewelcrafting
-   prospecting, 2 × tier per prospect). The planner simulates the work an
+   (earned from Work Orders) and Salvage Material (from salvaging: a raw
+   resource gives its tier, a crafted item its raw resources × its tier,
+   instantly). The planner simulates the work an
    in-game hour at a time, levels every skill it touches with the
    Calculator's XP formula, unlocks tiers as effective levels rise, and
    (optionally) swaps in gear upgrades the moment their level gate opens.
@@ -37809,7 +37821,8 @@ function syncCombatLevel(val) {
    Inputs, in the order the tab asks for them:
      1. the profile import (window.IWProfile): levels, XP, race, housing,
         achievements. Alone it supports a rough plan from combatStats.
-     2. player.json, read locally: Gold, Salvage and ore on hand, every
+     2. player.json, read locally: Gold, Salvage and salvageable materials
+        on hand (raw resources, bars, cloth, Building Parts), every
         loadout and the skill it is bound to, village add-on stats, the
         Work Order Gold Find cap, ZC rank and the server XP boost's end.
         Only a small summary is kept (iwHousingPlanV1), never the payload.
@@ -37851,9 +37864,18 @@ function syncCombatLevel(val) {
   // Gold methods: one per Work Orders tab order family, plus 'auto' (the
   // best-paying order at each moment). Gear orders pick their best piece.
   var GOLD_ACTS = ['miningWO', 'herbWO', 'woodWO', 'potionWO', 'smithWO', 'tailorWO', 'consWO'];
+  // Salvage: make what an order family makes, then salvage it instead of
+  // turning it in. The game gives a raw resource its tier in Salvage and a
+  // crafted item its raw resources × its tier (player-supplied 2026-10-22,
+  // from the in-game salvage window: Gravite Ore, Tier 21, yields 21).
+  // Prospecting gives the same Salvage per ore plus a 10s action, so it is
+  // never faster and is not modelled.
+  var SALV_ACTS = GOLD_ACTS.map(function (k) { return k.replace(/WO$/, 'SV'); });
   var METHODS = ['auto'].concat(GOLD_ACTS);
   var METHOD_LABEL = { auto: 'Best available order', miningWO: 'Mining orders', herbWO: 'Gathering orders', woodWO: 'Woodcutting orders (est.)', potionWO: 'Potion orders',
-    smithWO: 'Smithing orders', tailorWO: 'Tailoring orders', consWO: 'Construction orders (est.)', prospect: 'Mine + prospect', stock: 'Prospect ore on hand' };
+    smithWO: 'Smithing orders', tailorWO: 'Tailoring orders', consWO: 'Construction orders (est.)',
+    miningSV: 'Mine ore, then salvage it', herbSV: 'Gather herbs or fibre, then salvage them', woodSV: 'Chop wood, then salvage it', potionSV: 'Brew potions, then salvage them',
+    smithSV: 'Smith gear, then salvage it', tailorSV: 'Tailor gear, then salvage it', consSV: 'Craft Building Parts, then salvage them', stock: 'Salvage the materials you hold' };
   var SPLITS = [0, 0.25, 0.5, 0.75, 1];
 
   function num(v) { var n = Number(v); return (v === null || v === undefined || v === '' || !Number.isFinite(n)) ? null : n; }
@@ -38015,13 +38037,19 @@ function syncCombatLevel(val) {
       var k = skillKey(s && (s.key != null ? s.key : s.skillKey));
       if (k && num(s.xp) != null) skills[k] = { level: num(s.level), xp: Number(s.xp) };
     });
-    var ores = {}, salvage = 0;
-    var oreTier = {};
-    Object.keys(ORE_NAMES).forEach(function (t) { oreTier[ORE_NAMES[t].toLowerCase().replace(/\s+/g, '_')] = Number(t); });
+    // Salvageable stock, by tier: raw resources, bars and cloth, Building
+    // Parts. Gems are left out (one is worth far more than its tier in
+    // Salvage), and so are gear, potions, anything the game marks
+    // salvageBlocked and any processed item whose raw count is unknown.
+    var stock = { res: {}, proc: {}, parts: {} }, salvage = 0;
     inv.forEach(function (r) {
       if (!r || !r.itemKey) return;
-      if (r.itemKey === 'salvage_material') salvage += Number(r.quantity) || 0;
-      if (oreTier[r.itemKey]) ores[oreTier[r.itemKey]] = (ores[oreTier[r.itemKey]] || 0) + (Number(r.quantity) || 0);
+      var q = Number(r.quantity) || 0, it = r.item || {}, t = num(it.tier);
+      if (r.itemKey === 'salvage_material') { salvage += q; return; }
+      if (!(q > 0) || !(t > 0) || it.salvageBlocked === true || it.isGem || it.isCutGem) return;
+      var kind = it.category === 'resource' ? 'res'
+        : it.category === 'processed' ? (/_(bar|cloth)$/.test(r.itemKey) ? 'proc' : /_building_parts$/.test(r.itemKey) ? 'parts' : null) : null;
+      if (kind) stock[kind][t] = (stock[kind][t] || 0) + q;
     });
     var addons = ((P.villageAddons && P.villageAddons.installed) || []).map(function (a) {
       return { tier: num(a.tier), name: a.name, st: { dg: num(a.doubleGatherChancePercent) || 0, gf: num(a.goldFindPercent) || 0, itf: num(a.itemFindPercent) || 0, xp: num(a.xpTaskBonus) || 0 },
@@ -38030,7 +38058,7 @@ function syncCombatLevel(val) {
     return {
       v: 1, id: P.id || null, displayName: P.displayName || null, renderedAt: now,
       housingTier: num(P.housingTier) != null ? num(P.housingTier) : num(P.housing && P.housing.tier),
-      gold: num(P.gold), salvage: salvage, ores: ores, skills: skills,
+      gold: num(P.gold), salvage: salvage, stock: stock, skills: skills,
       race: P.race || null, achievementPct: num(P.achievementXpBoostPercent),
       zcPct: num(root.zcLeaderboardPercent != null ? root.zcLeaderboardPercent : P.zcLeaderboardPercent),
       zcTeamPct: num(P.zoneControlXpBonus),
@@ -38330,6 +38358,30 @@ function syncCombatLevel(val) {
     return out;
   }
   // ── Context: everything the simulation needs, from both imports ───
+  // What salvaging the stock gives, by the game's rule: a raw resource its
+  // tier; a bar, cloth or Building Part the raw resources in it × its tier.
+  // Raw counts come from the Work Orders model (rawPerProcessed, and
+  // Construction's rawEach). A tier the model has no data for is left out,
+  // not counted as zero Salvage.
+  function stockSalvage(stock) {
+    var out = { raw: 0, processed: 0, parts: 0, total: 0, units: 0, tierFrom: 0, tierTo: 0 };
+    var WO = window.iwWorkOrderOrder;
+    if (!stock) return out;
+    function add(kind, field, per) {
+      Object.keys(stock[kind] || {}).forEach(function (k) {
+        var t = Number(k), q = stock[kind][k], each = per(t);
+        if (!(q > 0) || !(each > 0)) return;
+        out[field] += q * each * t; out.units += q;
+        if (!out.tierFrom || t < out.tierFrom) out.tierFrom = t;
+        if (t > out.tierTo) out.tierTo = t;
+      });
+    }
+    add('res', 'raw', function () { return 1; });
+    add('proc', 'processed', function (t) { var m = typeof WO === 'function' ? WO('Raw Materials', t, {}) : null; return m ? m.rawPerProcessed : 0; });
+    add('parts', 'parts', function (t) { var m = typeof WO === 'function' ? WO('Construction', t, {}) : null; return m ? m.rawEach : 0; });
+    out.total = out.raw + out.processed + out.parts;
+    return out;
+  }
   function buildContext(prof, pj, opts) {
     opts = opts || {};
     var base = {}, xp = {};
@@ -38367,6 +38419,9 @@ function syncCombatLevel(val) {
       roles.goldfind = gfLo.pieces; loSource.goldfind = gfLo.name;
     }
     var fallback = (!pj || !pj.loadouts || !pj.loadouts.length) ? profileLoadout(prof) : null;
+    // A summary saved before salvaging was modelled holds only `ores`.
+    var held = stockSalvage(pj && opts.useStock !== false ? (pj.stock || (pj.ores ? { res: pj.ores } : null)) : null);
+    var salvHeld = num(pj && pj.salvage) || 0;
     return {
       name: (pj && pj.displayName) || (prof && prof.displayName) || null,
       xp: xp, base: base, missingSkills: missing,
@@ -38374,8 +38429,7 @@ function syncCombatLevel(val) {
       race: race, achPct: ach, zcPct: num(pj && pj.zcPct) || 0, zcTeamPct: num(pj && pj.zcTeamPct) || 0,
       serverBoostEndsAt: pj ? pj.serverBoostEndsAt : null,
       gfCap: num(pj && pj.gfCap) || WO_GOLD_FIND_CAP,
-      gold: num(pj && pj.gold) || 0, salvage: num(pj && pj.salvage) || 0,
-      ores: (pj && opts.useStock !== false) ? Object.assign({}, pj.ores) : {},
+      gold: num(pj && pj.gold) || 0, salvage: salvHeld + held.total, salvageHeld: salvHeld, stock: held,
       addons: pj ? pj.addons : [], roles: roles, loSource: loSource, fallback: fallback,
       owned: (pj && pj.owned || []).reduce(function (o, k) { o[k] = 1; return o; }, {}),
       disabled: (pj && pj.disabled) || {}, hasPlayerJson: !!pj, hasProfile: !!prof,
@@ -38395,7 +38449,7 @@ function syncCombatLevel(val) {
     return (1 + ctx.dailyPct / 100) * (1 + pct / 100);
   }
   function simulate(ctx, step, method, split, log, peek) {
-    var S = { t: 0, gold: step.gold0, salv: step.salv0, xp: Object.assign({}, step.xp), ores: Object.assign({}, step.ores), segs: [], ups: [] };
+    var S = { t: 0, gold: step.gold0, salv: step.salv0, xp: Object.assign({}, step.xp), segs: [], ups: [] };
     var h = step.housing, A = effectiveDuration(10, h);
     var DFA = getDurationFactor(10, h), DFC = getDurationFactor(180, h);
     var c = cum();
@@ -38460,15 +38514,12 @@ function syncCombatLevel(val) {
       var g = mm.__iwGold || (mm.__iwGold = {});
       return gfPct in g ? g[gfPct] : (g[gfPct] = mm.finish(1, gfPct).orderFinal);
     }
-    // Activity rates, rebuilt only when a level, the server boost or the
-    // ore stock on hand changes.
+    // Activity rates, rebuilt only when a level or the server boost changes.
     var actKey = null, ACTS = null;
     function acts() {
       var server = !!(ctx.serverBoostEndsAt && ctx.startMs + (step.t0 + S.t) * 1000 < ctx.serverBoostEndsAt);
       var lo = loadouts();
-      var tJ = tierOf(eff('jewelcrafting', 'jewelcrafting'));
-      var q = Object.keys(S.ores).map(Number).filter(function (t) { return t <= tJ && S.ores[t] >= 2; }).sort(function (a, b) { return b - a; })[0] || 0;
-      var key = ver + '|' + server + '|' + q;
+      var key = ver + '|' + server;
       if (key === actKey && ACTS) return ACTS;
       actKey = key;
       var mult = {};
@@ -38479,51 +38530,53 @@ function syncCombatLevel(val) {
       var tM = tierOf(eff('mining', 'mining')), tH = tierOf(eff('herbing', 'herbing'));
       var tS = Math.min(tierOf(eff('smithing', 'smithing')), tM), tA = Math.min(tierOf(eff('alchemy', 'alchemy')), tH);
       var tC = Math.min(tierOf(eff('construction', 'construction')), tierOf(eff('woodcutting', 'woodcutting')), tM);
-      var p = Math.min(tM, tJ), nM = 2 / yM;
-      out.prospect = { tier: p, sec: nM * A + A, gold: 0, salv: getProspectSalvage(p),
-        xp: { mining: gain('mining', nM, MINING_XP[p], yM, lo.mining.st.xp, DFA), jewelcrafting: gain('jewelcrafting', 1, JEWEL_PROSPECT_XP[p], 1, lo.jewelcrafting.st.xp, DFA) } };
-      if (q) out.stock = { tier: q, sec: A, gold: 0, salv: getProspectSalvage(q), stockTier: q,
-        xp: { jewelcrafting: gain('jewelcrafting', 1, JEWEL_PROSPECT_XP[q], 1, lo.jewelcrafting.st.xp, DFA) } };
       // Work Orders: every order type the Work Orders tab compares, priced and
       // timed by that tab's own orderModel(). Each step uses the loadout the
       // game swaps to for it (ore in Mining gear, smelting in Smithing gear,
       // ...), and its XP follows the model's gather/process/craft counts.
       // Gold is the tab's orderFinal: value × quantity × (1 + Gold Find),
-      // with Gold Find capped by the game.
+      // with Gold Find capped by the game. Each family's Salvage twin (…SV)
+      // makes the same things in the same time for the same XP, then
+      // salvages them: quantity × raw resources each × tier.
       var m, tWc = tierOf(eff('woodcutting', 'woodcutting'));
       var tT = Math.min(tierOf(eff('tailoring', 'tailoring')), tH);
       // The order's Gold is the tab's own orderFinal for one order.
       function goldOf(mm, role) { return orderGold(mm, (gfMult(role, lo) - 1) * 100); }
+      function salvOf(mm) { return mm.qty * mm.rawEach * mm.tier; }
+      function both(fam, mm, role, xp, estimate) {
+        out[fam + 'WO'] = { tier: mm.tier, sec: mm.sec, gold: goldOf(mm, role), salv: 0, estimate: !!estimate, xp: xp };
+        out[fam + 'SV'] = { tier: mm.tier, sec: mm.sec, gold: 0, salv: salvOf(mm), xp: xp };
+      }
       if ((m = order('Raw Materials', tM, { gather: lo.mining.st.dg })))
-        out.miningWO = { tier: tM, sec: m.sec, gold: goldOf(m, 'mining'), salv: 0,
-          xp: { mining: gain('mining', m.gatherActions, MINING_XP[tM], yM, lo.mining.st.xp, DFA) } };
+        both('mining', m, 'mining', { mining: gain('mining', m.gatherActions, MINING_XP[tM], yM, lo.mining.st.xp, DFA) });
       if ((m = order('Raw Materials', tH, { gather: lo.herbing.st.dg })))
-        out.herbWO = { tier: tH, sec: m.sec, gold: goldOf(m, 'herbing'), salv: 0,
-          xp: { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tH], yH, lo.herbing.st.xp, DFA) } };
+        both('herb', m, 'herbing', { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tH], yH, lo.herbing.st.xp, DFA) });
       if ((m = order('Wood', tWc, { gather: lo.woodcutting.st.dg })))
-        out.woodWO = { tier: tWc, sec: m.sec, gold: goldOf(m, 'woodcutting'), salv: 0, estimate: true,
-          xp: { woodcutting: gain('woodcutting', m.gatherActions, WOODCUT_XP[tWc], yW, lo.woodcutting.st.xp, DFA) } };
+        both('wood', m, 'woodcutting', { woodcutting: gain('woodcutting', m.gatherActions, WOODCUT_XP[tWc], yW, lo.woodcutting.st.xp, DFA) }, true);
       if ((m = order('Potions', tA, { gather: lo.herbing.st.dg, brew: lo.alchemy.st.brew })))
-        out.potionWO = { tier: tA, sec: m.sec, gold: goldOf(m, 'alchemy'), salv: 0,
-          xp: { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tA], yH, lo.herbing.st.xp, DFA),
-                alchemy: gain('alchemy', m.craftActions, ALCHEMY_XP[tA], 1, lo.alchemy.st.xp, DFA) } };
-      // Gear orders: Smithing from ore, Tailoring from fibre. Each picks its
-      // best-paying piece at the moment (Plate never gets Bonus Enhance's
-      // extra copy; orderModel holds that rule).
-      [['smithWO', 'smithing', 'mining', tS, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'], SMELT_XP, MINING_XP],
-       ['tailorWO', 'tailoring', 'herbing', tT, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings'], WEAVE_XP, GATHERING_XP]].forEach(function (g) {
-        var key = g[0], prof = g[1], gath = g[2], t = g[3], best = null, yG = 1 + lo[gath].st.dg / 100;
+        both('potion', m, 'alchemy', { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tA], yH, lo.herbing.st.xp, DFA),
+                alchemy: gain('alchemy', m.craftActions, ALCHEMY_XP[tA], 1, lo.alchemy.st.xp, DFA) });
+      // Gear: Smithing from ore, Tailoring from fibre. Orders take the
+      // best-paying piece, salvage the piece with the most Salvage per
+      // second (Plate never gets Bonus Enhance's extra copy; orderModel holds
+      // that rule).
+      [['smith', 'smithing', 'mining', tS, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'], SMELT_XP, MINING_XP],
+       ['tailor', 'tailoring', 'herbing', tT, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings'], WEAVE_XP, GATHERING_XP]].forEach(function (g) {
+        var fam = g[0], prof = g[1], gath = g[2], t = g[3], bestG = null, bestS = null, yG = 1 + lo[gath].st.dg / 100;
         g[4].forEach(function (name) {
           var mm = order(name, t, { gather: lo[gath].st.dg, enhance: lo[prof].st.enh });
           if (!mm) return;
-          var gold = goldOf(mm, prof);
-          if (best && gold / mm.sec <= best.gold / best.sec) return;
+          var gold = goldOf(mm, prof), salv = salvOf(mm);
+          var winG = !bestG || gold / mm.sec > bestG.gold / bestG.sec, winS = !bestS || salv / mm.sec > bestS.salv / bestS.sec;
+          if (!winG && !winS) return;
           var xp = {};
           xp[gath] = gain(gath, mm.gatherActions, g[6][t], yG, lo[gath].st.xp, DFA);
           xp[prof] = gain(prof, mm.processActions, g[5][t], 1, lo[prof].st.xp, DFA) + gain(prof, mm.craftActions, craftXp(prof, name, t), 1, lo[prof].st.xp, DFC);
-          best = { tier: t, sec: mm.sec, gold: gold, salv: 0, piece: name, xp: xp };
+          if (winG) bestG = { tier: t, sec: mm.sec, gold: gold, salv: 0, piece: name, xp: xp };
+          if (winS) bestS = { tier: t, sec: mm.sec, gold: 0, salv: salv, piece: name, xp: xp };
         });
-        if (best) out[key] = best;
+        if (bestG) out[fam + 'WO'] = bestG;
+        if (bestS) out[fam + 'SV'] = bestS;
       });
       // Construction (est.): Building Parts from wood (Woodcutting gear) and
       // ore (Mining gear). orderModel takes one 2x Gather figure, so pass the
@@ -38532,9 +38585,8 @@ function syncCombatLevel(val) {
       var yMix = 1 / (wShare / yW + oShare / yM);
       if ((m = order('Construction', tC, { gather: (yMix - 1) * 100, build: lo.construction.st.build }))) {
         var nW = m.raw * wShare / yW, nO = m.raw * oShare / yM;
-        out.consWO = { tier: tC, sec: m.sec, gold: goldOf(m, 'construction'), salv: 0, estimate: true,
-          xp: { woodcutting: gain('woodcutting', nW, WOODCUT_XP[tC], yW, lo.woodcutting.st.xp, DFA), mining: gain('mining', nO, MINING_XP[tC], yM, lo.mining.st.xp, DFA),
-                construction: gain('construction', m.craftActions, constructionPartsXpForLevel(eff('construction', 'construction')), 1, lo.construction.st.xp, DFA) } };
+        both('cons', m, 'construction', { woodcutting: gain('woodcutting', nW, WOODCUT_XP[tC], yW, lo.woodcutting.st.xp, DFA), mining: gain('mining', nO, MINING_XP[tC], yM, lo.mining.st.xp, DFA),
+                construction: gain('construction', m.craftActions, constructionPartsXpForLevel(eff('construction', 'construction')), 1, lo.construction.st.xp, DFA) }, true);
       }
       return (ACTS = out);
     }
@@ -38546,18 +38598,16 @@ function syncCombatLevel(val) {
     for (var pi = 0; pi < phases.length; pi++) {
       var ph = phases[pi][0], target = phases[pi][1];
       while ((ph === 'salv' ? S.salv < target : S.gold < target) && guard++ < 400000) {
-        var a = acts(), pick;
-        if (ph === 'salv') pick = (a.stock && a.stock.salv / a.stock.sec >= a.prospect.salv / a.prospect.sec) ? 'stock' : 'prospect';
-        else pick = allow.filter(function (k) { return a[k]; }).sort(function (x, y) { return a[y].gold / a[y].sec - a[x].gold / a[x].sec; })[0];
+        var a = acts(), field = ph === 'salv' ? 'salv' : 'gold';
+        var pick = (ph === 'salv' ? SALV_ACTS : allow).filter(function (k) { return a[k] && a[k][field] > 0; })
+          .sort(function (x, y) { return a[y][field] / a[y].sec - a[x][field] / a[x].sec; })[0];
         if (!pick) return null;
         var u = a[pick], n = Math.max(1, Math.floor(CHUNK_SEC / u.sec));
-        n = ph === 'salv' ? Math.min(n, Math.ceil((target - S.salv) / u.salv)) : Math.min(n, Math.ceil((target - S.gold) / u.gold));
-        if (pick === 'stock') n = Math.min(n, Math.floor(S.ores[u.stockTier] / 2));
-        if (n <= 0) { if (pick === 'stock') { delete S.ores[u.stockTier]; continue; } return null; }
+        n = Math.min(n, Math.ceil((target - S[field]) / u[field]));
+        if (n <= 0) return null;
         var t0 = S.t;
         S.t += n * u.sec; S.gold += n * u.gold; S.salv += n * u.salv;
         Object.keys(u.xp).forEach(function (k) { addXp(k, n * u.xp[k]); });
-        if (pick === 'stock') { S.ores[u.stockTier] -= 2 * n; if (S.ores[u.stockTier] < 2) delete S.ores[u.stockTier]; }
         if (log) {
           var last = S.segs[S.segs.length - 1], kind = ph === 'salv' ? 'salvage' : 'gold';
           if (last && last.act === pick && last.kind === kind) { last.tierTo = u.tier; last.amount += n * (kind === 'salvage' ? u.salv : u.gold); }
@@ -38587,12 +38637,12 @@ function syncCombatLevel(val) {
     var steps = [], missing = [];
     for (var t = ctx.housing + 1; t <= goal; t++) { if (!costFor(costs, t)) missing.push(t); }
     if (missing.length) return { error: 'Enter the Gold and Salvage price for ' + missing.map(function (t) { return HOUSING_NAMES[t]; }).join(', ') + '.', missing: missing };
-    var state = { xp: Object.assign({}, ctx.xp), gold: ctx.gold, salv: ctx.salvage, ores: Object.assign({}, ctx.ores), t: 0 };
+    var state = { xp: Object.assign({}, ctx.xp), gold: ctx.gold, salv: ctx.salvage, t: 0 };
     var methods = opts.methods || METHODS, splits = opts.splits || SPLITS;
     var perStep = methods.length + 2 * (splits.length - 1) + 1, total = perStep * (goal - ctx.housing), done = 0;
     for (var tier = ctx.housing + 1; tier <= goal; tier++) {
       var cost = costFor(costs, tier);
-      var step = { housing: tier - 1, gold0: state.gold, salv0: state.salv, gold: cost.gold, salv: cost.salvage, xp: state.xp, ores: state.ores, t0: state.t };
+      var step = { housing: tier - 1, gold0: state.gold, salv0: state.salv, gold: cost.gold, salv: cost.salvage, xp: state.xp, t0: state.t };
       // Two stages: every method at a half split, then every split for the
       // two fastest methods. The split moves the answer by about 1%, the
       // method by up to 10%, so this finds the same winner in half the runs.
@@ -38616,11 +38666,14 @@ function syncCombatLevel(val) {
       var run = simulate(ctx, step, best.method, best.split, true);
       done++;
       yield { done: done, total: total, tier: tier };
+      // The stock on hand is salvaged at once, before the first step's work.
+      if (tier === ctx.housing + 1 && ctx.stock && ctx.stock.total > 0)
+        run.segs.unshift({ kind: 'salvage', act: 'stock', t0: 0, t1: 0, tierFrom: ctx.stock.tierFrom, tierTo: ctx.stock.tierTo, amount: ctx.stock.total, units: ctx.stock.units, pieces: [] });
       steps.push({ tier: tier, name: HOUSING_NAMES[tier], cost: cost, housingDuring: tier - 1, method: best.method, split: best.split,
         startDay: state.t / 86400, days: run.t / 86400, endDay: (state.t + run.t) / 86400, segs: run.segs, ups: run.ups,
         alternatives: Object.keys(byMethod).map(function (k) { return { method: k, days: byMethod[k].t / 86400, split: byMethod[k].split }; }).sort(function (a, b) { return a.days - b.days; }),
         levelsAfter: run.lv.base, goldLeft: run.gold - cost.gold, salvLeft: run.salv - cost.salvage });
-      state = { xp: run.xp, gold: run.gold - cost.gold, salv: run.salv - cost.salvage, ores: run.ores, t: state.t + run.t };
+      state = { xp: run.xp, gold: run.gold - cost.gold, salv: run.salv - cost.salvage, t: state.t + run.t };
     }
     return { steps: steps, days: state.t / 86400, startLevels: Object.assign({}, ctx.base), endLevels: steps[steps.length - 1].levelsAfter };
   }
@@ -38646,8 +38699,8 @@ function syncCombatLevel(val) {
   window.iwHousingPlan = {
     HOUSING_COST: HOUSING_COST, WO_GOLD_FIND_CAP: WO_GOLD_FIND_CAP, METHODS: METHODS, METHOD_LABEL: METHOD_LABEL, ROLE_LABEL: ROLE_LABEL,
     extractPlayerJson: extractPlayerJson, aggregate: aggregate, profileLoadout: profileLoadout, buildContext: buildContext,
-    simulate: simulate, plan: plan, planAsync: planAsync, levelOf: levelOf, GOLD_ACTS: GOLD_ACTS,
-    ratesNow: function (ctx) { return simulate(ctx, { housing: ctx.housing, gold0: 0, salv0: 0, gold: 0, salv: 0, xp: ctx.xp, ores: ctx.ores, t0: 0 }, 'auto', 0, false, true); }, upgradeLoadout: upgradeLoadout, gateOk: gateOk, costFor: costFor,
+    simulate: simulate, plan: plan, planAsync: planAsync, levelOf: levelOf, GOLD_ACTS: GOLD_ACTS, SALV_ACTS: SALV_ACTS, stockSalvage: stockSalvage,
+    ratesNow: function (ctx) { return simulate(ctx, { housing: ctx.housing, gold0: 0, salv0: 0, gold: 0, salv: 0, xp: ctx.xp, t0: 0 }, 'auto', 0, false, true); }, upgradeLoadout: upgradeLoadout, gateOk: gateOk, costFor: costFor,
     _clearCaches: function () { rowCache = null; tagCache = {}; candCache = {}; upgradeCache = {}; idbIdx = null; }
   };
 })();
@@ -38811,8 +38864,9 @@ function syncCombatLevel(val) {
     try { if (window.iwPlayerLoadouts && typeof window.iwPlayerLoadouts.importText === 'function') window.iwPlayerLoadouts.importText(text); } catch (e) {}
     var paste = q('[data-hp="paste"]'); show(paste, false);
     var ta = q('[data-hp="paste-text"]'); if (ta) ta.value = '';
+    var held = HP.stockSalvage(summary.stock).total;
     setStatus('pj', 'ok', 'Read ' + (summary.displayName || 'player') + "'s player.json: " + summary.loadouts.length + ' loadouts, ' +
-      big(summary.gold) + ' Gold and ' + big(summary.salvage) + ' Salvage on hand. Your loadouts are in Gear too.');
+      big(summary.gold) + ' Gold and ' + big(summary.salvage) + ' Salvage on hand' + (held > 0 ? ', and materials that salvage for ' + big(held) + ' more' : '') + '. Your loadouts are in Gear too.');
     renderAll(); schedule();
   }
   function roleLine(role, lo, agg) {
@@ -38833,7 +38887,7 @@ function syncCombatLevel(val) {
     if (panel) panel.classList.toggle('step-done', !!pj);
     var sum = q('[data-hp="pj-summary"]'), gfSel = q('[data-hp-opt="gfLoadout"]');
     if (!pj) {
-      if (sum) sum.innerHTML = '<p data-ui=hp-muted class="hp-muted">No player.json yet. Without it the plan uses the profile\'s worn-gear stats for every activity, and assumes no Gold, Salvage or ore on hand.</p>';
+      if (sum) sum.innerHTML = '<p data-ui=hp-muted class="hp-muted">No player.json yet. Without it the plan uses the profile\'s worn-gear stats for every activity, and assumes no Gold, Salvage or materials on hand.</p>';
       if (gfSel) gfSel.innerHTML = '';
       return;
     }
@@ -38873,8 +38927,8 @@ function syncCombatLevel(val) {
   // ── Results ──────────────────────────────────────────────────────
   var ORE = function (t) { return (ORE_NAMES && ORE_NAMES[t]) || ('T' + t + ' ore'); };
   function actLabel(seg) {
-    if (seg.act === 'stock') return 'Prospect ore you already hold';
-    if (seg.act === 'prospect') return 'Mine ' + ORE(seg.tierFrom) + (seg.tierTo !== seg.tierFrom ? ' → ' + ORE(seg.tierTo) : '') + ', then prospect it';
+    if (seg.act === 'stock') return 'Salvage the materials you hold (' + big(seg.units) + ' raw resources, bars, cloth and parts)';
+    if (seg.act === 'miningSV') return 'Mine ' + ORE(seg.tierFrom) + (seg.tierTo !== seg.tierFrom ? ' → ' + ORE(seg.tierTo) : '') + ', then salvage it';
     var pieceName = { Helmet: 'Helm / Hood', Chest: 'Chest / Robe' };
     return (HP.METHOD_LABEL[seg.act] || seg.act) + (seg.pieces && seg.pieces.length ? ' (' + seg.pieces.map(function (x) { return pieceName[x] || x; }).join(', ') + ')' : '');
   }
@@ -38924,7 +38978,8 @@ function syncCombatLevel(val) {
     var html = '<div data-ui=hp-hero class="hp-metrics">' +
       metric(goalName + ' in', fmtDays(res.days), 'about ' + (res.days / 30.44).toFixed(1) + ' months · around ' + dateAfter(res.days)) +
       metric('Gold to earn', big(Math.max(0, need.g - ctx.gold)), big(need.g) + ' needed · ' + big(ctx.gold) + ' on hand') +
-      metric('Salvage to make', big(Math.max(0, need.s - ctx.salvage)), big(need.s) + ' needed · ' + big(ctx.salvage) + ' on hand') +
+      metric('Salvage to make', big(Math.max(0, need.s - ctx.salvage)), big(need.s) + ' needed · ' + big(ctx.salvageHeld) + ' on hand' +
+        (ctx.stock.total > 0 ? ' + ' + big(ctx.stock.total) + ' from salvaging what you hold' : '')) +
       (plain && !plain.error && state.opts.upgrades && ctx.upgrades ? metric('With your gear as it is', fmtDays(plain.days), 'the upgrades below save ' + fmtDays(Math.max(0, plain.days - res.days))) : '') +
       '</div>';
     steps.forEach(function (st) {
@@ -38936,7 +38991,7 @@ function syncCombatLevel(val) {
         var d0 = g.t0 / 86400, d1 = g.t1 / 86400, short = d1 - d0 < 2;
         var lo = Math.min(g.tierFrom, g.tierTo), hi = Math.max(g.tierFrom, g.tierTo);
         var tiers = g.act === 'stock' ? (lo === hi ? 'T' + lo : 'T' + lo + '–T' + hi) : 'T' + g.tierFrom + (g.tierTo !== g.tierFrom ? '→T' + g.tierTo : '');
-        html += '<tr data-ui=hp-plan-row><td data-ui=hp-td>' + (short ? d0.toFixed(1) + '–' + d1.toFixed(1) : Math.round(d0) + '–' + Math.round(d1)) + '</td>' +
+        html += '<tr data-ui=hp-plan-row><td data-ui=hp-td>' + (g.act === 'stock' ? 'Now' : short ? d0.toFixed(1) + '–' + d1.toFixed(1) : Math.round(d0) + '–' + Math.round(d1)) + '</td>' +
           '<td data-ui=hp-td>' + esc(actLabel(g)) + (g.estimate ? ' <span data-ui=hp-est class="hp-default" title="Construction orders have no items.json value; the Work Order tab estimates them.">est.</span>' : '') + '</td>' +
           '<td data-ui=hp-td>' + tiers + '</td>' +
           '<td data-ui=hp-td>' + esc(big(g.amount) + (g.kind === 'gold' ? ' Gold' : ' Salvage')) + '</td></tr>';
@@ -38998,7 +39053,9 @@ function syncCombatLevel(val) {
       ', Jewelcrafting event +' + JEWELCRAFT_XP_EVENT_PCT + '%' + (ctx.dailyPct ? ', average daily boost +' + ctx.dailyPct + '%' : '') + '. XP potions and world boss buffs are left out.');
     notes.push('The chosen order type is assumed to be on your Work Order board whenever you need it. In game the board rotates professions.');
     notes.push('Work Order values come from the Work Orders tab (items.json). Construction orders have no items.json value and are estimated.');
-    if (!ctx.hasPlayerJson) notes.push('No player.json: every activity uses your worn gear from the profile, with no Gold, Salvage or ore on hand.');
+    notes.push('Salvaging is instant. A raw resource gives its tier in Salvage (Gravite Ore, Tier 21: 21) and a crafted item its raw resources × its tier, so a craft only beats salvaging the raw resources when Bonus Enhance, Brew or Build makes extra copies. Prospecting gives the same Salvage per ore as salvaging the ore, plus a 10-second action, so the plan never prospects.');
+    if (ctx.stock.total > 0) notes.push('Salvaging what you hold: ' + big(ctx.stock.raw) + ' from raw resources, ' + big(ctx.stock.processed) + ' from bars and cloth, ' + big(ctx.stock.parts) + ' from Building Parts. Gems, gear and potions are kept; turn this off under Options to keep the materials.');
+    if (!ctx.hasPlayerJson) notes.push('No player.json: every activity uses your worn gear from the profile, with no Gold, Salvage or materials on hand.');
     notes.push('Village add-ons stay as installed; the extra slot a new house gives is not filled.');
     if (ctx.missingSkills.length) notes.push('Missing from the import, treated as level 1: ' + ctx.missingSkills.join(', ') + '.');
     html += '<details data-ui=hp-assumptions class="hp-details"><summary data-ui=hp-summary>What this plan assumes</summary><ul data-ui=hp-note-list class="hp-note-list">' +
@@ -39135,7 +39192,20 @@ function syncCombatLevel(val) {
         var raw1 = WO('Raw Materials', 1, {}), con20 = WO('Construction', 20, {});
         ok('T1 raw order should be 240 Gold (Work Order pin)', !!raw1 && Math.abs(raw1.finish(1, 0).orderFinal - 240) < 1e-9);
         ok('T20 Construction order should be 3 parts for 7,850 Gold (Work Order pin)', !!con20 && con20.qty === 3 && Math.round(con20.finish(1, 0).orderFinal) === 7850);
+        // Salvage reads its recipe sizes from the same model: a T20 chest is
+        // 20 bars × 8 ore, a T14 Building Part 28 wood + 14 ore, a potion 3 herbs.
+        var ch20 = WO('Chest', 20, {}), p14 = WO('Construction', 14, {}), pot18 = WO('Potions', 18, {});
+        ok('a T20 chest should be 160 raw resources (20 bars × 8)', !!ch20 && ch20.rawEach === 160 && ch20.rawPerProcessed === 8);
+        ok('a T14 Building Part should be 42 raw resources', !!p14 && p14.rawEach === 42);
+        ok('a potion should be 3 herbs', !!pot18 && pot18.rawEach === 3);
       }
+      // 1b. Salvage: a raw resource gives its tier, a crafted item its raw
+      //     resources × its tier. Read off the in-game salvage window
+      //     (2026-10-22): Gravite Ore, Tier 21, yields 21.
+      ok('Gravite Ore (T21) should salvage for 21', HP.stockSalvage({ res: { 21: 1 } }).total === 21);
+      ok('10 Eternium Bars (T19) should salvage for 10 × 8 × 19 = 1,520', HP.stockSalvage({ proc: { 19: 10 } }).total === 1520);
+      ok('3 T14 Building Parts should salvage for 3 × 42 × 14 = 1,764', HP.stockSalvage({ parts: { 14: 3 } }).total === 1764);
+      ok('a tier with no recipe data must add nothing, not guess', HP.stockSalvage({ proc: { 99: 10 } }).total === 0);
       // 2. The XP curve, against "XP for next level" read off a real
       //    player.json (BustedCypher, 2026-10-22), and level-from-XP.
       ok('xpForLevel(73) should be 148,676,978', Math.round(xpForLevel(73)) === 148676978);
@@ -39164,7 +39234,14 @@ function syncCombatLevel(val) {
         },
         inventory: [
           { itemKey: 'salvage_material', quantity: 745240, item: { key: 'salvage_material', name: 'Salvage Material' } },
-          { itemKey: 'astralium_ore', quantity: 100, item: { key: 'astralium_ore', name: 'Astralium Ore' } },
+          { itemKey: 'astralium_ore', quantity: 100, item: { key: 'astralium_ore', name: 'Astralium Ore', category: 'resource', tier: 20 } },
+          { itemKey: 'gravite_ore', quantity: 1, item: { key: 'gravite_ore', name: 'Gravite Ore', category: 'resource', tier: 21 } },
+          { itemKey: 'eternium_bar', quantity: 10, item: { key: 'eternium_bar', name: 'Eternium Bar', category: 'processed', tier: 19 } },
+          { itemKey: 'moonwood_building_parts', quantity: 3, item: { key: 'moonwood_building_parts', name: 'Moonsteel Building Parts', category: 'processed', tier: 14 } },
+          { itemKey: 'labradorite', quantity: 5, item: { key: 'labradorite', name: 'Labradorite', category: 'resource', tier: 20, isGem: true } },
+          { itemKey: 'blocked_ore', quantity: 50, item: { key: 'blocked_ore', name: 'Blocked Ore', category: 'resource', tier: 10, salvageBlocked: true } },
+          { itemKey: 'kingssteel_atk_potion', quantity: 7, item: { key: 'kingssteel_atk_potion', name: 'Kingssteel Attack Potion', category: 'consumable', tier: 18 } },
+          { itemKey: 'odd_processed', quantity: 9, item: { key: 'odd_processed', name: 'Odd Processed', category: 'processed', tier: 12 } },
           { itemKey: 'regal_silk_hood_plus_4', variantId: 'v1', quantity: 1, item: { key: 'regal_silk_hood_plus_4', name: 'Regal Silk Hood+4', doubleGatherChancePercent: 8, socketCount: 2 } },
           { itemKey: 'regal_silk_boots_plus_4', quantity: 1, item: { key: 'regal_silk_boots_plus_4', name: 'Regal Silk Boots+4', doubleGatherChancePercent: 8, socketCount: 2 } },
           { itemKey: 'labradorite_ring_of_gathering', quantity: 1, item: { key: 'labradorite_ring_of_gathering', name: 'Labradorite Ring of Gathering', doubleGatherChancePercent: 100 } }
@@ -39173,7 +39250,14 @@ function syncCombatLevel(val) {
       };
       var pj = HP.extractPlayerJson(fixture);
       ok('fixture Salvage on hand should be 745,240', pj.salvage === 745240);
-      ok('fixture T20 ore stock should be 100', pj.ores[20] === 100);
+      // Stock: ore, the bar and the parts count; the gem, the salvageBlocked
+      // ore, the potion and a processed item of unknown make do not.
+      ok('fixture stock should be T20/T21 ore, T19 bars and T14 parts only; got ' + JSON.stringify(pj.stock),
+        JSON.stringify(pj.stock) === JSON.stringify({ res: { 20: 100, 21: 1 }, proc: { 19: 10 }, parts: { 14: 3 } }));
+      var held = HP.stockSalvage(pj.stock);
+      ok('fixture stock should salvage for 2,000 + 21 + 1,520 + 1,764 = 5,305; got ' + held.total, held.total === 5305);
+      ok('the stock should add to the Salvage on hand', HP.buildContext(null, pj, { upgrades: false }).salvage === 745240 + 5305);
+      ok('with the stock option off, nothing is salvaged', HP.buildContext(null, pj, { upgrades: false, useStock: false }).salvage === 745240);
       ok('fixture Gold should be 1,000', pj.gold === 1000);
       ok('fixture Gold Find cap should be 255', pj.gfCap === 255);
       ok('fixture should flag Mining orders as switched off', pj.disabled.mining === true);
@@ -39205,6 +39289,8 @@ function syncCombatLevel(val) {
       //     every activity, with no Bonus Brew, Enhance or Build. Gear orders
       //     must pick the best Gold per second of their pieces, and every
       //     order type the tab compares must be one the planner can choose.
+      //     Each family's Salvage twin makes the same things in the same time
+      //     and salvages them, picking its piece by Salvage per second.
       if (typeof WO === 'function') {
         var rates = HP.ratesNow(ctx), inp = { housing: ctx.housing, gather: 100 };
         var FAM = { miningWO: ['Raw Materials'], herbWO: ['Raw Materials'], woodWO: ['Wood'], potionWO: ['Potions'], consWO: ['Construction'],
@@ -39224,7 +39310,21 @@ function syncCombatLevel(val) {
             var o = WO(n, r.tier, inp);
             if (o && o.finish(1, 100).orderFinal / o.sec > want / mm.sec * (1 + 1e-9)) fail.push(k + ' picked ' + name + ' but ' + n + ' pays more Gold per second');
           });
+          // Its Salvage twin: the same making, salvaged (made × raw each × tier).
+          var sk = k.replace(/WO$/, 'SV'), s = rates[sk];
+          if (!s) { fail.push('planner has no ' + sk + ' rate'); return; }
+          if (s.tier !== r.tier) { fail.push(sk + ' should work at ' + k + '\'s tier (T' + r.tier + '); got T' + s.tier); return; }
+          var sName = FAM[k].length > 1 ? s.piece : FAM[k][0], sm = WO(sName, s.tier, inp);
+          if (!sm) { fail.push('Work Orders has no ' + sName + ' model at T' + s.tier); return; }
+          var wantS = sm.qty * sm.rawEach * s.tier;
+          ok(sk + ' T' + s.tier + ' should salvage ' + wantS + ' per batch; got ' + Math.round(s.salv), Math.abs(s.salv - wantS) <= 1e-9 * wantS);
+          ok(sk + ' T' + s.tier + ' should take ' + Math.round(sm.sec) + 's, as Work Orders does; got ' + Math.round(s.sec), Math.abs(s.sec - sm.sec) <= 1e-9 * sm.sec);
+          FAM[k].forEach(function (n) {
+            var o = WO(n, s.tier, inp);
+            if (o && o.qty * o.rawEach * s.tier / o.sec > wantS / sm.sec * (1 + 1e-9)) fail.push(sk + ' picked ' + sName + ' but ' + n + ' gives more Salvage per second');
+          });
         });
+        ok('planner salvage families should mirror its order families', HP.SALV_ACTS.slice().sort().join() === Object.keys(FAM).map(function (k) { return k.replace(/WO$/, 'SV'); }).sort().join());
         (window.iwWorkOrderTypes || []).forEach(function (n) { ok('the planner never considers ' + n + ' orders', !!covered[n]); });
         ok('Work Orders should list its order types', (window.iwWorkOrderTypes || []).length === 12);
       }
