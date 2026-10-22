@@ -9,7 +9,19 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v6.7</title>
+<title>IdleWorlds Toolkit v6.7.1</title>
+<!-- v6.7.1 Chart dials and order-type chips (2026-10-22, Curtis):
+     • The "Gold per day by 2x Gather" panel gets its own dials (Tier,
+       Housing, 2x Gather, Gold Find, Bonus Brew/Enhance/Build). Each writes
+       its "Your setup" field and fires that field's event, so the table,
+       chart and IWStore follow; the dials carry no ids, so they are never
+       stored themselves, and syncDials() mirrors the fields back.
+     • Its legend is now a toggle chip per order type, drawn on every render
+       (also when everything is hidden) and backed by the same "Order types
+       to compare" boxes. Curtis could not find the v6.7 boxes from the chart.
+     • The Work Order self-check requires 7 dials on real fields and a chip
+       per order type.
+-->
 <!-- v6.7 Work Order chart and order-type filter (2026-10-22, Curtis):
      • "Gold per day by 2x Gather" panel under Compare order types: an
        inline SVG (no library) with gold per 24h across and 2x Gather 0-600%
@@ -9951,7 +9963,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.7</span>
+  <span data-ui=ver-pill class="ver-pill">v6.7.1</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -11882,9 +11894,19 @@
       </div>
 
       <div data-ui=work-order-gather-panel class="panel">
-        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--purple"></span>Gold per day by 2x Gather <span data-ui=wo-panel-note class="wo-panel-note">Uses your setup above</span></div>
+        <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--purple"></span>Gold per day by 2x Gather <span data-ui=wo-panel-note class="wo-panel-note">Dials change Your setup too</span></div>
         <div data-ui=panel-body class="panel-body">
-          <div data-ui=wo-gather-legend id="wo-gather-legend" style="margin:0 0 6px"></div>
+          <div data-ui=wo-dials class="wo-dials" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 22px;margin:0 0 14px">
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">Tier</span><input type="range" data-wo-dial="wo-tier" min="1" max="34" step="1" value="1" aria-label="Tier" style="flex:1;min-width:0"><output data-wo-dial-out="wo-tier" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">Housing</span><input type="range" data-wo-dial="wo-house" min="0" max="5" step="1" value="0" aria-label="Housing tier" style="flex:1;min-width:0"><output data-wo-dial-out="wo-house" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">2x Gather</span><input type="range" data-wo-dial="wo-gather" min="0" max="600" step="5" value="0" aria-label="2x Gather chance" style="flex:1;min-width:0"><output data-wo-dial-out="wo-gather" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">Gold Find</span><input type="range" data-wo-dial="wo-gold" min="0" max="500" step="5" value="0" aria-label="Gold Find" style="flex:1;min-width:0"><output data-wo-dial-out="wo-gold" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">Bonus Brew</span><input type="range" data-wo-dial="wo-brew" min="0" max="100" step="1" value="0" aria-label="Bonus Brew" style="flex:1;min-width:0"><output data-wo-dial-out="wo-brew" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">Bonus Enhance</span><input type="range" data-wo-dial="wo-enhance" min="0" max="100" step="1" value="0" aria-label="Bonus Enhance" style="flex:1;min-width:0"><output data-wo-dial-out="wo-enhance" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+            <label class="wo-dial" style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)"><span data-ui=wo-dial-name style="min-width:104px">Bonus Build</span><input type="range" data-wo-dial="wo-build" min="0" max="100" step="1" value="0" aria-label="Bonus Build" style="flex:1;min-width:0"><output data-wo-dial-out="wo-build" style="min-width:52px;text-align:right;color:var(--text);font-variant-numeric:tabular-nums"></output></label>
+          </div>
+          <div data-ui=wo-gather-legend-head style="font-size:12px;color:var(--text-2);margin:0 0 6px">Click an order type to hide or show it here and in the results above.</div>
+          <div data-ui=wo-gather-legend id="wo-gather-legend" style="display:flex;flex-wrap:wrap;gap:6px 8px;margin:0 0 10px"></div>
           <div data-ui=wo-gather-chart id="wo-gather-chart" style="position:relative;width:100%"></div>
           <div data-ui=wo-gather-note class="wo-help" id="wo-gather-note" style="margin-top:8px"></div>
         </div>
@@ -36965,6 +36987,42 @@ function syncCombatLevel(val) {
         : on.map(function(n){ return SHORT_NAME[n]; }).join(' / ') };
     }).filter(Boolean);
   }
+  // The chart panel's own controls (v6.7.1). Its legend is a row of toggle
+  // chips, one per order type, each wearing its chart line's colour and dash;
+  // a chip only flips that type's "Your setup" box, so the two never disagree.
+  // Drawn on every render, including when every type is hidden, so a hidden
+  // type can always be brought back from here.
+  function groupOf(name) {
+    for (var i = 0; i < GATHER_GROUPS.length; i++) if (GATHER_GROUPS[i].names.indexOf(name) >= 0) return GATHER_GROUPS[i];
+    return null;
+  }
+  function renderOrderChips() {
+    var host = document.getElementById('wo-gather-legend');
+    if (!host) return;
+    var names = Object.keys(SHOW_IDS);
+    var anyHidden = names.some(function(n){ return !isShown(n); });
+    host.innerHTML = names.map(function(n){
+      var on = isShown(n), grp = groupOf(n);
+      return '<button type="button" class="gut-btn wo-gx-chip" data-wo-chip="' + esc(n) + '" aria-pressed="' + on + '" title="' + (on ? 'Hide ' : 'Show ') + esc(SHORT_NAME[n]) + '"' +
+        ' style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:12px;' + (on ? '' : 'opacity:.45;text-decoration:line-through') + '">' +
+        (grp ? '<svg width="22" height="10" aria-hidden="true"><line x1="1" y1="5" x2="21" y2="5" stroke="' + grp.color + '" stroke-width="2" stroke-linecap="round"' +
+          (grp.dash ? ' stroke-dasharray="' + grp.dash + '"' : '') + '/></svg>' : '') + esc(SHORT_NAME[n]) + '</button>';
+    }).join('') + (anyHidden ? '<button type="button" class="gut-btn wo-gx-chip" data-wo-chip-all="1" style="padding:4px 10px;font-size:12px">Show all</button>' : '');
+  }
+  // Dials mirror the "Your setup" fields they drive. A dial being dragged is
+  // left alone, so a re-render mid-drag cannot snap it back.
+  function syncDials() {
+    document.querySelectorAll('#tab-work-order [data-wo-dial]').forEach(function(d){
+      var t = document.getElementById(d.getAttribute('data-wo-dial'));
+      if (!t) return;
+      var v = Number(t.value) || 0;
+      if (document.activeElement !== d) d.value = String(Math.max(+d.min, Math.min(+d.max, v)));
+      var out = document.querySelector('#tab-work-order [data-wo-dial-out="' + d.getAttribute('data-wo-dial') + '"]');
+      if (out) out.textContent = d.getAttribute('data-wo-dial') === 'wo-tier' ? 'T' + v
+        : d.getAttribute('data-wo-dial') === 'wo-house' ? (v ? 'T' + v : 'None') : v + '%';
+    });
+  }
+
   function setAllShown(on) {
     Object.keys(SHOW_IDS).forEach(function(n){ var el = document.getElementById(SHOW_IDS[n]); if (el) el.checked = on; });
     render();
@@ -36998,11 +37056,10 @@ function syncCombatLevel(val) {
   function renderGatherChart() {
     var host = document.getElementById('wo-gather-chart');
     if (!host || !lastParams) return;
-    var legend = document.getElementById('wo-gather-legend'), note = document.getElementById('wo-gather-note');
+    var note = document.getElementById('wo-gather-note');
     var vis = visibleGroups();
     if (!vis.length) {
-      host.innerHTML = '<div data-ui=wo-gather-empty class="wo-help" style="padding:24px 0;text-align:center">Tick at least one order type in Your setup to draw the chart.</div>';
-      if (legend) legend.innerHTML = '';
+      host.innerHTML = '<div data-ui=wo-gather-empty class="wo-help" style="padding:24px 0;text-align:center">Every order type is hidden. Click one above to draw the chart.</div>';
       if (note) note.textContent = '';
       return;
     }
@@ -37046,11 +37103,6 @@ function syncCombatLevel(val) {
     host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Gold per 24 hours for each work order type against 2x Gather chance, Tier ' + lastParams.tier + '" style="display:block;touch-action:pan-y">' + svg + '</svg>' +
       '<div data-ui=wo-gx-tip class="wo-gx-tip" style="position:absolute;display:none;pointer-events:none;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;min-width:200px;z-index:2"></div>';
 
-    if (legend) legend.innerHTML = vis.map(function(v){
-      return '<span data-ui=wo-gx-key style="display:inline-flex;align-items:center;gap:6px;margin:0 14px 6px 0;font-size:12px;color:var(--text-2)">' +
-        '<svg width="24" height="10" aria-hidden="true"><line x1="1" y1="5" x2="23" y2="5" stroke="' + v.grp.color + '" stroke-width="2" stroke-linecap="round"' +
-        (v.grp.dash ? ' stroke-dasharray="' + v.grp.dash + '"' : '') + '/></svg>' + esc(v.label) + '</span>';
-    }).join('');
 
     var best = function(idx){
       var b = -1;
@@ -37113,6 +37165,8 @@ function syncCombatLevel(val) {
     var r=all.filter(function(x){return isShown(x.name);});
     var countEl=document.getElementById('wo-show-count');
     if(countEl)countEl.textContent=r.length+' of '+all.length+' shown';
+    renderOrderChips();
+    syncDials();
     if(!r.length){
       var none='<div data-ui=wo-show-empty class="wo-help">No order types are ticked. Tick at least one under "Order types to compare" above.</div>';
       ['wo-best','wo-gold-break','wo-time-break'].forEach(function(id){var e=document.getElementById(id);if(e)e.innerHTML=none;});
@@ -37276,6 +37330,17 @@ function syncCombatLevel(val) {
         if(isShown('Helmet')||!isShown('Chest')) fail.push('isShown does not follow the order-type boxes');
       } finally { boxes.forEach(function(b,i){b.checked=was[i];}); }
     } else fail.push('order-type filter boxes missing from the Work Order markup');
+
+    // Chart panel controls: 7 dials, each driving a real "Your setup" field,
+    // and one toggle chip per order type.
+    var dials=document.querySelectorAll('#tab-work-order [data-wo-dial]');
+    if(dials.length!==7) fail.push('chart panel should have 7 dials; got '+dials.length);
+    [].forEach.call(dials,function(d){ if(!document.getElementById(d.getAttribute('data-wo-dial'))) fail.push('dial '+d.getAttribute('data-wo-dial')+' drives no setup field'); });
+    if(document.getElementById('wo-gather-legend')){
+      renderOrderChips();
+      var chipN=document.querySelectorAll('#wo-gather-legend [data-wo-chip]').length;
+      if(chipN!==Object.keys(SHOW_IDS).length) fail.push('chart should offer a toggle chip per order type; got '+chipN);
+    }
     if(gxAt('Chest / robe',0)!==486932) fail.push('gather chart T20 chest at 0% should be 486,932/day; got '+gxAt('Chest / robe',0));
     if(gxAt('Construction (est.)',200)!==1075450) fail.push('gather chart T20 Construction at 200% should be 1,075,450/day; got '+gxAt('Construction (est.)',200));
     GATHER_GROUPS.forEach(function(grp){
@@ -37317,6 +37382,26 @@ function syncCombatLevel(val) {
       Object.keys(SHOW_IDS).forEach(function(n){var el=document.getElementById(SHOW_IDS[n]);if(el)el.addEventListener('change',render);});
       var sa=document.getElementById('wo-show-all'); if(sa)sa.addEventListener('click',function(){setAllShown(true);});
       var sn=document.getElementById('wo-show-none'); if(sn)sn.addEventListener('click',function(){setAllShown(false);});
+      // Chart chips: flip the matching "Your setup" box and fire its own
+      // change, so render() and IWStore react exactly as to a direct click.
+      var chips=document.getElementById('wo-gather-legend');
+      if(chips)chips.addEventListener('click',function(ev){
+        var b=ev.target.closest('button'); if(!b)return;
+        if(b.getAttribute('data-wo-chip-all')){setAllShown(true);return;}
+        var box=document.getElementById(SHOW_IDS[b.getAttribute('data-wo-chip')]); if(!box)return;
+        box.checked=!box.checked;
+        box.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+      // Chart dials: write the "Your setup" field and fire the event a user
+      // edit would, so the table, the chart and IWStore all follow.
+      document.querySelectorAll('#tab-work-order [data-wo-dial]').forEach(function(d){
+        d.addEventListener('input',function(){
+          var t=document.getElementById(d.getAttribute('data-wo-dial')); if(!t)return;
+          if(t.tagName==='SELECT'&&![].some.call(t.options,function(o){return o.value===d.value;}))return;
+          t.value=d.value;
+          t.dispatchEvent(new Event(t.tagName==='SELECT'?'change':'input',{bubbles:true}));
+        });
+      });
       var pb=document.getElementById('wo-profile-btn'); if(pb)pb.addEventListener('click',function(){autofillFromProfile();render();});
       document.querySelectorAll('#tab-work-order [data-wo-tab]').forEach(function(btn){btn.addEventListener('click',function(){
         document.querySelectorAll('#tab-work-order [data-wo-tab]').forEach(function(b){var on=b===btn;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');});

@@ -412,9 +412,9 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v6.7 (Work Order tab: a gold per day
-  by 2x Gather chart, 0-600%, and an order-type filter), live since
-  2026-10-22. v6.6 added the Housing Planner in Skill Tools: Work Orders and
+- `index.html` — **the working file**, v6.7.1 (Work Order tab: a gold per
+  day by 2x Gather chart, 0-600%, with its own dials and per-type toggle
+  chips, and an order-type filter), live since 2026-10-22. v6.6 added the Housing Planner in Skill Tools: Work Orders and
   salvaging to pay for a house, levels and gear upgrades on the way; suite
   S. v6.5 added the Work Order Board: Plate, Woodcutting and Construction
   orders; crafting-time order pricing; T23+ tier levels; T21+ Smithing set
