@@ -110,7 +110,7 @@
   /* Theme colours: every colour comes from a named token, so a theme is one token block (see notes) */
 
 
-  /* ── Type + shape (theme-independent) ──────────────────────────── */
+  /* Type + shape (theme-independent) */
   :root {
     --font: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     --display: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -674,7 +674,7 @@
     --sk-construction: #9aa7b8;
   }
 
-  /* ── Legacy aliases: engine CSS + JS-injected styles ───────────── */
+  /* Legacy aliases: engine CSS + JS-injected styles */
   :root {
     --panel:      var(--surface);
     --panel2:     var(--surface-2);
@@ -1787,7 +1787,7 @@
   .char-pill.opt { color: var(--text3); background: rgb(var(--sheen-rgb) / .03); border: 1px solid var(--border2); }
   .char-card select { font-size: 13px; }
 
-  /* v43.11 — click-to-open gem picker (Equipped Gear UI) */
+  /* Click-to-open gem picker (Equipped Gear UI) */
   .iw-tile-picker-panel {
     position: fixed; z-index: 500; left: 50%; top: 50%; transform: translate(-50%,-50%);
     width: min(320px, 90vw); max-height: 70vh; overflow: hidden; display: flex; flex-direction: column;
@@ -1810,7 +1810,7 @@
   .itp-eff { color: var(--text3); font-size: 10.5px; }
   .itp-clear { color: var(--warn); margin-top: 4px; border-top: 1px dashed var(--border); border-radius: 0; }
 
-  /* v43.11 — Shopping list card */
+  /* Shopping list card */
   .shop-list-card { margin-top: 14px; border: 1px solid var(--border2); border-radius: var(--r); background: var(--sunken); }
   .shop-list-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
   .shop-list-title { font-size: 13px; font-weight: 700; color: var(--text); }
@@ -3636,7 +3636,7 @@
     .plan-btn::after, .btn-primary::after { display: none; }
   }
 
-  /* ── Numerals: same width, so columns of results line up ──────── */
+  /* Numerals: same width, so columns of results line up */
   .metric-val, .plan-metric-val, .plan-metric-sub, .ptc-val, .fact-val,
   .gear-xp-val, .upg-delta, .plan-stat, .plan-range, .time-val, .xp-val,
   .req-val, .e-val, .rr-qty, .plan-tier-chip, .socket-eff, .gch-badge,
@@ -3661,7 +3661,7 @@
 
 
 
-  /* ── Saved-state line (Phase 2) ────────────────────────────────── */
+  /* Saved-state line */
   .saved-state {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     margin-top: 12px; padding: 9px 11px;
@@ -3883,7 +3883,7 @@
   .gn-slot.gn-slot-has-bonus { border-color: rgb(var(--positive-rgb) / .45); }
   .gn-slot.gn-slot-empty     { opacity: .65; }
 
-  /* ── Enchanted slot — subdued purple outer glow (v44.4) ── */
+  /* Enchanted slot — subdued purple outer glow */
   /* Enchanted slot: purple border, soft pulsing glow and a slow shimmer */
   /* Enchanted slot effect: pulsing glow, clipped sheen sweep, violet border (see notes) */
   @keyframes gn-enchant-breathe {
@@ -3959,7 +3959,7 @@
       0 0 0 2px rgb(var(--violet-rgb) / .55);
   }
 
-  /* ── Reinforced slot — metal frame on the whole card (v44.6) ── */
+  /* Reinforced slot — metal frame on the whole card */
   /* Plate frame: a transparent steel border over the card, glint via shadow */
   /* Reinforced slot: thick steel border, travelling glint and corner rivets */
   @keyframes gn-plate-glint {
@@ -4057,7 +4057,7 @@
   /* Weapon and shield use the same card dimensions as every other slot. */
   .gn-slot-sm { text-align: center; }
 
-  /* ── Sprite layer stack inside each slot (v44.9) ── */
+  /* Sprite layer stack inside each slot */
   /* Sprite layers: base item, upgrade art on top, emoji fallback underneath */
   /* Sprite layer stack in each slot: large sprites, silhouettes when empty */
   .gn-slot-layers {
@@ -4595,7 +4595,7 @@
   }
   .gn-tt-icon { font-size: 22px; flex-shrink: 0; }
   .gn-tt-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
-  /* v4.7 v9 — mannequin headers reuse the Planner tooltip layout. */
+  /* Mannequin headers reuse the Planner tooltip layout. */
   .gn-tt-head.iw-tip-head {
     position: sticky;
     top: 0;
@@ -4658,7 +4658,7 @@
     margin-bottom: 8px;
   }
 
-  /* v42.9 — dev strip on the Gear tab. Same body.dev-mode gate. */
+  /* Dev strip on the Gear tab. Same body.dev-mode gate. */
   .gear-dev-strip.dev-only { display: none; }
   body.dev-mode .gear-dev-strip.dev-only {
     display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
@@ -4807,7 +4807,7 @@
   .gearbtn.active::before { display: none; }
   @media (max-width: 560px) { .gearbtn .tab-label { display: none; } .gearbtn { padding: 7px 9px; } }
 
-  /* ── Density + text size + forced reduced motion ───────────────── */
+  /* Density + text size + forced reduced motion */
   body.density-compact .panel-body { padding: 11px 12px; }
   body.density-compact .panel-head { padding: 10px 12px 8px; }
   body.density-compact .wrap { gap: 11px; }
@@ -5039,7 +5039,7 @@
   .cp-go { flex-shrink: 0; color: var(--text-3); font-size: 13px; }
   .cp-skill.is-link:hover .cp-go { color: var(--accent); }
 
-  /* ── Planner skill picker (Phase 5) ────────────────────────────── */
+  /* Planner skill picker */
   .plan-skill-note { font-size: 12.5px; color: var(--text-2); margin-bottom: 11px; }
   .pskills { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
   .pskill {
@@ -5207,7 +5207,7 @@
   }
   .gear-slot-item > .iw-item-ref .iw-item-info { width: 12px; height: 12px; flex: none; opacity: .55; }
   .gear-slot-item > .iw-item-ref:hover .iw-item-info { opacity: 1; }
-  /* v41.5.4: live sockets/gems, one row per physical socket. */
+  /* Live sockets/gems, one row per physical socket. */
   .gear-slot-sockets {
     display: flex; flex-direction: column; align-items: center; gap: 2px;
     margin-top: 2px; width: 100%;
@@ -5581,7 +5581,7 @@
   .gem-odds-note { margin-top: 10px !important; font-size: 11px !important; color: var(--text3) !important;
     font-style: italic !important; line-height: 1.4 !important; }
 
-  /* ── Start: styles lifted out of inline style="" (2026-09-22) ─────────── */
+  /* Start: styles lifted out of inline style="" */
   .imp-icon { font-size: 17px !important; }
   .imp-row { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; align-items: stretch !important; }
   .pane-sub.gloss-intro { margin: 0 0 14px !important; }
@@ -5595,7 +5595,7 @@
   #iw-import-status[data-state="warn"] { border-color: #7a540f !important; color: #e8a428 !important; }
   #iw-import-status[data-state="err"]  { border-color: #7a2a2a !important; color: #e05555 !important; }
 
-  /* ── Planner: styles lifted out of inline style="" (2026-09-22) ───────── */
+  /* Planner: styles lifted out of inline style="" */
   .plan-race-row { margin-bottom: 12px !important; }
   .active-skill-banner.active-skill-banner--flush { margin-bottom: 0 !important; }
   .planner-skill-banner-label { font-size: 13px !important; }
@@ -5638,7 +5638,7 @@
   .cp-facts.va-facts.va-facts--last { margin: 0 !important; }
   .va-note { margin-top: 6px !important; font-size: 11px !important; color: var(--text-3) !important; }
 
-  /* ── Items: styles lifted out of inline style="" (2026-09-22) ─────────── */
+  /* Items: styles lifted out of inline style="" */
   .idb-header-count { margin-left: auto !important; font-size: 10px !important; color: var(--text3) !important;
     font-weight: 400 !important; text-transform: none !important; letter-spacing: 0 !important; }
   .idb-hint { font-size: 12px !important; }
@@ -5681,7 +5681,7 @@
 </script>
 <style data-iw-sheet="legacy" id="iw-panel-styles">#iw-info-panels{display:none;gap:10px;flex-wrap:wrap;margin:12px 0 0;}.iwp-card{position:relative;flex:1 1 190px;min-width:180px;border-radius:12px;padding:12px 13px 11px;background:linear-gradient(180deg,var(--surface-hi,#1c1e23),var(--surface,#141519));border:1px solid var(--border2,#343740);box-shadow:var(--inset-top,none);overflow:hidden;transition:border-color .16s ease,background .16s ease;animation:iwp-in .3s ease both;}.iwp-card:hover{border-color:var(--text3,#4e566d);}.iwp-card::before{content:'';position:absolute;left:0;top:0;right:0;height:2px;background:var(--acc,#2ec4a0);opacity:.6;}.iwp-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--border,#2a2f42);position:relative;z-index:1;}.iwp-emoji{font-size:16px;line-height:1;}.iwp-title{font:700 11px 'Inter',sans-serif;letter-spacing:.6px;color:var(--text,#e8ecf5);text-transform:uppercase;}.iwp-row{margin:9px 0;position:relative;z-index:1;}.iwp-rowtop{display:flex;align-items:center;justify-content:space-between;gap:8px;}.iwp-rowlbl{display:flex;align-items:center;gap:6px;font:600 12px 'Inter',sans-serif;color:var(--text2,#8b93b0);}.iwp-val{font:700 14px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);letter-spacing:-.2px;}.iwp-val.zero{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));font-weight:600;}.iwp-meter{position:relative;height:5px;margin-top:6px;border-radius:99px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);overflow:hidden;}.iwp-fill{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--racc,#2ec4a0);opacity:.85;transition:width .45s cubic-bezier(.2,.7,.2,1);}[data-theme="light"] .iwp-fill,[data-theme="office"] .iwp-fill{background:color-mix(in srgb,var(--racc,#2ec4a0) 45%,var(--text,#252218));opacity:1;}.iwp-elems{display:flex;gap:7px;position:relative;z-index:1;}.iwp-elem{flex:1;text-align:center;border-radius:9px;padding:8px 4px 6px;background:var(--sunken,#0b0c0f);border:1px solid var(--border,#2a2f42);}.iwp-elem .e-emoji{font-size:17px;line-height:1;}.iwp-elem .e-val{display:block;margin-top:4px;font:700 15px 'JetBrains Mono',monospace;color:var(--text,#e8ecf5);}.iwp-elem.zero{background:var(--surface-2,#15161a);}.iwp-elem.zero .e-val{color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}.iwp-elem.zero .e-emoji{opacity:.45;}.iwp-elem .e-lbl{display:block;margin-top:3px;font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.6px;color:var(--text3,#4e566d);}.iwp-team{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}.iwp-crest{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);}.iwp-teamsub{font:600 9px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3,#4e566d);}.iwp-teamname{font:700 16px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);margin-top:2px;}.iwp-ach-hero{display:flex;align-items:center;gap:11px;position:relative;z-index:1;}.iwp-ach-medallion{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:radial-gradient(circle at 35% 30%,#fff4c2 0,#f6c453 32%,#b7791f 70%,#6b4212 100%);border:2px solid #f9dd8a;box-shadow:0 0 0 3px rgba(201,162,255,.28),0 0 14px rgba(246,196,83,.4),inset 0 -3px 6px rgba(0,0,0,.35);animation:iwp-ach-pulse 3.2s ease-in-out infinite;}.iwp-ach-hero.zero .iwp-ach-medallion{filter:grayscale(1) brightness(.75);animation:none;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35);}.iwp-ach-pct{font:800 28px 'JetBrains Mono',monospace;letter-spacing:-.5px;color:#e9b949;background:linear-gradient(180deg,#fff1b8 0%,#f6c453 45%,#c98a1c 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 0 rgba(0,0,0,.55));}[data-theme="light"] .iwp-ach-pct,[data-theme="office"] .iwp-ach-pct{background:linear-gradient(180deg,#c98a1c,#7a4e0a);-webkit-background-clip:text;background-clip:text;filter:none;}.iwp-ach-pct.zero{background:none;-webkit-text-fill-color:currentColor;filter:none;color:var(--text3,#4e566d);color:color-mix(in srgb,var(--text2,#8b93b0) 50%,var(--text3,#4e566d));}.iwp-ach-sub{font:600 11px/1.35 'Inter',sans-serif;color:var(--text2,#8b93b0);}.iwp-ach-list{margin-top:10px;position:relative;z-index:1;}.iwp-ach-summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-radius:8px;background:var(--sunken,#0b0c0f);border:1px solid var(--border2,#343740);transition:border-color .16s ease;}.iwp-ach-summary::-webkit-details-marker{display:none;}.iwp-ach-summary:hover{border-color:#d9a93a;}.iwp-ach-summary:focus-visible{outline:2px solid #f6c453;outline-offset:2px;}.iwp-ach-count{font:700 9.5px 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.9px;color:var(--text2,#8b93b0);}.iwp-ach-count b{font-size:11.5px;color:var(--text,#e8ecf5);margin-right:2px;}.iwp-ach-chev{font-size:11px;color:var(--text2,#8b93b0);transition:transform .2s ease;}.iwp-ach-list[open] .iwp-ach-chev{transform:rotate(180deg);}.iwp-ach-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:2px;max-height:280px;overflow:auto;}.iwp-ach-chip{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 4px;border-radius:999px;background:linear-gradient(135deg,rgba(246,196,83,.2),rgba(201,162,255,.14));border:1px solid rgba(233,185,73,.6);box-shadow:inset 0 1px 0 rgba(255,244,194,.22),0 0 10px rgba(246,196,83,.12);animation:iwp-ach-in .35s cubic-bezier(.2,.7,.2,1) both;animation-delay:min(calc(var(--i,0) * 30ms),600ms);}.iwp-ach-chip::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;pointer-events:none;background:linear-gradient(100deg,transparent,rgba(255,248,220,.35),transparent);transform:skewX(-20deg);animation:iwp-ach-sheen 6s ease-in-out infinite;animation-delay:calc(var(--i,0) * .41s);}.iwp-ach-glyph{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:radial-gradient(circle at 50% 40%,#3d2c12,#140e06 80%);border:1px solid #f0c860;box-shadow:0 0 0 1px rgba(122,78,10,.8),0 0 6px rgba(246,196,83,.35),inset 0 0 5px rgba(246,196,83,.25);}.iwp-ach-name{font:700 11.5px 'Inter',sans-serif;letter-spacing:.2px;color:var(--text,#e8ecf5);}.iwp-ach-none{margin-top:10px;font:italic 600 11px 'Inter',sans-serif;color:var(--text2,#8b93b0);}@keyframes iwp-ach-pulse{0%,100%{box-shadow:0 0 0 3px rgba(201,162,255,.28),0 0 12px rgba(246,196,83,.35),inset 0 -3px 6px rgba(0,0,0,.35);}50%{box-shadow:0 0 0 3px rgba(201,162,255,.45),0 0 22px rgba(246,196,83,.65),inset 0 -3px 6px rgba(0,0,0,.35);}}@keyframes iwp-ach-in{from{opacity:0;transform:translateY(4px) scale(.96);}to{opacity:1;transform:none;}}@keyframes iwp-ach-sheen{0%,75%{left:-60%;}100%{left:130%;}}@keyframes iwp-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}@media (prefers-reduced-motion:reduce){.iwp-card{animation:none;}.iwp-fill{transition:none;}.iwp-ach-medallion,.iwp-ach-chip{animation:none;}.iwp-ach-chip::after{display:none;}}</style>
 <style data-iw-sheet="legacy" id="iw-jewelry-prospecting-styles">
-/* v5.2 — Jewelry Prospecting tool. Uses only shared theme tokens. */
+/* Jewelry Prospecting tool. Uses only shared theme tokens. */
 #tab-jewelry{min-width:0;max-width:100%}
 #tab-jewelry *{box-sizing:border-box}
 .jpc-intro-note{
@@ -5946,7 +5946,7 @@
 
 <!-- Ashen Iron: the native UI stylesheet, live only in Ashen mode (see notes) -->
 <style data-iw-sheet="ashen" media="not all">
-  /* ── 1. Typefaces (self-hosted, SIL OFL; assets/ashen/fonts) ─────────── */
+  /* 1. Typefaces (self-hosted, SIL OFL; assets/ashen/fonts) */
   @font-face { font-family: 'Cinzel'; font-style: normal; font-weight: 400 900; font-display: swap;
     src: url('./assets/ashen/fonts/cinzel-variable.woff2') format('woff2'); }
   @font-face { font-family: 'Barlow'; font-style: normal; font-weight: 400; font-display: swap;
@@ -6054,7 +6054,7 @@
     --red: var(--danger); --acc: var(--accent); --neg: var(--danger);
   }
 
-  /* ── 3. Reset (the markup is written against this; same as legacy) ──── */
+  /* 3. Reset (the markup is written against this; same as legacy) */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; }
 
@@ -6165,7 +6165,7 @@
   .skill-tools-menu { display: grid; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; }
   .skill-tools-nav.open > .skill-tools-menu { max-height: 140px; opacity: 1; pointer-events: auto; }
 
-  /* ── 5. Page + base elements ──────────────────────────────────────── */
+  /* 5. Page + base elements */
   html, body { background-color: var(--ash-ink-900); }
   body {
     color: var(--ash-text);
@@ -6333,7 +6333,7 @@
   .pane-sub { margin-top: 6px; font-size: 14px; color: var(--ash-dim); max-width: 64ch; }
   .pane-sub strong { color: var(--ash-text); }
 
-  /* ── 7. Shell ─────────────────────────────────────────────────────── */
+  /* 7. Shell */
   .appbar {
     position: sticky; top: 0; z-index: 300;
     height: var(--ash-bar-h);
@@ -6556,7 +6556,7 @@
   .tab-pane.active > *:nth-child(n+4) { animation-delay: .14s; }
   @keyframes ashRise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  /* ── 8. Shared controls ───────────────────────────────────────────── */
+  /* 8. Shared controls */
   /* Fields: label over a recessed trough. */
   .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   /* Not .check-row: a field can hold checkbox rows (the daily override). */
@@ -6708,7 +6708,7 @@
   .field-label-tag { margin-left: 4px; padding: 0 5px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); font-size: 9.5px; letter-spacing: .1em; color: var(--ash-faint); }
   .subtype-row { display: flex; flex-wrap: wrap; gap: 8px; }
 
-  /* ── 9. Calculator ────────────────────────────────────────────────── */
+  /* 9. Calculator */
 
   /* Step rail: wax seals on a chain, styled by done, now and optional state */
   .steprail-wrap {
@@ -7013,7 +7013,7 @@
   .gem-odds-title { font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #C9AEE8; }
   .gem-odds-note { margin-top: 10px; font-family: var(--ash-font-flav); font-style: italic; font-size: 13.5px; color: var(--ash-dim); line-height: 1.4; }
 
-  /* ── 10. Start ────────────────────────────────────────────────────── */
+  /* 10. Start */
 
   /* The crest image replaces the SVG mark in the app bar */
   .appbar .crest { width: 30px; height: 50px; background: url('./assets/ashen/crest.webp') center / contain no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
@@ -7447,7 +7447,7 @@
   .gloss-def b { color: var(--ash-text); }
   .gloss-def code { font-family: var(--ash-font-ui); font-size: 12px; font-weight: 700; color: var(--ash-good); border: 1px solid #3E5A40; border-radius: var(--ash-r-control); background: rgba(130,184,138,.07); padding: 0 5px; }
 
-  /* ── 11. Planner ──────────────────────────────────────────────────── */
+  /* 11. Planner */
   .panel-body.panel-body--tight { padding: 12px 18px 14px; }
   .arrow { color: var(--ash-accent); }
   .panel-head .dot.dot--amber-fill { background: var(--ash-warn); box-shadow: 0 0 8px -1px rgba(217,149,74,.6); }
@@ -7733,7 +7733,7 @@
   .jump-pill.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   @media (min-width: 1060px) { .jump-pill { bottom: 26px; } }
 
-  /* ── 13. Gear ─────────────────────────────────────────────────────── */
+  /* 13. Gear */
 
   /* Layout: the equipment doll beside the combat stats. */
   .gn-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
@@ -8083,7 +8083,7 @@
   .cp-facts.va-facts.va-facts--last { margin: 0; }
   .va-note { margin-top: 7px; font-family: var(--ash-font-flav); font-style: italic; font-size: 13.5px; color: var(--ash-faint); }
 
-  /* ── 14. Work Orders ──────────────────────────────────────────────── */
+  /* 14. Work Orders */
   .wo-credit { margin-top: 7px; font-family: var(--ash-font-flav); font-style: italic; font-size: 14px; color: var(--ash-faint); }
   .wo-credit strong { font-style: italic; color: var(--ash-dim); }
   /* Notices: info (blue rail) and the results disclaimer (warn rail). */
@@ -8190,7 +8190,7 @@
   .wo-data-title { margin: 16px 0 8px; font-family: var(--ash-font-head); font-size: 15px; font-weight: 700; letter-spacing: .03em; color: var(--ash-text-hi); }
   .wo-source { max-height: 360px; padding: 12px; overflow: auto; white-space: pre; border: 1px solid var(--ash-edge-faint); border-radius: var(--ash-r-control); background: #070806; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); font-size: 11px; line-height: 1.5; color: var(--ash-faint); }
 
-  /* ── 15. Jewelry prospecting ──────────────────────────────────────── */
+  /* 15. Jewelry prospecting */
   .jpc-intro-note { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 14px; padding: 10px 13px; border: 1px solid #46345C; border-left: 2px solid var(--ash-t-epic); border-radius: var(--ash-r-control); background: linear-gradient(90deg, rgba(185,143,224,.08), rgba(0,0,0,.18) 70%); font-size: 13.5px; line-height: 1.55; color: var(--ash-dim); }
   .jpc-intro-note strong { color: var(--ash-text); }
   .jpc-controls { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .85fr); gap: 14px; }
@@ -8507,7 +8507,7 @@
     #cv-root .cv-live-message { bottom: 75px; }
   }
 
-  /* ── 17. Items (item database) ────────────────────────────────────── */
+  /* 17. Items (item database) */
   .idb-header-count { margin-left: auto; font-family: var(--ash-font-ui); font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: none; color: var(--ash-faint); text-shadow: none; }
   .idb-hint { font-size: 13px; }
   .idb-controls-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
@@ -8606,7 +8606,7 @@
   .idb-wiki-btn { appearance: none; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; min-height: var(--ash-control-h-lg); padding: 6px 16px; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-control); background: linear-gradient(180deg, #25221B, #15130F); box-shadow: inset 0 1px 0 rgba(255,235,190,.06), 0 1px 2px rgba(0,0,0,.5); font-size: 13px; font-weight: 700; color: var(--ash-text); text-decoration: none; transition: color .15s, border-color .15s; }
   .idb-wiki-btn:hover { color: var(--ash-accent); border-color: var(--ash-rule); }
 
-  /* ── 17b. Former inline token styles ──────────────────────────────── */
+  /* 17b. Former inline token styles */
   /* Stand-ins for inline styles, mapping old token names to Ashen colours */
   .tc-text3, .tc-text-3 { color: var(--ash-faint) !important; }
   .tc-text2, .tc-text-2 { color: var(--ash-dim) !important; }
@@ -8630,7 +8630,7 @@
   .site-footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 4px; }
   .site-footer-note { max-width: 560px; text-align: center; font-family: var(--ash-font-flav); font-style: italic; font-size: 13px; line-height: 1.55; color: var(--ash-faint); }
 
-  /* ── 18. Settings ─────────────────────────────────────────────────── */
+  /* 18. Settings */
   /* Each section is a forged accordion; its open state is state. */
   .set-accordion { position: relative; isolation: isolate; overflow: clip; border: 1px solid var(--ash-edge-soft); border-radius: var(--ash-r-panel); background: var(--ash-ground); background-blend-mode: var(--ash-ground-blend); box-shadow: inset 0 0 0 1px rgba(0,0,0,.78), inset 0 1px 0 var(--ash-glow), 0 5px 18px rgba(0,0,0,.24); }
   .set-accordion[open] { border-color: var(--ash-edge); }
@@ -9763,7 +9763,7 @@
   window.iwRenderInfoPanels = renderInfoPanels;
 
 
-  // ── Fetch + apply (silent; no summary panel) ──────────────────
+  // Fetch + apply (silent; no summary panel)
   async function runImport(){
     if(!importEnabled){
       setStatus('warn','Import is staged and not yet active in this build.');
@@ -9916,7 +9916,7 @@
   }catch(error){}
 })();
 </script>
-<!-- ═══ end PLAYER PROFILE AUTO-FILL (v32.17) ═══ -->
+<!-- End of player profile auto-fill -->
 
 
 
@@ -10177,7 +10177,7 @@
           <span data-ui=potion-warn-banner-text>Optional: Choose an active XP potion</span>
         </div>
 
-        <!-- ── Core inputs ────────────────────────────────────────── -->
+        <!-- Core inputs -->
         <!-- Base action time is stored here; the real time comes from housing tier -->
         <input type="hidden" id="action-time-base" value="10">
         <div data-ui=grid class="grid grid-3">
@@ -10281,7 +10281,7 @@
           </div>
         </div>
 
-        <!-- ── Global bonuses ─────────────────────────────────────── -->
+        <!-- Global bonuses -->
         <div data-ui=check-group class="check-group">
           <!-- Daily XP Boost: applied automatically to the matching skills -->
           <div data-ui=row-daily-bonus class="check-row check-row-auto" id="row-daily-bonus" aria-live="polite">
@@ -10380,7 +10380,7 @@
           </div>
         </div>
 
-        <!-- ── Gem drop odds (Jewelcrafting prospecting only) ──────── -->
+        <!-- Gem drop odds (Jewelcrafting prospecting only) -->
         <div data-ui=gem-odds-block class="gem-odds-block" id="gem-odds-block" style="display:none;">
           <div data-ui=gem-odds-block-row class="gem-odds-head">
             <span data-ui=gem-odds-block-text class="gem-odds-emoji">💎</span>
@@ -10956,7 +10956,7 @@
       </div>
     </div>
 
-    <!-- ── Placeholder when no profile imported ───────────── -->
+    <!-- Placeholder when no profile imported -->
     <div data-ui=gn-no-profile id="gn-no-profile" class="panel" style="display: none;">
       <div data-ui=panel-body class="panel-body tc-text-3" style="padding:20px;text-align:center;font-size:13px;">
         <div data-ui=gear-empty-icon style="font-size:2rem;margin-bottom:8px;">🗡️</div>
@@ -10964,7 +10964,7 @@
       </div>
     </div>
 
-    <!-- ── Main layout (two-column: doll + stats) ─────────── -->
+    <!-- Main layout (two-column: doll + stats) -->
     <div data-ui=gn-main id="gn-main" style="">
 
       <!-- Top row: doll panel + stats panel side by side -->
@@ -11128,7 +11128,7 @@
         </div>
       </div>
 
-      <!-- ── v5.0 Manual Gear Search / Theorycraft ─────────────── -->
+      <!-- Manual Gear Search / Theorycraft -->
       <details data-ui=gn-gear-search-panel class="gn-rec-group gn-search-panel" id="gn-gear-search-panel">
         <summary data-ui=gn-rec-summary class="gn-rec-summary">
           <span data-ui=gn-rec-summary-icon aria-hidden="true">⌕</span>
@@ -11178,7 +11178,7 @@
 
     </div><!-- /#gn-main -->
 
-    <!-- ── Village Add-ons (v5.4) ──────────────────────────── -->
+    <!-- Village Add-ons -->
     <!-- Village add-ons panel, separate from the gear doll; filled by script -->
     <div data-ui=iw-village-panel class="panel" id="iw-village-panel">
       <div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot dot--construction"></span>Village Add-ons</div>
@@ -11187,7 +11187,7 @@
       </div>
     </div>
 
-    <!-- ── Slot tooltip overlay ───────────────────────────── -->
+    <!-- Slot tooltip overlay -->
     <div data-ui=gn-tooltip-overlay id="gn-tooltip-overlay" class="gn-tt-overlay" style="display:none;" onclick="gnCloseTooltipIfOutside(event)">
       <div data-ui=gn-tooltip-panel class="gn-tt-panel" id="gn-tooltip-panel" role="dialog" aria-modal="true" aria-label="Slot details">
         <div data-ui=gn-tt-head class="gn-tt-head">
@@ -11219,7 +11219,7 @@
       </div>
       <div data-ui=panel-body class="panel-body">
 
-        <!-- ── Search + Tier row ────────────────────────────────── -->
+        <!-- Search + Tier row -->
         <div data-ui=idb-controls-row class="idb-controls-row">
           <div data-ui=idb-search-wrap class="idb-search-wrap" id="idb-search-wrap">
             <span data-ui=idb-search-icon class="idb-search-icon">🔍</span>
@@ -11241,11 +11241,11 @@
           </div>
         </div>
 
-        <!-- ── Category filter chips ──────────────────────────── -->
+        <!-- Category filter chips -->
         <div data-ui=idb-filters class="idb-filter-row" id="idb-filters"><span data-ui=idb-filter-chip class="idb-filter-chip active" onclick="idbSetFilter(&#39;all&#39;)">All (119)</span><span data-ui=idb-filter-chip class="idb-filter-chip" onclick="idbSetFilter(&#39;Processed&#39;)">🔩 Processed (2)</span><span data-ui=idb-filter-chip class="idb-filter-chip" onclick="idbSetFilter(&#39;Trade Good&#39;)">💰 Trade Good (2)</span><span data-ui=idb-filter-chip class="idb-filter-chip" onclick="idbSetFilter(&#39;Resource&#39;)">⛏️ Resource (6)</span><span data-ui=idb-filter-chip class="idb-filter-chip" onclick="idbSetFilter(&#39;Consumable&#39;)">🧪 Consumable (24)</span><span data-ui=idb-filter-chip class="idb-filter-chip" onclick="idbSetFilter(&#39;Equipment&#39;)">🛡️ Equipment (85)</span></div>
         <div data-ui=idb-stats class="idb-stats-bar" id="idb-stats"><strong>119</strong> results <span data-ui=idb-stats-sep class="idb-stats-sep">of</span> 119 shown</div>
 
-        <!-- ── Results area ──────────────────────────────────── -->
+        <!-- Results area -->
         <div data-ui=idb-results-area id="idb-results-area">
           <div data-ui=idb-placeholder class="idb-empty" id="idb-placeholder" style="display: none;">
             <div data-ui=idb-empty-icon class="idb-empty-icon">📦</div>
@@ -11360,7 +11360,7 @@
     <span data-ui=idb-page-info class="idb-page-info">1–20 of 119</span></div>
         </div>
 
-        <!-- ── Item detail card ──────────────────────────────── -->
+        <!-- Item detail card -->
         <div data-ui=idb-detail class="idb-detail-card" id="idb-detail" style="display:none;"></div>
 
       </div>
@@ -13669,7 +13669,7 @@ function syncCheckbox(rowId, inputId) {
   if (control) control.addEventListener('input', calculate);
   if (control) control.addEventListener('change', calculate);
 });
-// The potion helper line names the potion actually applied (v6.3).
+// The potion helper line names the potion actually applied.
 ['potion-tier','potion-super'].forEach(id => {
   const control = document.getElementById(id);
   if (control) control.addEventListener('change', iwRefreshPotionUi);
@@ -13987,7 +13987,7 @@ function iwIsGatherActionSkill(groupKey, leafKey) {
   return GATHER_SKILLS.has(String(groupKey || ''));
 }
 
-// v5.0 regression guard: Harvest Mana must gather; Spellcrafting crafts must not.
+// Regression guard: Harvest Mana must gather; Spellcrafting crafts must not.
 (function iwManaGatherClassificationSelfCheck(){
   const warn = [];
   if (!iwIsGatherActionSkill('spellcrafting', 'spell_harvest'))
@@ -14021,10 +14021,10 @@ function calculate() {
   const activeSkill = resolveSkillGroup() || appState.selectedSkillGroup || '';  // group key, robust to leaf-only selection
   const leafSkill   = appState.resolvedLeafSkill  || '';  // e.g. 'smith_boots', 'jewel_ring'
 
-  // Race → skill group(s) and % live in IW_RACE_BONUS (v6.2, one table).
+  // Race → skill group(s) and % live in IW_RACE_BONUS.
   const racePercent = iwRaceXpPct(race, activeSkill);
 
-  // ── New inputs (source-accurate formula) ─────────────────────
+  // New inputs (source-accurate formula)
   const equipFlat       = parseInt(document.getElementById('xp-per-task').value)||0;
   const potionFlat      = getPotionFlat();
   const worldBossFlat   = document.getElementById('boss-active').checked ? 24 : 0;
@@ -14300,7 +14300,7 @@ const RACE_ICONS = {
     `<path d="M16 23c0 6 3 12 8 14 5-2 8-8 8-14z" fill="${P}"/>`+
     `<path d="M19 30c0 3 2 5 5 6 3-1 5-3 5-6z" fill="${BG}"/>`+
     `<circle cx="20.5" cy="27" r="1" fill="${BG}"/><circle cx="27.5" cy="27" r="1" fill="${BG}"/>`,
-  // Giant — broad shoulders, full beard, axe over the shoulder (v6.2)
+  // Giant — broad shoulders, full beard, axe over the shoulder
   giant:
     `<path d="M24 5c-6 0-10 3.5-10 9v6c0 2 1 3.5 2.5 4.5L24 30l7.5-5.5C33 23.5 34 22 34 20v-6c0-5.5-4-9-10-9z" fill="${P}"/>`+
     `<circle cx="20" cy="15" r="1.5" fill="${BG}"/><circle cx="28" cy="15" r="1.5" fill="${BG}"/>`+
@@ -14832,7 +14832,7 @@ function getEffectiveXPParams(skill, level) {
   const activeSkill = appState.selectedSkillGroup || '';
 
   const race = byId('race-select') ? byId('race-select').value : '';
-  const racePercent = iwRaceXpPct(race, activeSkill);   // IW_RACE_BONUS (v6.2)
+  const racePercent = iwRaceXpPct(race, activeSkill);   // IW_RACE_BONUS
 
   const equipFlat       = parseInt(byId('xp-per-task') ? byId('xp-per-task').value : 0) || 0;
   const potionFlat      = getPotionFlat();
@@ -15093,7 +15093,7 @@ const SAME_SKILL_INPUT = {
 function evaluateCraftLoop(leaf, tier, level) {
   const dependency = SAME_SKILL_INPUT[leaf];
   if (!dependency) return null;
-  const housingTier = plannerHousingTier();   // v38.9.10: shared by both branches
+  const housingTier = plannerHousingTier();   // Shared by both branches
 
   // Jewelcrafting gem loop: 1 craft plus the expected prospect attempts for its gems
   if (dependency.gemLoop) {
@@ -15424,7 +15424,7 @@ function createPlanStep(fromLevel, toLevel, candidate, currentXpOffset, extra) {
     }, extra || {});
   }
 
-  // ── Single-action case (unchanged behaviour) ──────────────────
+  // Single-action case (unchanged behaviour)
   const actions    = candidate.xp > 0 ? Math.ceil(xpRequired / candidate.xp) : 0;
   const timeSec    = actions * candidate.ehpTime;   // dependency-aware
   const rawTimeSec = actions * candidate.time;       // in-action only
@@ -15608,7 +15608,7 @@ function renderPlan(steps, skill, options) {
   }
   options = options || {};
 
-  // ── Cumulative totals ─────────────────────────────────────────
+  // Cumulative totals
   let totalXP        = 0;
   let totalActions   = 0;
   let totalTimeSeconds   = 0;
@@ -15662,7 +15662,7 @@ function renderPlan(steps, skill, options) {
     }
   }
 
-  // ── Render totals cards ───────────────────────────────────────
+  // Render totals cards
   const skillLabel = SKILL_LABELS[skill] || skill;
   document.getElementById('plan-totals').innerHTML = `
     <div data-ui=plan-total-card class="plan-total-card">
@@ -15721,7 +15721,7 @@ function renderPlan(steps, skill, options) {
       ? producerVocab(loopVocab.leaf, loopVocab.producerName)
       : producerVocab(null, null);
 
-    // ── "What you do" ────────────────────────────────────────────
+    // "What you do"
     let doHtml;
     if (isLoop) {
       doHtml = `<div data-ui=plan-steps class="plan-steps">` + subSteps.map((subStep, subStepIndex) => {
@@ -15745,7 +15745,7 @@ function renderPlan(steps, skill, options) {
         </div>`;
     }
 
-    // ── Metric strip ─────────────────────────────────────────────
+    // Metric strip
     const actionsSub = isLoop
       ? `${planFmt(subSteps[0].count)} ${vocab.verb.toLowerCase()} + ${planFmt(subSteps[1].count)} craft`
       : 'actions';
@@ -16589,7 +16589,7 @@ function buildProgressionHero(current, next, combatLevel) {
     ? `<div data-ui=gear-hero-hint class="gear-hero-hint">📥 Profile imported — see “Your imported gear” below for your actual equipped set.</div>`
     : '';
 
-  // ── Branch: no gear yet ───────────────────────────────────────
+  // Branch: no gear yet
   if (!current) {
     return `
       <div data-ui=gear-hero-card class="gear-hero-card">
@@ -16611,7 +16611,7 @@ function buildProgressionHero(current, next, combatLevel) {
       <span data-ui=gear-hero-badge class="gear-hero-badge gch-badge-teal">T${current.tier}</span>
     </div>`;
 
-  // ── Branch: max tier reached (decision D-3: full green bar) ───
+  // Branch: max tier reached (decision D-3: full green bar)
   if (!next) {
     return `
       <div data-ui=gear-hero-card class="gear-hero-card">
@@ -16713,7 +16713,6 @@ function buildProgressionHero(current, next, combatLevel) {
   }
 })();
 
-// ───────────────────────────────────────────────────────────────
 // Gear panel renderer: hero card, set summary and slot table
 // With an import, set details show the player's actual gear, not a tier set
 
@@ -17390,7 +17389,7 @@ function renderGearRecommendations(combatLevel) {
     if(upgradeToggle) upgradeToggle.style.display = equipped ? 'none' : '';
   }catch(error){}
 
-  // Task-aware advisor (v31.1) — re-renders with the panel.
+  // Task-aware advisor — re-renders with the panel.
   renderTaskGearAdvisor(combatLevel);
 
   // Hide the old imported-gear section and draw the socket planner
@@ -17944,7 +17943,7 @@ function iwSlotUpgrade(slot, currentKey){
   }catch(error){ return '<span data-ui=iw-slot-upgrade-text style="color:var(--text3)">—</span>'; }
 }
 
-// Phase C self-check (v38.8.2) — best-in-slot engine. 0 warnings on pass.
+// Phase C self-check — best-in-slot engine. 0 warnings on pass.
 (function scheduleIwBestInSlotSelfCheck(){
   function runSelfCheck(){
     try{
@@ -18326,7 +18325,7 @@ if(typeof window !== 'undefined'){
   window.iwPlanningActiveEnchant = iwPlanningActiveEnchant;
 }
 
-// ── Plate controls (button-driven; no checkboxes) ─────────────────
+// Plate controls (button-driven; no checkboxes)
 /** True if this slot has an enchant that still occupies the PLANNED end-state. */
 function iwSlotHasEnchant(slot){
   // A live plate blocks enchants unless its removal is planned
@@ -19303,7 +19302,7 @@ function iwToggleEnchantPlan(slot){
     window.alert('This slot still has a reinforcement in the planned end-state. Remove the active/planned reinforcement first if you want to enchant this slot instead.');
     return;
   }
-  // v4.8.2: explicit R&E choice wins; otherwise use the SC-level default.
+  // Explicit R&E choice wins; otherwise use the SC-level default.
   IW_ENCHANT_PLAN[slot] = iwResolveEnchantTier();
   iwSaveEnchantPlan(); iwRefreshGearTab();
 }
@@ -19635,7 +19634,7 @@ function iwGoalStatKey(){
     case 'attack':    return 'atk';
     case 'balanced':  return 'atk';       // only combat-stat gems are ATK (no DEF gem)
     case 'defence':   return null;         // wiki-explicit: no gem grants DEF
-    case 'zonecombat': return null;        // v36.2: no Cut Gem grants Warfare
+    case 'zonecombat': return null;        // No Cut Gem grants Warfare
     case 'itemfind':  return 'itemFind';
     case 'goldfind':  return 'goldFind';
     case 'gather':    return 'gather';
@@ -19832,7 +19831,7 @@ function iwSlotSocketsFor(item, slot){
   }
 }
 
-// v4.8.5 mandatory Gear socket audit guard. Silent on pass.
+// Mandatory Gear socket audit guard. Silent on pass.
 (function iwGearSocketEligibilitySelfCheck(){
   function runSelfCheck(){
     try{
@@ -20211,7 +20210,7 @@ function iwCraftBillHtml(){
 function iwRecommendSocketGem(){
   var stat = iwGoalStatKey();
   if(!stat) return null;                       // defence: no DEF gem exists
-  // v37.7: only suggest obtainable gems (≤ IW_GEM_SUGGEST_MAX_TIER).
+  // Only suggest obtainable gems (≤ IW_GEM_SUGGEST_MAX_TIER).
   var tiers = gemTiersForStat(stat).filter(function(tier){ return tier <= iwGemSuggestCap(); });
   if(!tiers.length) return null;
   var bestTier = tiers[tiers.length-1];        // highest tier = highest value
@@ -20233,7 +20232,7 @@ function iwAutofillSockets(){
   var recommendation = iwRecommendSocketGem();
   var note = '';
   if(!recommendation){
-    // v37.7: fallback list capped to obtainable gems too.
+    // Fallback list capped to obtainable gems too.
     var atkTiers = gemTiersForStat('atk').filter(function(tier){ return tier <= iwGemSuggestCap(); });
     recommendation = { tier: atkTiers[atkTiers.length-1], bestTier: atkTiers[atkTiers.length-1], locked:false };
     var jewelcraftingLevel = iwJcLevel();
@@ -20351,7 +20350,7 @@ function iwRefreshGearTab(){
   }catch(error){ try{ renderSocketPlanner(); }catch(error){} }
 }
 
-// ── Socket Planner card ──────────────────────────────────────────
+// Socket Planner card
 function renderSocketPlanner(){
   var host = document.getElementById('gear-socket-planner');
   if(!host) return;
@@ -20481,12 +20480,12 @@ function renderSocketPlanner(){
       'ℹ No Cut Gem grants DEF (by design) — Auto-fill will use the best ATK gem instead; '+
       'or pick a resist gem manually.</div>';
   } else if(IW_GEAR_GOAL==='zonecombat'){
-    // ZONE COMBAT (v36.2, Phase 3): mirrors the Defence case above.
+    // Zone combat: mirrors the Defence case above.
     goalNote = '<div data-ui=socket-dropdown-html-content style="font-size:11px;color:var(--text3);margin-top:6px;">'+
       'ℹ No Cut Gem grants Warfare — Auto-fill will use the best ATK gem instead '+
       '(ATK is the Zone Combat tiebreaker); or pick a resist gem manually.</div>';
   } else {
-    // v33.3: goal-driven recommendation line (drives the Auto-fill button).
+    // Goal-driven recommendation line (drives the Auto-fill button).
     var recommendation = iwRecommendSocketGem();
     if(recommendation){
       var extra = '';
@@ -21069,7 +21068,7 @@ function buildDetailRows(current, next, loadout) {
   }).join('');
 }
 
-// Phase D self-check (v38.8.3) — goal loadout. 0 warnings on pass.
+// Phase D self-check — goal loadout. 0 warnings on pass.
 (function scheduleIwLoadoutSelfCheck(){
   function runSelfCheck(){
     try{
@@ -21444,7 +21443,7 @@ function iwResolveTailoringSetBonus(tierCounts){
   // 2) Highest qualifying tier only (no cross-tier stacking).
   var mixedTiers = iwResolveTailoringSetBonus({ 3:5, 10:4 });
   if (!mixedTiers || mixedTiers.tier !== 10) warn.push('highest qualifying tier (10) should win');
-  // 3) Independence: threshold is 4, distinct from Smithing's 5 (v6.2; was 6).
+  // 3) Independence: threshold is 4, distinct from Smithing's 5.
   if (TAILORING_SET_MIN_PIECES !== 4) warn.push('TAILORING_SET_MIN_PIECES must be 4');
   if (typeof SET_BONUS_MIN_PIECES !== 'undefined' && SET_BONUS_MIN_PIECES !== 5)
     warn.push('Smithing SET_BONUS_MIN_PIECES should be 5 (game patch 2026-10-14.32)');
@@ -21729,11 +21728,11 @@ const GRIMSBY_ITEMS = [
     console.warn('[Tailoring Phase 6] self-check FAILED:', warn.join(' | '));
 })();
 
-// ── Bonus environment (reads the same calculator inputs) ──────
+// Bonus environment (reads the same calculator inputs)
 function taskBonusEnv(taskKey) {
   const byId = id => document.getElementById(id);
   const group = TASK_GROUP[taskKey];
-  // Same table as calculate()/getEffectiveXPParams(): IW_RACE_BONUS (v6.2).
+  // Same table as calculate()/getEffectiveXPParams(): IW_RACE_BONUS.
   const race = byId('race-select') ? byId('race-select').value : '';
   const racePercent = iwRaceXpPct(race, group);
 
@@ -21770,7 +21769,7 @@ function taskXPPerAction(baseXP, time, gearFlat, gatherPercent, bonusEnv, isGath
   return Math.round((baseWithFlats + daily) * (1 + bonusEnv.totalPct / 100) * (bonusEnv.scCatchup || 1));
 }
 
-// ── Representative action for a task at a tier ────────────────
+// Representative action for a task at a tier
 function taskRepresentativeAction(taskKey, tier) {
   for (let candidateTier = tier; candidateTier >= 1; candidateTier--) {
     let best = null;
@@ -21788,7 +21787,7 @@ function taskRepresentativeAction(taskKey, tier) {
   return null;
 }
 
-// ── Baseline (tier-relevant standard set at enchant level) ────
+// Baseline (tier-relevant standard set at enchant level)
 function taskBaselineSet(tier, upgradeLevel) {
   const gearIndex = buildTaskGearIndex();
   const set = {};
@@ -22041,7 +22040,7 @@ function combatUpgCardHTML(upgrade, escapeText) {
     </div>`;
 }
 
-// ── Enchant card renderer (v31.3) ─────────────────────────────
+// Enchant card renderer
 function enchCardHTML(enchant, escapeText) {
   const itemName = enchant.r.name || '';
   const icon = /Ring/.test(itemName)   ? '\u{1F48D}'
@@ -22100,7 +22099,7 @@ if(typeof document !== 'undefined' && !window.__iwTaskDDBound){
   });
 }
 
-// ── Renderer ──────────────────────────────────────────────────
+// Renderer
 function renderTaskGearAdvisor(combatLevel) {
   const out = document.getElementById('gear-task-output');
   if (!out) return;
@@ -22122,8 +22121,7 @@ function renderTaskGearAdvisor(combatLevel) {
   if (gearTaskKey === 'combat') {
     // Alternatives per slot come from the same engine as the Loadout card
     const altGroups = [];
-    const noStatSlots = [];   // v43.20: slots where the goal stat literally
-                               // Skip slots where this stat never appears rather than show a fake comparison
+    const noStatSlots = [];   // Slots where the goal stat never appears; skipped rather than given a fake comparison
     for (const slot of SLOT_ORDER) {
       const alternatives = taskGoalAlternatives(slot, combatLevel);
       if (alternatives.list.length) altGroups.push({ slot, meta: SLOT_META[slot], alt: alternatives });
@@ -22147,7 +22145,7 @@ function renderTaskGearAdvisor(combatLevel) {
     return;
   }
 
-  // ── SKILLING TASKS: exact-formula XP/hr scoring ─────────────
+  // Skilling tasks: exact-formula XP/hr scoring
   const representative = taskRepresentativeAction(gearTaskKey, tierContext.actionTier || tier);
   if (!representative) { out.innerHTML = '<div data-ui=gear-set-sub class="gear-set-sub">No actions found for this task.</div>'; return; }
   const bonusEnv      = taskBonusEnv(gearTaskKey);
@@ -22184,7 +22182,7 @@ function renderTaskGearAdvisor(combatLevel) {
   }
   upgrades.sort((first,second) => second.dHr - first.dHr || second.dGatherSub - first.dGatherSub);
 
-  // ── Enchant consumable recommendations (verified DB rows) ───
+  // Enchant consumable recommendations (verified DB rows)
   const setTierName  = TIER_NAMES[tier] || '';
   const enchantRows = [];
   const findEnchant = suffix => ITEM_DB.find(row => row.name === setTierName + ' ' + suffix);
@@ -22590,7 +22588,7 @@ function buildItemDatabase() {
   return iwRepairEmbeddedTailoringNormalizedItems(normalized);
 }
 
-// v5.0 JC jewellery requirement regression guard. Silent on pass.
+// JC jewellery requirement regression guard. Silent on pass.
 (function iwGatheringJewelleryRequirementSelfCheck(){
   try {
     const rows = iwEmbeddedItems();
@@ -23033,7 +23031,7 @@ function iwTipAcquisition(item) {
     main = 'Upgrade result';
     subText  = item.acqSummary ? escapeHtml(item.acqSummary) : 'Apply an Upgrade Orb to the base item';
   } else if (acquisitionType === 'RaidDrop') {
-    // v6.1 — set by idbFromApi from IW_RAID_DROP_SOURCES.
+    // Set by idbFromApi from IW_RAID_DROP_SOURCES.
     main = 'Guild raid drop' + (item.raidBoss ? ' &middot; ' + escapeHtml(item.raidBoss) : '') +
            (item.raidReleased === false ? ' &middot; not released yet' : '');
     subText  = escapeHtml(item.raidDetail || item.acqSummary || '');
@@ -23096,7 +23094,7 @@ function iwExtraStatRows(item) {
   };
   const formatBonus = (amount, isPercent) => '+' + amount + (isPercent ? '%' : '');
 
-  // ── 1. Verbatim numeric fields ──────────────────────────────────
+  // 1. Verbatim numeric fields
   const extras = item.extraStats;
   var structuredAllResists = null;
   if (extras) {
@@ -24415,11 +24413,11 @@ function loadItemDatabase() {
 // Item database state
 const IDB_STATE = {
   items:[],idMap:new Map(),index:null,ready:false,dataSource:'builtin',
-  apiGeneratedAt:null, apiError:null,   // v40.2 — live item API
-  apiUrlUsed:null,                      // v5.3 — which candidate URL actually answered
+  apiGeneratedAt:null, apiError:null,   // Live item API
+  apiUrlUsed:null,                      // Which candidate URL actually answered
   itemDataRevision:0, compatSyncError:null, // Stage B — normalized/legacy bridge health
   query:'',activeCategory:'all',activeTier:'all',currentPage:1,
-  activeSlot:'all',activeStat:'all',    // v6.4 — SLOT + STAT FILTERS
+  activeSlot:'all',activeStat:'all',    // Slot and stat filters
   lastResults:[],selectedId:null,
   dropdownFocusIdx:-1,_debounceTimer:null,
 };
@@ -24586,7 +24584,7 @@ function initItemDatabase() {
   const dropdown = document.getElementById('idb-dropdown');
   const tierSelect  = document.getElementById('idb-tier-select');
 
-  // ── Tier dropdown ──────────────────────────────────────────────
+  // Tier dropdown
   tierSelect.addEventListener('change', () => {
     idbSetTier(tierSelect.value === 'all' ? 'all' : parseInt(tierSelect.value, 10));
   });
@@ -24596,7 +24594,7 @@ function initItemDatabase() {
   statSelect.addEventListener('change', () =>
     idbSetSlotOrStat('activeStat', IW_STAT_FILTERS[statSelect.value] ? statSelect.value : 'all'));
 
-  // ── Search input ───────────────────────────────────────────────
+  // Search input
   input.addEventListener('input', () => {
     const query = input.value;
     IDB_STATE.query = query;
@@ -24623,7 +24621,7 @@ function initItemDatabase() {
     }
   });
 
-  // ── Clear button: resets search only, preserves tier ──────────
+  // Clear button: resets search only, preserves tier
   clearButton.addEventListener('click', () => {
     input.value=''; IDB_STATE.query=''; IDB_STATE.selectedId=null;
     clearButton.classList.remove('visible'); idbCloseDropdown();
@@ -25354,7 +25352,7 @@ function syncCombatLevel(value) {
     write(state);
   })();
 
-  /* ── Capture ──────────────────────────────────────────────────── */
+  /* Capture */
   function snapshotControls() {
     var out = {};
     var transientTestActive = !!(window.IWProfile &&
@@ -25426,7 +25424,7 @@ function syncCombatLevel(value) {
     write(state);
   }
 
-  /* ── Restore ──────────────────────────────────────────────────── */
+  /* Restore */
   function fire(element, type) {
     try { element.dispatchEvent(new Event(type, { bubbles: true })); } catch (error) {}
   }
@@ -25529,7 +25527,7 @@ function syncCombatLevel(value) {
     return true;
   }
 
-  /* ── One-time migration: fold the pre-v2 keys into the store ────── */
+  /* One-time migration: fold the pre-v2 keys into the store */
   function migrate() {
     var state = read() || { v: schemaVersion };
     if (state.legacy) return;
@@ -25542,7 +25540,7 @@ function syncCombatLevel(value) {
     write(state);
   }
 
-  /* ── Public surface ───────────────────────────────────────────── */
+  /* Public surface */
   window.IWStore = {
     save: save,
     saveSoon: saveSoon,
@@ -25649,7 +25647,7 @@ function syncCombatLevel(value) {
     location.replace(location.href);
   };
 
-  /* ── Hooks ────────────────────────────────────────────────────── */
+  /* Hooks */
   // Save every profile that is assigned, whichever import path set it
   (function hookProfile() {
     var current = window.IWProfile || null;
@@ -26065,7 +26063,7 @@ function syncCombatLevel(value) {
       '<button type="button" class="saved-act" onclick="iwForget()">Forget</button>';
   }
 
-  /* ── First-run checklist ────────────────────────────────────────*/
+  /* First-run checklist */
   // "Pick a tool" is done once one of the tool tabs has been visited
   function iwMarkToolVisited() {
     try { localStorage.setItem('iwVisitedTool', '1'); } catch (error) {}
@@ -26103,7 +26101,7 @@ function syncCombatLevel(value) {
     }
   }
 
-  /* ── Today's bonus, mirrored to the Start page and the rail ─────*/
+  /* Today's bonus, mirrored to the Start page and the rail */
   function mirrorDaily() {
     var sourceElement = getById('daily-bonus-calc');
     if (!sourceElement) return;
@@ -26157,7 +26155,7 @@ function syncCombatLevel(value) {
     box.style.display = 'flex';
   }
 
-  /* ── "See your rate" pill ───────────────────────────────────────*/
+  /* "See your rate" pill */
   window.iwJumpToResults = function () {
     var resultsPanel = getById('panel-results');
     if (resultsPanel) resultsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -26178,7 +26176,7 @@ function syncCombatLevel(value) {
     pill.classList.toggle('show', show);
   }
 
-  /* ── One refresh pass, rAF-coalesced ───────────────────────────*/
+  /* One refresh pass, rAF-coalesced */
   var queued = false;
   function iwRefresh() {
     if (queued) return;
@@ -27168,7 +27166,7 @@ function syncCombatLevel(value) {
   ]},
   ];
 
-  /* ── Values ─────────────────────────────────────────────────────── */
+  /* Values */
   function getSetting(key, fallback) {
     if (window.IWStore && window.IWStore.getSetting) {
       var value = window.IWStore.getSetting(key);
@@ -27265,7 +27263,7 @@ function syncCombatLevel(value) {
     render();
   };
 
-  /* ── Developer tools ────────────────────────────────────────────── */
+  /* Developer tools */
   function devOut(html) {
     var output = getById('dev-output');
     if (!output) return;
@@ -27305,7 +27303,7 @@ function syncCombatLevel(value) {
         return character === '&' ? '&amp;' : '&lt;'; }) + '</pre>');
   }
 
-  /* ── Render ─────────────────────────────────────────────────────── */
+  /* Render */
   function escapeHtml(value) { return String(value).replace(/[&<"]/g, function (character) {
     return character === '&' ? '&amp;' : character === '<' ? '&lt;' : '&quot;'; }); }
 
@@ -27427,7 +27425,7 @@ function syncCombatLevel(value) {
 (function gnModule() {
   'use strict';
 
-  // ── State ────────────────────────────────────────────────────
+  // State
   var selectedGoal      = 'attack';
   var gearCombatLevel = 0;
   var openTooltipSlot = null;   // currently open tooltip slot key
@@ -27643,7 +27641,7 @@ function syncCombatLevel(value) {
     var rawQuery = String(input.value || '').trim();
     var query = rawQuery.toLowerCase();
     var tier = parseInt(tierSelect.value, 10) || 0;
-    // v6.4 — SLOT + STAT FILTERS (shared table: IW_STAT_FILTERS).
+    // Slot and stat filters (shared table: IW_STAT_FILTERS).
     var slot = slotSelect && dollSlotOrder.indexOf(slotSelect.value) >= 0 ? slotSelect.value : '';
     var stat = statSelect && IW_STAT_FILTERS[statSelect.value] ? statSelect.value : '';
 
@@ -27835,7 +27833,7 @@ function syncCombatLevel(value) {
     status.textContent = message || '';
   }
 
-  // ── Render entry point ───────────────────────────────────────
+  // Render entry point
   function gnRender() {
     setLoadoutCacheKey = null;
     setLoadoutCache = null;
@@ -27864,7 +27862,7 @@ function syncCombatLevel(value) {
     gnUpdateResetButton();
   }
 
-  // ── Slot tiles ───────────────────────────────────────────────
+  // Slot tiles
   function gnRenderSlots(equipped) {
     dollSlotOrder.forEach(function(slot) {
       var tile = document.querySelector('#tab-gear-new .gn-slot[data-slot="' + slot + '"]');
@@ -27884,7 +27882,7 @@ function syncCombatLevel(value) {
           !/\+[1-4]$/.test(String(spriteName || ''))) {
         spriteName = String(spriteName || '') + '+' + cellCloakUpgrade.tier;
       }
-      // v4.6.5: show equipped item name in the slot label instead of generic slot name
+      // Show equipped item name in the slot label instead of generic slot name
       var labelElement = tile.querySelector('.gn-slot-label');
       if (labelElement) labelElement.textContent = displayName || (slotMeta ? slotMeta.label : slot);
       var fallbackIcon = '';
@@ -27952,7 +27950,7 @@ function syncCombatLevel(value) {
         }
       }
 
-      // ── State classes ─────────────────────────────────────────
+      // State classes
       tile.classList.remove(
         'gn-slot-equipped', 'gn-slot-has-bonus', 'gn-slot-empty',
         'gn-slot-enchanted', 'gn-slot-reinforced'
@@ -27981,7 +27979,7 @@ function syncCombatLevel(value) {
     });
   }
 
-  // ── Stats panel ──────────────────────────────────────────────
+  // Stats panel
   function gnRenderStats(equipped) {
     var body = document.getElementById('gn-stats-body');
     if (!body) return;
@@ -28345,7 +28343,7 @@ function syncCombatLevel(value) {
       .filter(function(tier) { return tier >= 1 && tier <= 34; });
   }
 
-  // ── Best-in-Slot table ───────────────────────────────────────
+  // Best-in-Slot table
   function gnRenderBIS() { return gnCapped(gnRenderBISUncapped); }
   function gnRenderBISUncapped() {
     var out = document.getElementById('gn-bis-output');
@@ -28662,7 +28660,7 @@ function syncCombatLevel(value) {
     gnUpdateResetButton();
   };
 
-  // ── Slot tooltip ─────────────────────────────────────────────
+  // Slot tooltip
   window.gnOpenTooltip = function(slot, triggerElement) {
     openTooltipSlot = slot;
     var slotMeta     = (typeof SLOT_META !== 'undefined') ? SLOT_META[slot] : null;
@@ -29007,7 +29005,7 @@ function syncCombatLevel(value) {
     }
   });
 
-  // ── Goal dropdown ─────────────────────────────────────────────
+  // Goal dropdown
   window.gnToggleGoalDropdown = function(event) {
     if (typeof iwToggleGoalDropdown === 'function') {
       // reuse the existing toggle logic on our own dd element
@@ -29051,7 +29049,7 @@ function syncCombatLevel(value) {
     if (dropdown && !dropdown.contains(event.target)) dropdown.classList.remove('open');
   });
 
-  // ── Combat level sync ─────────────────────────────────────────
+  // Combat level sync
   window.gnSetCombatLevelFromShared = function(level) {
     gearCombatLevel = parseInt(level, 10) || 0;
     setLoadoutCacheKey = null;
@@ -29139,13 +29137,13 @@ function syncCombatLevel(value) {
     gnRenderGearSearch();
   });
 
-  // ── Initial render (in case tab is already active) ───────────
+  // Initial render (in case tab is already active)
   if (document.getElementById('tab-gear-new') &&
       document.getElementById('tab-gear-new').classList.contains('active')) {
     gnRender();
   }
 
-  // ── Expose render so external refreshes can call it ──────────
+  // Expose render so external refreshes can call it
   window.gnRender = gnRender;
 
 })(); // end gnModule
@@ -29557,7 +29555,7 @@ function syncCombatLevel(value) {
     };
   }
 
-  // ── Store ──────────────────────────────────────────────────────
+  // Store
   function emptyStore(){ return { v:1, source:null, profileSeed:null, loadouts:[], selectedId:null }; }
   function readStore(){
     try {
@@ -29633,7 +29631,7 @@ function syncCombatLevel(value) {
     return writeStore(store);
   }
 
-  // ── Doll ───────────────────────────────────────────────────────
+  // Doll
   function itemSignature(item){ return item ? [item.key || '', item.variantId || '', item.name || ''].join('|') : ''; }
   function changedSlots(current, next){
     return slotKeys.filter(function(slot){ return itemSignature(current && current[slot]) !== itemSignature(next && next[slot]); });
@@ -29683,7 +29681,7 @@ function syncCombatLevel(value) {
     return { ok:true, created:created, changed:changed.length, otherPlayer:!!other, loadout:loadout };
   }
 
-  // ── UI ─────────────────────────────────────────────────────────
+  // UI
   function panelQuery(selector){ return document.querySelector('[data-iwpj-panel] ' + selector); }
   function show(element, visible, displayValue){ if (!element) return; element.hidden = !visible; element.style.display = visible ? (displayValue || '') : 'none'; }
   function setStatus(message){ var statusElement = panelQuery('[data-iwpj-status]'); if (statusElement) statusElement.textContent = message || ''; }
@@ -31097,7 +31095,7 @@ function syncCombatLevel(value) {
     return { started: gateState.started, themed: gateState.themed, preview: preview !== null, dates: dates };
   };
 
-  // ── Decorations ────────────────────────────────────────────────
+  // Decorations
   var pumpkinSvg = '<svg width="20" height="17" viewBox="0 0 48 40" aria-hidden="true"><path d="M24 9c-1-5 1-8 5-9" stroke="#5d7d2c" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="14" cy="25" rx="11" ry="13.5" fill="#b9501a"/><ellipse cx="34" cy="25" rx="11" ry="13.5" fill="#b9501a"/><ellipse cx="24" cy="25" rx="11.5" ry="14.5" fill="#e8761f"/><path d="M14 21l4.5-5.5L23 21zM25 21l4.5-5.5L34 21z" fill="#ffd36b"/><path d="M13 28c4 6 18 6 22 0l-3 1.5-2-2-2.5 2.5-2.5-2.5-2.5 2.5-2.5-2.5-2 2z" fill="#ffd36b"/></svg>';
   // A corner web anchored at the top-RIGHT (72,0); the left copy is mirrored.
   var webSvg = '<svg width="100%" height="100%" viewBox="0 0 72 72" aria-hidden="true" fill="none" stroke="#e4dcef" stroke-width=".9" stroke-linecap="round">' +
@@ -31258,7 +31256,7 @@ function syncCombatLevel(value) {
     return apply();
   };
 
-  // ── Planner ────────────────────────────────────────────────────
+  // Planner
   var scrollShare = 0.05;
   function scrollXp(level){ return Math.round(xpForLevel(level) * scrollShare); }
 
@@ -31586,7 +31584,7 @@ function syncCombatLevel(value) {
       expectEqual('Welcome-Back XP Potion flat', potionFlatForSelection('item:welcome_back_xp_potion'), 50);
       expectEqual('Super Bloodstone potion read from the DB', potionFlatForSelection('super:13'), 26);
 
-      // Potion picker: one entry per tier, Super as its own box (v6.3).
+      // Potion picker: one entry per tier, Super as its own box.
       var potionSelect = document.getElementById('potion-tier'), superCheckbox = document.getElementById('potion-super');
       if(potionSelect && superCheckbox){
         var savedPotion = potionSelect.value, savedSuper = superCheckbox.checked;
@@ -31654,7 +31652,7 @@ function syncCombatLevel(value) {
          iwHollowNightGameDate(new Date('2026-10-15T03:59:00Z')), '2026-10-14');
       expectEqual('game clock: 04:00Z on the 15th is the 15th in ET',
          iwHollowNightGameDate(new Date('2026-10-15T04:00:00Z')), '2026-10-15');
-      // No early unhide anywhere any more, staging included (v6.3 release).
+      // The event is never shown early, not even on staging.
       ok('no staging early-unhide', typeof window.iwHollowNightStaging === 'undefined');
       ok('today’s state is the real gate’s', (function(){
         var state = iwHollowNightState(), gateResult = gate(state.dates.local, state.dates.game);
@@ -31801,7 +31799,7 @@ function syncCombatLevel(value) {
     }
 
     try {
-      // ── Dataset / requirement baseline ─────────────────────────────
+      // Dataset / requirement baseline
       var rows = (typeof iwEmbeddedItems === 'function') ? iwEmbeddedItems() : [];
       // Embedded item count, updated with each item snapshot
       expectEqual('embedded item count', rows.length, 4553);
@@ -31889,7 +31887,7 @@ function syncCombatLevel(value) {
       expectEqual('crafted Gathering jewellery count', gatheringCount, 68);
       expectEqual('crafted Gathering jewellery requirement mismatches', gatheringGateMismatch, 0);
 
-      // ── Extra Gather / Mana regression baseline ───────────────────
+      // Extra Gather / Mana regression baseline
       if(typeof iwIsGatherActionSkill === 'function'){
         expectEqual('Harvest Mana is gather-capable', iwIsGatherActionSkill('spellcrafting','spell_harvest'), true);
         expectEqual('Ring enchant is not gather-capable', iwIsGatherActionSkill('spellcrafting','spell_ring'), false);
@@ -31910,7 +31908,7 @@ function syncCombatLevel(value) {
         expectEqual('Harvest Mana T34 base XP', SPELL_HARVEST_XP[34], 334);
       } else fail.push('SPELL_HARVEST_XP missing');
 
-      // ── Task Advisor eligibility-fix prerequisites ────────────────
+      // Task Advisor eligibility-fix prerequisites
       if(typeof ANY_SKILL_SLOTS !== 'undefined'){
         expectEqual('any-skill slot family', ANY_SKILL_SLOTS.slice().sort().join(','),
            ['amulet','cloak','ring','trinket'].sort().join(','));
@@ -31919,7 +31917,7 @@ function syncCombatLevel(value) {
       ok('taskSlotCandidates missing', typeof taskSlotCandidates === 'function');
       ok('authoritative iwCanEquip missing', typeof iwCanEquip === 'function');
 
-      // ── Existing set/socket invariants ─────────────────────────────
+      // Existing set/socket invariants
       if(typeof SET_BONUS_MIN_PIECES !== 'undefined') expectEqual('regular set threshold', SET_BONUS_MIN_PIECES, 5);
       else fail.push('SET_BONUS_MIN_PIECES missing');
       if(typeof TAILORING_SET_MIN_PIECES !== 'undefined') expectEqual('Tailoring set threshold', TAILORING_SET_MIN_PIECES, 4);
@@ -32351,7 +32349,7 @@ function syncCombatLevel(value) {
       var bloodweaveHood4=iwParseGearStats({name:'Bloodweave Hood+4',tier:13,sub:'Helmet slot',
         def:18,desc:'DEF +18, All Resists +3, 2 Sockets'});
       near('Bloodweave Hood+4 modeled DEF', bloodweaveHood4.def, 18);
-      near('Bloodweave Hood+4 modeled fire exact', bloodweaveHood4.fire, 4);   // v6.2 floor: max(4, 40/15)
+      near('Bloodweave Hood+4 modeled fire exact', bloodweaveHood4.fire, 4);   // Floor: max(4, 40/15)
       var regalSilkHood4=iwParseGearStats({name:'Regal Silk Hood+4',tier:18,sub:'Helmet slot',
         def:14,dblGather:6,desc:'DEF +14, +6% 2x gather chance, 2 Sockets'});
       near('Regal Silk Hood+4 modeled gather exact', regalSilkHood4.gather, 80/15);
@@ -32364,7 +32362,7 @@ function syncCombatLevel(value) {
          tier1.slots.helmet.levels.map(function(level){return level.DEF;}).join(','),'1,1,1,1,1');
       expectEqual('Bloodweave Hood +0..+4 DEF',
          tier13.slots.helmet.levels.map(function(level){return level.DEF;}).join(','),'10,12,14,16,18');
-      // v6.2 floor: max(L, 5×L/15) = L.
+      // Floor: max(L, 5×L/15) = L.
       near('Starweave Hood +1 exact ATK', tier6.slots.helmet.levels[1].ATK, 1);
       near('Starweave Hood +4 exact ATK', tier6.slots.helmet.levels[4].ATK, 4);
 
@@ -32755,7 +32753,7 @@ function syncCombatLevel(value) {
 
 
 <script>
-// Final source audit regression (2026-08-15): fixes applied after Stages A–G
+// Final source audit regression: fixes applied after Stages A–G
 (function(){
   'use strict';
   window.IW_AUG2026_STAGE = 'AUDITED';
@@ -32853,7 +32851,7 @@ function syncCombatLevel(value) {
     specialSetDefinitions.push({ id:set.id, label:set.label, minPieces:3,
                                members:set.members.slice(), bonus:set.bonus });
   });
-  // v6.2 — the four 7-piece Raidforged sets, any 4 active (IW_RAIDFORGED_SETS).
+  // The four 7-piece Raidforged sets, any 4 active (IW_RAIDFORGED_SETS).
   if(typeof IW_RAIDFORGED_SETS !== 'undefined') IW_RAIDFORGED_SETS.forEach(function(set){
     specialSetDefinitions.push({ id:set.id, label:set.label, minPieces:set.minPieces,
                                members:set.members.slice(), bonus:set.bonus });
@@ -33812,7 +33810,7 @@ function syncCombatLevel(value) {
         var bloodStats=iwParseGearStats(blood4);
         // 10 base DEF + 30 * 4/15 = 18 exact.
         near('Bloodweave Hood+4 exact DEF',bloodStats.def,18);
-        near('Bloodweave Hood+4 exact resist',bloodStats.fire,4);   // v6.2 floor: max(4, 10×4/15)
+        near('Bloodweave Hood+4 exact resist',bloodStats.fire,4);   // Floor: max(4, 10×4/15)
       }
 
       // The 4-piece T34 Tailoring set DEF counts once in the totals
@@ -33883,7 +33881,7 @@ function syncCombatLevel(value) {
 
 
 <script>
-// Gear import integrity regression (2026-08-16)
+// Gear import integrity regression
 (function(){
   'use strict';
   window.iwGearImportIntegritySelfCheck=function iwGearImportIntegritySelfCheck(){
@@ -34130,7 +34128,7 @@ function syncCombatLevel(value) {
       if(actual !== expected) fail.push(label + ': got ' + String(actual) + ', expected ' + String(expected));
     }
     try {
-      // ── 1. Skill identity — the v5.3.1 alias bug, permanently pinned ──
+      // 1. Skill identity — the alias bug, permanently pinned
       ok('woodcutting resolves to itself',  window.iwResolveSkillKey('woodcutting')  === 'woodcutting');
       ok('construction resolves to itself', window.iwResolveSkillKey('construction') === 'construction');
       ok('herbing still resolves to gathering', window.iwResolveSkillKey('herbing') === 'gathering');
@@ -34313,7 +34311,7 @@ function syncCombatLevel(value) {
 
     var savedLive  = null, savedOverride = null, savedCache = null, touched = false;
     try {
-      // ── 1. Parse ────────────────────────────────────────────────
+      // 1. Parse
       var parsed = parseDailyBoostPage(samplePage);
       if (!parsed) {
         fail.push('parseDailyBoostPage returned null for the live-page fixture');
@@ -34342,7 +34340,7 @@ function syncCombatLevel(value) {
       ok('fallback parse yields a result', !!parsedNoLive);
       if (parsedNoLive) eqList('fallback groups', parsedNoLive.groups, ['gathering', 'mining', 'smithing']);
 
-      // ── 3. Junk in, null out ────────────────────────────────────
+      // 3. Junk in, null out
       ok('unrelated page parses to null',
          parseDailyBoostPage('<h1>Set Bonuses</h1><p>Nothing to see.</p>') === null);
 
@@ -34356,7 +34354,7 @@ function syncCombatLevel(value) {
       expectEqual('post-reset instant is the new game day',
          serverDayString(new Date('2026-09-06T17:00:00Z'), DAILY_BONUS_CONFIG), '2026-09-06');
 
-      // ── 6. Live state, cache round-trip and staleness ───────────
+      // 6. Live state, cache round-trip and staleness
       savedLive = {
         groups: DAILY_BONUS_LIVE.groups, bonus: DAILY_BONUS_LIVE.bonus,
         serverDay: DAILY_BONUS_LIVE.serverDay, resetsText: DAILY_BONUS_LIVE.resetsText,
