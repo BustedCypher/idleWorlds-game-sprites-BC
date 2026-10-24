@@ -9,7 +9,29 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v6.7.1</title>
+<title>IdleWorlds Toolkit v6.8</title>
+<!-- v6.8 October 19-22 game patches (2026-10-25):
+     • Work Orders: the 10-22 raises (.90 and .115: Alchemy +40% in all,
+       Smithing and Tailoring +25%) are not in items.json, which still
+       prints the old values. ORDER_GOLD_BONUS applies them once, in
+       finish(), so the tab, the chart and the Housing Planner all get them.
+       Pinned to the in-game board at T20 on 2026-10-25 (helm and boots
+       7,722, 20 DEF potions 6,405; ore, wood and Construction unchanged).
+       Construction's estimate still prices off the raw potion value, so it
+       stays 7,850. The Plate's +25% is assumed (no plate order was read).
+     • The Hollow Rider (10-19.31), Hollow Night's event world boss: a
+       "+6" row beside the +24 World Boss XP Bonus, shown and counted only
+       while the Hollow Night gate is on (through Oct 31). iwHollowRiderFlat()
+       feeds calculate(), getEffectiveXPParams() and taskBonusEnv(). Suite P.
+     • Cut gems T22+ (10-21.72): 10/13/16 instead of 8/10/12
+       (CUT_GEM_EFFECT); two T34 gems are +32 ATK. Suite A.
+     • Cloak Tailoring XP (10-22.84) is a robe's XP, or the old curve where
+       that is larger (T1 stays 583), matching all 34 wiki recipe rows.
+     • Achievements: Level 80 Skill Mastery (10-22.90) adds 10 achievements,
+       so the manual tiers run 0–150%.
+     • Not yet done: re-embedding items.json (7,292 rows on 2026-10-24,
+       with Warded Shields, Aegis Cores and the new zone 21-34 uniques).
+-->
 <!-- v6.7.1 Chart dials and order-type chips (2026-10-22, Curtis):
      • The "Gold per day by 2x Gather" panel gets its own dials (Tier,
        Housing, 2x Gather, Gold Find, Bonus Brew/Enhance/Build). Each writes
@@ -9963,7 +9985,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.7.1</span>
+  <span data-ui=ver-pill class="ver-pill">v6.8</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -11547,6 +11569,16 @@
                 <option value="90">+90% XP</option>
                 <option value="95">+95% XP</option>
                 <option value="100">+100% XP</option>
+                <option value="105">+105% XP</option>
+                <option value="110">+110% XP</option>
+                <option value="115">+115% XP</option>
+                <option value="120">+120% XP</option>
+                <option value="125">+125% XP</option>
+                <option value="130">+130% XP</option>
+                <option value="135">+135% XP</option>
+                <option value="140">+140% XP</option>
+                <option value="145">+145% XP</option>
+                <option value="150">+150% XP</option>
               </select>
               <span data-ui=field-helper class="field-helper" id="achievement-xp-helper">Your achievement XP bonus. Set manually for now.</span>
             </div>
@@ -11599,6 +11631,15 @@
             <span data-ui=check-box class="check-box">✓</span>
             <span data-ui=check-label class="check-label">World Boss XP Bonus</span>
             <span data-ui=check-badge class="check-badge">+24</span>
+          </label>
+          <!-- v6.8 The Hollow Rider, Hollow Night's event world boss (game patch
+               0.2.0+2026-10-19.31). Hidden until iwHollowNightApply() opens it
+               for the event dates; counted only then (iwHollowRiderFlat). -->
+          <label class="check-row" id="row-hollow-rider" hidden style="display:none">
+            <input type="checkbox" id="hollow-rider-active" checked="">
+            <span data-ui=check-box class="check-box">✓</span>
+            <span data-ui=check-label class="check-label">🎃 Hollow Rider XP Bonus (until Oct 31)</span>
+            <span data-ui=check-badge class="check-badge">+6</span>
           </label>
           <label class="check-row" id="row-server">
             <input type="checkbox" id="server-bonus">
@@ -13407,9 +13448,10 @@ for(let t=1;t<=34;t++){
 // Verified against 52 listed tiers (plate T1–T16, cloak T1–T34);
 // zero residual, so the curve below is measured, not fitted.
 //
-// XP — IDENTICAL for both actions:
+// XP — the plate (and, until 2026-10-22.84, the cloak):
 //   round(base × EQUIPMENT_CRAFT_XP_MULTIPLIER × 3 × SMITHING_XP_MULTIPLIER)
 //   where base = 6 + (t-1)*4, i.e. round(97.2 × (4t+2)).
+// A cloak now gives a robe's XP, or this curve where that is larger (T1).
 //
 // ⚠ The ×3 is a FIXED slot factor, NOT derived from the input count the
 // way every other equipment craft is. A 20-bar craft would imply ×10
@@ -13436,7 +13478,10 @@ for (let t = 1; t <= 34; t++) {
   const base = 6 + (t - 1) * 4;
   const xp = Math.round(base * EQUIPMENT_CRAFT_XP_MULTIPLIER * FIXED_CRAFT_SLOT_FACTOR * SMITHING_XP_MULTIPLIER);
   PLATE_XP[t] = xp;
-  CLOAK_XP[t] = xp;                        // same recipe curve, different skill
+  // Game patch 0.2.0+2026-10-22.84: a cloak gives a robe's XP. The wiki's
+  // recipes page then lists cloak = robe at T2-T34 and keeps T1 at 583
+  // (the robe is 389), so it is the larger of the two at every tier.
+  CLOAK_XP[t] = Math.max(xp, TAILOR_ROBE_XP[t]);
   if (t < 34) SILKBIND_UPGRADE_XP[t] = xp; // live Thread Upgrade recipe, no T34 recipe
   PLATE_INPUTS[t]       = SMITH_CHEST_INPUTS[t];
   CLOAK_CLOTH_INPUTS[t] = SMITH_CHEST_INPUTS[t];
@@ -13501,7 +13546,8 @@ function cloakVariantNames(t) {
 (function plateCloakSelfCheck () {
   const checks = [
     ['PLATE_XP[1]',  PLATE_XP[1],  583],   ['PLATE_XP[16]', PLATE_XP[16], 6415],
-    ['CLOAK_XP[17]', CLOAK_XP[17], 6804],  ['CLOAK_XP[34]', CLOAK_XP[34], 13414],
+    ['CLOAK_XP[1]',  CLOAK_XP[1],  583],
+    ['CLOAK_XP[17]', CLOAK_XP[17], 22680], ['CLOAK_XP[34]', CLOAK_XP[34], 44712],
     ['PLATE_INPUTS[1]', PLATE_INPUTS[1], 4], ['PLATE_INPUTS[5]', PLATE_INPUTS[5], 20],
     ['PLATE_INPUTS[34]', PLATE_INPUTS[34], 20],
     ['CLOAK_THREAD_INPUTS', CLOAK_THREAD_INPUTS, 5],
@@ -13755,11 +13801,14 @@ const CUT_GEM_EFFECT = {
   13:{stat:'fire',value:6},       14:{stat:'frost',value:6},     15:{stat:'itemFind',value:6},
   16:{stat:'lightning',value:6},  17:{stat:'goldFind',value:6},  18:{stat:'xpPerTask',value:6},
   19:{stat:'itemFind',value:8},   20:{stat:'lightning',value:8}, 21:{stat:'gather',value:16},
-  22:{stat:'xpPerTask',value:8},  23:{stat:'goldFind',value:8},  24:{stat:'frost',value:8},
-  25:{stat:'lightning',value:10}, 26:{stat:'itemFind',value:10}, 27:{stat:'atk',value:10},
-  28:{stat:'fire',value:10},      29:{stat:'goldFind',value:10}, 30:{stat:'frost',value:10},
-  31:{stat:'goldFind',value:12},  32:{stat:'fire',value:12},     33:{stat:'frost',value:12},
-  34:{stat:'atk',value:12},
+  // T22+ per game patch 0.2.0+2026-10-21.72: each step is 25% bigger than
+  // the last instead of +2 (8/10/12 became 10/13/16), as items.json of
+  // 2026-10-24 prints. T21 and below are unchanged.
+  22:{stat:'xpPerTask',value:10}, 23:{stat:'goldFind',value:10}, 24:{stat:'frost',value:10},
+  25:{stat:'lightning',value:13}, 26:{stat:'itemFind',value:13}, 27:{stat:'atk',value:13},
+  28:{stat:'fire',value:13},      29:{stat:'goldFind',value:13}, 30:{stat:'frost',value:13},
+  31:{stat:'goldFind',value:16},  32:{stat:'fire',value:16},     33:{stat:'frost',value:16},
+  34:{stat:'atk',value:16},
 };
 
 // Cut Gem name = "Cut " + raw gem name (verified identical for all 34 tiers).
@@ -13894,12 +13943,14 @@ const JEWELCRAFT_XP_EVENT_PCT = 100;
 //
 // v6.2: 20 achievements since 2026-09-21.717 (each skill's Lv 70 plus the
 // total-level milestones), so the manual tiers run 0–100% in 5s, not 0–15.
+// v6.8: game patch 0.2.0+2026-10-22.90 added a Level 80 Skill Mastery
+// achievement per skill (+5% each, 10 more), so they now run 0–150%.
 //
 // Declared as functions (hoisted) with their tables inside them, so an early
 // calculate() during init cannot hit a TDZ on a module-level const.
 function iwAchievementXpTiers() {
   const t = [];
-  for (let p = 0; p <= 100; p += 5) t.push(p);
+  for (let p = 0; p <= 150; p += 5) t.push(p);
   return t;
 }
 
@@ -13920,6 +13971,18 @@ function iwAchievementXpPct() {
   const el = document.getElementById('achievement-xp');
   const v = el ? parseFloat(el.value) : NaN;
   return (Number.isFinite(v) && v >= 0) ? v : 0;
+}
+
+// v6.8 — The Hollow Rider (game patch 0.2.0+2026-10-19.31), Hollow Night's
+// event world boss: it respawns every hour and, when it falls, gives everyone
+// +6 XP/task for an hour. It joins the +24 world boss buff in the flat
+// xpBuffBonus group. Counted only while the Hollow Night gate says the event
+// is on (iwHollowRiderLive, set by iwHollowNightApply), so a ticked box that
+// IWStore keeps does nothing after Oct 31. Every XP path reads it from here.
+const IW_HOLLOW_RIDER_FLAT = 6;
+function iwHollowRiderFlat() {
+  const el = document.getElementById('hollow-rider-active');
+  return (el && el.checked && window.iwHollowRiderLive === true) ? IW_HOLLOW_RIDER_FLAT : 0;
 }
 
 /**
@@ -14203,7 +14266,7 @@ for(let t=1;t<=34;t++) LESSER_CACHE_CRAFT_XP[t] = Math.round(skillXpForTier(t) *
     ['Tailor hood T1', TAILOR_HOOD_XP[1], 194],
     ['Tailor robe T34', TAILOR_ROBE_XP[34], 44712],
     ['Cloak T1', CLOAK_XP[1], 583],
-    ['Cloak T34', CLOAK_XP[34], 13414],
+    ['Cloak T34', CLOAK_XP[34], 44712],
     ['Thread upgrade T1', SILKBIND_UPGRADE_XP[1], 583],
     ['Thread upgrade T33', SILKBIND_UPGRADE_XP[33], 13025]
   ];
@@ -14245,7 +14308,8 @@ for(let t=1;t<=34;t++) LESSER_CACHE_CRAFT_XP[t] = Math.round(skillXpForTier(t) *
     eq(`T${t} Tailor Gloves`, TAILOR_GLOVES_XP[t], craft(TAILOR_GLOVES_INPUTS[t]));
     eq(`T${t} Tailor Legs`, TAILOR_LEGGINGS_XP[t], craft(TAILOR_LEGGINGS_INPUTS[t]));
     eq(`T${t} Tailor Boots`, TAILOR_BOOTS_XP[t], craft(TAILOR_BOOTS_INPUTS[t]));
-    eq(`T${t} Cloak`, CLOAK_XP[t], Math.round(base*18*3*1.8));
+    // Cloak = robe XP since 10-22.84, never below the old fixed curve (T1).
+    eq(`T${t} Cloak`, CLOAK_XP[t], Math.max(Math.round(base*18*3*1.8), craft(TAILOR_ROBE_INPUTS[t])));
     if (t < 34) eq(`T${t} Thread Upgrade`, SILKBIND_UPGRADE_XP[t], Math.round(base*18*3*1.8));
     else if (SILKBIND_UPGRADE_XP[t] !== undefined) failures.push('T34 Thread Upgrade must not exist');
     // Jewelcrafting: prospect, cut, ring, amulet.
@@ -16042,10 +16106,11 @@ function syncCheckbox(rowId, inputId) {
 // 'change', then the row click listener flipped inp.checked back and called
 // calculate() again with the wrong (un-toggled) state — making server-bonus and
 // zc-team always read as unchecked despite appearing visually active.
-['server-bonus','zc-team','new-player-promo','boss-active'].forEach(id => {
+['server-bonus','zc-team','new-player-promo','boss-active','hollow-rider-active'].forEach(id => {
   const rowMap = { 'server-bonus':'row-server', 'zc-team':'row-zc-team',
                    'new-player-promo':'row-new-player',
-                   'boss-active':'row-world-boss' };
+                   'boss-active':'row-world-boss',
+                   'hollow-rider-active':'row-hollow-rider' };
   document.getElementById(id).addEventListener('change', function(){
     syncCheckbox(rowMap[id], id); calculate();
   });
@@ -16499,7 +16564,7 @@ function calculate() {
   // ── New inputs (source-accurate formula) ─────────────────────
   const equipFlat       = parseInt(document.getElementById('xp-per-task').value)||0;
   const potionFlat      = getPotionFlat();
-  const worldBossFlat   = document.getElementById('boss-active').checked ? 24 : 0;
+  const worldBossFlat   = (document.getElementById('boss-active').checked ? 24 : 0) + iwHollowRiderFlat();
   const housingTier     = parseInt(document.getElementById('housing-tier').value)||0;
   const zcLeaderPct     = parseInt(document.getElementById('zc-leaderboard').value)||0;
 
@@ -17538,7 +17603,7 @@ function getEffectiveXPParams(skill, level) {
 
   const equipFlat       = parseInt(g('xp-per-task') ? g('xp-per-task').value : 0) || 0;
   const potionFlat      = getPotionFlat();
-  const worldBossFlat   = g('boss-active') ? (g('boss-active').checked ? 24 : 0) : 0;
+  const worldBossFlat   = (g('boss-active') ? (g('boss-active').checked ? 24 : 0) : 0) + iwHollowRiderFlat();
   const housingTier     = parseInt(g('housing-tier')? g('housing-tier').value: 0) || 0;
   const zcLeaderPct     = parseInt(g('zc-leaderboard') ? g('zc-leaderboard').value : 0) || 0;
   const zcTeamPct       = g('zc-team')          ? (g('zc-team').checked ? 10 : 0) : 0;
@@ -23974,7 +24039,8 @@ function iwTotalSocketCapacity(){
 // unaffected. socketCount defaults to 1 for anything not flagged.
 //
 // A gem placed in a piece with N sockets contributes N× its effect,
-// additively (packet §4: 2× cut_primordial_gem = +24 ATK). We model the
+// additively (packet §4: 2× cut_primordial_gem = +24 ATK; +32 since the
+// 10-21.72 gem raise). We model the
 // common case where both sockets hold the same planned gem tier for a
 // slot; distinct-per-socket selection is a UI concern layered on top and
 // still resolves through this same additive primitive.
@@ -26144,12 +26210,12 @@ function iwResolveTailoringSetBonus(tierCounts){
     if(b.def !== row[1] || b.fire !== row[2] || b.frost !== row[2] || b.lightning !== row[2])
       warn.push('T'+row[0]+' Tailoring DEF/All-Resists set bonus drift');
   });
-  // 5) 2-socket additive math: T34 gem (atk+12) × 2 sockets = +24.
+  // 5) 2-socket additive math: T34 gem (atk+16 since 10-21.72) × 2 sockets = +32.
   var c = iwSocketContribution(34, 2);
-  if (!c || c.stat !== 'atk' || c.value !== 24) warn.push('2× cut T34 gem should be +24 atk');
+  if (!c || c.stat !== 'atk' || c.value !== 32) warn.push('2× cut T34 gem should be +32 atk');
   // 6) socketCount default is 1 for metal gear (regression guard).
   var oneShot = iwSocketContribution(34, 1);
-  if (!oneShot || oneShot.value !== 12) warn.push('1-socket path must stay +12 (unchanged)');
+  if (!oneShot || oneShot.value !== 16) warn.push('1-socket path must stay one gem (+16)');
   // 7) All 34 tiers present in the table.
   var n = Object.keys(TAILORING_SET_BONUS).length;
   if (n !== 34) warn.push('TAILORING_SET_BONUS should have 34 entries, has ' + n);
@@ -26543,7 +26609,7 @@ function taskBonusEnv(taskKey) {
   const jcEventPct = (group === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   return {
     potionFlat : (typeof getPotionFlat === 'function') ? getPotionFlat() : 0,
-    bossFlat   : g('boss-active') && g('boss-active').checked ? 24 : 0,
+    bossFlat   : (g('boss-active') && g('boss-active').checked ? 24 : 0) + iwHollowRiderFlat(),
     housing    : parseInt(g('housing-tier') ? g('housing-tier').value : 0) || 0,
     totalPct   : (g('zc-team') && g('zc-team').checked ? 10 : 0)
                + (parseInt(g('zc-leaderboard') ? g('zc-leaderboard').value : 0) || 0)
@@ -36322,7 +36388,7 @@ function syncCombatLevel(val) {
       api._internal.effectLine('xpTaskBonus', 6) === '+6 XP per Task' &&
       api._internal.effectLine('mysteryStat', 6) === null);
     ok('gem key → effect', api._internal.gemKeyEffect('cut_jade') === '+8% 2x Gather Chance' &&
-      api._internal.gemKeyEffect('cut_shadow_pearl') === '+8% Gold Find' &&
+      api._internal.gemKeyEffect('cut_shadow_pearl') === '+10% Gold Find' &&   // T23, raised by 10-21.72
       api._internal.gemKeyEffect('raw_jade') === null);
     ok('changed slots', api._internal.changedSlots({ ring:{ key:'a' } }, { ring:{ key:'a' }, belt:{ key:'b' } }).join() === 'belt');
 
@@ -36618,6 +36684,15 @@ function syncCombatLevel(val) {
   };
   // Alchemy base seconds per order: 20 potions × (3 herbs × 10s + 10s brew).
   var ALCHEMY_ORDER_SEC = 20 * (RAW_PER_POTION * 10 + 10);
+  // Gold bonuses the board pays on top of items.json (0.2.0+2026-10-22.90
+  // and .115: Alchemy +10% then +30%, Smithing and Tailoring +25%). The feed
+  // still prints the old values (items.json of 2026-10-24: T20 chest 11,324,
+  // potion 228.75). Read off the in-game board 2026-10-25 at T20: helm and
+  // silk boots 7,722 (6,177 × 1.25, rounded up), DEF potions 6,405 (20 ×
+  // 228.75 × 1.4). Ore, wood and Construction (7,850) are unchanged. The
+  // Plate's +25% is assumed: it is a Smithing order, but none was read.
+  // Construction's estimate prices off the RAW potion value, not this.
+  var ORDER_GOLD_BONUS = { 'Potions':1.4, 'Boots':1.25, 'Chest':1.25, 'Gloves':1.25, 'Helmet':1.25, 'Leggings':1.25, 'Shield':1.25, 'Weapon':1.25, 'Plate':1.25 };
   var ROWS = [];
 
   function loadRows() {
@@ -36626,7 +36701,8 @@ function syncCombatLevel(val) {
       // workOrderGold is copied verbatim from work_order_turn_in_gold by
       // idbFromApi(). The API states that this value already includes each
       // profession's Work Order bonus, so no Smithing/Tailoring/Alchemy bonus
-      // is reconstructed anywhere in this calculator.
+      // is reconstructed here. The 2026-10-22 raises it does NOT include are
+      // ORDER_GOLD_BONUS, applied once in finish().
       var items = (typeof IDB_STATE !== 'undefined' && IDB_STATE && Array.isArray(IDB_STATE.items))
         ? IDB_STATE.items : [];
       return items.filter(function (r) {
@@ -36812,14 +36888,15 @@ function syncCombatLevel(val) {
 
   function finish(name,tier,n,raw,processed,produced,gatherSec,processSec,craftSec,unitV,goldPct,orderSec,formula,qtyOverride,batch){
     var qty=qtyOverride||ORDER_QTY[name]||1;
-    var orderBase=unitV*qty;
+    var boardBonus=ORDER_GOLD_BONUS[name]||1;
+    var orderBase=boardBonus===1?unitV*qty:Math.ceil(unitV*qty*boardBonus-1e-9);
     var orderFinal=orderBase*(1+goldPct/100);
     var total=gatherSec+processSec+craftSec;
     return {
       name:name,tier:tier,n:n,qty:qty,raw:raw,processed:processed,produced:produced,
       batch:batch||META[name].batch,estimate:!!META[name].estimate,
       g:gatherSec,p:processSec,c:craftSec,total:total,remain:Math.max(0,SESSION-total),
-      unitV:unitV,orderBase:orderBase,orderFinal:orderFinal,
+      unitV:unitV,boardBonus:boardBonus,orderBase:orderBase,orderFinal:orderFinal,
       base:n*orderBase,bonus:n*(orderFinal-orderBase),final:n*orderFinal,
       gph:n? (n*orderFinal)/(SESSION/3600):0,
       orderSec:orderSec,eff:100*total/SESSION,formula:formula
@@ -37212,7 +37289,7 @@ function syncCombatLevel(val) {
     var goldBreak=document.getElementById('wo-gold-break');
     if(goldBreak){
       goldBreak.innerHTML=r.map(function(x){return '<article data-ui=wo-break class="panel wo-break"><div data-ui=panel-body class="panel-body"><h4>'+label(x)+'</h4><div data-ui=wo-break-sub class="wo-break-sub">'+esc(x.batch)+' · '+fmt(x.n,0)+' complete orders</div>'+
-        '<div data-ui=wo-formula class="wo-formula">Unit turn-in value: '+gold(x.unitV)+'<br>Base order reward: '+fmt(x.qty,0)+' × '+gold(x.unitV)+' = '+gold(x.orderBase)+'<br>With Gold Find: '+gold(x.orderBase)+' × (1 + '+fmt(valid('wo-gold'),2)+' / 100) = <strong>'+gold(x.orderFinal)+'</strong><br>24-hour reward: '+fmt(x.n,0)+' × '+gold(x.orderFinal)+' = <strong>'+gold(x.final)+'</strong>'+
+        '<div data-ui=wo-formula class="wo-formula">Unit turn-in value: '+gold(x.unitV)+'<br>Base order reward: '+fmt(x.qty,0)+' × '+gold(x.unitV)+(x.boardBonus!==1?' × '+fmt(x.boardBonus,2)+' (2026-10-22 raise, rounded up)':'')+' = '+gold(x.orderBase)+'<br>With Gold Find: '+gold(x.orderBase)+' × (1 + '+fmt(valid('wo-gold'),2)+' / 100) = <strong>'+gold(x.orderFinal)+'</strong><br>24-hour reward: '+fmt(x.n,0)+' × '+gold(x.orderFinal)+' = <strong>'+gold(x.final)+'</strong>'+
         (x.estimate?'<br>'+esc(ESTIMATE_NOTE[x.name]||''):'')+'</div></div></article>';}).join('');
     }
 
@@ -37307,9 +37384,18 @@ function syncCombatLevel(val) {
     if(Math.abs(perCraft(14)-1.14)>1e-12||perCraft(150)!==2||perCraft(-5)!==1) fail.push('extra-output chance model mismatch');
     if(enhanceCopies('Plate',1.14)!==1) fail.push('Bonus Enhance must not copy Reinforcement Plates');
     if(enhanceCopies('Chest',1.14)!==1.14) fail.push('Bonus Enhance must copy gear pieces');
+    // The 2026-10-22 raises (ORDER_GOLD_BONUS), read off the in-game board
+    // at Tier 20 on 2026-10-25, before Gold Find.
+    var boardT20={'Raw Materials':3660,'Wood':3660,'Helmet':7722,'Boots':7722,'Potions':6405,'Construction':7850};
+    Object.keys(boardT20).forEach(function(n){
+      var m=orderModel(n,20,{}), got=m?m.finish(1,0).orderBase:null;
+      if(got===null||Math.abs(got-boardT20[n])>1e-6) fail.push('T20 '+n+' order should pay '+boardT20[n]+' (in-game board 2026-10-25); got '+got);
+    });
+    if(orderModel('Chest',20,{}).finish(1,100).orderFinal!==28310) fail.push('Gold Find must apply on top of the board raise (T20 chest at +100% = 28,310)');
 
     // Gold-vs-2x-Gather chart: T20, no housing or bonuses. 43 chest orders
-    // (1,980s each) and 137 Construction orders at 200% (630s each) a day.
+    // (1,980s each, 14,155 with the +25% raise) and 137 Construction orders
+    // at 200% (630s each) a day.
     var gxBase={tier:20,housing:0,gp:0,bp:0,ep:0,bb:0,goldPct:0};
     var gx=gatherSeries(gxBase);
     var gxAt=function(label,g){var i=GATHER_GROUPS.findIndex(function(x){return x.label===label;});var pt=gx.series[i]&&gx.series[i][gx.steps.indexOf(g)];return pt?pt.gold:null;};
@@ -37341,7 +37427,7 @@ function syncCombatLevel(val) {
       var chipN=document.querySelectorAll('#wo-gather-legend [data-wo-chip]').length;
       if(chipN!==Object.keys(SHOW_IDS).length) fail.push('chart should offer a toggle chip per order type; got '+chipN);
     }
-    if(gxAt('Chest / robe',0)!==486932) fail.push('gather chart T20 chest at 0% should be 486,932/day; got '+gxAt('Chest / robe',0));
+    if(gxAt('Chest / robe',0)!==608665) fail.push('gather chart T20 chest at 0% should be 608,665/day (43 × 14,155); got '+gxAt('Chest / robe',0));
     if(gxAt('Construction (est.)',200)!==1075450) fail.push('gather chart T20 Construction at 200% should be 1,075,450/day; got '+gxAt('Construction (est.)',200));
     GATHER_GROUPS.forEach(function(grp){
       var rows=compute({tier:20,housing:0,gp:200,bp:0,ep:0,bb:0,goldPct:0}).filter(function(r){return grp.names.indexOf(r.name)>=0;});
@@ -38037,6 +38123,15 @@ function syncCombatLevel(val) {
     var jumpLink = document.querySelector('.iw-hollow-jump');
     if (jumpLink) show(jumpLink, SCROLL_PLANNER_ENABLED);
     show(document.getElementById('iw-hollow-banner'), dressed);
+    // The Hollow Rider's +6 XP (v6.8) follows the event dates, not the
+    // viewer's theme switch: the boss is in the game whether or not the
+    // page is dressed. iwHollowRiderFlat() reads this flag.
+    var riderWas = window.iwHollowRiderLive;
+    window.iwHollowRiderLive = !!state.themed;
+    show(document.getElementById('row-hollow-rider'), state.themed);
+    if (!quiet && riderWas !== window.iwHollowRiderLive && typeof calculate === 'function') {
+      try { calculate(); } catch (e) {}
+    }
     paintToggle(state);
     if (dressed) {
       document.documentElement.setAttribute('data-iw-event', 'hollow');
@@ -40005,6 +40100,7 @@ function syncCombatLevel(val) {
       // ── Achievements: 20 × 5% since 09-21.717
       var ach = document.getElementById('achievement-xp');
       ok('achievement select offers +100%', !!(ach && [].some.call(ach.options, function(o){ return o.value === '100'; })));
+      ok('achievement select offers +150% (Level 80 Mastery, 10-22.90)', !!(ach && [].some.call(ach.options, function(o){ return o.value === '150'; })));
 
       // ── One-off XP potions
       ok('Welcome-Back XP Potion is listed', iwOtherXpPotions().some(function(i){ return i.id === 'welcome_back_xp_potion'; }));
@@ -40156,6 +40252,49 @@ function syncCombatLevel(val) {
       eq('after the event: decorations removed', s2.deco, 0);
       ok('after the event: no theme button', !seen(document.getElementById('iw-hollow-toggle')));
       ok('after the event: ghost layer gone', !document.getElementById('iw-hollow-haunt'));
+
+      // ── The Hollow Rider (10-19.31): +6 XP/task, event dates only (v6.8).
+      var rider = document.getElementById('hollow-rider-active');
+      var riderRow = document.getElementById('row-hollow-rider');
+      ok('Hollow Rider checkbox and row exist', !!rider && !!riderRow);
+      if (rider) {
+        var riderWasChecked = rider.checked;
+        try {
+          rider.checked = true;
+          iwHollowNightApply({started:true, themed:true}, true);
+          ok('event week: Hollow Rider row shown', seen(riderRow));
+          eq('event week: ticked Hollow Rider adds +6', iwHollowRiderFlat(), 6);
+          rider.checked = false;
+          eq('event week: unticked Hollow Rider adds 0', iwHollowRiderFlat(), 0);
+          rider.checked = true;
+          iwHollowNightApply({started:true, themed:false}, true);
+          ok('after the event: Hollow Rider row hidden', !seen(riderRow));
+          eq('after the event: a ticked box left by IWStore adds 0', iwHollowRiderFlat(), 0);
+          iwHollowNightApply({started:false, themed:false}, true);
+          eq('before the event: Hollow Rider adds 0', iwHollowRiderFlat(), 0);
+        } finally { rider.checked = riderWasChecked; }
+      }
+      // getEffectiveXPParams and taskBonusEnv by their source; calculate() is
+      // wrapped later in the file, so it is checked by the XP/action it prints
+      // with the Rider live and ticked against unticked.
+      [['getEffectiveXPParams', typeof getEffectiveXPParams === 'function' && getEffectiveXPParams],
+       ['taskBonusEnv', typeof taskBonusEnv === 'function' && taskBonusEnv]].forEach(function(p){
+        ok(p[0] + ' adds the Hollow Rider to the world boss flat', !!p[1] && /iwHollowRiderFlat\(\)/.test(String(p[1])));
+      });
+      var xpa = document.getElementById('res-xpa');
+      if (rider && xpa && typeof calculate === 'function') {
+        var riderKeep = rider.checked;
+        try {
+          iwHollowNightApply({started:true, themed:true}, true);
+          rider.checked = false; calculate(); var xpOff = xpa.textContent;
+          rider.checked = true;  calculate(); var xpOn = xpa.textContent;
+          ok('calculate() counts the Hollow Rider (XP/action ' + xpOff + ' → ' + xpOn + ')', xpOn !== xpOff);
+        } finally {
+          rider.checked = riderKeep;
+          iwHollowNightApply(null, true);
+          try { calculate(); } catch(e){}
+        }
+      }
 
       // ── Scroll maths: 5% of the XP the current level takes.
       eq('one scroll at 66', iwHollowScrollXp(66), Math.round(xpForLevel(66) * 0.05));
@@ -40386,7 +40525,12 @@ function syncCombatLevel(val) {
       if(typeof iwSocketContribution === 'function'){
         var twoSocket = iwSocketContribution(34, 2);
         ok('two-socket contribution missing', !!twoSocket);
-        if(twoSocket) eq('two-socket T34 contribution value', twoSocket.value, 24);
+        if(twoSocket) eq('two-socket T34 contribution value', twoSocket.value, 32);
+        // Cut gems T22+ (game patch 0.2.0+2026-10-21.72), as items.json prints them.
+        [[21,'gather',16],[22,'xpPerTask',10],[24,'frost',10],[25,'lightning',13],[27,'atk',13],[30,'frost',13],[31,'goldFind',16],[34,'atk',16]].forEach(function(p){
+          var fx = CUT_GEM_EFFECT[p[0]];
+          ok('T'+p[0]+' cut gem should be +'+p[2]+' '+p[1], !!fx && fx.stat===p[1] && fx.value===p[2]);
+        });
       } else fail.push('iwSocketContribution missing');
 
       // ── Work Order baseline ────────────────────────────────────────
