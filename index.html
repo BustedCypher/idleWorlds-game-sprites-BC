@@ -3,7 +3,30 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v6.8.1</title>
+<title>IdleWorlds Toolkit v6.9</title>
+<!-- v6.9 Crafting time (2026-10-29, from the game's patch notes):
+     • Every 3-minute craft is now a normal 10-second action: Smithing and
+       Tailoring gear, Reinforcement Plates, Warded Shields, Aegis Core and
+       Silkbind Thread upgrades, Cloaks, rings and amulets, enchants and
+       Construction Assembly (ASSEMBLY_TIME). Materials, XP and the +N,
+       Silkbind Thread and Aegis Core chances are unchanged. Housing speeds
+       them up like any 10-second action (10/9/8/7/6/5s).
+     • Flat XP-per-task bonuses scale with action duration ÷ 10
+       (getDurationFactor), so a craft now earns them once instead of about
+       18 times. Per hour it comes to the same; that follows from the time.
+     • Work Orders and the Housing Planner time the forge step at 10s.
+       Smithing/Tailoring orders are priced by that time, so they pay 8-16%
+       less per order (gold per hour is unchanged). Item data from before
+       the patch still carries the old price; craftPatchGearValue() spots it
+       (the old time rule reproduces all 272 gear prices to within 1 gold)
+       and swaps in the same rule with a 10s craft, flagged (est.). Against
+       the in-game board on 2026-10-29: every T15 order exact (gloves 4,905),
+       and every T20 order exact except gloves, 6,505 against 6,504. Exact
+       post-patch items.json prices are used as soon as the data has them.
+     • Self-checks re-pinned: Warded Shield forge and Aegis Core upgrade
+       (suite T), Thread Upgrade and Construction assembly at 10s; the Work
+       Order board, Gold Find and gather-chart pins to the new order prices.
+-->
 <!-- v6.8.1 Gear planner (2026-10-28, Curtis):
      • Active Enhancements, Planned Enhancements and the Live Profile Check
        fold into one sidebar dropdown, collapsed by default; its header
@@ -10058,7 +10081,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v6.8.1</span>
+  <span data-ui=ver-pill class="ver-pill">v6.9</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -12057,7 +12080,7 @@
             <li data-ui=wo-assume-entry>Bonus Enhance also gives the same chance of a free extra plain copy of a Smithing or Tailoring gear craft (game patch of 20 October 2026), but not of a Reinforcement Plate, and Bonus Build the same chance to double a Building Parts craft. Both use the same expected-output model as Bonus Brew.</li>
             <li data-ui=wo-assume-entry>A Reinforcement Plate takes a chest's bars and forge time, gives the same craft XP and pays what a chest of its tier pays. With Bonus Enhance it fills fewer orders a day than a chest, because plates never come out doubled.</li>
             <li data-ui=wo-assume-entry><code>items.json</code> carries no value for Woodcutting or Construction orders, so both are marked <em>(est.)</em>. Woodcutting pays what a Mining order of the same tier pays. Construction uses the rule from the game's patch notes: the order's time at base speed (gathering the wood and ore, plus a 10-second craft per part) × Alchemy's gold per second, minus 25%. That reproduces the published Tier 20 reward of 7,850 gold, and both match the in-game board at Tier 19 (Woodcutting 3,480; Construction 3 parts for 7,097).</li>
-            <li data-ui=wo-assume-entry>Housing uses the toolkit's shared live-game action-speed formula for 10-second gathering/processing/brewing actions and 180-second equipment crafts.</li>
+            <li data-ui=wo-assume-entry>Housing uses the toolkit's shared live-game action-speed formula. Every step is a 10-second action: gathering, smelting, weaving, brewing and, since the crafting-time patch, equipment crafts too.</li>
             <li data-ui=wo-assume-entry>Early-tier Smithing/Tailoring recipes use their real T1–T4 material curves instead of assuming mature T5+ costs.</li>
             <li data-ui=wo-assume-entry>Turn-in gold is read directly from IdleWorlds <code>items.json</code> via <code>work_order_turn_in_gold</code>. That game-provided value already includes the profession's pricing (Smithing and Tailoring are priced by crafting time at Alchemy's rate since the game patch of 15 October 2026); the calculator only applies the submitted batch quantity and your Gold Find.</li>
             <li data-ui=wo-assume-entry>Fractional production is retained only as an expectation while calculating time. Work orders themselves are always floored to whole completed batches.</li>
@@ -13195,7 +13218,7 @@ function constructPartsTotalInput(t) { return 3 * t; }
 // above) is not yet declared at this point in the file. Do not move the
 // eager loop up here; a top-level `const X = {}; for(...) X[t] = ...`
 // executes immediately at load time, unlike a function body.
-const ASSEMBLY_TIME = 180;   // same duration class as equipment crafts
+const ASSEMBLY_TIME = 10;    // a normal 10-second action, like every craft since the crafting-time patch
 
 // Deterministic lower-tier Parts stacks. Straight Lehmer PRNG lifted from the
 // game client's own source; reproduces all 146 lower-tier input rows in the
@@ -13432,7 +13455,7 @@ for(let t=1;t<=34;t++){
 // exactly — Tailoring is NOT a separate multiplier (packet §2.2/§7).
 // Weave (cloth): inputs oresPerBar(t)×fibre → 1 cloth; 10s
 //   xp = round(skillXpForTier(t) × oresPerBar(t) × SMITHING_XP_MULTIPLIER)
-// Craft (armour): inputs barsPerEquipmentForTier(t,slot)×cloth → 1 piece; 180s
+// Craft (armour): inputs barsPerEquipmentForTier(t,slot)×cloth → 1 piece; 10s
 //   xp = round((6+(t-1)*4) × EQUIPMENT_CRAFT_XP_MULTIPLIER × (bars/2) × SMITHING_XP_MULTIPLIER)
 // Asserted samples (packet, computed): Weave 14/58/130 (t1/2/3);
 //   Craft t1 hood/gloves/boots=194, leggings=292, robe=389.
@@ -13589,7 +13612,7 @@ function silkbindUpgradeRecipe(tier) {
   const orb     = (TIER_NAMES[t] || ('Tier ' + t)) + ' Upgrade Orb';
   return {
     label: `Upgrade ${current}`,
-    time: 180,
+    time: 10,
     xp: SILKBIND_UPGRADE_XP[t],
     cost: SILKBIND_UPGRADE_THREAD_INPUTS,
     costLabel: `${SILKBIND_UPGRADE_THREAD_INPUTS} ${current}, 1 ${orb}`,
@@ -13619,7 +13642,7 @@ function aegisCoreUpgradeRecipe(tier) {
   const orb = (TIER_NAMES[t] || ('Tier ' + t)) + ' Upgrade Orb';
   return {
     label: `Upgrade ${aegisCoreName(t)}`,
-    time: 180,
+    time: 10,
     xp: AEGIS_CORE_UPGRADE_XP[t],
     cost: AEGIS_CORE_UPGRADE_INPUTS,
     costLabel: `${AEGIS_CORE_UPGRADE_INPUTS} ${aegisCoreName(t)}, 1 ${orb}`,
@@ -14336,7 +14359,7 @@ for(let t=1;t<=34;t++) COMBAT_XP[t] = Math.max(1, Math.round(skillXpForTier(t)))
 //   Weapon Enchant - Attack
 //
 // All 5 types per tier share identical stats:
-//   Time:   180s
+//   Time:   10s
 //   XP:     324 + (tier-1)*216   [verified T1=324 through T22=4860]
 //   Inputs: 200 [Tier Mana] + 200 [Tier Herb]
 //   Output: 1 [Tier] [Slot] Enchant
@@ -14758,23 +14781,23 @@ function getActions(tier, skill, effLevel) {
       ];
     case 'smith_boots':
       return [
-        {label:`${name} Boots`,   time:180, xp:SMITH_BOOTS_XP[t], cost:SMITH_BOOTS_INPUTS[t]},
-        {label:`${name} Helm`,    time:180, xp:SMITH_BOOTS_XP[t], cost:SMITH_BOOTS_INPUTS[t]},
-        {label:`${name} Gloves`,  time:180, xp:SMITH_BOOTS_XP[t], cost:SMITH_BOOTS_INPUTS[t]},
+        {label:`${name} Boots`,   time:10, xp:SMITH_BOOTS_XP[t], cost:SMITH_BOOTS_INPUTS[t]},
+        {label:`${name} Helm`,    time:10, xp:SMITH_BOOTS_XP[t], cost:SMITH_BOOTS_INPUTS[t]},
+        {label:`${name} Gloves`,  time:10, xp:SMITH_BOOTS_XP[t], cost:SMITH_BOOTS_INPUTS[t]},
       ];
     case 'smith_legs':
-      return [{label:`${name} Leggings`, time:180, xp:SMITH_LEGS_XP[t],  cost:SMITH_LEGS_INPUTS[t]}];
+      return [{label:`${name} Leggings`, time:10, xp:SMITH_LEGS_XP[t],  cost:SMITH_LEGS_INPUTS[t]}];
     case 'smith_chest':
-      return [{label:`${name} Chest`,    time:180, xp:SMITH_CHEST_XP[t], cost:SMITH_CHEST_INPUTS[t]}];
+      return [{label:`${name} Chest`,    time:10, xp:SMITH_CHEST_XP[t], cost:SMITH_CHEST_INPUTS[t]}];
     case 'smith_shield':
-      return [{label:`${name} Shield`,   time:180, xp:SMITH_SHIELD_XP[t],cost:SMITH_SHIELD_INPUTS[t]}];
+      return [{label:`${name} Shield`,   time:10, xp:SMITH_SHIELD_XP[t],cost:SMITH_SHIELD_INPUTS[t]}];
     case 'smith_sword':
-      return [{label:`${name} Sword`,    time:180, xp:SMITH_SWORD_XP[t], cost:SMITH_SWORD_INPUTS[t]}];
+      return [{label:`${name} Sword`,    time:10, xp:SMITH_SWORD_XP[t], cost:SMITH_SWORD_INPUTS[t]}];
     case 'smith_plate':
       // Consumable buff, not equipment: applies +tier DEF to one worn
       // armour piece for 50,000 combat actions when newly applied and REPLACES that
       // piece's enchant. Bars only — nothing else in the recipe.
-      return [{label:`${name} Reinforcement Plate`, time:180, xp:PLATE_XP[t], cost:PLATE_INPUTS[t],
+      return [{label:`${name} Reinforcement Plate`, time:10, xp:PLATE_XP[t], cost:PLATE_INPUTS[t],
                costLabel:`${PLATE_INPUTS[t]} ${name} Bar`,
                outputLabel:`1 ${plateName(t)}`}];
     case 'smith_warded': {
@@ -14783,7 +14806,7 @@ function getActions(tier, skill, effLevel) {
       // the 5 Aegis Cores are a separate, unpriced input (see
       // AEGIS_CORE_PENDING_NOTE).
       const v = wardedShieldVariantNames(t);
-      return [{label:`${name} Warded Shield`, time:180, xp:WARDED_SHIELD_XP[t], cost:SMITH_CHEST_INPUTS[t],
+      return [{label:`${name} Warded Shield`, time:10, xp:WARDED_SHIELD_XP[t], cost:SMITH_CHEST_INPUTS[t],
                coreCost:AEGIS_CORE_INPUTS,
                pendingNote: AEGIS_CORE_PENDING_NOTE,
                costLabel:`${AEGIS_CORE_INPUTS} ${aegisCoreName(t)}, ${SMITH_CHEST_INPUTS[t]} ${name} Bar`,
@@ -14800,19 +14823,19 @@ function getActions(tier, skill, effLevel) {
                costLabel:`${WEAVE_INPUTS[t]} ${fibre}`, outputLabel:`1 ${clothName(t)}`}];
     }
     case 'tailor_hood':
-      return [{label:`${FIBER_NAMES[t]||name} Hood`, time:180, xp:TAILOR_HOOD_XP[t], cost:TAILOR_HOOD_INPUTS[t],
+      return [{label:`${FIBER_NAMES[t]||name} Hood`, time:10, xp:TAILOR_HOOD_XP[t], cost:TAILOR_HOOD_INPUTS[t],
                costLabel:`${TAILOR_HOOD_INPUTS[t]} ${clothName(t)}`, outputLabel:`1 ${FIBER_NAMES[t]||name} Hood`}];
     case 'tailor_robe':
-      return [{label:`${FIBER_NAMES[t]||name} Robe`, time:180, xp:TAILOR_ROBE_XP[t], cost:TAILOR_ROBE_INPUTS[t],
+      return [{label:`${FIBER_NAMES[t]||name} Robe`, time:10, xp:TAILOR_ROBE_XP[t], cost:TAILOR_ROBE_INPUTS[t],
                costLabel:`${TAILOR_ROBE_INPUTS[t]} ${clothName(t)}`, outputLabel:`1 ${FIBER_NAMES[t]||name} Robe`}];
     case 'tailor_gloves':
-      return [{label:`${FIBER_NAMES[t]||name} Gloves`, time:180, xp:TAILOR_GLOVES_XP[t], cost:TAILOR_GLOVES_INPUTS[t],
+      return [{label:`${FIBER_NAMES[t]||name} Gloves`, time:10, xp:TAILOR_GLOVES_XP[t], cost:TAILOR_GLOVES_INPUTS[t],
                costLabel:`${TAILOR_GLOVES_INPUTS[t]} ${clothName(t)}`, outputLabel:`1 ${FIBER_NAMES[t]||name} Gloves`}];
     case 'tailor_leggings':
-      return [{label:`${FIBER_NAMES[t]||name} Leggings`, time:180, xp:TAILOR_LEGGINGS_XP[t], cost:TAILOR_LEGGINGS_INPUTS[t],
+      return [{label:`${FIBER_NAMES[t]||name} Leggings`, time:10, xp:TAILOR_LEGGINGS_XP[t], cost:TAILOR_LEGGINGS_INPUTS[t],
                costLabel:`${TAILOR_LEGGINGS_INPUTS[t]} ${clothName(t)}`, outputLabel:`1 ${FIBER_NAMES[t]||name} Leggings`}];
     case 'tailor_boots':
-      return [{label:`${FIBER_NAMES[t]||name} Boots`, time:180, xp:TAILOR_BOOTS_XP[t], cost:TAILOR_BOOTS_INPUTS[t],
+      return [{label:`${FIBER_NAMES[t]||name} Boots`, time:10, xp:TAILOR_BOOTS_XP[t], cost:TAILOR_BOOTS_INPUTS[t],
                costLabel:`${TAILOR_BOOTS_INPUTS[t]} ${clothName(t)}`, outputLabel:`1 ${FIBER_NAMES[t]||name} Boots`}];
     case 'tailor_cloak': {
       // Six outputs, one of each stat pair — the jewel_ring pattern.
@@ -14822,7 +14845,7 @@ function getActions(tier, skill, effLevel) {
       // rate becomes authoritative.
       const fibre = FIBER_NAMES[t] || name;
       const tag = silkbindReady() ? '' : ` (${SILKBIND_SOURCE.costTag})`;
-      return [{label:`${fibre} Cloak`, time:180, xp:CLOAK_XP[t], cost:CLOAK_CLOTH_INPUTS[t],
+      return [{label:`${fibre} Cloak`, time:10, xp:CLOAK_XP[t], cost:CLOAK_CLOTH_INPUTS[t],
                threadCost:CLOAK_THREAD_INPUTS,
                pendingNote: silkbindPendingNote(),
                costLabel:`${CLOAK_THREAD_INPUTS} ${silkbindName(t)}${tag}, ${CLOAK_CLOTH_INPUTS[t]} ${clothName(t)}`,
@@ -14894,7 +14917,7 @@ function getActions(tier, skill, effLevel) {
       const chain = getGemChain(t);
       const costLabel = chain.map(g => `1 ${g}`).join(', ');
       const outputLabel = `1 ${gem} Ring Of Attack, 1 Of Experience, 1 Of Gathering`;
-      return [{label:`${gem} Ring`, time:180, xp:JEWEL_RING_XP[t],
+      return [{label:`${gem} Ring`, time:10, xp:JEWEL_RING_XP[t],
                cost:chain.length, costLabel, outputLabel}];
     }
     case 'jewel_amulet': {
@@ -14904,11 +14927,11 @@ function getActions(tier, skill, effLevel) {
       const chain = getGemChain(t);
       const costLabel = chain.map(g => `2 ${g}`).join(', ');
       const outputLabel = `1 ${gem} Amulet Of Attack, 1 Of Experience, 1 Of Gathering`;
-      return [{label:`${gem} Amulet`, time:180, xp:JEWEL_AMULET_XP[t],
+      return [{label:`${gem} Amulet`, time:10, xp:JEWEL_AMULET_XP[t],
                cost:chain.length * 2, costLabel, outputLabel}];
     }
     // Spellcrafting — verified from idleworlds.com/wiki/recipes
-    // All enchants: 180s, same XP per tier, inputs 200 Mana + 200 Herb
+    // All enchants: 10s, same XP per tier, inputs 200 Mana + 200 Herb
     case 'spell_harvest': {
       const mana = SPELL_MANA[t] || 'Mana';
       return [{label:`Harvest ${mana}`, time:10, xp:SPELL_HARVEST_XP[t], cost:null}];
@@ -14917,25 +14940,25 @@ function getActions(tier, skill, effLevel) {
       const mana=SPELL_MANA[t]||'Mana', herb=SPELL_HERB[t]||'Herb';
       const costLabel=`200 ${mana}, 200 ${herb}`;
       const outputLabel=`1 ${name} Boots Enchant`;
-      return [{label:`${name} Boots Enchant - Gather`, time:180, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
+      return [{label:`${name} Boots Enchant - Gather`, time:10, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
     }
     case 'spell_gloves': {
       const mana=SPELL_MANA[t]||'Mana', herb=SPELL_HERB[t]||'Herb';
       const costLabel=`200 ${mana}, 200 ${herb}`;
       const outputLabel=`1 ${name} Gloves Enchant`;
-      return [{label:`${name} Gloves Enchant - Item Find`, time:180, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
+      return [{label:`${name} Gloves Enchant - Item Find`, time:10, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
     }
     case 'spell_helm': {
       const mana=SPELL_MANA[t]||'Mana', herb=SPELL_HERB[t]||'Herb';
       const costLabel=`200 ${mana}, 200 ${herb}`;
       const outputLabel=`1 ${name} Helm Enchant`;
-      return [{label:`${name} Helm Enchant - Gold Find`, time:180, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
+      return [{label:`${name} Helm Enchant - Gold Find`, time:10, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
     }
     case 'spell_ring': {
       const mana=SPELL_MANA[t]||'Mana', herb=SPELL_HERB[t]||'Herb';
       const costLabel=`200 ${mana}, 200 ${herb}`;
       const outputLabel=`1 ${name} Ring Enchant`;
-      return [{label:`${name} Ring Enchant - Experience`, time:180, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
+      return [{label:`${name} Ring Enchant - Experience`, time:10, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
     }
     case 'spell_cache': {
       // Verified in-game (recipe list): 1× Upgrade Orb + 100× Mana, 10s,
@@ -14958,7 +14981,7 @@ function getActions(tier, skill, effLevel) {
       const mana=SPELL_MANA[t]||'Mana', herb=SPELL_HERB[t]||'Herb';
       const costLabel=`200 ${mana}, 200 ${herb}`;
       const outputLabel=`1 ${name} Weapon Enchant`;
-      return [{label:`${name} Weapon Enchant - Attack`, time:180, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
+      return [{label:`${name} Weapon Enchant - Attack`, time:10, xp:SPELL_ENCHANT_XP[t], cost:400, costLabel, outputLabel}];
     }
     default:
       return [];
@@ -15100,12 +15123,12 @@ const SKILL_GROUP_ACTIONS = {
   spellcrafting:['spell_harvest','spell_boots','spell_gloves','spell_helm','spell_ring','spell_weapon','spell_cache','spell_lesser_cache'],
   jewelcrafting:['jewel_prospect','jewel_cutgem','jewel_ring','jewel_amulet'],
   // Thread Upgrade is intentionally NOT in this optimizer action list:
-  // its 180s craft and XP are exact, but treating the required Threads/Orb
+  // its 10s craft and XP are exact, but treating the required Threads/Orb
   // as free would make it a fake levelling recommendation.
   tailoring:    ['tailor_weave','tailor_hood','tailor_robe','tailor_gloves','tailor_leggings','tailor_boots','tailor_cloak'],
   woodcutting:  ['woodcutting'],
   // construct_assemble is intentionally NOT here, for the same reason
-  // tailor_thread_upgrade is not: its 180s craft and XP are exact, but its
+  // tailor_thread_upgrade is not: its 10s craft and XP are exact, but its
   // input bill is a stockpile of 200t Parts + 100t² wood + 50t² ore + lower-
   // tier Parts — roughly 685 hours of upstream work for one T18 building.
   // Treating that as free would make it a fake levelling recommendation.
@@ -28400,30 +28423,30 @@ function wikiXPFor(item) {
 
   // Enchant consumables ("… Enchant - …")
   if (/ enchant - /.test(n) && typeof ENCHANT_XP[t] === 'number')
-    return { xp: ENCHANT_XP[t], time: 180, skill: 'Spellcrafting' };
+    return { xp: ENCHANT_XP[t], time: 10, skill: 'Spellcrafting' };
 
   // Smithed armour / weapons — base item only (exclude +1/+2/+3/+4 upgrades)
   if (!n.includes('+')) {
     if (/( boots| gloves| helm)$/.test(n) && typeof SMITH_BOOTS_XP[t] === 'number')
-      return { xp: SMITH_BOOTS_XP[t], time: 180, skill: 'Smithing' };
+      return { xp: SMITH_BOOTS_XP[t], time: 10, skill: 'Smithing' };
     if (/ chest$/.test(n) && typeof SMITH_CHEST_XP[t] === 'number')
-      return { xp: SMITH_CHEST_XP[t], time: 180, skill: 'Smithing' };
+      return { xp: SMITH_CHEST_XP[t], time: 10, skill: 'Smithing' };
     if (/ leggings$/.test(n) && typeof SMITH_LEGS_XP[t] === 'number')
-      return { xp: SMITH_LEGS_XP[t], time: 180, skill: 'Smithing' };
+      return { xp: SMITH_LEGS_XP[t], time: 10, skill: 'Smithing' };
     if (/( shield| sword)$/.test(n) && typeof SMITH_SHIELD_XP[t] === 'number')
-      return { xp: SMITH_SHIELD_XP[t], time: 180, skill: 'Smithing' };
+      return { xp: SMITH_SHIELD_XP[t], time: 10, skill: 'Smithing' };
   }
 
   // Reinforcement Plate (Smithing) — v42.5. Consumable, so it is not
   // caught by the armour patterns above.
   if (/ reinforcement plate$/.test(n) && typeof PLATE_XP[t] === 'number')
-    return { xp: PLATE_XP[t], time: 180, skill: 'Smithing' };
+    return { xp: PLATE_XP[t], time: 10, skill: 'Smithing' };
 
   // Cloaks (Tailoring) — v42.5. Matched on the variant suffix rather
   // than "cloak", so the Grimsby/cache cloaks that share the slot but
   // have no recipe still correctly return null.
   if (/ cloak of (fortune|the harvest|insight)$/.test(n) && typeof CLOAK_XP[t] === 'number')
-    return { xp: CLOAK_XP[t], time: 180, skill: 'Tailoring' };
+    return { xp: CLOAK_XP[t], time: 10, skill: 'Tailoring' };
 
   return null;
 }
@@ -36988,6 +37011,9 @@ function syncCombatLevel(val) {
     'Wood': 'Estimate: items.json has no Woodcutting order value. It pays what a Mining order of the same tier pays (100 × the ore value), as the in-game board showed at Tier 19 (3,480 gold, 2026-10-21).',
     'Construction': 'Estimate: items.json has no Construction order value. Uses the patch-note rule (time at base speed × Alchemy gold per second, then −25%), which matches the published Tier 20 reward of 7,850 gold and the in-game board at Tier 19 (3 parts, 7,097 gold, 2026-10-21).'
   };
+  ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'].forEach(function (n) {
+    ESTIMATE_NOTE[n] = 'Estimate: this item data predates the crafting-time patch, which made every craft a 10-second action. The price uses the game\'s rule (time at base speed × Alchemy gold per second), which matches the in-game board at Tier 15 exactly and at Tier 20 to within 1 gold (2026-10-29). Updated item data replaces it with the exact price.';
+  });
   // Alchemy base seconds per order: 20 potions × (3 herbs × 10s + 10s brew).
   var ALCHEMY_ORDER_SEC = 20 * (RAW_PER_POTION * 10 + 10);
   // Gold bonuses the board pays on top of items.json (0.2.0+2026-10-22.90
@@ -37052,7 +37078,35 @@ function syncCombatLevel(val) {
     }
     var a = ROWS.filter(function (r) { return r.tier === tier && r.cat === name; })
       .map(function (r) { return r.turn_in_value; });
-    return a.length ? Math.max.apply(null, a) : null;
+    var value = a.length ? Math.max.apply(null, a) : null;
+    return GEAR_ORDER_TYPES.indexOf(name) >= 0 ? craftPatchGearValue(tier, name, value).value : value;
+  }
+  // Crafting-time patch (2026-10-29): every 3-minute craft became a 10-second
+  // action, and Smithing/Tailoring orders are priced by how long the piece
+  // takes to make at base speed, times Alchemy's gold per second. Item data
+  // from before the patch still carries the 3-minute price, which the old
+  // rule reproduces to within a gold piece at every tier. Such a price is
+  // replaced by the same rule with a 10-second craft and flagged (est.).
+  // A post-patch price is 8-16% lower, so it is never mistaken for an old one.
+  var GEAR_ORDER_TYPES = ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'];
+  function gearOrderBaseSec(tier, name, craftSec) {
+    var processed = equipmentProcessedCount(tier, name);
+    return processed * orePerProcessed(tier) * 10 + processed * 10 + craftSec;
+  }
+  function craftPatchGearValue(tier, name, value) {
+    var potion = unitValue(tier, 'Potions');
+    if (value === null || potion === null) return { value: value, estimate: false };
+    var goldPerSec = potion * ORDER_QTY['Potions'] / ALCHEMY_ORDER_SEC;
+    var oldPrice = Math.ceil(gearOrderBaseSec(tier, name, 180) * goldPerSec - 1e-9);
+    if (Math.abs(value - oldPrice) > 2) return { value: value, estimate: false };
+    return { value: Math.round(gearOrderBaseSec(tier, name, 10) * goldPerSec), estimate: true };
+  }
+  function isEstimate(tier, name) {
+    if (META[name] && META[name].estimate) return true;
+    if (GEAR_ORDER_TYPES.indexOf(name) < 0) return false;
+    var a = ROWS.filter(function (r) { return r.tier === tier && r.cat === name; })
+      .map(function (r) { return r.turn_in_value; });
+    return craftPatchGearValue(tier, name, a.length ? Math.max.apply(null, a) : null).estimate;
   }
   function miningOreValue(tier) {
     var a = ROWS.filter(function (r) {
@@ -37200,7 +37254,7 @@ function syncCombatLevel(val) {
     var total=gatherSec+processSec+craftSec;
     return {
       name:name,tier:tier,n:n,qty:qty,raw:raw,processed:processed,produced:produced,
-      batch:batch||META[name].batch,estimate:!!META[name].estimate,
+      batch:batch||META[name].batch,estimate:isEstimate(tier,name),
       g:gatherSec,p:processSec,c:craftSec,total:total,remain:Math.max(0,SESSION-total),
       unitV:unitV,boardBonus:boardBonus,orderBase:orderBase,orderFinal:orderFinal,
       base:n*orderBase,bonus:n*(orderFinal-orderBase),final:n*orderFinal,
@@ -37256,9 +37310,9 @@ function syncCombatLevel(val) {
     var housing=+inp.housing||0, gp=Math.max(0,+inp.gather||0);
     var gatherYield=1+gp/100;
     var brewOutput=perCraft(inp.brew), enhanceOutput=perCraft(inp.enhance), buildOutput=perCraft(inp.build);
-    var gatherTime=actionSec(10,housing), processTime=actionSec(10,housing), craftTime=actionSec(180,housing);
+    var gatherTime=actionSec(10,housing), processTime=actionSec(10,housing), craftTime=actionSec(10,housing);
     var qty=ORDER_QTY[name]||1;
-    var base={name:name,tier:tier,unitV:v,qty:qty,rawPerProcessed:orePerProcessed(tier),estimate:!!META[name].estimate,gatherTime:gatherTime,processTime:processTime,craftTime:craftTime};
+    var base={name:name,tier:tier,unitV:v,qty:qty,rawPerProcessed:orePerProcessed(tier),estimate:isEstimate(tier,name),gatherTime:gatherTime,processTime:processTime,craftTime:craftTime};
     if(name==='Raw Materials'||name==='Wood'){
       var rawPerOrder=qty, gatherActions=rawPerOrder/gatherYield, sec=gatherActions*gatherTime;
       return Object.assign(base,{rawEach:1,sec:sec,raw:rawPerOrder,gatherActions:gatherActions,processActions:0,craftActions:0,craftSec:0,
@@ -37692,15 +37746,22 @@ function syncCombatLevel(val) {
     if(enhanceCopies('Chest',1.14)!==1.14) fail.push('Bonus Enhance must copy gear pieces');
     // The 2026-10-22 raises (ORDER_GOLD_BONUS), read off the in-game board
     // at Tier 20 on 2026-10-25, before Gold Find.
-    var boardT20={'Raw Materials':3660,'Wood':3660,'Helmet':7722,'Boots':7722,'Potions':6405,'Construction':7850};
+    var boardT20={'Raw Materials':3660,'Wood':3660,'Potions':6405,'Construction':7850};
     Object.keys(boardT20).forEach(function(n){
       var m=orderModel(n,20,{}), got=m?m.finish(1,0).orderBase:null;
       if(got===null||Math.abs(got-boardT20[n])>1e-6) fail.push('T20 '+n+' order should pay '+boardT20[n]+' (in-game board 2026-10-25); got '+got);
     });
-    if(orderModel('Chest',20,{}).finish(1,100).orderFinal!==28310) fail.push('Gold Find must apply on top of the board raise (T20 chest at +100% = 28,310)');
+    // In-game board after the crafting-time patch (2026-10-29): Smithing and
+    // Tailoring gloves pay 4,905 at T15 and 6,504 at T20. The time-rule
+    // estimate gives 4,905 and 6,505.
+    [[15,4905,0],[20,6504,1]].forEach(function(c){
+      var got=orderModel('Gloves',c[0],{}).finish(1,0).orderBase;
+      if(Math.abs(got-c[1])>c[2]) fail.push('T'+c[0]+' gloves order should pay '+c[1]+' (in-game board 2026-10-29); got '+got);
+    });
+    if(orderModel('Chest',20,{}).finish(1,100).orderFinal!==25878) fail.push('Gold Find must apply on top of the board raise (T20 chest at +100% = 25,878)');
 
-    // Gold-vs-2x-Gather chart: T20, no housing or bonuses. 43 chest orders
-    // (1,980s each, 14,155 with the +25% raise) and 137 Construction orders
+    // Gold-vs-2x-Gather chart: T20, no housing or bonuses. 47 chest orders
+    // (1,810s each, 12,939 with the +25% raise) and 137 Construction orders
     // at 200% (630s each) a day.
     var gxBase={tier:20,housing:0,gp:0,bp:0,ep:0,bb:0,goldPct:0};
     var gx=gatherSeries(gxBase);
@@ -37733,7 +37794,7 @@ function syncCombatLevel(val) {
       var chipN=document.querySelectorAll('#wo-gather-legend [data-wo-chip]').length;
       if(chipN!==Object.keys(SHOW_IDS).length) fail.push('chart should offer a toggle chip per order type; got '+chipN);
     }
-    if(gxAt('Chest / robe',0)!==608665) fail.push('gather chart T20 chest at 0% should be 608,665/day (43 × 14,155); got '+gxAt('Chest / robe',0));
+    if(gxAt('Chest / robe',0)!==608133) fail.push('gather chart T20 chest at 0% should be 608,133/day (47 × 12,939); got '+gxAt('Chest / robe',0));
     if(gxAt('Construction (est.)',200)!==1075450) fail.push('gather chart T20 Construction at 200% should be 1,075,450/day; got '+gxAt('Construction (est.)',200));
     GATHER_GROUPS.forEach(function(grp){
       var rows=compute({tier:20,housing:0,gp:200,bp:0,ep:0,bb:0,goldPct:0}).filter(function(r){return grp.names.indexOf(r.name)>=0;});
@@ -39231,7 +39292,7 @@ function syncCombatLevel(val) {
   function simulate(ctx, step, method, split, log, peek) {
     var S = { t: 0, gold: step.gold0, salv: step.salv0, xp: Object.assign({}, step.xp), segs: [], ups: [] };
     var h = step.housing, A = effectiveDuration(10, h);
-    var DFA = getDurationFactor(10, h), DFC = getDurationFactor(180, h);
+    var DFA = getDurationFactor(10, h), DFC = getDurationFactor(10, h);
     var c = cum();
     // Base levels, advanced incrementally as XP lands; `ver` moves on every
     // level-up so the loadouts and rates below are rebuilt only then.
@@ -41607,7 +41668,7 @@ function syncCombatLevel(val) {
       var u1 = (getActions(1,'tailor_thread_upgrade') || [])[0];
       ok('T1 Thread Upgrade missing', !!u1);
       if(u1){
-        eq('T1 Thread Upgrade time', u1.time, 180);
+        eq('T1 Thread Upgrade time', u1.time, 10);
         eq('T1 Thread Upgrade XP', u1.xp, 583);
         eq('T1 Thread Upgrade input Threads', u1.cost, 3);
         eq('T1 Thread Upgrade cost label',
@@ -43279,7 +43340,7 @@ function syncCombatLevel(val) {
       eq('assembly XP T18', ASSEMBLY_XP[18], 338);
       eq('assembly XP T34', ASSEMBLY_XP[34], 684);
       var asm = getActions(18, 'construct_assemble')[0];
-      eq('assembly duration', asm.time, 180);
+      eq('assembly duration', asm.time, 10);
       ok('assembly cost must stay null (heterogeneous bill)', asm.cost === null);
       ok('assembly is excluded from the optimiser action space',
          SKILL_GROUP_ACTIONS.construction.indexOf('construct_assemble') === -1);
@@ -44124,12 +44185,12 @@ function syncCombatLevel(val) {
         var bars = tt < 5 ? tt * 4 : 20;
         if (!a) { recBad.push('no forge T' + tt); continue; }
         if (a.xp !== FORGE_XP[tt - 1]) recBad.push('forge T' + tt + ' XP ' + a.xp + ' want ' + FORGE_XP[tt - 1]);
-        if (a.time !== 180 || a.cost !== bars || a.coreCost !== 5) recBad.push('forge T' + tt + ' time/bars/cores ' + a.time + '/' + a.cost + '/' + a.coreCost);
+        if (a.time !== 10 || a.cost !== bars || a.coreCost !== 5) recBad.push('forge T' + tt + ' time/bars/cores ' + a.time + '/' + a.cost + '/' + a.coreCost);
         var u = (getActions(tt, 'smith_core_upgrade') || [])[0];
         if (tt === 34) { if (u) recBad.push('T34 has a Core upgrade'); continue; }
         if (!u) { recBad.push('no Core upgrade T' + tt); continue; }
         if (u.xp !== CORE_XP[tt - 1]) recBad.push('Core upgrade T' + tt + ' XP ' + u.xp + ' want ' + CORE_XP[tt - 1]);
-        if (u.time !== 180 || u.cost !== 3) recBad.push('Core upgrade T' + tt + ' time/cores ' + u.time + '/' + u.cost);
+        if (u.time !== 10 || u.cost !== 3) recBad.push('Core upgrade T' + tt + ' time/cores ' + u.time + '/' + u.cost);
       }
       eq('recipe mismatches' + (recBad.length ? ' (' + recBad.slice(0, 5).join('; ') + ')' : ''), recBad.length, 0);
       var f21 = (getActions(21, 'smith_warded') || [])[0] || {};
