@@ -9,7 +9,24 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v7.2</title>
+<title>IdleWorlds Toolkit v7.3</title>
+<!-- v7.3 Raids tab, glance view (2026-11-08, Curtis):
+     • Rebuilt for a new player's quick glance. Per boss: boss chips to
+       pick it; four stat tiles (HP, Combat level, resist as a gear + Ward
+       bar, kill-by time); two or three warning cards; the recommended
+       roster as role tiles (Tank blue, Healer aqua, Support orange, Damage
+       neutral: the reference palette's three all-pairs-safe slots), where
+       tapping a role shows its job in three lines or fewer and lights up
+       the abilities it answers; the rotation as a timeline of icons with
+       lethal moves ringed, Grimjaw's Tank A/B turns, and tap-for-detail;
+       a boss-damage-over-time chart with a hover read-out; loot folded
+       away. Phones get a vertical timeline.
+     • The page presents each roster as the recommended one and no longer
+       says how it was chosen (tools/raid-sim still does, in code).
+     • Suite V: no simulation wording on the page, every boss renders its
+       timeline, nine role tiles, short jobs, warning cards and chart, and
+       role focus lights exactly the right abilities.
+-->
 <!-- v7.2 Raid rosters from simulation (2026-11-08, Curtis):
      • The Raids tab's rosters are no longer reasoned by hand. Each is the
        best of all 120 legal rosters in a fight-by-fight simulation against
@@ -6829,47 +6846,141 @@
 @media (max-width:700px){.hp-goal-field{max-width:none}}
 </style>
 <style data-iw-sheet="legacy" id="iw-raid-guide-styles">
+/* Raid Guides (v7.3 glance view). Role colours: the reference palette's first three
+   categorical slots (validated all-pairs on these surfaces); Damage stays neutral ink. */
+#tab-raids{--rg-ink:var(--text);--rg-dim:var(--text-2);--rg-line:var(--border);--rg-card:var(--surface);--rg-sunken:var(--surface-2);--rg-accent:var(--accent);--rg-r:12px;--rg-r-sm:var(--r-sm,8px);--rg-tank:#3987e5;--rg-healer:#199e70;--rg-support:#d95926;--rg-damage:var(--text-2);--rg-critical:#d03b3b;--rg-critical-text:#e66767}
+[data-theme="light"] #tab-raids,[data-theme="office"] #tab-raids{--rg-tank:#2a78d6;--rg-healer:#1baf7a;--rg-support:#eb6834;--rg-critical-text:#b8302f}
 #tab-raids{min-width:0;max-width:100%}
-.rg-picker{max-width:420px}
-.rg-field-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
-.rg-body{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-.rg-lead{margin:0 0 10px;font-size:13px;line-height:1.55;color:var(--text-2)}
-.rg-muted{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--text-3)}
-.rg-muted a{color:var(--accent)}
-.rg-warn{margin:0 0 10px;padding:7px 10px;border-left:3px solid #e8a428;font-size:13px;color:var(--text);background:var(--surface-2)}
-.rg-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.rg-list{margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:var(--text-2)}
-.rg-list li+li{margin-top:4px}
-.rg-list strong{color:var(--text)}
-.rg-must li{color:var(--text)}
-.rg-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.rg-table{border-collapse:collapse;width:100%}
-.rg-table th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);text-align:left}
-.rg-table th,.rg-table td{padding:7px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top;white-space:nowrap}
-.rg-table td.rg-wrap{white-space:normal;min-width:200px}
-.rg-num{color:var(--text-3);font-variant-numeric:tabular-nums}
-.rg-kind{font-size:11px;color:var(--text-3)}
-.rg-raw{color:var(--text);font-weight:600;white-space:nowrap}
-.rg-details{margin-top:10px;font-size:13px;color:var(--text-2)}
-.rg-details summary{cursor:pointer;font-weight:600}
-.rg-details .rg-list{margin-top:6px}
-.rg-none{font-size:12px;color:var(--text-3)}
-.rg-lend-skill{color:var(--text-3);font-size:12px}
-.rg-chip{display:inline-block;margin:0 4px 4px 0;padding:1px 7px;border:1px solid var(--border);border-radius:999px;font-size:12px;white-space:nowrap;color:var(--text-2)}
-.rg-chip[data-role="tank"]{border-color:#5b8def}
-.rg-chip[data-role="healer"]{border-color:#4cce6e}
-.rg-chip[data-role="damage"]{border-color:#e05555}
-.rg-chip[data-role="support"]{border-color:#e8a428}
-.rg-role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
-.rg-role-card{padding:10px 12px;border:1px solid var(--border);border-left-width:3px;border-radius:var(--r-sm);background:var(--surface-2)}
-.rg-role-card[data-role="tank"]{border-left-color:#5b8def}
-.rg-role-card[data-role="healer"]{border-left-color:#4cce6e}
-.rg-role-card[data-role="damage"]{border-left-color:#e05555}
-.rg-role-card[data-role="support"]{border-left-color:#e8a428}
-.rg-role-head{font-weight:700;color:var(--text);margin-bottom:4px}
-.rg-role-tag{float:right;font-size:11px;font-weight:600;color:var(--text-3)}
-.rg-effect{margin:0 0 6px;font-size:12px;line-height:1.5;color:var(--text-3)}
-@media (max-width:700px){.rg-picker{max-width:none}.rg-table thead{display:none}.rg-table,.rg-table tbody,.rg-table tr,.rg-table td{display:block;width:auto}.rg-table tr{padding:8px 0;border-bottom:1px solid var(--border)}.rg-table td,.rg-table td.rg-wrap{padding:2px 0;border:0;white-space:normal;min-width:0}.rg-table td.rg-num{float:left;margin-right:8px}}
+.rg-sr{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0}
+.rg-picker{position:relative;margin:4px 0 14px}
+.rg-bosses{display:flex;flex-wrap:wrap;gap:8px}
+.rg-boss{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:7px 14px;border:1px solid var(--rg-line);border-radius:999px;background:var(--rg-card);color:var(--rg-dim);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.rg-boss:hover{color:var(--rg-ink)}
+.rg-boss[aria-pressed="true"]{color:var(--rg-ink);border-color:var(--rg-accent);box-shadow:inset 0 0 0 1px var(--rg-accent)}
+.rg-boss:focus-visible,.rg-member:focus-visible,.rg-node-btn:focus-visible{outline:2px solid var(--rg-accent);outline-offset:2px}
+.rg-guide{display:flex;flex-direction:column;gap:14px;--rg-focus:var(--rg-accent)}
+.rg-guide[data-rg-focus="combat"]{--rg-focus:var(--rg-tank)}
+.rg-guide[data-rg-focus="spellcrafting"],.rg-guide[data-rg-focus="gathering"],.rg-guide[data-rg-focus="alchemy"]{--rg-focus:var(--rg-healer)}
+.rg-guide[data-rg-focus="jewelcrafting"],.rg-guide[data-rg-focus="smithing"],.rg-guide[data-rg-focus="construction"],.rg-guide[data-rg-focus="tailoring"]{--rg-focus:var(--rg-support)}
+.rg-guide[data-rg-focus="mining"],.rg-guide[data-rg-focus="woodcutting"]{--rg-focus:var(--rg-damage)}
+.rg-card{padding:14px 16px;border:1px solid var(--rg-line);border-radius:var(--rg-r);background:var(--rg-card)}
+.rg-h{margin:0 0 12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;font-size:15px;font-weight:700;color:var(--rg-ink)}
+.rg-h-sub{font-size:12px;font-weight:500;color:var(--rg-dim)}
+.rg-hero{padding:16px;border:1px solid var(--rg-line);border-radius:var(--rg-r);background:var(--rg-card);background-image:linear-gradient(135deg,var(--rg-el-tint,transparent),transparent 62%)}
+.rg-hero[data-element="fire"]{--rg-el-tint:rgba(217,89,38,.16)}
+.rg-hero[data-element="lightning"]{--rg-el-tint:rgba(201,163,0,.14)}
+.rg-hero[data-element="frost"]{--rg-el-tint:rgba(57,135,229,.16)}
+.rg-hero-title{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rg-hero-icon{font-size:30px;line-height:1}
+.rg-hero-name{font-size:20px;font-weight:700;color:var(--rg-ink);line-height:1.2}
+.rg-hard{display:inline-block;margin-left:6px;padding:1px 9px;border:1px solid var(--rg-critical);border-radius:999px;font-size:11.5px;font-weight:700;color:var(--rg-critical-text);vertical-align:3px}
+.rg-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.rg-tile{display:flex;flex-direction:column;gap:3px;min-width:0;padding:10px 12px;border:1px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+.rg-tile-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rg-dim)}
+.rg-tile-v{font-size:22px;font-weight:700;line-height:1.15;color:var(--rg-ink);font-variant-numeric:tabular-nums}
+.rg-tile-u{font-size:12px;font-weight:500;color:var(--rg-dim)}
+.rg-tile-s{font-size:11.5px;line-height:1.35;color:var(--rg-dim)}
+.rg-bar{display:flex;gap:2px;height:8px;margin:4px 0 2px}
+.rg-bar-gear{background:var(--rg-ink);opacity:.72;border-radius:4px 0 0 4px}
+.rg-bar-ward{background:var(--rg-support);border-radius:0 4px 4px 0}
+.rg-key{display:inline-block;width:9px;height:9px;margin-right:4px;border-radius:2px;vertical-align:-1px;background:var(--rg-ink)}
+.rg-key-gear{opacity:.72}
+.rg-key-ward,.rg-key[data-role="support"]{background:var(--rg-support)}
+.rg-key[data-role="tank"]{background:var(--rg-tank)}
+.rg-key[data-role="healer"]{background:var(--rg-healer)}
+.rg-key[data-role="damage"]{background:var(--rg-damage)}
+.rg-watch{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.rg-warn-card{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--rg-line);border-left:3px solid var(--rg-critical);border-radius:var(--rg-r-sm);background:var(--rg-card)}
+.rg-warn-icon{font-size:22px;line-height:1}
+.rg-warn-body{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.4;color:var(--rg-dim)}
+.rg-warn-body strong{font-size:13.5px;color:var(--rg-ink)}
+.rg-members{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.rg-member{--rg-rc:var(--rg-line);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;padding:10px 4px 8px;border:1px solid var(--rg-line);border-top:4px solid var(--rg-rc);border-radius:var(--rg-r-sm);background:var(--rg-sunken);color:var(--rg-ink);font:inherit;cursor:pointer}
+.rg-member[data-role="tank"]{--rg-rc:var(--rg-tank)}
+.rg-member[data-role="healer"]{--rg-rc:var(--rg-healer)}
+.rg-member[data-role="support"]{--rg-rc:var(--rg-support)}
+.rg-member[data-role="damage"]{--rg-rc:var(--rg-damage)}
+.rg-member[data-role="everyone"]{--rg-rc:var(--rg-accent)}
+.rg-member[aria-pressed="true"]{border-color:var(--rg-rc);box-shadow:inset 0 0 0 1px var(--rg-rc)}
+.rg-member-icon{font-size:22px;line-height:1.1}
+.rg-member-name{font-size:12.5px;font-weight:700;text-align:center;line-height:1.2}
+.rg-member-sub{font-size:10.5px;text-align:center;color:var(--rg-dim)}
+.rg-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:11.5px;color:var(--rg-dim)}
+.rg-jobs{margin-top:12px}
+.rg-job{padding:10px 12px;border:1px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+.rg-job-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700;color:var(--rg-ink)}
+.rg-job-role{padding:0 8px;border:1px solid var(--rg-line);border-radius:999px;font-size:11px;font-weight:600;color:var(--rg-dim)}
+.rg-job-list{margin:0;padding-left:20px;font-size:13.5px;line-height:1.55;color:var(--rg-ink)}
+.rg-track{position:relative;display:grid;grid-template-columns:repeat(var(--rg-n),minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}
+.rg-track::before{content:"";position:absolute;left:5%;right:5%;top:39px;height:2px;background:var(--rg-line)}
+.rg-node{min-width:0;transition:opacity .15s ease}
+.rg-node-btn{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:0 2px 6px;border:0;border-radius:var(--rg-r-sm);background:none;color:var(--rg-ink);font:inherit;cursor:pointer}
+.rg-node-time{height:16px;font-size:11px;color:var(--rg-dim);font-variant-numeric:tabular-nums}
+.rg-node-glyph{position:relative;z-index:1;display:grid;place-items:center;width:40px;height:40px;border:2px solid var(--rg-line);border-radius:50%;background:var(--rg-card);font-size:19px}
+.rg-node.is-lethal .rg-node-glyph{border-color:var(--rg-critical)}
+.rg-node-name{font-size:11.5px;font-weight:600;line-height:1.25;text-align:center}
+.rg-node-flag{font-size:10px;font-weight:700;color:var(--rg-critical-text)}
+.rg-node-turn{padding:0 7px;border-radius:999px;background:var(--rg-tank);color:#fff;font-size:10px;font-weight:700}
+.rg-node-who{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin-top:2px}
+.rg-dot{--rg-rc:var(--rg-line);display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--rg-sunken);box-shadow:inset 0 0 0 2px var(--rg-rc);font-size:11px;line-height:1}
+.rg-dot[data-role="tank"],.rg-chip[data-role="tank"]{--rg-rc:var(--rg-tank)}
+.rg-dot[data-role="healer"],.rg-chip[data-role="healer"]{--rg-rc:var(--rg-healer)}
+.rg-dot[data-role="support"],.rg-chip[data-role="support"]{--rg-rc:var(--rg-support)}
+.rg-dot[data-role="damage"],.rg-chip[data-role="damage"]{--rg-rc:var(--rg-damage)}
+.rg-dot[data-role="everyone"],.rg-chip[data-role="everyone"]{--rg-rc:var(--rg-accent)}
+.rg-node.is-dim{opacity:.3}
+.rg-node.is-on .rg-node-glyph{box-shadow:0 0 0 3px var(--rg-focus)}
+.rg-node-btn.is-picked .rg-node-name{text-decoration:underline;text-underline-offset:3px}
+.rg-details-box{margin-top:12px}
+.rg-detail{padding:10px 12px;border:1px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+.rg-detail-head{color:var(--rg-ink)}
+.rg-detail-kind{margin-left:4px;font-size:11.5px;color:var(--rg-dim)}
+.rg-detail-text{margin:6px 0 8px;font-size:13px;line-height:1.5;color:var(--rg-dim)}
+.rg-detail-text strong{color:var(--rg-ink)}
+.rg-detail-who{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px}
+.rg-chip{--rg-rc:var(--rg-line);display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border:1px solid var(--rg-rc);border-radius:999px;color:var(--rg-ink);white-space:nowrap}
+.rg-detail-hint,.rg-dim-text{margin:0;font-size:12.5px;color:var(--rg-dim)}
+.rg-chart{position:relative}
+.rg-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.rg-ch-safe{fill:var(--rg-ink);opacity:.05}
+.rg-ch-grid{stroke:var(--rg-line);stroke-width:1}
+.rg-ch-axis{fill:var(--rg-dim);font-size:11px}
+.rg-ch-note{fill:var(--rg-ink);font-size:11.5px;font-weight:600}
+.rg-ch-mark{stroke:var(--rg-dim);stroke-width:1;stroke-dasharray:4 4}
+.rg-ch-line{fill:none;stroke:var(--rg-accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.rg-ch-pt{fill:var(--rg-accent);stroke:var(--rg-card);stroke-width:2}
+.rg-ch-cross{stroke:var(--rg-ink);stroke-width:1;opacity:.5}
+.rg-ch-hit{fill:transparent;cursor:crosshair}
+.rg-ch-tip{position:absolute;top:2px;padding:3px 8px;border-radius:6px;background:var(--rg-ink);color:var(--rg-card);font-size:12px;font-weight:600;white-space:nowrap;pointer-events:none}
+.rg-loot>summary{margin:0;cursor:pointer;list-style:none}
+.rg-loot>summary::-webkit-details-marker{display:none}
+.rg-loot>summary::before{content:"▸";margin-right:2px;color:var(--rg-dim)}
+.rg-loot[open]>summary{margin-bottom:10px}
+.rg-loot[open]>summary::before{content:"▾"}
+.rg-loot-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;margin:0;padding:0;list-style:none}
+.rg-loot-row{display:grid;grid-template-columns:1fr auto;grid-template-areas:"name rate" "meta rate";gap:0 10px;padding:6px 10px;border-left:3px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+.rg-loot-row[data-rarity="legendary"]{border-left-color:#e8a428}
+.rg-loot-row[data-rarity="epic"]{border-left-color:#a970ff}
+.rg-loot-row[data-rarity="rare"]{border-left-color:#3987e5}
+.rg-loot-row[data-rarity="uncommon"]{border-left-color:#2ec46b}
+.rg-loot-name{grid-area:name;min-width:0}
+.rg-loot-meta{grid-area:meta;font-size:11.5px;color:var(--rg-dim)}
+.rg-loot-rate{grid-area:rate;align-self:center;font-weight:700;color:var(--rg-ink);font-variant-numeric:tabular-nums}
+.rg-muted{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--rg-dim)}
+.rg-source{margin:0}
+.rg-source a{color:var(--rg-accent)}
+@media (max-width:700px){
+.rg-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rg-tile-v{font-size:19px}
+.rg-track{grid-template-columns:1fr;gap:2px}
+.rg-track::before{left:69px;right:auto;top:0;bottom:0;width:2px;height:auto}
+.rg-node-btn{display:grid;grid-template-columns:38px 36px minmax(0,1fr) auto;grid-template-areas:"time glyph name who" "time glyph flag who";align-items:center;gap:0 10px;padding:4px 2px}.rg-node-time{grid-area:time}.rg-node-glyph{grid-area:glyph}.rg-node-name{grid-area:name}.rg-node-flag,.rg-node-turn{grid-area:flag;justify-self:start}.rg-node-who{grid-area:who;max-width:112px;justify-content:flex-end}.rg-ch-axis{font-size:20px}.rg-ch-note{font-size:20px}
+.rg-node-time{width:38px;height:auto;text-align:right}
+.rg-node-glyph{width:36px;height:36px;font-size:17px}
+.rg-node-name{font-size:13px;text-align:left}
+.rg-node-who{margin:0}
+}
+@media (prefers-reduced-motion:reduce){.rg-node{transition:none}}
 </style>
 
 <!-- Footer + Work Order CSS. Moved here from after </footer> (2026-09-22) so the
@@ -10108,59 +10219,141 @@
   .hp-details summary { cursor: pointer; color: var(--ash-accent-dim); font-weight: 600; }
   @media (max-width: 700px) { .hp-goal-field { max-width: none; } }
 
-  /* ── Raid Guides (v7.1) ──────────────────────────────────────────────
-     Shared panels and metrics; only the guide's own tables, chips and role
-     cards live here. Nothing in the tab is hidden by CSS, so this block
-     adds nothing the BEHAVIOUR PARITY section needs to mirror. */
-  #tab-raids { min-width: 0; max-width: 100%; }
-  .rg-picker { max-width: 420px; }
-  .rg-field-label { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ash-accent-dim); }
-  .rg-body { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
-  .rg-lead { margin: 0 0 10px; font-size: 13.5px; line-height: 1.55; color: var(--ash-dim); }
-  .rg-muted { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--ash-dim); }
-  .rg-muted a { color: var(--ash-accent); }
-  .rg-warn { margin: 0 0 10px; padding: 7px 10px; border-left: 2px solid var(--ash-warn); font-size: 13px; color: var(--ash-text); background: rgba(232,164,40,.06); }
-  .rg-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-  .rg-list { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.6; color: var(--ash-dim); }
-  .rg-list li + li { margin-top: 4px; }
-  .rg-list strong { color: var(--ash-text); }
-  .rg-must li { color: var(--ash-text); }
-  .rg-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .rg-table { border-collapse: collapse; width: 100%; }
-  .rg-table th { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ash-accent-dim); text-align: left; }
-  .rg-table th, .rg-table td { padding: 7px 10px; border-bottom: 1px solid var(--ash-edge-faint); font-size: 13px; vertical-align: top; white-space: nowrap; }
-  .rg-table td.rg-wrap { white-space: normal; min-width: 200px; }
-  .rg-num { color: var(--ash-dim); font-variant-numeric: tabular-nums; }
-  .rg-kind { font-size: 11px; color: var(--ash-dim); }
-  .rg-raw { color: var(--ash-text-hi); font-weight: 600; white-space: nowrap; }
-  .rg-details { margin-top: 10px; font-size: 13px; color: var(--ash-dim); }
-  .rg-details summary { cursor: pointer; color: var(--ash-accent-dim); font-weight: 600; }
-  .rg-details .rg-list { margin-top: 6px; }
-  .rg-none { font-size: 12px; color: var(--ash-dim); }
-  .rg-lend-skill { color: var(--ash-dim); font-size: 12px; }
-  .rg-chip { display: inline-block; margin: 0 4px 4px 0; padding: 1px 7px; border: 1px solid var(--ash-edge-soft); border-radius: 999px; font-size: 12px; white-space: nowrap; color: var(--ash-text); }
-  .rg-chip[data-role="tank"] { border-color: #6f93c9; }
-  .rg-chip[data-role="healer"] { border-color: var(--ash-good); }
-  .rg-chip[data-role="damage"] { border-color: var(--ash-bad); }
-  .rg-chip[data-role="support"] { border-color: var(--ash-warn); }
-  .rg-role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
-  .rg-role-card { padding: 10px 12px; border: 1px solid var(--ash-edge-faint); border-left-width: 2px; border-radius: var(--ash-r-control); background: rgba(0,0,0,.2); }
-  .rg-role-card[data-role="tank"] { border-left-color: #6f93c9; }
-  .rg-role-card[data-role="healer"] { border-left-color: var(--ash-good); }
-  .rg-role-card[data-role="damage"] { border-left-color: var(--ash-bad); }
-  .rg-role-card[data-role="support"] { border-left-color: var(--ash-warn); }
-  .rg-role-head { font-family: var(--ash-font-head); font-weight: 600; letter-spacing: .02em; color: var(--ash-text-hi); margin-bottom: 4px; }
-  .rg-role-tag { float: right; font-family: var(--ash-font-ui); font-size: 11px; font-weight: 600; color: var(--ash-accent-dim); }
-  .rg-effect { margin: 0 0 6px; font-size: 12.5px; line-height: 1.5; color: var(--ash-dim); }
-  @media (max-width: 700px) {
-    .rg-picker { max-width: none; }
-    /* Phones: each table row becomes a stacked card instead of a sideways scroll. */
-    .rg-table thead { display: none; }
-    .rg-table, .rg-table tbody, .rg-table tr, .rg-table td { display: block; width: auto; }
-    .rg-table tr { padding: 8px 0; border-bottom: 1px solid var(--ash-edge-faint); }
-    .rg-table td, .rg-table td.rg-wrap { padding: 2px 0; border: 0; white-space: normal; min-width: 0; }
-    .rg-table td.rg-num { float: left; margin-right: 8px; }
+  /* ── Raid Guides (v7.3 glance view) ─────────────────────────────────
+     Same rules as the legacy sheet, on Ashen tokens. Nothing here hides an
+     element the BEHAVIOUR PARITY block tracks. */
+  #tab-raids { --rg-ink: var(--ash-text); --rg-dim: var(--ash-dim); --rg-line: var(--ash-edge-faint); --rg-card: var(--ash-ink-900); --rg-sunken: var(--ash-ink-950); --rg-accent: var(--ash-accent); --rg-r: var(--ash-r-control); --rg-r-sm: var(--ash-r-control); --rg-tank: #3987e5; --rg-healer: #199e70; --rg-support: #d95926; --rg-damage: var(--ash-dim); --rg-critical: #d03b3b; --rg-critical-text: #e66767; }
+  #tab-raids{min-width:0;max-width:100%}
+  .rg-sr{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0}
+  .rg-picker{position:relative;margin:4px 0 14px}
+  .rg-bosses{display:flex;flex-wrap:wrap;gap:8px}
+  .rg-boss{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:7px 14px;border:1px solid var(--rg-line);border-radius:999px;background:var(--rg-card);color:var(--rg-dim);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+  .rg-boss:hover{color:var(--rg-ink)}
+  .rg-boss[aria-pressed="true"]{color:var(--rg-ink);border-color:var(--rg-accent);box-shadow:inset 0 0 0 1px var(--rg-accent)}
+  .rg-boss:focus-visible,.rg-member:focus-visible,.rg-node-btn:focus-visible{outline:2px solid var(--rg-accent);outline-offset:2px}
+  .rg-guide{display:flex;flex-direction:column;gap:14px;--rg-focus:var(--rg-accent)}
+  .rg-guide[data-rg-focus="combat"]{--rg-focus:var(--rg-tank)}
+  .rg-guide[data-rg-focus="spellcrafting"],.rg-guide[data-rg-focus="gathering"],.rg-guide[data-rg-focus="alchemy"]{--rg-focus:var(--rg-healer)}
+  .rg-guide[data-rg-focus="jewelcrafting"],.rg-guide[data-rg-focus="smithing"],.rg-guide[data-rg-focus="construction"],.rg-guide[data-rg-focus="tailoring"]{--rg-focus:var(--rg-support)}
+  .rg-guide[data-rg-focus="mining"],.rg-guide[data-rg-focus="woodcutting"]{--rg-focus:var(--rg-damage)}
+  .rg-card{padding:14px 16px;border:1px solid var(--rg-line);border-radius:var(--rg-r);background:var(--rg-card)}
+  .rg-h{margin:0 0 12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;font-size:15px;font-weight:700;color:var(--rg-ink)}
+  .rg-h-sub{font-size:12px;font-weight:500;color:var(--rg-dim)}
+  .rg-hero{padding:16px;border:1px solid var(--rg-line);border-radius:var(--rg-r);background:var(--rg-card);background-image:linear-gradient(135deg,var(--rg-el-tint,transparent),transparent 62%)}
+  .rg-hero[data-element="fire"]{--rg-el-tint:rgba(217,89,38,.16)}
+  .rg-hero[data-element="lightning"]{--rg-el-tint:rgba(201,163,0,.14)}
+  .rg-hero[data-element="frost"]{--rg-el-tint:rgba(57,135,229,.16)}
+  .rg-hero-title{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .rg-hero-icon{font-size:30px;line-height:1}
+  .rg-hero-name{font-size:20px;font-weight:700;color:var(--rg-ink);line-height:1.2}
+  .rg-hard{display:inline-block;margin-left:6px;padding:1px 9px;border:1px solid var(--rg-critical);border-radius:999px;font-size:11.5px;font-weight:700;color:var(--rg-critical-text);vertical-align:3px}
+  .rg-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .rg-tile{display:flex;flex-direction:column;gap:3px;min-width:0;padding:10px 12px;border:1px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+  .rg-tile-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rg-dim)}
+  .rg-tile-v{font-size:22px;font-weight:700;line-height:1.15;color:var(--rg-ink);font-variant-numeric:tabular-nums}
+  .rg-tile-u{font-size:12px;font-weight:500;color:var(--rg-dim)}
+  .rg-tile-s{font-size:11.5px;line-height:1.35;color:var(--rg-dim)}
+  .rg-bar{display:flex;gap:2px;height:8px;margin:4px 0 2px}
+  .rg-bar-gear{background:var(--rg-ink);opacity:.72;border-radius:4px 0 0 4px}
+  .rg-bar-ward{background:var(--rg-support);border-radius:0 4px 4px 0}
+  .rg-key{display:inline-block;width:9px;height:9px;margin-right:4px;border-radius:2px;vertical-align:-1px;background:var(--rg-ink)}
+  .rg-key-gear{opacity:.72}
+  .rg-key-ward,.rg-key[data-role="support"]{background:var(--rg-support)}
+  .rg-key[data-role="tank"]{background:var(--rg-tank)}
+  .rg-key[data-role="healer"]{background:var(--rg-healer)}
+  .rg-key[data-role="damage"]{background:var(--rg-damage)}
+  .rg-watch{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+  .rg-warn-card{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--rg-line);border-left:3px solid var(--rg-critical);border-radius:var(--rg-r-sm);background:var(--rg-card)}
+  .rg-warn-icon{font-size:22px;line-height:1}
+  .rg-warn-body{display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:1.4;color:var(--rg-dim)}
+  .rg-warn-body strong{font-size:13.5px;color:var(--rg-ink)}
+  .rg-members{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+  .rg-member{--rg-rc:var(--rg-line);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;padding:10px 4px 8px;border:1px solid var(--rg-line);border-top:4px solid var(--rg-rc);border-radius:var(--rg-r-sm);background:var(--rg-sunken);color:var(--rg-ink);font:inherit;cursor:pointer}
+  .rg-member[data-role="tank"]{--rg-rc:var(--rg-tank)}
+  .rg-member[data-role="healer"]{--rg-rc:var(--rg-healer)}
+  .rg-member[data-role="support"]{--rg-rc:var(--rg-support)}
+  .rg-member[data-role="damage"]{--rg-rc:var(--rg-damage)}
+  .rg-member[data-role="everyone"]{--rg-rc:var(--rg-accent)}
+  .rg-member[aria-pressed="true"]{border-color:var(--rg-rc);box-shadow:inset 0 0 0 1px var(--rg-rc)}
+  .rg-member-icon{font-size:22px;line-height:1.1}
+  .rg-member-name{font-size:12.5px;font-weight:700;text-align:center;line-height:1.2}
+  .rg-member-sub{font-size:10.5px;text-align:center;color:var(--rg-dim)}
+  .rg-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:11.5px;color:var(--rg-dim)}
+  .rg-jobs{margin-top:12px}
+  .rg-job{padding:10px 12px;border:1px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+  .rg-job-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:700;color:var(--rg-ink)}
+  .rg-job-role{padding:0 8px;border:1px solid var(--rg-line);border-radius:999px;font-size:11px;font-weight:600;color:var(--rg-dim)}
+  .rg-job-list{margin:0;padding-left:20px;font-size:13.5px;line-height:1.55;color:var(--rg-ink)}
+  .rg-track{position:relative;display:grid;grid-template-columns:repeat(var(--rg-n),minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}
+  .rg-track::before{content:"";position:absolute;left:5%;right:5%;top:39px;height:2px;background:var(--rg-line)}
+  .rg-node{min-width:0;transition:opacity .15s ease}
+  .rg-node-btn{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:0 2px 6px;border:0;border-radius:var(--rg-r-sm);background:none;color:var(--rg-ink);font:inherit;cursor:pointer}
+  .rg-node-time{height:16px;font-size:11px;color:var(--rg-dim);font-variant-numeric:tabular-nums}
+  .rg-node-glyph{position:relative;z-index:1;display:grid;place-items:center;width:40px;height:40px;border:2px solid var(--rg-line);border-radius:50%;background:var(--rg-card);font-size:19px}
+  .rg-node.is-lethal .rg-node-glyph{border-color:var(--rg-critical)}
+  .rg-node-name{font-size:11.5px;font-weight:600;line-height:1.25;text-align:center}
+  .rg-node-flag{font-size:10px;font-weight:700;color:var(--rg-critical-text)}
+  .rg-node-turn{padding:0 7px;border-radius:999px;background:var(--rg-tank);color:#fff;font-size:10px;font-weight:700}
+  .rg-node-who{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin-top:2px}
+  .rg-dot{--rg-rc:var(--rg-line);display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--rg-sunken);box-shadow:inset 0 0 0 2px var(--rg-rc);font-size:11px;line-height:1}
+  .rg-dot[data-role="tank"],.rg-chip[data-role="tank"]{--rg-rc:var(--rg-tank)}
+  .rg-dot[data-role="healer"],.rg-chip[data-role="healer"]{--rg-rc:var(--rg-healer)}
+  .rg-dot[data-role="support"],.rg-chip[data-role="support"]{--rg-rc:var(--rg-support)}
+  .rg-dot[data-role="damage"],.rg-chip[data-role="damage"]{--rg-rc:var(--rg-damage)}
+  .rg-dot[data-role="everyone"],.rg-chip[data-role="everyone"]{--rg-rc:var(--rg-accent)}
+  .rg-node.is-dim{opacity:.3}
+  .rg-node.is-on .rg-node-glyph{box-shadow:0 0 0 3px var(--rg-focus)}
+  .rg-node-btn.is-picked .rg-node-name{text-decoration:underline;text-underline-offset:3px}
+  .rg-details-box{margin-top:12px}
+  .rg-detail{padding:10px 12px;border:1px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+  .rg-detail-head{color:var(--rg-ink)}
+  .rg-detail-kind{margin-left:4px;font-size:11.5px;color:var(--rg-dim)}
+  .rg-detail-text{margin:6px 0 8px;font-size:13px;line-height:1.5;color:var(--rg-dim)}
+  .rg-detail-text strong{color:var(--rg-ink)}
+  .rg-detail-who{display:flex;flex-wrap:wrap;gap:6px;font-size:12.5px}
+  .rg-chip{--rg-rc:var(--rg-line);display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border:1px solid var(--rg-rc);border-radius:999px;color:var(--rg-ink);white-space:nowrap}
+  .rg-detail-hint,.rg-dim-text{margin:0;font-size:12.5px;color:var(--rg-dim)}
+  .rg-chart{position:relative}
+  .rg-chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .rg-ch-safe{fill:var(--rg-ink);opacity:.05}
+  .rg-ch-grid{stroke:var(--rg-line);stroke-width:1}
+  .rg-ch-axis{fill:var(--rg-dim);font-size:11px}
+  .rg-ch-note{fill:var(--rg-ink);font-size:11.5px;font-weight:600}
+  .rg-ch-mark{stroke:var(--rg-dim);stroke-width:1;stroke-dasharray:4 4}
+  .rg-ch-line{fill:none;stroke:var(--rg-accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+  .rg-ch-pt{fill:var(--rg-accent);stroke:var(--rg-card);stroke-width:2}
+  .rg-ch-cross{stroke:var(--rg-ink);stroke-width:1;opacity:.5}
+  .rg-ch-hit{fill:transparent;cursor:crosshair}
+  .rg-ch-tip{position:absolute;top:2px;padding:3px 8px;border-radius:6px;background:var(--rg-ink);color:var(--rg-card);font-size:12px;font-weight:600;white-space:nowrap;pointer-events:none}
+  .rg-loot>summary{margin:0;cursor:pointer;list-style:none}
+  .rg-loot>summary::-webkit-details-marker{display:none}
+  .rg-loot>summary::before{content:"▸";margin-right:2px;color:var(--rg-dim)}
+  .rg-loot[open]>summary{margin-bottom:10px}
+  .rg-loot[open]>summary::before{content:"▾"}
+  .rg-loot-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;margin:0;padding:0;list-style:none}
+  .rg-loot-row{display:grid;grid-template-columns:1fr auto;grid-template-areas:"name rate" "meta rate";gap:0 10px;padding:6px 10px;border-left:3px solid var(--rg-line);border-radius:var(--rg-r-sm);background:var(--rg-sunken)}
+  .rg-loot-row[data-rarity="legendary"]{border-left-color:#e8a428}
+  .rg-loot-row[data-rarity="epic"]{border-left-color:#a970ff}
+  .rg-loot-row[data-rarity="rare"]{border-left-color:#3987e5}
+  .rg-loot-row[data-rarity="uncommon"]{border-left-color:#2ec46b}
+  .rg-loot-name{grid-area:name;min-width:0}
+  .rg-loot-meta{grid-area:meta;font-size:11.5px;color:var(--rg-dim)}
+  .rg-loot-rate{grid-area:rate;align-self:center;font-weight:700;color:var(--rg-ink);font-variant-numeric:tabular-nums}
+  .rg-muted{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--rg-dim)}
+  .rg-source{margin:0}
+  .rg-source a{color:var(--rg-accent)}
+  @media (max-width:700px){
+  .rg-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rg-tile-v{font-size:19px}
+  .rg-track{grid-template-columns:1fr;gap:2px}
+  .rg-track::before{left:69px;right:auto;top:0;bottom:0;width:2px;height:auto}
+  .rg-node-btn{display:grid;grid-template-columns:38px 36px minmax(0,1fr) auto;grid-template-areas:"time glyph name who" "time glyph flag who";align-items:center;gap:0 10px;padding:4px 2px}.rg-node-time{grid-area:time}.rg-node-glyph{grid-area:glyph}.rg-node-name{grid-area:name}.rg-node-flag,.rg-node-turn{grid-area:flag;justify-self:start}.rg-node-who{grid-area:who;max-width:112px;justify-content:flex-end}.rg-ch-axis{font-size:20px}.rg-ch-note{font-size:20px}
+  .rg-node-time{width:38px;height:auto;text-align:right}
+  .rg-node-glyph{width:36px;height:36px;font-size:17px}
+  .rg-node-name{font-size:13px;text-align:left}
+  .rg-node-who{margin:0}
   }
+  @media (prefers-reduced-motion:reduce){.rg-node{transition:none}}
 </style>
 
 <script>
@@ -10231,7 +10424,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v7.2</span>
+  <span data-ui=ver-pill class="ver-pill">v7.3</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -12469,13 +12662,18 @@
     <div data-ui=pane-head class="pane-head">
       <div data-ui=pane-eyebrow class="pane-eyebrow">Guild raids</div>
       <h2 class="pane-title">Raid Guides</h2>
-      <p class="pane-sub">Pick a boss to see what the fight asks for, every ability in its rotation and who answers it, a suggested roster of eight, and what each raider should do.</p>
+      <p class="pane-sub">Pick a boss, then tap your role.</p>
     </div>
-    <div data-ui=rg-picker-panel class="panel">
-      <div data-ui=panel-body class="panel-body">
-        <div data-ui=field class="field rg-picker">
-          <span data-ui=rg-field-label class="rg-field-label">Boss</span>
-          <select id="raid-guide-boss" aria-label="Raid boss">
+    <div data-ui=rg-picker class="rg-picker">
+      <div data-ui=rg-bosses class="rg-bosses" role="group" aria-label="Raid boss">
+        <button type="button" class="rg-boss" data-rg-boss-pick="ashmaw" aria-pressed="true">🔥 Ashmaw</button>
+        <button type="button" class="rg-boss" data-rg-boss-pick="thessaly" aria-pressed="false">⚡ Thessaly</button>
+        <button type="button" class="rg-boss" data-rg-boss-pick="morwenna" aria-pressed="false">🔥 Morwenna</button>
+        <button type="button" class="rg-boss" data-rg-boss-pick="grimjaw" aria-pressed="false">❄️ Grimjaw</button>
+        <button type="button" class="rg-boss" data-rg-boss-pick="skarth" aria-pressed="false">❄️ Skarth</button>
+        <button type="button" class="rg-boss" data-rg-boss-pick="ashmaw_hard" aria-pressed="false">🔥 Ashmaw Hard</button>
+      </div>
+          <select id="raid-guide-boss" class="rg-sr" aria-label="Raid boss" tabindex="-1">
             <option value="ashmaw" selected>🔥 Ashmaw, the Cinder Tyrant</option>
             <option value="thessaly">⚡ Thessaly, the Plague Warden</option>
             <option value="morwenna">🔥 Morwenna, the Hollow Oracle</option>
@@ -12483,8 +12681,6 @@
             <option value="skarth">❄️ Skarth, the Rime Wyrm</option>
             <option value="ashmaw_hard">🔥 Ashmaw, the Cinder Tyrant · Hard</option>
           </select>
-        </div>
-      </div>
     </div>
     <div data-ui=rg-body class="rg-body" data-rg="body"></div>
   </div>
@@ -40552,9 +40748,9 @@ function syncCombatLevel(val) {
       enrageSec:210, aoeRaw:400, tickRaw:110,
       rotation:ROT_ASHMAW,
       heavy:'Claw Rake', aoe:'Cinderstorm', curse:'Ember Brand', dot:{ name:'Burning', jumps:false },
-      mustKnow:[
-        'The weakest boss and the only one open from the start. It is a damage race more than a survival check: about 100 damage a second from the raid kills it before the enrage starts.',
-        'Burning stacks if Smoldering Wound lands again before it ends, so cleanse it from whoever is lowest.'
+      watch:[
+        ['⏱️', 'A fast fight', 'Its damage starts climbing at 3:30, the earliest of any boss.'],
+        ['🔥', 'Burning stacks', 'Smoldering Wound stacks if it lands again: heal whoever has it.']
       ],
       roster:[
         ['combat','Claw Rake lands twice a cycle; without a taunt it hits random raiders at full force.'],
@@ -40564,10 +40760,10 @@ function syncCombatLevel(val) {
         ['smithing','One Fortify covers a Claw Rake and the Cinderstorm 15 s after it.'],
         ['construction','An 84 shield on everyone soaks Cinderstorm.'],
         ['mining','+22% raid ATK. The enrage starts at 210 s here, the earliest of any boss, so speed matters.'],
-        ['woodcutting','Rend: extra boss damage. This roster killed fastest in the simulation (111 s on average).']
+        ['woodcutting','Rend: extra boss damage, for the fastest kill.']
       ],
       bench:[
-        ['alchemy','Burning (110 a tick before resist) does not spread here, and the healers cover it: no simulated death needed a Cleanse.'],
+        ['alchemy','Burning (110 a tick) does not spread here, and the healers cover it.'],
         ['tailoring','The taunting tank already takes Claw Rake at 65% less damage.']
       ],
       sim:{ clean:100, killS:111, full:'Every case tried: raiders from 450 HP and Attacks from 200 damage.' },
@@ -40587,16 +40783,16 @@ function syncCombatLevel(val) {
         A('Voltaic Wound','poison','Leaves one raider Shocked for 15 s: lightning damage over time that stacks. If it runs out without a Cleanse, it jumps once to another raider.')
       ],
       heavy:'Static Shock', aoe:'Stormsurge', curse:'Arc Brand', dot:{ name:'Shocked', jumps:true },
-      mustKnow:[
-        'Stormsurge deals 30% of each raider’s own max HP on top of its lightning damage. Stacking HP does not replace healing: it makes the hit bigger.',
-        'Shocked jumps once to another raider if it runs its full 15 s. Cleanse helps but is not required.'
+      watch:[
+        ['⚡', 'Stormsurge grows with HP', '400 + 30% of each raider’s max HP, twice a cycle. Pre-heal before it.'],
+        ['☣️', 'Shocked jumps', 'Cleanse it within 15 s or it moves to another raider.']
       ],
       roster:[
-        ['combat','Static Shock lands twice a cycle. A second tank tested no better here, and War Cry kills faster.'],
+        ['combat','Static Shock lands twice a cycle. One tank is enough; the slot goes to War Cry.'],
         ['spellcrafting','Stormsurge hits everyone for 400 plus 30% of their own max HP twice a cycle: the heaviest healing load of the 7-ability bosses.'],
         ['gathering','Regrowth cast in Stormsurge’s warning heals through the hit.'],
         ['jewelcrafting','Up to 36 of the 62 lightning resist.'],
-        ['alchemy','Shocked ticks for 210 before resist and jumps once if left: it caused almost every simulated loss, and Cleanse stops it.'],
+        ['alchemy','Shocked ticks for 210 before resist and jumps if left: the biggest danger here, and Cleanse stops it.'],
         ['smithing','Fortify takes 12% off Stormsurge and covers the Static Shock before it.'],
         ['construction','The shield soaks up to 100% of a Stormsurge hit.'],
         ['mining','+22% raid ATK: about 20 s faster than a second tank, with the same survival.']
@@ -40622,14 +40818,14 @@ function syncCombatLevel(val) {
         A('Soulrend Mark','doom','Marks one living raider for 14 s. If it is not cleansed in time, they die outright and everyone else takes 35% of their max HP.')
       ],
       heavy:'Oracle’s Touch', aoe:'Hollow Wave', curse:'Ember Curse', doom:{ name:'Soulrend Mark', seconds:14, splashPct:35 },
-      mustKnow:[
-        'Soulrend Mark: an uncleansed mark kills its raider and hits everyone else for 35% of their max HP. Only Cleanse removes it, so an Alchemy lender is mandatory.',
-        'The mark comes once a cycle and gives 14 s. It always beats Ember Curse in the Cleanse queue.'
+      watch:[
+        ['☠️', 'Soulrend Mark', 'Cleanse it within 14 s, or that raider dies and everyone takes 35% of max HP.'],
+        ['🔥', 'Hollow Wave hits hard', '610 to the whole raid: have Ward and Reinforce up first.']
       ],
       roster:[
         ['alchemy','Mandatory: nothing else removes Soulrend Mark, and an uncleansed mark kills a raider and hits everyone else for 35% of max HP.'],
         ['combat','Oracle’s Touch lands twice a cycle.'],
-        ['combat','A second tank: if the first one dies, Oracle’s Touch lands on random raiders at full force. Otherwise they attack. It tested better than a second healer.'],
+        ['combat','A backup tank: if the first one dies, Oracle’s Touch would land on random raiders at full force. Otherwise they attack.'],
         ['spellcrafting','The big heal for the tank and after a Hollow Wave.'],
         ['jewelcrafting','Hollow Wave hits for 610 before resist, the most of the Normal bosses but Skarth: Ward supplies up to 36 of the 60.'],
         ['smithing','One Fortify covers an Oracle’s Touch and the Hollow Wave 15 s after it.'],
@@ -40637,7 +40833,7 @@ function syncCombatLevel(val) {
         ['mining','+22% raid ATK for 46,000 HP.']
       ],
       bench:[
-        ['gathering','The second tank tested better than a second healer.'],
+        ['gathering','The backup tank is worth more than a second healer.'],
         ['woodcutting','War Cry is the better damage lend.'],
         ['tailoring','The tank already takes Oracle’s Touch at 65% less damage.']
       ],
@@ -40667,10 +40863,10 @@ function syncCombatLevel(val) {
       // matching Curtis's 80+ seen in a raid (2026-11-08) at about 49 resist.
       heavy:'Rime Crush', aoe:'Absolute Zero', anchor:{ name:'Soul Anchor', markSec:55 },
       dot:{ name:'Frozen', jumps:true, source:'Creeping Frost', tickNote:'130 a tick before resist (65 at full resist) for 15 s' },
-      mustKnow:[
-        'Bring two tanks and take turns on Rime Crush. Challenge as Grimjaw starts channelling it: that one taunt takes the Rime Crush and the Soul Anchor right after it. Tank A takes the odd ones (1st, 3rd, 5th…), Tank B the even ones (2nd, 4th, 6th…).',
-        'Soul Anchor marks the tank for 55 s, and a second anchor while marked kills them outright: nothing heals, cleanses or shields it. Taking turns keeps each tank’s anchors 90 s apart, so never Challenge on the other tank’s turn.',
-        'Creeping Frost: Frozen ticks for 130 before resist (65 at full resist) for 15 s, then jumps to another raider if nobody cleanses it. Next to two Absolute Zeros and the tanks, one healer cannot carry it: bring Cleanse.'
+      watch:[
+        ['⚓', 'Take turns on Rime Crush', 'Tank A takes the odd ones, Tank B the even ones. A second Soul Anchor kills.'],
+        ['❄️', 'Absolute Zero, twice', '600 to the raid each time: Ward, Fortify and Reinforce up for both.'],
+        ['☣️', 'Creeping Frost jumps', 'Cleanse it as soon as it lands.']
       ],
       roster:[
         ['combat','Tank A. Challenges the 1st, 3rd, 5th… Rime Crush, taking it and the Soul Anchor after it.'],
@@ -40683,8 +40879,8 @@ function syncCombatLevel(val) {
         ['mining','+22% raid ATK. The fight ends about 40 s sooner than with a second healer, at the same survival.']
       ],
       bench:[
-        ['gathering','A second healer survived no better and killed about 40 s slower than War Cry.'],
-        ['woodcutting','War Cry tested better as the damage lend.'],
+        ['gathering','A second healer adds little here; War Cry ends the fight sooner.'],
+        ['woodcutting','War Cry is the better damage lend here.'],
         ['tailoring','The tanks take turns at 65% less damage, so each meets only every other Rime Crush.']
       ],
       sim:{ clean:95.7, killS:294, full:'99–100% with a 450 heavy hit on the tank, at every HP and Attack tried. The losses are 450 HP raiders against a 600 heavy hit with 200-damage Attacks.' },
@@ -40704,10 +40900,10 @@ function syncCombatLevel(val) {
         A('Frostbite','poison','Leaves one raider Frozen for 15 s: frost damage over time that stacks. If it runs out without a Cleanse, it jumps once to another raider.')
       ],
       heavy:'Frost Claw', aoe:'Blizzard', dot:{ name:'Frozen', jumps:true },
-      mustKnow:[
-        'Ice Tomb: everyone’s attacks go into the ice until it breaks. Break it before it shatters or that raider dies.',
-        'Frozen Heart is a damage check: enough damage before Glacial Breath lands breaks the charge, staggers Skarth and makes him take extra damage. Miss it and the whole raid is blasted.',
-        'Skarth wants 90 frost resist, the most of any Normal boss. Even with Ward up, each raider needs 54 from gear.'
+      watch:[
+        ['🧊', 'Ice Tomb', 'Everyone hits the ice until it breaks, or the raider inside dies.'],
+        ['💥', 'Frozen Heart', 'Burst Skarth for 12 s to break it, or Glacial Breath hits everyone.'],
+        ['💪', 'Bring hard hitters', 'Breaking the charge in time needs Attacks of about 400+.']
       ],
       roster:[
         ['combat','Frost Claw lands twice a cycle.'],
@@ -40720,7 +40916,7 @@ function syncCombatLevel(val) {
         ['woodcutting','Rend adds boss damage while everyone else is on the ice or the charge.']
       ],
       bench:[
-        ['smithing','Fortify tested slightly worse here: the damage checks need the extra Attack.'],
+        ['smithing','The damage checks need the extra Attack more than Fortify.'],
         ['tailoring','The tank already takes Frost Claw at 65% less damage.']
       ],
       sim:{ clean:25.4, killS:384, full:'Attacks of 400+ damage (each raider’s Attack, before War Cry), at any HP from 525: 100%. At 275 the raid cannot reliably break Frozen Heart and Glacial Breath lands.' },
@@ -40733,17 +40929,16 @@ function syncCombatLevel(val) {
       enrageSec:360, aoeRaw:770, tickRaw:220,
       rotation:ROT_ASHMAW, rotationNote:'The wiki publishes one rotation for Ashmaw. It hits harder on Hard; no other change is listed.',
       heavy:'Claw Rake', aoe:'Cinderstorm', curse:'Ember Brand', dot:{ name:'Burning', jumps:false },
-      mustKnow:[
-        'Hard wants 90 fire resist where Normal wants 60, and its raid-wide and Burning damage are much heavier.',
-        '85,000 HP needs about 237 damage a second from the raid to finish before the enrage starts at 360 s: twice Normal’s pace, for four times its HP.',
-        'Hard has its own weekly loot lock, and its own legendaries (below).'
+      watch:[
+        ['🔥', 'Brutal raid damage', 'Cinderstorm hits for 770 and Burning ticks for 220. Bring 90 fire resist.'],
+        ['💪', 'Strong raiders only', 'Aim for about 700+ max HP and Attacks of 400+.']
       ],
       roster:[
         ['combat','Claw Rake lands twice a cycle.'],
         ['spellcrafting','The big heal: Cinderstorm hits for 770 before resist.'],
         ['gathering','A second heal, cast in Cinderstorm’s warning.'],
         ['jewelcrafting','36 of the 90 fire resist.'],
-        ['alchemy','Burning ticks for 220 before resist; with Cleanse the roster held up best on low-HP raiders.'],
+        ['alchemy','Burning ticks for 220 before resist: Cleanse keeps low-HP raiders alive.'],
         ['smithing','Fortify covers a Claw Rake and the Cinderstorm after it.'],
         ['construction','The shield soaks Cinderstorm before HP.'],
         ['mining','+22% raid ATK for 85,000 HP.']
@@ -40756,20 +40951,10 @@ function syncCombatLevel(val) {
   };
   var ORDER = ['ashmaw','thessaly','morwenna','grimjaw','skarth','ashmaw_hard'];
 
-  // How the rosters were chosen (v7.2, 2026-11-08): tools/raid-sim (not
-  // deployed; see its README). Re-run it when the game's raid numbers change,
-  // then update each guide's roster, bench and sim; suite V pins them.
-  var SIM = {
-    fights: '6,480',
-    grid: 'raiders of 450–650 HP with tanks at double, gear resist at the target and 8 under it, a heavy hit of 300–600 on the tank, Attacks of 200–350 damage',
-    method: [
-      'Fight by fight, against the game’s own raid table: boss HP and ATK, every raid-wide hit and poison tick, the enrage start, the 15 s cadence, the 10 s action bar and every lend’s level-70 formula.',
-      'The game runs raids on its server and does not publish four numbers: the heavy hit on a taunting tank, raiders’ max HP, Attack damage, and the exact resist curve (taken as a straight line up to the 50% cap). Each was swept across the range above.',
-      'Rend’s tick rate is not published either: every roster was tested with it ticking every 3 s and once per 10 s action.',
-      'Every legal roster was tried: one or two tanks and every other lend at most once, 120 in all. A fight counts only if the boss dies and nobody does.',
-      'Raiders follow the guide: tanks take their turn, healers heal the lowest, Cleanse takes marks, then poison, then curses, and buffs go up in each warning. On Skarth everyone who can switches to Attack for the ice and the charge.'
-    ]
-  };
+  // The rosters (and each guide's sim:{} summary) come from tools/raid-sim
+  // (not deployed; see its README). The page presents them as the
+  // recommended roster and never mentions the simulation (Curtis,
+  // 2026-11-08). Re-run it after a raid balance patch; suite V pins them.
   ORDER.forEach(function (k) {
     var g = GUIDES[k];
     g.key = k;
@@ -40854,118 +41039,99 @@ function syncCombatLevel(val) {
     }).map(function (id) { return { id: id, rate: src[id].rate }; });
   }
 
-  // ── What each lend does on this boss ──────────────────────────────────
+  // ── v7.3 glance view ──────────────────────────────────────────────────
+  // One screen per boss: four stat tiles, the recommended roster as role
+  // tiles (tap one to see that raider's job and light up what they answer),
+  // the rotation as a timeline of icons, a danger-over-time chart, two or
+  // three warning cards, and the loot folded away. Text stays short; the
+  // detail lives behind a tap.
+  var GLYPH = { single:'⚔️', buff:'🧱', curse:'🌀', poison:'☣️', doom:'☠️', mark_tank:'⚓', entomb:'🧊', charge:'💥' };
+  var LETHAL = { doom:1, mark_tank:1, entomb:1, charge:1 };
+  var ROLE_KEY = { Tank:'tank', Healer:'healer', Support:'support', Damage:'damage' };
+  function glyphOf(g, a) { return a.kind === 'aoe' ? ELEMENTS[g.element].icon : GLYPH[a.kind]; }
+  function mmss(sec) { var m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+  // Times in the cycle, as the timeline labels them (slot n lands at n x 15 s).
+  function at(slot) { return mmss(slot * CADENCE); }
   function slotList(g, kind) {
-    var s = slotsOf(g, kind);
-    return s.length === 1 ? 'slot ' + s[0] : 'slots ' + s.slice(0, -1).join(', ') + ' and ' + s[s.length - 1];
-  }
-  function gapText(g, kind) {
-    var gs = gaps(g, kind).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a - b; });
-    return gs.length === 1 ? gs[0] + ' s' : gs[0] + '–' + gs[gs.length - 1] + ' s';
-  }
-  function planText(groups) {
-    return groups.map(function (grp) {
-      var head = 'in the warning before ' + grp[0].name + ' (slot ' + grp[0].slot + ')';
-      if (grp.length > 1) head += ', which also covers ' + grp.slice(1).map(function (e) {
-        return e.name + ' (' + (e.cycle ? 'next cycle’s ' : '') + 'slot ' + e.slot + ', ' + (e.t - grp[0].t) + ' s later)';
-      }).join(' and ');
-      return head;
-    });
+    var s = slotsOf(g, kind).map(at);
+    return s.length === 1 ? s[0] : s.slice(0, -1).join(', ') + ' and ' + s[s.length - 1];
   }
   function count(g, kind) { return slotsOf(g, kind).length; }
   function times(n) { return n === 1 ? 'once' : n === 2 ? 'twice' : n + ' times'; }
+  function rosterIds(g) { return g.roster.map(function (p) { return p[0]; }); }
+  /** Lends in this roster that act on an ability kind ('everyone' included). */
+  function answersFor(g, kind) {
+    var ids = rosterIds(g);
+    return KINDS[kind].answers.filter(function (l) { return l === 'everyone' || ids.indexOf(l) >= 0; });
+  }
 
+  /** A raider's job on this boss: at most three short lines. */
   function actionsFor(g, lend) {
-    var out = [], r = gearResist(g), el = ELEMENTS[g.element].label.toLowerCase();
-    var nHeavy = count(g, 'single'), nAoe = count(g, 'aoe');
+    var el = ELEMENTS[g.element].label.toLowerCase(), r = gearResist(g), out = [];
+    var tanks = rosterIds(g).filter(function (l) { return l === 'combat'; }).length;
     if (lend === 'combat') {
       if (g.anchor) {
-        out.push('Two tanks, A and B, taking turns on ' + g.heavy + ' for the whole fight: A takes the 1st, B the 2nd, A the 3rd, and so on.');
-        out.push('On your turn, Challenge as Grimjaw starts channelling ' + g.heavy + '. That one taunt takes the ' + g.heavy + ' and the ' + g.anchor.name +
-          ' right after it, and nothing else in the cycle targets the tank, so it is your only cast until your next turn.');
-        out.push('Never Challenge on the other tank’s turn. Your ' + g.anchor.name + ' mark lasts ' + g.anchor.markSec +
-          ' s and your next turn comes 90 s later, but a second anchor while you are still marked kills you outright.');
+        out.push('Take turns on ' + g.heavy + ': Tank A the 1st, 3rd, 5th…, Tank B the 2nd, 4th, 6th…');
+        out.push('Challenge as it starts. That taunt also takes the ' + g.anchor.name + ' right after it.');
+        out.push('Never Challenge on the other tank’s turn: a second anchor kills.');
       } else {
-        out.push('Challenge before every ' + g.heavy + ' (' + slotList(g, 'single') + ', ' + gapText(g, 'single') + ' apart). One taunt lasts 32 s, shorter than the gap, so recast for each one, in its 4 s warning at the latest.');
+        out.push('Challenge in the 4 s warning before every ' + g.heavy + ' (' + slotList(g, 'single') + ').');
+        if (tanks > 1) out.push('Tank 2: attack, and Challenge at once if Tank 1 goes down.');
+        out.push('Attack the rest of the time.');
       }
-      out.push('If you go down, the taunt lapses and ' + g.heavy + ' lands on random raiders at full force.');
-      if (!g.anchor && g.roster.filter(function (p) { return p[0] === 'combat'; }).length > 1)
-        out.push('Second tank: attack, and Challenge at once if the first tank goes down.');
-      if (g.key === 'thessaly') out.push('Stormsurge skips the active tank. If you lose Challenge, your extra max HP makes its 30%-of-max-HP part hit you harder.');
     } else if (lend === 'spellcrafting') {
-      out.push('Tank first: ' + g.heavy + ' lands on them ' + times(nHeavy) + ' a cycle.');
-      if (g.curse) out.push('Mend is halved on a cursed target. After ' + g.curse + ', get the curse cleansed first, or heal someone else.');
-      if (g.key === 'thessaly') out.push('After each Stormsurge, the biggest raiders have lost the most HP (30% of their own max).');
-      if (g.doom) out.push('If a ' + g.doom.name + ' gets through, everyone else loses ' + g.doom.splashPct + '% of max HP at once: heal the raid straight after.');
-      if (g.anchor) out.push('The tanks take turns on ' + g.heavy + ': heal whichever one is taking this one (see the tank rotation).');
+      out.push('Heal the tank after every ' + g.heavy + '.');
+      out.push(g.doom ? 'If a ' + g.doom.name + ' goes off, heal the whole raid at once.' : 'Then heal whoever is lowest.');
+      if (g.curse) out.push('A cursed raider gets half: Cleanse them first.');
     } else if (lend === 'gathering') {
-      out.push('Cast Regrowth in the 4 s warning before ' + g.aoe + ' (' + slotList(g, 'aoe') + '), so it ticks while the damage lands.');
-      out.push('Between raid-wide hits, keep a Regrowth on the tank ahead of ' + g.heavy + '.');
+      out.push('Cast Regrowth in the warning before each ' + g.aoe + ' (' + slotList(g, 'aoe') + ').');
+      out.push('Otherwise keep one ticking on the tank.');
     } else if (lend === 'jewelcrafting') {
-      out.push('Ward lasts 28 s and ' + g.aoe + ' comes every ' + gapText(g, 'aoe') + '. Recast ' + planText(castPlan(g, ['aoe'])).join('; and ') + ', so it is up (+36, not +12) when each one lands.');
-      out.push('Tell the raid their target: ' + r.wardUp + ' ' + el + ' resist from gear with Ward up, ' + r.wardDown + ' between casts. Meeting ' + g.resist + ' in total halves ' + el + ' damage; that is the cap.');
-      if (g.dot) out.push('Resist also reduces ' + g.dot.name + '.');
+      out.push('Recast Ward in the warning before each ' + g.aoe + ' (' + slotList(g, 'aoe') + ').');
+      out.push('Raiders need ' + r.wardUp + ' ' + el + ' resist on their gear.');
     } else if (lend === 'smithing') {
-      var fp = castPlan(g, ['single', 'aoe']);
-      out.push('Fortify lasts 28 s. ' + fp.length + ' cast' + (fp.length === 1 ? '' : 's') + ' a cycle: ' + planText(fp).join('; ') + '.');
-      out.push('Attack between casts.');
+      var fp = castPlan(g, ['single', 'aoe']).map(function (grp) { return grp[0].slot; });
+      fp = fp.map(at);
+      out.push('Cast Fortify before ' + (fp.length > 1 ? fp.slice(0, -1).join(', ') + ' and ' + fp[fp.length - 1] : fp[0]) + ': one cast covers the next hit too.');
+      out.push('Attack in between.');
     } else if (lend === 'alchemy') {
-      if (g.doom) {
-        out.push(g.doom.name + ' comes once a cycle (slot ' + slotsOf(g, 'doom')[0] + ') and gives you ' + g.doom.seconds + ' s. Cleanse it every time, before anything else: nothing else removes it.');
-      }
-      if (g.curse) out.push('Cleanse the ' + g.curse + ' target (slot ' + slotsOf(g, 'curse')[0] + '): a cursed raider gets far less healing, and Mend is halved on them.');
-      if (g.dot && g.dot.tickNote) out.push('Cleanse ' + g.dot.name + ' as soon as ' + g.dot.source + ' lands (slot ' + slotsOf(g, 'poison')[0] +
-        '): it does ' + g.dot.tickNote + ', so every tick you leave is healing someone else has to make up.');
-      if (g.dot) out.push(g.dot.jumps
-        ? 'Cleanse ' + g.dot.name + ' before its 15 s run out, or it jumps once to another raider.'
-        : g.dot.name + ' stacks if it lands again inside its 15 s; Cleanse removes every stack.');
-      out.push('Cleanse has no cooldown and heals 25% of max HP, so between priorities it is a small heal.');
+      if (g.doom) out.push('First: ' + g.doom.name + ' (' + at(slotsOf(g, 'doom')[0]) + '). You have ' + g.doom.seconds + ' s; nothing else removes it.');
+      if (g.dot) out.push((g.doom ? 'Then: ' : 'First: ') + g.dot.name + ', as soon as it lands (' + at(slotsOf(g, 'poison')[0]) + ')' + (g.dot.jumps ? ', before it jumps.' : '.'));
+      if (g.curse) out.push((out.length ? 'Then: ' : 'First: ') + 'the ' + g.curse + ' target.');
+      if (out.length < 3) out.push('No one to cure? Your Cleanse heals 25%.');
     } else if (lend === 'mining') {
-      if (g.key === 'skarth') out.push('Have War Cry up for Ice Tomb (slot 3) and Frozen Heart (slot 5): both are damage checks. They are 30 s apart, more than one 28 s window, so recast in each warning.');
-      else out.push('War Cry lasts 28 s and recasting early only extends it. Keep it up and attack between casts.');
-      out.push('The kill is a race with the enrage: about ' + enrageDps(g).toLocaleString('en-US') + ' raid damage a second finishes ' + g.hp.toLocaleString('en-US') + ' HP by ' + g.enrageSec + ' s.');
+      out.push(g.key === 'skarth' ? 'War Cry up for 🧊 Ice Tomb (' + at(slotsOf(g, 'entomb')[0]) + ') and 💥 Frozen Heart (' + at(slotsOf(g, 'charge')[0]) + ').' : 'Keep War Cry up: recast every 28 s.');
+      out.push('Attack in between.');
     } else if (lend === 'construction') {
-      var cp = castPlan(g, ['aoe']);
-      out.push('Reinforce has a 28 s cooldown and the shield has no timer. Refresh it ' + planText(cp).join('; and ') + ': it soaks up to 100% of each hit.');
-      out.push('A shield also absorbs a ' + g.heavy + ' in full, so a shield on the tank is never wasted.');
+      out.push('Reinforce in the warning before each ' + g.aoe + ' (' + slotList(g, 'aoe') + ').');
+      out.push('Attack in between.');
     } else if (lend === 'woodcutting') {
-      out.push('Rend lasts 28 s and recasting early only extends it. Keep the bleed up and attack in between.');
+      out.push('Keep Rend on the boss: recast every 28 s.');
+      out.push('Attack in between.');
     } else if (lend === 'tailoring') {
-      var vp = castPlan(g, ['single']);
-      out.push('Veil lasts 28 s. Have it up for each ' + g.heavy + ' (' + times(nHeavy) + ' a cycle): ' + planText(vp).join('; ') + '.');
+      out.push('Veil up for each ' + g.heavy + ' (' + slotList(g, 'single') + ').');
+      out.push('Attack in between.');
     }
-    return out;
+    return out.slice(0, 3);
   }
   function everyoneActions(g) {
-    var out = ['Attack whenever your lend is not due: every raider has a basic Attack, and the fight is a race with the enrage.'];
-    if (g.key === 'skarth') {
-      out.push('Ice Tomb (slot 3): your attacks go into the ice until it breaks. Break it fast, or the raider inside dies.');
-      out.push('Frozen Heart (slot 5): burst the boss before Glacial Breath lands to break the charge.');
-    }
-    out.push('Bring ' + gearResist(g).wardUp + '+ ' + ELEMENTS[g.element].label.toLowerCase() + ' resist from gear (' + gearResist(g).wardDown + '+ to be safe between Ward casts).');
+    var out = ['Attack whenever your skill isn’t due.'];
+    if (g.key === 'skarth') { out.push('🧊 Ice Tomb: hit the ice until it breaks.'); out.push('💥 Frozen Heart: burst Skarth before it lands.'); }
+    else out.push('Bring ' + gearResist(g).wardUp + '+ ' + ELEMENTS[g.element].label.toLowerCase() + ' resist on your gear.');
     return out;
   }
 
   // ── Rendering ────────────────────────────────────────────────────────
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
-  function fmt(n) { return n == null ? 'not published' : Number(n).toLocaleString('en-US'); }
-  function lendLabel(k) { var l = LENDS[k]; return l.icon + ' ' + l.action + ' <span data-ui=rg-lend-skill class="rg-lend-skill">(' + l.skill + ')</span>'; }
-  function chip(k) {
-    if (k === 'everyone') return '<span data-ui=rg-chip class="rg-chip" data-role="everyone">⚔️ Everyone</span>';
-    var l = LENDS[k];
-    return '<span data-ui=rg-chip class="rg-chip" data-role="' + l.role.toLowerCase() + '" title="' + esc(l.skill + ' lend') + '">' + l.icon + ' ' + esc(l.action) + '</span>';
+  function fmt(n) { return Number(n).toLocaleString('en-US'); }
+  function roleOf(lend) { return lend === 'everyone' ? 'everyone' : ROLE_KEY[LENDS[lend].role]; }
+  function dot(lend) {
+    var label = lend === 'everyone' ? 'Everyone' : LENDS[lend].action;
+    return '<span data-ui=rg-dot class="rg-dot" data-role="' + roleOf(lend) + '" title="' + esc(label) + '">' + (lend === 'everyone' ? '⚔️' : LENDS[lend].icon) + '</span>';
   }
-  function panel(ui, title, body) {
-    return '<div data-ui=rg-panel data-rg-panel="' + ui + '" class="panel rg-panel"><div data-ui=panel-head class="panel-head"><span data-ui=dot class="dot"></span>' + title + '</div>' +
-      '<div data-ui=panel-body class="panel-body">' + body + '</div></div>';
-  }
-  function metric(label, val, sub) {
-    return '<div data-ui=metric class="metric"><div data-ui=metric-lbl class="metric-lbl">' + label + '</div><div data-ui=metric-val class="metric-val">' + val + '</div>' +
-      (sub ? '<div data-ui=metric-sub class="metric-sub">' + sub + '</div>' : '') + '</div>';
-  }
-  // Name and slot come from the raw items.json row (the database record
-  // keeps the slot under other names). The database may not be built yet on
-  // a first paint; the name then renders plain and the next paint links it.
+  // Name and slot come from the raw items.json row; the item database may not
+  // be built on a first paint, so the name then renders plain and the next
+  // paint links it.
   function itemRef(id) {
     var row = null;
     try { row = iwEmbeddedItems().find(function (r) { return r && r.item_id === id; }) || null; } catch (e) {}
@@ -40974,123 +41140,175 @@ function syncCombatLevel(val) {
     var slot = row ? String(row.subcategory || row.category || '').replace(/ slot$/, '') : '';
     return { html: (hit && typeof iwItemRef === 'function') ? iwItemRef(hit) : esc(name), name: name, slot: slot };
   }
-
-  // The game's own numbers for a row (raid table, fetched 2026-11-08): the
-  // raid-wide hit and the poison tick before resist, Fortify and shields.
   function rawNote(g, a) {
-    if (a.kind === 'aoe' && g.aoeRaw) return ' <span data-ui=rg-raw class="rg-raw">' + g.aoeRaw + (g.aoeMaxHpPct ? ' + ' + g.aoeMaxHpPct + '% of max HP' : '') + ' before resist.</span>';
-    if (a.kind === 'poison' && g.tickRaw) return ' <span data-ui=rg-raw class="rg-raw">' + g.tickRaw + ' a tick before resist.</span>';
+    if (a.kind === 'aoe' && g.aoeRaw) return g.aoeRaw + (g.aoeMaxHpPct ? ' + ' + g.aoeMaxHpPct + '% of max HP' : '') + ' damage before resist';
+    if (a.kind === 'poison' && g.tickRaw) return g.tickRaw + ' a tick before resist, for 15 s';
     return '';
   }
-  function render(key) {
-    var g = GUIDES[key] || GUIDES.ashmaw, el = ELEMENTS[g.element], r = gearResist(g);
-    var bossState = (typeof IW_RAID_BOSSES !== 'undefined') ? IW_RAID_BOSSES[g.boss] : null;
-    var h = [];
 
-    var status = (bossState && bossState.released === false)
-      ? '<p data-ui=rg-warn class="rg-warn">The toolkit still treats ' + esc(bossState.name) + '’s loot as unreleased, so the Gear tab does not recommend it.</p>' : '';
-    h.push(panel('rg-boss-panel', esc(g.name) + (g.mode === 'Hard' ? ' · Hard' : ''),
-      '<p data-ui=rg-lead class="rg-lead">' + esc(g.flavour) + '</p>' + status +
-      '<div data-ui=metrics class="metrics rg-metrics">' +
-        metric('HP', fmt(g.hp), g.mode) +
-        metric('ATK / DEF', fmt(g.atk) + ' / ' + (g.def == null ? '—' : fmt(g.def)), g.def == null ? 'DEF not published' : '') +
-        metric('Element', el.icon + ' ' + el.label, g.resist + ' resist wanted') +
-        metric('Entry', 'Combat ' + g.combat + '+', esc(g.unlock)) +
-        metric('Cycle', g.rotation.length + ' abilities', g.cycleSec + ' s, one every ' + CADENCE + ' s') +
-        metric('Beat the enrage', '~' + fmt(enrageDps(g)) + ' dmg/s', 'raid total, HP ÷ ' + g.enrageSec + ' s') +
-      '</div>'));
+  function heroHtml(g) {
+    var el = ELEMENTS[g.element], r = gearResist(g), wardPct = Math.round(100 * (g.resist - r.wardUp) / g.resist);
+    return '<div data-ui=rg-hero class="rg-hero" data-element="' + g.element + '">' +
+      '<div data-ui=rg-hero-title class="rg-hero-title"><span data-ui=rg-hero-icon class="rg-hero-icon" aria-hidden="true">' + el.icon + '</span>' +
+        '<span data-ui=rg-hero-name class="rg-hero-name">' + esc(g.name) + (g.mode === 'Hard' ? ' <span data-ui=rg-hard class="rg-hard">Hard</span>' : '') + '</span></div>' +
+      '<div data-ui=rg-tiles class="rg-tiles">' +
+        '<div data-ui=rg-tile class="rg-tile"><span data-ui=rg-tile-k class="rg-tile-k">❤️ Boss HP</span><span data-ui=rg-tile-v class="rg-tile-v">' + fmt(g.hp) + '</span></div>' +
+        '<div data-ui=rg-tile class="rg-tile"><span data-ui=rg-tile-k class="rg-tile-k">⚔️ Join at</span><span data-ui=rg-tile-v class="rg-tile-v">Combat ' + g.combat + '+</span><span data-ui=rg-tile-s class="rg-tile-s">' + esc(g.unlock) + '</span></div>' +
+        '<div data-ui=rg-tile class="rg-tile rg-tile-resist"><span data-ui=rg-tile-k class="rg-tile-k">' + el.icon + ' ' + el.label + ' resist</span>' +
+          '<span data-ui=rg-tile-v class="rg-tile-v">' + r.wardUp + ' <span data-ui=rg-tile-u class="rg-tile-u">on gear</span></span>' +
+          '<span data-ui=rg-bar class="rg-bar" role="img" aria-label="' + g.resist + ' resist needed: ' + r.wardUp + ' from gear plus ' + (g.resist - r.wardUp) + ' from Ward">' +
+            '<span data-ui=rg-bar-gear class="rg-bar-gear" style="width:' + (100 - wardPct) + '%"></span><span data-ui=rg-bar-ward class="rg-bar-ward" style="width:' + wardPct + '%"></span></span>' +
+          '<span data-ui=rg-tile-s class="rg-tile-s"><span data-ui=rg-key class="rg-key rg-key-gear"></span>gear ' + r.wardUp + ' + <span data-ui=rg-key class="rg-key rg-key-ward"></span>Ward ' + (g.resist - r.wardUp) + ' = ' + g.resist + '</span></div>' +
+        '<div data-ui=rg-tile class="rg-tile"><span data-ui=rg-tile-k class="rg-tile-k">⏱ Kill it by</span><span data-ui=rg-tile-v class="rg-tile-v">' + mmss(g.enrageSec) + '</span><span data-ui=rg-tile-s class="rg-tile-s">then its damage climbs</span></div>' +
+      '</div></div>';
+  }
 
-    // Before you go
-    var must = g.roster.map(function (p) { return p[0]; }).filter(function (k, i, a) { return a.indexOf(k) === i; });
-    h.push(panel('rg-prep-panel', 'Before you go',
-      '<ul data-ui=rg-list class="rg-list">' +
-        '<li data-ui=rg-li>Everyone in the group needs <strong>Combat ' + g.combat + '+</strong>. ' + esc(g.unlock) + '</li>' +
-        '<li data-ui=rg-li><strong>' + el.icon + ' ' + el.label + ' resist from gear, per raider:</strong> ' + r.wardUp + ' with Ward up, ' + r.wardDown +
-          ' between Ward casts, ' + r.noWard + ' with no Jewelcrafting lender. ' + g.resist + ' in total halves ' + el.label.toLowerCase() + ' damage, the cap; less scales the cut down smoothly. (Ward’s 12 / 36 is its level-70 figure; a higher Jewelcrafting lender gives more.)</li>' +
-        '<li data-ui=rg-li>Up to 8 raiders. A skill two people lend does not stack' + (g.anchor ? ', except that each Combat lender gets their own Challenge, which is why Grimjaw takes two' : '') + '.</li>' +
-        '<li data-ui=rg-li>From ' + g.enrageSec + ' s the boss’s damage climbs: double by ' + (g.enrageSec + ENRAGE_RAMP) + ' s, with no ceiling. There is no timer; a raid that cannot bring the HP down is eventually overwhelmed.</li>' +
-      '</ul>'));
-
-    h.push(panel('rg-must-panel', 'What gets raids killed',
-      '<ul data-ui=rg-list class="rg-list rg-must">' + g.mustKnow.map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ul>'));
-
-    // Rotation
-    var rows = g.rotation.map(function (a, i) {
-      var kind = KINDS[a.kind];
-      return '<tr data-ui=rg-rot-row data-kind="' + a.kind + '"><td data-ui=rg-td class="rg-num">' + (i + 1) + '</td>' +
-        '<td data-ui=rg-td><strong>' + esc(a.name) + '</strong><div data-ui=rg-kind class="rg-kind">' + kind.label + '</div></td>' +
-        '<td data-ui=rg-td class="rg-wrap">' + esc(a.text) + rawNote(g, a) + '</td>' +
-        '<td data-ui=rg-td class="rg-wrap">' + (kind.answers.length ? kind.answers.map(chip).join(' ') : '<span data-ui=rg-none class="rg-none">Nothing to answer; keep attacking.</span>') + '</td></tr>';
+  function rosterHtml(g) {
+    var tanks = 0;
+    var tiles = g.roster.map(function (p) {
+      var l = LENDS[p[0]], tag = '';
+      if (p[0] === 'combat') { tanks++; tag = g.anchor ? 'Tank ' + (tanks === 1 ? 'A' : 'B') : (rosterIds(g).filter(function (x) { return x === 'combat'; }).length > 1 ? 'Tank ' + tanks : 'Tank'); }
+      return '<button type="button" class="rg-member" data-rg-role="' + p[0] + '" data-lend="' + p[0] + '" data-role="' + roleOf(p[0]) + '" aria-pressed="false" title="' + esc(p[1]) + '">' +
+        '<span data-ui=rg-member-icon class="rg-member-icon" aria-hidden="true">' + l.icon + '</span>' +
+        '<span data-ui=rg-member-name class="rg-member-name">' + esc(l.action) + '</span>' +
+        '<span data-ui=rg-member-sub class="rg-member-sub">' + esc(tag || l.skill) + '</span></button>';
     }).join('');
-    h.push(panel('rg-rotation-panel', 'Ability rotation',
-      '<p data-ui=rg-lead class="rg-lead">Each ability is announced ' + TELEGRAPH + ' s before it lands, one every ' + CADENCE + ' s; the ' + g.rotation.length +
-        '-ability cycle repeats every ' + g.cycleSec + ' s.' + (g.rotationNote ? ' ' + esc(g.rotationNote) : '') + '</p>' +
-      '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>#</th><th data-ui=rg-th>Ability</th><th data-ui=rg-th>What it does</th><th data-ui=rg-th>Who answers it</th></tr></thead>' +
-      '<tbody data-ui=rg-tbody>' + rows + '</tbody></table></div>'));
+    tiles += '<button type="button" class="rg-member" data-rg-role="everyone" data-role="everyone" aria-pressed="true">' +
+      '<span data-ui=rg-member-icon class="rg-member-icon" aria-hidden="true">👥</span><span data-ui=rg-member-name class="rg-member-name">Everyone</span>' +
+      '<span data-ui=rg-member-sub class="rg-member-sub">all raiders</span></button>';
+    var jobs = g.roster.map(function (p) { return p[0]; }).filter(function (k, i, a) { return a.indexOf(k) === i; }).map(function (k) {
+      return '<div data-ui=rg-job class="rg-job" data-rg-job="' + k + '" hidden><div data-ui=rg-job-head class="rg-job-head">' + LENDS[k].icon + ' ' + esc(LENDS[k].action) +
+        ' <span data-ui=rg-job-role class="rg-job-role" data-role="' + roleOf(k) + '">' + esc(LENDS[k].role) + '</span></div>' +
+        '<ol data-ui=rg-job-list class="rg-job-list">' + actionsFor(g, k).map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ol></div>';
+    }).join('') +
+      '<div data-ui=rg-job class="rg-job" data-rg-job="everyone"><div data-ui=rg-job-head class="rg-job-head">👥 Everyone</div>' +
+      '<ol data-ui=rg-job-list class="rg-job-list">' + everyoneActions(g).map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ol></div>';
+    return '<section data-ui=rg-roster class="rg-card rg-roster-card"><h3 class="rg-h">Recommended roster <span data-ui=rg-h-sub class="rg-h-sub">tap your role</span></h3>' +
+      '<div data-ui=rg-members class="rg-members">' + tiles + '</div>' +
+      '<div data-ui=rg-legend class="rg-legend">' + ['Tank', 'Healer', 'Support', 'Damage'].map(function (r) {
+        return '<span data-ui=rg-legend-item class="rg-legend-item"><span data-ui=rg-key class="rg-key" data-role="' + ROLE_KEY[r] + '"></span>' + r + '</span>';
+      }).join('') + '</div>' +
+      '<div data-ui=rg-jobs class="rg-jobs" aria-live="polite">' + jobs + '</div></section>';
+  }
 
-    // Grimjaw's tank rotation: the tanks take turns on the heavy hit.
-    var plan = tankSwapPlan(g);
-    if (plan) {
-      h.push(panel('rg-swap-panel', 'Tank rotation',
-        '<p data-ui=rg-lead class="rg-lead"><strong>Take turns on ' + esc(g.heavy) + '.</strong> Tank A Challenges the 1st, 3rd, 5th… ' + esc(g.heavy) +
-          ', Tank B the 2nd, 4th, 6th…, for the whole fight. Challenge as Grimjaw starts channelling it: that one taunt takes the ' + esc(g.heavy) +
-          ' and the ' + esc(g.anchor.name) + ' right after it. Nothing else in the cycle targets the tank, so the other tank just waits for the next one.</p>' +
-        '<p data-ui=rg-lead class="rg-lead">Why it is safe: a tank’s turns are 90 s apart and the anchor mark lasts ' + g.anchor.markSec +
-          ' s, so it is gone before that tank’s next anchor. One tank alone would still be marked when the next anchor lands, ' + gapText(g, 'mark_tank') + ' later, and die.</p>' +
-        '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>' + esc(g.heavy) +
-          '</th><th data-ui=rg-th>Who Challenges</th><th data-ui=rg-th>That taunt takes</th><th data-ui=rg-th>Their last anchor</th></tr></thead><tbody data-ui=rg-tbody>' +
-        plan.turns.map(function (tr) {
-          return '<tr data-ui=rg-tr><td data-ui=rg-td>' + ordinal(tr.n) + ' <span data-ui=rg-kind class="rg-kind">(cycle ' + tr.cycle + ', slot ' + tr.slot + ')</span></td>' +
-            '<td data-ui=rg-td><strong>Tank ' + tr.tank + '</strong></td><td data-ui=rg-td>' + esc(g.heavy) + (tr.anchorSlot ? ' + ' + esc(g.anchor.name) + ' (slot ' + tr.anchorSlot + ')' : '') + '</td>' +
-            '<td data-ui=rg-td>' + (tr.anchorT == null ? '' : isFinite(tr.sinceOwnLast) ? tr.sinceOwnLast + ' s ago, mark ' + (tr.safe ? 'gone' : 'STILL UP') : 'none yet') + '</td></tr>';
-        }).join('') + '</tbody></table></div>'));
-    }
+  function timelineHtml(g) {
+    var plan = tankSwapPlan(g), turnBySlot = {};
+    if (plan) plan.turns.forEach(function (t) { if (t.cycle === 1) turnBySlot[t.slot] = t.tank; });
+    var nodes = g.rotation.map(function (a, i) {
+      var who = answersFor(g, a.kind), lethal = !!LETHAL[a.kind];
+      return '<li data-ui=rg-node class="rg-node' + (lethal ? ' is-lethal' : '') + '" data-kind="' + a.kind + '" data-answers="' + who.join(' ') + '">' +
+        '<button type="button" class="rg-node-btn" data-rg-node="' + i + '" aria-label="' + esc(mmss((i + 1) * CADENCE) + ' ' + a.name) + '">' +
+          '<span data-ui=rg-node-time class="rg-node-time">' + mmss((i + 1) * CADENCE) + '</span>' +
+          '<span data-ui=rg-node-glyph class="rg-node-glyph" aria-hidden="true">' + glyphOf(g, a) + '</span>' +
+          '<span data-ui=rg-node-name class="rg-node-name">' + esc(a.name) + '</span>' +
+          (lethal ? '<span data-ui=rg-node-flag class="rg-node-flag">☠ lethal</span>' : '') +
+          (turnBySlot[i + 1] ? '<span data-ui=rg-node-flag class="rg-node-turn">Tank ' + turnBySlot[i + 1] + '</span>' : '') +
+          '<span data-ui=rg-node-who class="rg-node-who">' + who.map(dot).join('') + '</span></button></li>';
+    }).join('');
+    var details = g.rotation.map(function (a, i) {
+      var raw = rawNote(g, a), who = answersFor(g, a.kind);
+      return '<div data-ui=rg-detail class="rg-detail" data-rg-detail="' + i + '" hidden>' +
+        '<div data-ui=rg-detail-head class="rg-detail-head">' + glyphOf(g, a) + ' <strong>' + esc(a.name) + '</strong> <span data-ui=rg-detail-kind class="rg-detail-kind">' + KINDS[a.kind].label + ' · ' + mmss((i + 1) * CADENCE) + '</span></div>' +
+        '<p data-ui=rg-detail-text class="rg-detail-text">' + esc(a.text) + (raw ? ' <strong>' + esc(raw) + '.</strong>' : '') + '</p>' +
+        (who.length ? '<div data-ui=rg-detail-who class="rg-detail-who">' + who.map(function (l) {
+          return '<span data-ui=rg-chip class="rg-chip" data-role="' + roleOf(l) + '">' + (l === 'everyone' ? '⚔️ Everyone attacks' : LENDS[l].icon + ' ' + esc(LENDS[l].action)) + '</span>';
+        }).join('') + '</div>' : '<div data-ui=rg-detail-who class="rg-detail-who rg-dim-text">Nothing to answer: keep attacking.</div>') + '</div>';
+    }).join('');
+    return '<section data-ui=rg-rotation class="rg-card"><h3 class="rg-h">Rotation <span data-ui=rg-h-sub class="rg-h-sub">one every 15 s · 4 s warning · repeats every ' + mmss(g.cycleSec) + '</span></h3>' +
+      '<ol data-ui=rg-track class="rg-track" style="--rg-n:' + g.rotation.length + '">' + nodes + '</ol>' +
+      '<div data-ui=rg-details class="rg-details-box">' + details +
+        '<p data-ui=rg-detail-hint class="rg-detail-hint" data-rg-detail="hint">Tap an ability for what it does and who answers it.</p></div></section>';
+  }
 
-    // Roster
-    h.push(panel('rg-roster-panel', 'Simulated roster',
-      '<p data-ui=rg-lead class="rg-lead">Eight raid slots, one lend each: the roster that won the most fights with nobody dying, out of all 120 legal rosters. ' +
-        '<strong>' + g.sim.clean + '% clean kills</strong> over ' + SIM.fights + ' simulated fights (' + SIM.grid + '); an average kill at ' + g.sim.killS + ' s.</p>' +
-      '<p data-ui=rg-lead class="rg-lead"><strong>For 100%:</strong> ' + esc(g.sim.full) + '</p>' +
-      '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table rg-roster"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>#</th><th data-ui=rg-th>Lend</th><th data-ui=rg-th>Role</th><th data-ui=rg-th>Why</th></tr></thead><tbody data-ui=rg-tbody>' +
-      g.roster.map(function (p, i) {
-        return '<tr data-ui=rg-tr data-lend="' + p[0] + '"><td data-ui=rg-td class="rg-num">' + (i + 1) + '</td><td data-ui=rg-td>' + lendLabel(p[0]) + '</td><td data-ui=rg-td>' +
-          LENDS[p[0]].role + '</td><td data-ui=rg-td class="rg-wrap">' + esc(p[1]) + '</td></tr>';
-      }).join('') + '</tbody></table></div>' +
-      '<p data-ui=rg-muted class="rg-muted"><strong>Left out:</strong> ' + g.bench.map(function (b) { return lendLabel(b[0]) + ': ' + esc(b[1]); }).join(' · ') + '</p>' +
-      '<details data-ui=rg-details class="rg-details"><summary data-ui=rg-summary>How this was worked out</summary>' +
-        '<ul data-ui=rg-list class="rg-list">' + SIM.method.map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ul></details>'));
+  // Boss damage over the fight: 1x until the enrage, then +100% a minute
+  // (the game's g(): 1 + (t - start) / 60 s). One series, so no legend; the
+  // hover reads the multiplier at any second.
+  function enrageChartHtml(g) {
+    var W = 640, H = 190, L = 40, R = 14, T = 16, B = 42, tMax = g.enrageSec + 120, yMax = 3;
+    var x = function (t) { return L + (W - L - R) * t / tMax; }, y = function (m) { return T + (H - T - B) * (1 - (m - 1) / (yMax - 1)); };
+    var grid = [1, 2, 3].map(function (m) {
+      return '<line class="rg-ch-grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(m) + '" y2="' + y(m) + '"></line><text class="rg-ch-axis" x="' + (L - 6) + '" y="' + (y(m) + 4) + '" text-anchor="end">×' + m + '</text>';
+    }).join('');
+    var ticks = [];
+    for (var t = 0; t <= tMax; t += 60) ticks.push('<text class="rg-ch-axis" x="' + x(t) + '" y="' + (H - 12) + '" text-anchor="middle">' + mmss(t) + '</text>');
+    var path = 'M' + x(0) + ',' + y(1) + ' L' + x(g.enrageSec) + ',' + y(1) + ' L' + x(tMax) + ',' + y(3);
+    return '<section data-ui=rg-danger class="rg-card"><h3 class="rg-h">Boss damage over the fight <span data-ui=rg-h-sub class="rg-h-sub">kill it before ' + mmss(g.enrageSec) + '</span></h3>' +
+      '<div data-ui=rg-chart class="rg-chart" data-enrage="' + g.enrageSec + '" data-tmax="' + tMax + '">' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Boss damage is normal until ' + mmss(g.enrageSec) + ', doubles by ' + mmss(g.enrageSec + 60) + ' and keeps climbing">' +
+        '<rect class="rg-ch-safe" x="' + x(0) + '" y="' + T + '" width="' + (x(g.enrageSec) - x(0)) + '" height="' + (H - T - B) + '" rx="4"></rect>' +
+        '<text class="rg-ch-note" x="' + (x(g.enrageSec / 2)) + '" y="' + (T + 16) + '" text-anchor="middle">Kill window</text>' +
+        grid + ticks.join('') +
+        '<line class="rg-ch-mark" x1="' + x(g.enrageSec) + '" x2="' + x(g.enrageSec) + '" y1="' + T + '" y2="' + (H - B) + '"></line>' +
+        '<text class="rg-ch-note" x="' + (x(g.enrageSec) + 6) + '" y="' + (T + 16) + '">Enrage</text>' +
+        '<path class="rg-ch-line" d="' + path + '"></path>' +
+        '<circle class="rg-ch-pt" cx="' + x(g.enrageSec + 60) + '" cy="' + y(2) + '" r="4"></circle>' +
+        '<text class="rg-ch-note" x="' + (x(g.enrageSec + 60) - 8) + '" y="' + (y(2) - 8) + '" text-anchor="end">×2 at ' + mmss(g.enrageSec + 60) + '</text>' +
+        '<line class="rg-ch-cross" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" visibility="hidden"></line>' +
+        '<rect class="rg-ch-hit" x="' + L + '" y="0" width="' + (W - L - R) + '" height="' + H + '" data-l="' + L + '" data-w="' + (W - L - R) + '" data-vbw="' + W + '"></rect>' +
+      '</svg><div data-ui=rg-ch-tip class="rg-ch-tip" hidden></div></div></section>';
+  }
 
-    // Role guide
-    var cards = must.map(function (k) {
-      var l = LENDS[k];
-      return '<div data-ui=rg-role-card class="rg-role-card" data-role="' + l.role.toLowerCase() + '" data-lend="' + k + '">' +
-        '<div data-ui=rg-role-head class="rg-role-head">' + lendLabel(k) + ' <span data-ui=rg-role-tag class="rg-role-tag">' + l.role + '</span></div>' +
-        '<p data-ui=rg-effect class="rg-effect">' + esc(l.effect) + '</p>' +
-        '<ul data-ui=rg-list class="rg-list">' + actionsFor(g, k).map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
-    });
-    cards.push('<div data-ui=rg-role-card class="rg-role-card" data-role="everyone" data-lend="everyone"><div data-ui=rg-role-head class="rg-role-head">⚔️ Everyone</div>' +
-      '<ul data-ui=rg-list class="rg-list">' + everyoneActions(g).map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ul></div>');
-    h.push(panel('rg-roles-panel', 'What each raider does',
-      '<p data-ui=rg-lead class="rg-lead">Effects are the wiki’s level-70 figures; every lend keeps scaling with your effective level (boosting gear counts), with no cap. ' +
-        'Fortify, Veil, War Cry, Ward and Rend each last 28 s and recasting early only extends them; Reinforce has the same 28 s cooldown. Slot numbers are the rotation’s.</p>' +
-      '<div data-ui=rg-role-grid class="rg-role-grid">' + cards.join('') + '</div>'));
+  function watchHtml(g) {
+    return '<section data-ui=rg-watch class="rg-watch">' + g.watch.map(function (w) {
+      return '<div data-ui=rg-warn-card class="rg-warn-card"><span data-ui=rg-warn-icon class="rg-warn-icon" aria-hidden="true">' + w[0] + '</span>' +
+        '<div data-ui=rg-warn-body class="rg-warn-body"><strong>' + esc(w[1]) + '</strong><span data-ui=rg-warn-text class="rg-warn-text">' + esc(w[2]) + '</span></div></div>';
+    }).join('') + '</section>';
+  }
 
-    // Loot
+  function lootHtml(g) {
     var loot = lootFor(g);
-    h.push(panel('rg-loot-panel', g.mode === 'Hard' ? 'Hard-only loot' : 'Gear and shard drops',
-      '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>Item</th><th data-ui=rg-th>Slot</th><th data-ui=rg-th>Rarity and rate</th></tr></thead><tbody data-ui=rg-tbody>' +
-      loot.map(function (row) {
-        var ref = itemRef(row.id), slot = ref.slot;
+    return '<details data-ui=rg-loot class="rg-card rg-loot"><summary data-ui=rg-loot-sum class="rg-h">' + (g.mode === 'Hard' ? 'Hard-only loot' : 'Loot') +
+      ' <span data-ui=rg-h-sub class="rg-h-sub">' + loot.length + ' drops · weekly</span></summary>' +
+      '<ul data-ui=rg-loot-list class="rg-loot-list">' + loot.map(function (row) {
+        var ref = itemRef(row.id), m = /(\d+(?:\.\d+)?)%/.exec(row.rate), rarity = (/^(\w+)/.exec(row.rate) || [])[1] || '';
         var set = typeof iwRaidSetForName === 'function' ? iwRaidSetForName(ref.name) : null;
-        return '<tr data-ui=rg-tr data-item="' + esc(row.id) + '"><td data-ui=rg-td>' + ref.html + (set ? '<div data-ui=rg-kind class="rg-kind">' + esc(set.label) + ' set</div>' : '') + '</td>' +
-          '<td data-ui=rg-td>' + esc(slot) + '</td><td data-ui=rg-td class="rg-wrap">' + esc(row.rate.charAt(0).toUpperCase() + row.rate.slice(1)) + '</td></tr>';
-      }).join('') + '</tbody></table></div>' +
-      '<p data-ui=rg-muted class="rg-muted">' + esc(g.mode === 'Hard' ? (typeof IW_RAID_HARD_NOTE !== 'undefined' ? IW_RAID_HARD_NOTE : '') : (typeof IW_RAID_WEEKLY_NOTE !== 'undefined' ? IW_RAID_WEEKLY_NOTE : '')) +
-        ' Item stats come from items.json; open an item for its card.</p>'));
+        return '<li data-ui=rg-loot-row class="rg-loot-row" data-item="' + esc(row.id) + '" data-rarity="' + esc(rarity) + '">' +
+          '<span data-ui=rg-loot-name class="rg-loot-name">' + ref.html + '</span>' +
+          '<span data-ui=rg-loot-meta class="rg-loot-meta">' + esc(ref.slot) + (set ? ' · ' + esc(set.label) + ' set' : '') + '</span>' +
+          '<span data-ui=rg-loot-rate class="rg-loot-rate">' + (m ? m[1] + '%' : '') + '</span></li>';
+      }).join('') + '</ul>' +
+      '<p data-ui=rg-muted class="rg-muted">' + esc(g.mode === 'Hard' ? (typeof IW_RAID_HARD_NOTE !== 'undefined' ? IW_RAID_HARD_NOTE : '') : (typeof IW_RAID_WEEKLY_NOTE !== 'undefined' ? IW_RAID_WEEKLY_NOTE : '')) + '</p></details>';
+  }
 
-    h.push('<p data-ui=rg-source class="rg-muted rg-source">Fight data: <a href="' + WIKI + '?boss=' + g.boss + '" target="_blank" rel="noopener">' + WIKI.replace('https://', '') + '</a>, read ' + READ_ON +
-      '. The wiki says its numbers are pulled live from the game, so check it after a balance patch.</p>');
-    return h.join('');
+  function render(key) {
+    var g = GUIDES[key] || GUIDES.ashmaw;
+    return '<div data-ui=rg-guide class="rg-guide" data-rg-focus="everyone">' + heroHtml(g) + watchHtml(g) + rosterHtml(g) + timelineHtml(g) + enrageChartHtml(g) + lootHtml(g) +
+      '<p data-ui=rg-source class="rg-muted rg-source"><a href="' + WIKI + '?boss=' + g.boss + '" target="_blank" rel="noopener">Boss page on the wiki ↗</a></p></div>';
+  }
+
+  // ── Interaction ──────────────────────────────────────────────────────
+  /** Focus a role: its job card shows, the abilities it answers light up. */
+  function focusRole(box, lend) {
+    var guide = box.querySelector('.rg-guide'); if (!guide) return;
+    guide.setAttribute('data-rg-focus', lend);
+    guide.querySelectorAll('[data-rg-role]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-rg-role') === lend ? 'true' : 'false'); });
+    guide.querySelectorAll('[data-rg-job]').forEach(function (j) { j.hidden = j.getAttribute('data-rg-job') !== lend; });
+    guide.querySelectorAll('.rg-node').forEach(function (n) {
+      var on = lend !== 'everyone' && (' ' + n.getAttribute('data-answers') + ' ').indexOf(' ' + lend + ' ') >= 0;
+      n.classList.toggle('is-on', on);
+      n.classList.toggle('is-dim', lend !== 'everyone' && !on);
+    });
+  }
+  function showNode(box, i) {
+    var guide = box.querySelector('.rg-guide'); if (!guide) return;
+    guide.querySelectorAll('[data-rg-detail]').forEach(function (d) { d.hidden = d.getAttribute('data-rg-detail') !== String(i); });
+    guide.querySelectorAll('[data-rg-node]').forEach(function (b) { b.classList.toggle('is-picked', b.getAttribute('data-rg-node') === String(i)); });
+  }
+  function chartHover(e) {
+    var hit = e.target.closest && e.target.closest('.rg-ch-hit'); if (!hit) return;
+    var svg = hit.ownerSVGElement, wrap = svg.parentNode, rect = svg.getBoundingClientRect();
+    var vbw = +hit.getAttribute('data-vbw'), Lx = +hit.getAttribute('data-l'), Wd = +hit.getAttribute('data-w');
+    var vx = (e.clientX - rect.left) * vbw / rect.width, f = Math.max(0, Math.min(1, (vx - Lx) / Wd));
+    var tmax = +wrap.getAttribute('data-tmax'), en = +wrap.getAttribute('data-enrage'), t = Math.round(f * tmax);
+    var m = 1 + Math.max(0, (t - en) / 60), cross = svg.querySelector('.rg-ch-cross'), tip = wrap.querySelector('.rg-ch-tip');
+    cross.setAttribute('x1', Lx + f * Wd); cross.setAttribute('x2', Lx + f * Wd); cross.setAttribute('visibility', 'visible');
+    tip.hidden = false; tip.textContent = mmss(t) + ' · boss hits ×' + m.toFixed(1) + (t < en ? ' (normal)' : '');
+    tip.style.left = Math.min(rect.width - 150, Math.max(0, e.clientX - rect.left + 12)) + 'px';
+  }
+  function chartLeave(e) {
+    var hit = e.target.closest && e.target.closest('.rg-ch-hit'); if (!hit) return;
+    var svg = hit.ownerSVGElement; svg.querySelector('.rg-ch-cross').setAttribute('visibility', 'hidden');
+    svg.parentNode.querySelector('.rg-ch-tip').hidden = true;
   }
 
   function root() { return document.getElementById('tab-raids'); }
@@ -41101,19 +41319,28 @@ function syncCombatLevel(val) {
     var key = GUIDES[sel.value] ? sel.value : 'ashmaw';
     out.innerHTML = render(key);
     pane.setAttribute('data-rg-boss', key);
+    pane.querySelectorAll('[data-rg-boss-pick]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-rg-boss-pick') === key ? 'true' : 'false'); });
   }
   var bound = false;
   function bind() {
     if (bound) return;
-    var sel = document.getElementById('raid-guide-boss');
-    if (!sel) return;
+    var sel = document.getElementById('raid-guide-boss'), pane = root();
+    if (!sel || !pane) return;
     bound = true;
     sel.addEventListener('change', paint);
+    pane.addEventListener('click', function (e) {
+      var pick = e.target.closest('[data-rg-boss-pick]');
+      if (pick) { sel.value = pick.getAttribute('data-rg-boss-pick'); sel.dispatchEvent(new Event('change')); return; }
+      var role = e.target.closest('[data-rg-role]'); if (role) { focusRole(pane, role.getAttribute('data-rg-role')); return; }
+      var node = e.target.closest('[data-rg-node]'); if (node) showNode(pane, node.getAttribute('data-rg-node'));
+    });
+    pane.addEventListener('mousemove', chartHover);
+    pane.addEventListener('mouseout', chartLeave);
   }
   window.iwRaidGuideEnter = function () { bind(); paint(); };
   window.IW_RAID_GUIDES = GUIDES;
   window.iwRaidGuide = { guides: GUIDES, lends: LENDS, kinds: KINDS, order: ORDER, gearResist: gearResist, enrageDps: enrageDps,
-    slotsOf: slotsOf, gaps: gaps, castPlan: castPlan, tankSwapPlan: tankSwapPlan, lootFor: lootFor, actionsFor: actionsFor, render: render };
+    slotsOf: slotsOf, gaps: gaps, castPlan: castPlan, tankSwapPlan: tankSwapPlan, lootFor: lootFor, actionsFor: actionsFor, render: render, focusRole: focusRole, showNode: showNode, answersFor: answersFor };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
 
   /* Suite V — Raid Guides (v7.1). */
@@ -41138,7 +41365,6 @@ function syncCombatLevel(val) {
         g.rotation.forEach(function (a, i) { ok(k + ' slot ' + (i + 1) + ' has a known kind', !!KINDS[a.kind]); });
       });
       ok('Hard DEF stays absent, not zero', !('def' in GUIDES.ashmaw_hard) || GUIDES.ashmaw_hard.def === undefined);
-      ok('Hard DEF renders as unpublished', /DEF not published/.test(render('ashmaw_hard')));
 
       // 3. Derived numbers.
       var res = { ashmaw:[24,48], thessaly:[26,50], morwenna:[24,48], grimjaw:[28,52], skarth:[54,78], ashmaw_hard:[54,78] };
@@ -41189,8 +41415,14 @@ function syncCombatLevel(val) {
         // v7.2 (simulated rosters): Grimjaw's turn-taking tanks, and Morwenna's backup tank.
         eq(k + ' duplicate lends', dup.join(','), (k === 'grimjaw' || k === 'morwenna') ? 'combat' : '');
         ok(k + ' carries its simulation result', g.sim && typeof g.sim.clean === 'number' && g.sim.clean >= 0 && g.sim.clean <= 100 && g.sim.killS > 0 && g.sim.full.length > 20);
-        ok(k + ' shows its simulated clean-kill rate', html.indexOf(g.sim.clean + '% clean kills') >= 0);
-        ok(k + ' raw raid-wide hit from the game', g.aoeRaw > 0 && html.indexOf(g.aoeRaw + (g.aoeMaxHpPct ? ' + ' : ' before resist')) >= 0);
+        // v7.3: the page presents the roster as recommended and never says how it was chosen.
+        ok(k + ' never mentions the simulation', !/simulat|clean kill|6,480|legal roster|tested/i.test(html));
+        eq(k + ' timeline nodes', (html.match(/data-rg-node="/g) || []).length, g.rotation.length);
+        eq(k + ' role tiles (roster + Everyone)', (html.match(/data-rg-role="/g) || []).length, 9);
+        ok(k + ' danger chart', html.indexOf('rg-ch-line') >= 0 && html.indexOf('Kill window') >= 0);
+        ok(k + ' 2-3 warning cards', g.watch.length >= 2 && g.watch.length <= 3 && (html.match(/class="rg-warn-card"/g) || []).length === g.watch.length);
+        ok(k + ' every job is three lines or fewer', ids.every(function (l) { var a = actionsFor(g, l); return a.length >= 1 && a.length <= 3; }));
+        ok(k + ' raw raid-wide hit from the game', g.aoeRaw > 0 && html.indexOf(g.aoeRaw + (g.aoeMaxHpPct ? ' + ' : ' damage before resist')) >= 0);
         ok(k + ' enrage start from the game', [210, 330, 360].indexOf(g.enrageSec) >= 0);
         var all = ids.concat(g.bench.map(function (b) { return b[0]; }));
         ok(k + ' roster + bench covers all 10 lends', LEND_ORDER.every(function (l) { return all.indexOf(l) >= 0; }));
@@ -41202,7 +41434,7 @@ function syncCombatLevel(val) {
       ok('Morwenna needs Cleanse', GUIDES.morwenna.roster.some(function (p) { return p[0] === 'alchemy'; }));
       // Grimjaw brings Cleanse for Creeping Frost (player report, 2026-11-08).
       ok('Grimjaw brings Cleanse', GUIDES.grimjaw.roster.some(function (p) { return p[0] === 'alchemy'; }));
-      ok('Grimjaw Cleanse goes on Creeping Frost first', /Creeping Frost lands \(slot 6\)/.test(actionsFor(GUIDES.grimjaw, 'alchemy')[0]));
+      ok('Grimjaw Cleanse goes on Frozen first', /^First: Frozen, as soon as it lands \(1:30\)/.test(actionsFor(GUIDES.grimjaw, 'alchemy')[0]));
       ok('Morwenna Cleanse names the mark first', /Soulrend Mark/.test(actionsFor(GUIDES.morwenna, 'alchemy')[0]));
       ok('Skarth War Cry covers ice and charge', /Ice Tomb.*Frozen Heart/.test(actionsFor(GUIDES.skarth, 'mining')[0]));
 
@@ -41223,7 +41455,21 @@ function syncCombatLevel(val) {
         ok(id + ' is in the Gear planner pool', iwGearPlannerItems().some(function (p) { return p.id === id; }));
       });
       eq('Hard loot rows', lootFor(GUIDES.ashmaw_hard).length, 3);
-      ok('loot table prints the slot of each Hard item',/data-item="tyrants_molten_edge">[\s\S]*?<td data-ui=rg-td>Weapon<\/td>/.test(render('ashmaw_hard')));
+      ok('loot list prints the slot of each Hard item', /data-item="tyrants_molten_edge"[\s\S]*?rg-loot-meta">Weapon/.test(render('ashmaw_hard')));
+      // Tapping a role lights the abilities it answers and shows its job.
+      var box = document.createElement('div'); box.dataset.ui = 'rg-selfcheck-box';
+      box.innerHTML = render('grimjaw');
+      focusRole(box, 'combat');
+      var nodes = box.querySelectorAll('.rg-node');
+      ok('Tank focus lights every Rime Crush and Soul Anchor', Array.prototype.every.call(nodes, function (n) {
+        var k2 = n.getAttribute('data-kind'), want = (k2 === 'single' || k2 === 'mark_tank');
+        return n.classList.contains('is-on') === want && n.classList.contains('is-dim') === !want; }));
+      ok('Tank focus shows the tank job only', !box.querySelector('[data-rg-job="combat"]').hidden && box.querySelector('[data-rg-job="everyone"]').hidden);
+      focusRole(box, 'everyone');
+      ok('Everyone clears the focus', !box.querySelector('.rg-node.is-dim') && !box.querySelector('.rg-node.is-on'));
+      showNode(box, 1);
+      ok('tapping an ability shows its detail', !box.querySelector('[data-rg-detail="1"]').hidden && box.querySelector('[data-rg-detail="hint"]').hidden);
+      ok('Grimjaw timeline marks Tank A and B turns', (render('grimjaw').match(/rg-node-turn">Tank [AB]/g) || []).length === 3);
       eq('Ashmaw Normal loot rows', lootFor(GUIDES.ashmaw).length, 7);
       ORDER.forEach(function (k) { if (k !== 'ashmaw_hard') eq(k + ' loot rows', lootFor(GUIDES[k]).length, 7); });
       ok('no raid rate is a range any more', Object.keys(IW_RAID_DROP_SOURCES).every(function (id) { return !/–/.test(IW_RAID_DROP_SOURCES[id].rate); }));
