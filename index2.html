@@ -9,7 +9,29 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v7.1</title>
+<title>IdleWorlds Toolkit v7.2</title>
+<!-- v7.2 Raid rosters from simulation (2026-11-08, Curtis):
+     • The Raids tab's rosters are no longer reasoned by hand. Each is the
+       best of all 120 legal rosters in a fight-by-fight simulation against
+       the game's own raid table (its client bundle: boss HP/ATK, raid-wide
+       hits, poison ticks, enrage starts, the 10 s action bar, every lend's
+       formula). The four numbers the server keeps (heavy hit on the tank,
+       raider HP, Attack damage, the resist curve) and Rend's tick rate
+       are swept; 6,480 fights per roster. Each guide shows its clean-kill
+       rate, what it takes for 100%, and how it was worked out. Results:
+       Ashmaw 100%; Thessaly 97.6%; Morwenna 97.1% (two tanks); Grimjaw
+       95.7% (two tanks, Cleanse, War Cry); Skarth and Ashmaw Hard need
+       Attacks of 400+ (Hard also ~700 HP) for 100%.
+     • Corrections from the game's raid table and patch notes: enrage
+       starts at 210 s (Ashmaw), 330 s (Thessaly, Morwenna, Grimjaw) and
+       360 s (Skarth, Ashmaw Hard), not 210 s for all; Ashmaw Hard needs
+       Combat 60 (11-07.262); Skarth is open (11-07.256), so his gear is
+       recommended; weekly reset is Sunday 22:00 Eastern and Practice mode
+       is gone. Rotation rows show each raid-wide hit and poison tick.
+     • Suites N and O follow Skarth's release (N now tests the gate by
+       marking Skarth unreleased for the length of the check); suite V
+       pins the rosters, the game numbers and the simulation summaries.
+-->
 <!-- v7.1 Raid Guides (2026-11-08, Curtis; first staged as v7.0):
      • New top-level Raids tab (rail and bottom nav, between Skill Tools and
        Items). Pick a guild raid boss (Ashmaw, Thessaly, Morwenna, Grimjaw,
@@ -6827,6 +6849,10 @@
 .rg-table td.rg-wrap{white-space:normal;min-width:200px}
 .rg-num{color:var(--text-3);font-variant-numeric:tabular-nums}
 .rg-kind{font-size:11px;color:var(--text-3)}
+.rg-raw{color:var(--text);font-weight:600;white-space:nowrap}
+.rg-details{margin-top:10px;font-size:13px;color:var(--text-2)}
+.rg-details summary{cursor:pointer;font-weight:600}
+.rg-details .rg-list{margin-top:6px}
 .rg-none{font-size:12px;color:var(--text-3)}
 .rg-lend-skill{color:var(--text-3);font-size:12px}
 .rg-chip{display:inline-block;margin:0 4px 4px 0;padding:1px 7px;border:1px solid var(--border);border-radius:999px;font-size:12px;white-space:nowrap;color:var(--text-2)}
@@ -10106,6 +10132,10 @@
   .rg-table td.rg-wrap { white-space: normal; min-width: 200px; }
   .rg-num { color: var(--ash-dim); font-variant-numeric: tabular-nums; }
   .rg-kind { font-size: 11px; color: var(--ash-dim); }
+  .rg-raw { color: var(--ash-text-hi); font-weight: 600; white-space: nowrap; }
+  .rg-details { margin-top: 10px; font-size: 13px; color: var(--ash-dim); }
+  .rg-details summary { cursor: pointer; color: var(--ash-accent-dim); font-weight: 600; }
+  .rg-details .rg-list { margin-top: 6px; }
   .rg-none { font-size: 12px; color: var(--ash-dim); }
   .rg-lend-skill { color: var(--ash-dim); font-size: 12px; }
   .rg-chip { display: inline-block; margin: 0 4px 4px 0; padding: 1px 7px; border: 1px solid var(--ash-edge-soft); border-radius: 999px; font-size: 12px; white-space: nowrap; color: var(--ash-text); }
@@ -10201,7 +10231,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v7.1</span>
+  <span data-ui=ver-pill class="ver-pill">v7.2</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -19637,10 +19667,10 @@ function iwGearUpgradeLevelFromName(name) {
    recommend a boss's gear (iwGearRecommendable). Bosses unlock in the
    order Ashmaw → Thessaly → Morwenna → Grimjaw → Skarth. As of v6.2
    (2026-10-15) the first four drop loot: Thessaly opened 10-07.31,
-   Morwenna 10-08.17, Grimjaw 10-14.24. Skarth is Practice-only (10-14.36;
-   Practice never drops loot), so his flag stays false until Normal opens.
-   It also gates his Raidforged set's shard. Flip each flag when its boss
-   opens in-game.
+   Morwenna 10-08.17, Grimjaw 10-14.24. Skarth opened on Normal and Hard
+   in 11-07.256 (v7.2), so all five drop loot; Practice mode is gone
+   (11-07.257). The flag still gates a boss's Raidforged shard. If a new
+   boss arrives before it opens, add it here with released:false.
 
    Declared HERE, above every load-time best-in-slot check, on purpose:
    those run during this script's evaluation and a const is a TDZ
@@ -19651,7 +19681,7 @@ const IW_RAID_BOSSES = {
   thessaly: { name:'Thessaly',                  released:true  },
   morwenna: { name:'Morwenna',                  released:true  },
   grimjaw:  { name:'Grimjaw',                   released:true  },
-  skarth:   { name:'Skarth',                    released:false },
+  skarth:   { name:'Skarth',                    released:true  },
 };
 
 // 3-piece raid sets. Consumed by IW_SPECIAL_SET_DEFS (FINAL OPTIMIZER
@@ -19712,13 +19742,15 @@ function iwRaidforgedSetForName(name){
 // as a pair). Nothing here feeds a calculation; it is card text only.
 const IW_RAID_WEEKLY_NOTE =
   'Loot rolls for the whole group on your first Normal or Hard clear of the boss each week ' +
-  '(resets Monday 00:00 Eastern); Practice never drops loot. Item Find does not affect raid rolls. ' +
+  '(resets Sunday 22:00 Eastern, the same moment for everyone). Item Find does not affect raid rolls. ' +
   'Each roll can also give a stack of 24 Super XP Potions (25%). Already claimed this week? Helping a ' +
   'group with unclaimed raiders to a win gives a 25–60% chance (more unclaimed raiders, better odds) ' +
   'at the boss’s shard, 8 of its Super XP Potions or an Astralium Supply Cache, up to 6 times a raid week.';
 // v7.1 — Ashmaw Hard (/wiki/raid-boss, 2026-11-07). Card text only.
+// v7.2 — Combat 60+, not 70 (patch 0.2.0+2026-11-07.262; the game's raid
+// table says hardMinCombatLevel: 60).
 const IW_RAID_HARD_NOTE =
-  'Hard needs Combat 70+ and a Skarth Normal clear from everyone in the group. Hard has its own weekly lock: ' +
+  'Hard needs Combat 60+ and a Skarth Normal clear from everyone in the group. Hard has its own weekly lock: ' +
   'a Hard clear rolls this Hard-only loot plus the Normal table if you have not claimed Normal that week. ' +
   'Item Find does not affect raid rolls.';
 
@@ -40456,7 +40488,9 @@ function syncCombatLevel(val) {
 (function () {
   'use strict';
 
-  var CADENCE = 15, TELEGRAPH = 4, WINDOW = 28, ENRAGE_AT = 210, ENRAGE_DOUBLE = 270;
+  // Enrage starts per boss (enrageSec, the game's enrageStartMs; 210 s when a
+  // boss sets none) and doubles the boss's damage 60 s later (1 + (t - start) / 60 s).
+  var CADENCE = 15, TELEGRAPH = 4, WINDOW = 28, ENRAGE_RAMP = 60;
   var WIKI = 'https://idleworlds.com/wiki/raid-boss';
   var READ_ON = '2026-11-07';
 
@@ -40515,6 +40549,7 @@ function syncCombatLevel(val) {
       boss:'ashmaw', name:'Ashmaw, the Cinder Tyrant', mode:'Normal',
       flavour:'A molten-scaled wyrm chained beneath the old forge-cities, woken by eight centuries of banked coal finally burning through.',
       hp:21000, atk:2750, def:450, element:'fire', resist:60, combat:40, unlock:'Always open.',
+      enrageSec:210, aoeRaw:400, tickRaw:110,
       rotation:ROT_ASHMAW,
       heavy:'Claw Rake', aoe:'Cinderstorm', curse:'Ember Brand', dot:{ name:'Burning', jumps:false },
       mustKnow:[
@@ -40522,24 +40557,26 @@ function syncCombatLevel(val) {
         'Burning stacks if Smoldering Wound lands again before it ends, so cleanse it from whoever is lowest.'
       ],
       roster:[
-        ['combat','Claw Rake lands twice a cycle. Without a taunt it hits random raiders at full force.'],
-        ['spellcrafting','The big heal. Keeps the tank up through Claw Rake.'],
-        ['jewelcrafting','Ward supplies up to 36 of the 60 fire resist, which halves Cinderstorm and Burning at full value.'],
-        ['alchemy','The only answer to Ember Brand (less healing) and to stacking Burning.'],
-        ['smithing','Fortify covers a Claw Rake and the Cinderstorm 15 s later with one cast.'],
-        ['construction','A shield on everyone soaks Cinderstorm before HP.'],
-        ['mining','+22% raid ATK. Ashmaw has the least HP, so a short fight is the safest one.'],
-        ['woodcutting','Extra damage over time on the boss, for the same reason.']
+        ['combat','Claw Rake lands twice a cycle; without a taunt it hits random raiders at full force.'],
+        ['spellcrafting','The big heal for the tank.'],
+        ['gathering','A second heal: Regrowth is 385 HP per cast, the most healing per action in the kit.'],
+        ['jewelcrafting','Up to 36 of the 60 fire resist: Cinderstorm (400 before resist) is halved at 60.'],
+        ['smithing','One Fortify covers a Claw Rake and the Cinderstorm 15 s after it.'],
+        ['construction','An 84 shield on everyone soaks Cinderstorm.'],
+        ['mining','+22% raid ATK. The enrage starts at 210 s here, the earliest of any boss, so speed matters.'],
+        ['woodcutting','Rend: extra boss damage. This roster killed fastest in the simulation (111 s on average).']
       ],
       bench:[
-        ['gathering','Mend and Cleanse’s heal are enough healing for the lightest boss.'],
+        ['alchemy','Burning (110 a tick before resist) does not spread here, and the healers cover it: no simulated death needed a Cleanse.'],
         ['tailoring','The taunting tank already takes Claw Rake at 65% less damage.']
-      ]
+      ],
+      sim:{ clean:100, killS:111, full:'Every case tried: raiders from 450 HP and Attacks from 200 damage.' },
     },
     thessaly: {
       boss:'thessaly', name:'Thessaly, the Plague Warden', mode:'Normal',
       flavour:'A storm given a body, bound centuries ago to guard the dead pits beneath the old plague wards.',
       hp:38500, atk:3000, def:460, element:'lightning', resist:62, combat:60, unlock:'Clear Ashmaw on Normal.',
+      enrageSec:330, aoeRaw:400, aoeMaxHpPct:30, tickRaw:210,
       rotation:[
         A('Static Shock','single','Heavy physical hit on one raider, or on the tank while Challenge is up.'),
         A('Stormsurge','aoe','Lightning damage to every raider except the active tank, plus 30% of each raider’s own max HP: the bigger you are, the harder it hits.'),
@@ -40555,24 +40592,26 @@ function syncCombatLevel(val) {
         'Shocked jumps once to another raider if it runs its full 15 s. Cleanse helps but is not required.'
       ],
       roster:[
-        ['combat','Static Shock lands twice a cycle.'],
-        ['spellcrafting','Stormsurge hits everyone for a share of their own max HP twice a cycle: the heaviest healing load of the 7-ability bosses.'],
+        ['combat','Static Shock lands twice a cycle. A second tank tested no better here, and War Cry kills faster.'],
+        ['spellcrafting','Stormsurge hits everyone for 400 plus 30% of their own max HP twice a cycle: the heaviest healing load of the 7-ability bosses.'],
         ['gathering','Regrowth cast in Stormsurge’s warning heals through the hit.'],
         ['jewelcrafting','Up to 36 of the 62 lightning resist.'],
-        ['alchemy','Removes Arc Brand from whoever needs healing, and stops Shocked from jumping.'],
-        ['construction','The shield soaks up to 100% of each Stormsurge hit.'],
+        ['alchemy','Shocked ticks for 210 before resist and jumps once if left: it caused almost every simulated loss, and Cleanse stops it.'],
         ['smithing','Fortify takes 12% off Stormsurge and covers the Static Shock before it.'],
-        ['mining','+22% raid ATK for 38,500 HP.']
+        ['construction','The shield soaks up to 100% of a Stormsurge hit.'],
+        ['mining','+22% raid ATK: about 20 s faster than a second tank, with the same survival.']
       ],
       bench:[
-        ['woodcutting','The last slot goes to War Cry, which helps the whole raid’s damage.'],
+        ['woodcutting','Every other slot keeps raiders alive; War Cry is the better damage lend.'],
         ['tailoring','The tank already takes Static Shock at 65% less damage.']
-      ]
+      ],
+      sim:{ clean:97.6, killS:248, full:'99–100% from 450 HP raiders and Attacks of 200; 100% from 700 HP. The few losses are Shocked on a 450 HP raider.' },
     },
     morwenna: {
       boss:'morwenna', name:'Morwenna, the Hollow Oracle', mode:'Normal',
       flavour:'She sees exactly how each raider dies, and shows them: a mark that unravels its target from the inside unless someone else burns it away first.',
       hp:46000, atk:3050, def:470, element:'fire', resist:60, combat:60, unlock:'Clear Thessaly on Normal.',
+      enrageSec:330, aoeRaw:610,
       rotation:[
         A('Oracle’s Touch','single','Heavy physical hit on one raider, or on the tank while Challenge is up.'),
         A('Hollow Wave','aoe','Fire damage to every raider except the active tank.'),
@@ -40588,24 +40627,27 @@ function syncCombatLevel(val) {
         'The mark comes once a cycle and gives 14 s. It always beats Ember Curse in the Cleanse queue.'
       ],
       roster:[
-        ['alchemy','Mandatory. Nothing else removes Soulrend Mark.'],
+        ['alchemy','Mandatory: nothing else removes Soulrend Mark, and an uncleansed mark kills a raider and hits everyone else for 35% of max HP.'],
         ['combat','Oracle’s Touch lands twice a cycle.'],
-        ['spellcrafting','Heals the tank, and the raid after any mark that gets through.'],
-        ['jewelcrafting','Up to 36 of the 60 fire resist.'],
-        ['smithing','Fortify covers an Oracle’s Touch and the Hollow Wave 15 s later with one cast.'],
-        ['construction','The shield soaks Hollow Wave, and a failed mark’s 35% hit.'],
-        ['gathering','A second heal. The one Alchemy lender is busy with marks and curses.'],
+        ['combat','A second tank: if the first one dies, Oracle’s Touch lands on random raiders at full force. Otherwise they attack. It tested better than a second healer.'],
+        ['spellcrafting','The big heal for the tank and after a Hollow Wave.'],
+        ['jewelcrafting','Hollow Wave hits for 610 before resist, the most of the Normal bosses but Skarth: Ward supplies up to 36 of the 60.'],
+        ['smithing','One Fortify covers an Oracle’s Touch and the Hollow Wave 15 s after it.'],
+        ['construction','The shield soaks Hollow Wave.'],
         ['mining','+22% raid ATK for 46,000 HP.']
       ],
       bench:[
-        ['woodcutting','The last slot goes to War Cry, which helps the whole raid’s damage.'],
+        ['gathering','The second tank tested better than a second healer.'],
+        ['woodcutting','War Cry is the better damage lend.'],
         ['tailoring','The tank already takes Oracle’s Touch at 65% less damage.']
-      ]
+      ],
+      sim:{ clean:97.1, killS:285, full:'100% in every case with a 450 heavy hit on the tank. The losses are under-geared 450 HP raiders against a 600 heavy hit.' },
     },
     grimjaw: {
       boss:'grimjaw', name:'Grimjaw, the Undying Bulwark', mode:'Normal',
       flavour:'It does not matter who holds its attention: Grimjaw marks them for death regardless, and the only way to survive is to make sure it is never the same raider twice in a row.',
       hp:50000, atk:3100, def:480, element:'frost', resist:64, combat:60, unlock:'Clear Morwenna on Normal.',
+      enrageSec:330, aoeRaw:600, tickRaw:130,
       rotation:[
         A('Rime Crush','single','Heavy physical hit on one raider, or on the tank while Challenge is up.'),
         A('Soul Anchor','mark_tank','Marks whoever is tanking for 55 s. A second anchor on a marked tank kills them outright: nothing heals, cleanses or shields it.'),
@@ -40621,32 +40663,37 @@ function syncCombatLevel(val) {
       // Rime Crush starts channelling takes that Rime Crush AND the Soul Anchor
       // right after it, and nothing else in the cycle meaningfully targets the
       // tank. So the two tanks simply alternate on every Rime Crush.
-      heavy:'Rime Crush', aoe:'Absolute Zero', dot:{ name:'Frozen', jumps:true }, anchor:{ name:'Soul Anchor', markSec:55 },
+      // Creeping Frost: 130 a tick before resist (the game's raid table),
+      // matching Curtis's 80+ seen in a raid (2026-11-08) at about 49 resist.
+      heavy:'Rime Crush', aoe:'Absolute Zero', anchor:{ name:'Soul Anchor', markSec:55 },
+      dot:{ name:'Frozen', jumps:true, source:'Creeping Frost', tickNote:'130 a tick before resist (65 at full resist) for 15 s' },
       mustKnow:[
         'Bring two tanks and take turns on Rime Crush. Challenge as Grimjaw starts channelling it: that one taunt takes the Rime Crush and the Soul Anchor right after it. Tank A takes the odd ones (1st, 3rd, 5th…), Tank B the even ones (2nd, 4th, 6th…).',
         'Soul Anchor marks the tank for 55 s, and a second anchor while marked kills them outright: nothing heals, cleanses or shields it. Taking turns keeps each tank’s anchors 90 s apart, so never Challenge on the other tank’s turn.',
-        'Frozen jumps once if it runs its full 15 s. Cleanse helps but is not required, and Grimjaw has no curse.'
+        'Creeping Frost: Frozen ticks for 130 before resist (65 at full resist) for 15 s, then jumps to another raider if nobody cleanses it. Next to two Absolute Zeros and the tanks, one healer cannot carry it: bring Cleanse.'
       ],
       roster:[
         ['combat','Tank A. Challenges the 1st, 3rd, 5th… Rime Crush, taking it and the Soul Anchor after it.'],
         ['combat','Tank B. Challenges the 2nd, 4th, 6th… Rime Crush. Two Combat lenders each get their own Challenge.'],
-        ['spellcrafting','Rime Crush lands three times a cycle: the tanks need the big heal.'],
-        ['jewelcrafting','Up to 36 of the 64 frost resist.'],
-        ['smithing','+220% DEF for the tanks under Rime Crush; also cuts Absolute Zero.'],
-        ['construction','A shield absorbs a Rime Crush in full and soaks Absolute Zero.'],
-        ['tailoring','Three heavy hits a cycle, the most of any boss: Veil’s 80% dodge earns its slot here.'],
-        ['mining','+22% raid ATK for 50,000 HP.']
+        ['spellcrafting','The big heal: the tanks take Rime Crush three times a cycle.'],
+        ['jewelcrafting','Absolute Zero hits for 600 before resist: with Ward up it is halved; without Ward it kills raiders.'],
+        ['alchemy','Creeping Frost ticks for 130 before resist and jumps once: uncleansed, it and two Absolute Zeros outpace one healer.'],
+        ['smithing','+220% DEF for the tank under Rime Crush, and 12% off Absolute Zero.'],
+        ['construction','An 84 shield on everyone: two Absolute Zeros 45 s apart do 528 to a 525 HP raider without one.'],
+        ['mining','+22% raid ATK. The fight ends about 40 s sooner than with a second healer, at the same survival.']
       ],
       bench:[
-        ['alchemy','No curse, and Frozen only jumps once. The second tank needs the slot.'],
-        ['gathering','Absolute Zero comes only twice in a 135 s cycle, so raid-wide healing is lighter here.'],
-        ['woodcutting','The last slot goes to War Cry, which helps the whole raid’s damage.']
-      ]
+        ['gathering','A second healer survived no better and killed about 40 s slower than War Cry.'],
+        ['woodcutting','War Cry tested better as the damage lend.'],
+        ['tailoring','The tanks take turns at 65% less damage, so each meets only every other Rime Crush.']
+      ],
+      sim:{ clean:95.7, killS:294, full:'99–100% with a 450 heavy hit on the tank, at every HP and Attack tried. The losses are 450 HP raiders against a 600 heavy hit with 200-damage Attacks.' },
     },
     skarth: {
       boss:'skarth', name:'Skarth, the Rime Wyrm', mode:'Normal',
       flavour:'A wyrm of the opposite temperament from Ashmaw, grown vast and cold in the flooded vaults beneath the old glacier-forts.',
       hp:74000, atk:3100, def:500, element:'frost', resist:90, combat:60, unlock:'Clear Grimjaw on Normal.',
+      enrageSec:360, aoeRaw:650, tickRaw:195,
       rotation:[
         A('Frost Claw','single','Heavy physical hit on one raider, or on the tank while Challenge is up.'),
         A('Blizzard','aoe','Heavy frost damage to the whole raid (the wiki’s rotation says the tank takes half). Skarth demands 90 frost resist.'),
@@ -40664,48 +40711,65 @@ function syncCombatLevel(val) {
       ],
       roster:[
         ['combat','Frost Claw lands twice a cycle.'],
-        ['spellcrafting','Blizzard is the heaviest raid-wide hit of the Normal bosses.'],
+        ['spellcrafting','Blizzard hits for 650 before resist, twice a cycle.'],
+        ['gathering','A second heal, cast in Blizzard’s warning.'],
         ['jewelcrafting','Essential: 36 of the 90 frost resist.'],
-        ['smithing','Fortify cuts Blizzard and covers the Frost Claw before it.'],
-        ['construction','The shield soaks Blizzard, twice a cycle.'],
-        ['gathering','Regrowth cast in Blizzard’s warning heals through it.'],
-        ['mining','74,000 HP and two damage checks a cycle (the ice, the charge): War Cry is +22% raid ATK for both.'],
-        ['woodcutting','Extra damage over time, for the same reason.']
+        ['alchemy','Frostbite ticks for 195 before resist and jumps once.'],
+        ['construction','The shield soaks Blizzard, and Glacial Breath if the charge is not broken.'],
+        ['mining','+22% raid ATK for the two damage checks: the ice (1,332 HP in 20 s) and Frozen Heart (2,516 damage in 12 s).'],
+        ['woodcutting','Rend adds boss damage while everyone else is on the ice or the charge.']
       ],
       bench:[
-        ['alchemy','No curse, and Frozen only jumps once.'],
-        ['tailoring','The taunting tank already takes Frost Claw at 65% less damage.']
-      ]
+        ['smithing','Fortify tested slightly worse here: the damage checks need the extra Attack.'],
+        ['tailoring','The tank already takes Frost Claw at 65% less damage.']
+      ],
+      sim:{ clean:25.4, killS:384, full:'Attacks of 400+ damage (each raider’s Attack, before War Cry), at any HP from 525: 100%. At 275 the raid cannot reliably break Frozen Heart and Glacial Breath lands.' },
     },
     ashmaw_hard: {
       boss:'ashmaw', name:'Ashmaw, the Cinder Tyrant', mode:'Hard',
       flavour:'The hardest fight in the game: Ashmaw at 85,000 HP, with much heavier raid-wide and over-time damage.',
-      hp:85000, atk:3100, def:undefined, element:'fire', resist:90, combat:70,
-      unlock:'Clear Skarth on Normal. Everyone in the group needs the clear and Combat 70+.',
+      hp:85000, atk:3100, def:undefined, element:'fire', resist:90, combat:60,
+      unlock:'Clear Skarth on Normal. Everyone in the group needs the clear and Combat 60+.',
+      enrageSec:360, aoeRaw:770, tickRaw:220,
       rotation:ROT_ASHMAW, rotationNote:'The wiki publishes one rotation for Ashmaw. It hits harder on Hard; no other change is listed.',
       heavy:'Claw Rake', aoe:'Cinderstorm', curse:'Ember Brand', dot:{ name:'Burning', jumps:false },
       mustKnow:[
         'Hard wants 90 fire resist where Normal wants 60, and its raid-wide and Burning damage are much heavier.',
-        '85,000 HP needs about 405 damage a second from the raid to finish before the enrage starts: four times Normal.',
+        '85,000 HP needs about 237 damage a second from the raid to finish before the enrage starts at 360 s: twice Normal’s pace, for four times its HP.',
         'Hard has its own weekly loot lock, and its own legendaries (below).'
       ],
       roster:[
         ['combat','Claw Rake lands twice a cycle.'],
-        ['spellcrafting','The big heal, for much heavier raid-wide damage.'],
+        ['spellcrafting','The big heal: Cinderstorm hits for 770 before resist.'],
         ['gathering','A second heal, cast in Cinderstorm’s warning.'],
         ['jewelcrafting','36 of the 90 fire resist.'],
-        ['alchemy','Ember Brand and heavier Burning stacks both need Cleanse.'],
+        ['alchemy','Burning ticks for 220 before resist; with Cleanse the roster held up best on low-HP raiders.'],
         ['smithing','Fortify covers a Claw Rake and the Cinderstorm after it.'],
         ['construction','The shield soaks Cinderstorm before HP.'],
         ['mining','+22% raid ATK for 85,000 HP.']
       ],
       bench:[
-        ['woodcutting','Survival takes seven slots on Hard, so damage gets one: War Cry, which helps everyone.'],
+        ['woodcutting','Without Cleanse, Burning caused most deaths; Rend cannot take that slot.'],
         ['tailoring','The tank already takes Claw Rake at 65% less damage.']
-      ]
-    }
+      ],
+      sim:{ clean:4.2, killS:429, full:'Raiders with about 700+ max HP and Attacks of 400+ damage: 100%. With typical raiders (450–650 HP, 200–350 Attacks) it is not a reliable clear.' },    }
   };
   var ORDER = ['ashmaw','thessaly','morwenna','grimjaw','skarth','ashmaw_hard'];
+
+  // How the rosters were chosen (v7.2, 2026-11-08): tools/raid-sim (not
+  // deployed; see its README). Re-run it when the game's raid numbers change,
+  // then update each guide's roster, bench and sim; suite V pins them.
+  var SIM = {
+    fights: '6,480',
+    grid: 'raiders of 450–650 HP with tanks at double, gear resist at the target and 8 under it, a heavy hit of 300–600 on the tank, Attacks of 200–350 damage',
+    method: [
+      'Fight by fight, against the game’s own raid table: boss HP and ATK, every raid-wide hit and poison tick, the enrage start, the 15 s cadence, the 10 s action bar and every lend’s level-70 formula.',
+      'The game runs raids on its server and does not publish four numbers: the heavy hit on a taunting tank, raiders’ max HP, Attack damage, and the exact resist curve (taken as a straight line up to the 50% cap). Each was swept across the range above.',
+      'Rend’s tick rate is not published either: every roster was tested with it ticking every 3 s and once per 10 s action.',
+      'Every legal roster was tried: one or two tanks and every other lend at most once, 120 in all. A fight counts only if the boss dies and nobody does.',
+      'Raiders follow the guide: tanks take their turn, healers heal the lowest, Cleanse takes marks, then poison, then curses, and buffs go up in each warning. On Skarth everyone who can switches to Attack for the ice and the charge.'
+    ]
+  };
   ORDER.forEach(function (k) {
     var g = GUIDES[k];
     g.key = k;
@@ -40718,7 +40782,7 @@ function syncCombatLevel(val) {
     return { wardUp: Math.max(0, g.resist - 36), wardDown: Math.max(0, g.resist - 12), noWard: g.resist };
   }
   /** Raid damage per second that kills the boss before the enrage starts. */
-  function enrageDps(g) { return Math.ceil(g.hp / ENRAGE_AT); }
+  function enrageDps(g) { return Math.ceil(g.hp / g.enrageSec); }
   /** 1-based slots of a kind, and the gaps (s) between consecutive ones, wrapping. */
   function slotsOf(g, kind) {
     var s = [];
@@ -40825,6 +40889,8 @@ function syncCombatLevel(val) {
         out.push('Challenge before every ' + g.heavy + ' (' + slotList(g, 'single') + ', ' + gapText(g, 'single') + ' apart). One taunt lasts 32 s, shorter than the gap, so recast for each one, in its 4 s warning at the latest.');
       }
       out.push('If you go down, the taunt lapses and ' + g.heavy + ' lands on random raiders at full force.');
+      if (!g.anchor && g.roster.filter(function (p) { return p[0] === 'combat'; }).length > 1)
+        out.push('Second tank: attack, and Challenge at once if the first tank goes down.');
       if (g.key === 'thessaly') out.push('Stormsurge skips the active tank. If you lose Challenge, your extra max HP makes its 30%-of-max-HP part hit you harder.');
     } else if (lend === 'spellcrafting') {
       out.push('Tank first: ' + g.heavy + ' lands on them ' + times(nHeavy) + ' a cycle.');
@@ -40848,6 +40914,8 @@ function syncCombatLevel(val) {
         out.push(g.doom.name + ' comes once a cycle (slot ' + slotsOf(g, 'doom')[0] + ') and gives you ' + g.doom.seconds + ' s. Cleanse it every time, before anything else: nothing else removes it.');
       }
       if (g.curse) out.push('Cleanse the ' + g.curse + ' target (slot ' + slotsOf(g, 'curse')[0] + '): a cursed raider gets far less healing, and Mend is halved on them.');
+      if (g.dot && g.dot.tickNote) out.push('Cleanse ' + g.dot.name + ' as soon as ' + g.dot.source + ' lands (slot ' + slotsOf(g, 'poison')[0] +
+        '): it does ' + g.dot.tickNote + ', so every tick you leave is healing someone else has to make up.');
       if (g.dot) out.push(g.dot.jumps
         ? 'Cleanse ' + g.dot.name + ' before its 15 s run out, or it jumps once to another raider.'
         : g.dot.name + ' stacks if it lands again inside its 15 s; Cleanse removes every stack.');
@@ -40855,7 +40923,7 @@ function syncCombatLevel(val) {
     } else if (lend === 'mining') {
       if (g.key === 'skarth') out.push('Have War Cry up for Ice Tomb (slot 3) and Frozen Heart (slot 5): both are damage checks. They are 30 s apart, more than one 28 s window, so recast in each warning.');
       else out.push('War Cry lasts 28 s and recasting early only extends it. Keep it up and attack between casts.');
-      out.push('The kill is a race with the enrage: about ' + enrageDps(g).toLocaleString('en-US') + ' raid damage a second finishes ' + g.hp.toLocaleString('en-US') + ' HP by ' + ENRAGE_AT + ' s.');
+      out.push('The kill is a race with the enrage: about ' + enrageDps(g).toLocaleString('en-US') + ' raid damage a second finishes ' + g.hp.toLocaleString('en-US') + ' HP by ' + g.enrageSec + ' s.');
     } else if (lend === 'construction') {
       var cp = castPlan(g, ['aoe']);
       out.push('Reinforce has a 28 s cooldown and the shield has no timer. Refresh it ' + planText(cp).join('; and ') + ': it soaks up to 100% of each hit.');
@@ -40907,6 +40975,13 @@ function syncCombatLevel(val) {
     return { html: (hit && typeof iwItemRef === 'function') ? iwItemRef(hit) : esc(name), name: name, slot: slot };
   }
 
+  // The game's own numbers for a row (raid table, fetched 2026-11-08): the
+  // raid-wide hit and the poison tick before resist, Fortify and shields.
+  function rawNote(g, a) {
+    if (a.kind === 'aoe' && g.aoeRaw) return ' <span data-ui=rg-raw class="rg-raw">' + g.aoeRaw + (g.aoeMaxHpPct ? ' + ' + g.aoeMaxHpPct + '% of max HP' : '') + ' before resist.</span>';
+    if (a.kind === 'poison' && g.tickRaw) return ' <span data-ui=rg-raw class="rg-raw">' + g.tickRaw + ' a tick before resist.</span>';
+    return '';
+  }
   function render(key) {
     var g = GUIDES[key] || GUIDES.ashmaw, el = ELEMENTS[g.element], r = gearResist(g);
     var bossState = (typeof IW_RAID_BOSSES !== 'undefined') ? IW_RAID_BOSSES[g.boss] : null;
@@ -40922,7 +40997,7 @@ function syncCombatLevel(val) {
         metric('Element', el.icon + ' ' + el.label, g.resist + ' resist wanted') +
         metric('Entry', 'Combat ' + g.combat + '+', esc(g.unlock)) +
         metric('Cycle', g.rotation.length + ' abilities', g.cycleSec + ' s, one every ' + CADENCE + ' s') +
-        metric('Beat the enrage', '~' + fmt(enrageDps(g)) + ' dmg/s', 'raid total, HP ÷ ' + ENRAGE_AT + ' s') +
+        metric('Beat the enrage', '~' + fmt(enrageDps(g)) + ' dmg/s', 'raid total, HP ÷ ' + g.enrageSec + ' s') +
       '</div>'));
 
     // Before you go
@@ -40933,7 +41008,7 @@ function syncCombatLevel(val) {
         '<li data-ui=rg-li><strong>' + el.icon + ' ' + el.label + ' resist from gear, per raider:</strong> ' + r.wardUp + ' with Ward up, ' + r.wardDown +
           ' between Ward casts, ' + r.noWard + ' with no Jewelcrafting lender. ' + g.resist + ' in total halves ' + el.label.toLowerCase() + ' damage, the cap; less scales the cut down smoothly. (Ward’s 12 / 36 is its level-70 figure; a higher Jewelcrafting lender gives more.)</li>' +
         '<li data-ui=rg-li>Up to 8 raiders. A skill two people lend does not stack' + (g.anchor ? ', except that each Combat lender gets their own Challenge, which is why Grimjaw takes two' : '') + '.</li>' +
-        '<li data-ui=rg-li>From ' + ENRAGE_AT + ' s the boss’s damage climbs: double by ' + ENRAGE_DOUBLE + ' s, with no ceiling. There is no timer; a raid that cannot bring the HP down is eventually overwhelmed.</li>' +
+        '<li data-ui=rg-li>From ' + g.enrageSec + ' s the boss’s damage climbs: double by ' + (g.enrageSec + ENRAGE_RAMP) + ' s, with no ceiling. There is no timer; a raid that cannot bring the HP down is eventually overwhelmed.</li>' +
       '</ul>'));
 
     h.push(panel('rg-must-panel', 'What gets raids killed',
@@ -40944,7 +41019,7 @@ function syncCombatLevel(val) {
       var kind = KINDS[a.kind];
       return '<tr data-ui=rg-rot-row data-kind="' + a.kind + '"><td data-ui=rg-td class="rg-num">' + (i + 1) + '</td>' +
         '<td data-ui=rg-td><strong>' + esc(a.name) + '</strong><div data-ui=rg-kind class="rg-kind">' + kind.label + '</div></td>' +
-        '<td data-ui=rg-td class="rg-wrap">' + esc(a.text) + '</td>' +
+        '<td data-ui=rg-td class="rg-wrap">' + esc(a.text) + rawNote(g, a) + '</td>' +
         '<td data-ui=rg-td class="rg-wrap">' + (kind.answers.length ? kind.answers.map(chip).join(' ') : '<span data-ui=rg-none class="rg-none">Nothing to answer; keep attacking.</span>') + '</td></tr>';
     }).join('');
     h.push(panel('rg-rotation-panel', 'Ability rotation',
@@ -40972,14 +41047,18 @@ function syncCombatLevel(val) {
     }
 
     // Roster
-    h.push(panel('rg-roster-panel', 'Suggested roster',
-      '<p data-ui=rg-lead class="rg-lead">Eight raid slots, one lend each. Reasoned from the mechanics above; the wiki publishes no ability damage, so it is a starting point for your guild, not a simulation.</p>' +
+    h.push(panel('rg-roster-panel', 'Simulated roster',
+      '<p data-ui=rg-lead class="rg-lead">Eight raid slots, one lend each: the roster that won the most fights with nobody dying, out of all 120 legal rosters. ' +
+        '<strong>' + g.sim.clean + '% clean kills</strong> over ' + SIM.fights + ' simulated fights (' + SIM.grid + '); an average kill at ' + g.sim.killS + ' s.</p>' +
+      '<p data-ui=rg-lead class="rg-lead"><strong>For 100%:</strong> ' + esc(g.sim.full) + '</p>' +
       '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table rg-roster"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>#</th><th data-ui=rg-th>Lend</th><th data-ui=rg-th>Role</th><th data-ui=rg-th>Why</th></tr></thead><tbody data-ui=rg-tbody>' +
       g.roster.map(function (p, i) {
         return '<tr data-ui=rg-tr data-lend="' + p[0] + '"><td data-ui=rg-td class="rg-num">' + (i + 1) + '</td><td data-ui=rg-td>' + lendLabel(p[0]) + '</td><td data-ui=rg-td>' +
           LENDS[p[0]].role + '</td><td data-ui=rg-td class="rg-wrap">' + esc(p[1]) + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
-      '<p data-ui=rg-muted class="rg-muted"><strong>Left out:</strong> ' + g.bench.map(function (b) { return lendLabel(b[0]) + ': ' + esc(b[1]); }).join(' · ') + '</p>'));
+      '<p data-ui=rg-muted class="rg-muted"><strong>Left out:</strong> ' + g.bench.map(function (b) { return lendLabel(b[0]) + ': ' + esc(b[1]); }).join(' · ') + '</p>' +
+      '<details data-ui=rg-details class="rg-details"><summary data-ui=rg-summary>How this was worked out</summary>' +
+        '<ul data-ui=rg-list class="rg-list">' + SIM.method.map(function (t) { return '<li data-ui=rg-li>' + esc(t) + '</li>'; }).join('') + '</ul></details>'));
 
     // Role guide
     var cards = must.map(function (k) {
@@ -41050,7 +41129,7 @@ function syncCombatLevel(val) {
 
       // 2. The wiki's numbers (2026-11-07).
       var want = { ashmaw:[21000,2750,450,'fire',60,40,7], thessaly:[38500,3000,460,'lightning',62,60,7], morwenna:[46000,3050,470,'fire',60,60,7],
-                   grimjaw:[50000,3100,480,'frost',64,60,9], skarth:[74000,3100,500,'frost',90,60,7], ashmaw_hard:[85000,3100,undefined,'fire',90,70,7] };
+                   grimjaw:[50000,3100,480,'frost',64,60,9], skarth:[74000,3100,500,'frost',90,60,7], ashmaw_hard:[85000,3100,undefined,'fire',90,60,7] };
       Object.keys(want).forEach(function (k) {
         var g = GUIDES[k], w = want[k];
         eq(k + ' HP', g.hp, w[0]); eq(k + ' ATK', g.atk, w[1]); eq(k + ' DEF', g.def, w[2]); eq(k + ' element', g.element, w[3]);
@@ -41065,8 +41144,10 @@ function syncCombatLevel(val) {
       var res = { ashmaw:[24,48], thessaly:[26,50], morwenna:[24,48], grimjaw:[28,52], skarth:[54,78], ashmaw_hard:[54,78] };
       Object.keys(res).forEach(function (k) { var r = gearResist(GUIDES[k]); eq(k + ' gear resist, Ward up', r.wardUp, res[k][0]); eq(k + ' gear resist, Ward down', r.wardDown, res[k][1]); });
       eq('Ashmaw enrage dps', enrageDps(GUIDES.ashmaw), 100);
-      eq('Skarth enrage dps', enrageDps(GUIDES.skarth), 353);
-      eq('Hard enrage dps', enrageDps(GUIDES.ashmaw_hard), 405);
+      // v7.2: the game's own enrage starts (raid table enrageStartMs), not the wiki's 210 s for all.
+      eq('Skarth enrage dps (74,000 / 360 s)', enrageDps(GUIDES.skarth), 206);
+      eq('Hard enrage dps (85,000 / 360 s)', enrageDps(GUIDES.ashmaw_hard), 237);
+      eq('Grimjaw enrage dps (50,000 / 330 s)', enrageDps(GUIDES.grimjaw), 152);
       eq('Ashmaw heavy-hit gaps', gaps(GUIDES.ashmaw, 'single').join(','), '60,45');
       eq('Grimjaw anchor gaps', gaps(GUIDES.grimjaw, 'mark_tank').join(','), '45,45,45');
       // A 32 s taunt never covers two heavy hits on any boss.
@@ -41103,17 +41184,25 @@ function syncCombatLevel(val) {
         ok(k + ' roster has a tank', ids.indexOf('combat') >= 0);
         ok(k + ' roster has Ward', ids.indexOf('jewelcrafting') >= 0);
         ok(k + ' roster has a healer', ids.indexOf('spellcrafting') >= 0);
+        var html = render(k);
         var dup = ids.filter(function (v, i) { return ids.indexOf(v) !== i; });
-        eq(k + ' duplicate lends', dup.join(','), k === 'grimjaw' ? 'combat' : '');
+        // v7.2 (simulated rosters): Grimjaw's turn-taking tanks, and Morwenna's backup tank.
+        eq(k + ' duplicate lends', dup.join(','), (k === 'grimjaw' || k === 'morwenna') ? 'combat' : '');
+        ok(k + ' carries its simulation result', g.sim && typeof g.sim.clean === 'number' && g.sim.clean >= 0 && g.sim.clean <= 100 && g.sim.killS > 0 && g.sim.full.length > 20);
+        ok(k + ' shows its simulated clean-kill rate', html.indexOf(g.sim.clean + '% clean kills') >= 0);
+        ok(k + ' raw raid-wide hit from the game', g.aoeRaw > 0 && html.indexOf(g.aoeRaw + (g.aoeMaxHpPct ? ' + ' : ' before resist')) >= 0);
+        ok(k + ' enrage start from the game', [210, 330, 360].indexOf(g.enrageSec) >= 0);
         var all = ids.concat(g.bench.map(function (b) { return b[0]; }));
         ok(k + ' roster + bench covers all 10 lends', LEND_ORDER.every(function (l) { return all.indexOf(l) >= 0; }));
         ok(k + ' every pick says why', g.roster.every(function (p) { return p[1] && p[1].length > 10; }));
-        var html = render(k);
         ok(k + ' renders a role card per roster lend', ids.every(function (l) { return html.indexOf('data-lend="' + l + '"') >= 0; }));
         g.roster.forEach(function (p) { ok(k + ' ' + p[0] + ' has actions', actionsFor(g, p[0]).length > 0); });
         ok(k + ' no placeholder text', !/undefined|NaN/.test(html));
       });
       ok('Morwenna needs Cleanse', GUIDES.morwenna.roster.some(function (p) { return p[0] === 'alchemy'; }));
+      // Grimjaw brings Cleanse for Creeping Frost (player report, 2026-11-08).
+      ok('Grimjaw brings Cleanse', GUIDES.grimjaw.roster.some(function (p) { return p[0] === 'alchemy'; }));
+      ok('Grimjaw Cleanse goes on Creeping Frost first', /Creeping Frost lands \(slot 6\)/.test(actionsFor(GUIDES.grimjaw, 'alchemy')[0]));
       ok('Morwenna Cleanse names the mark first', /Soulrend Mark/.test(actionsFor(GUIDES.morwenna, 'alchemy')[0]));
       ok('Skarth War Cry covers ice and charge', /Ice Tomb.*Frozen Heart/.test(actionsFor(GUIDES.skarth, 'mining')[0]));
 
@@ -41217,28 +41306,43 @@ function syncCombatLevel(val) {
       // Release gate: unreleased bosses' gear is never recommended, but stays
       // resolvable for an equipped row (it is still in iwGearPlannerItems).
       eq('released raid item is recommendable', iwRaidItemReleased({id:'tyrants_ember'}), true);
-      // v6.2: Thessaly, Morwenna and Grimjaw are released; Skarth (Practice
-      // only) is the one left to stand in for "unreleased".
-      eq('unreleased raid item is not recommendable', iwRaidItemReleased({id:'skarths_rime_helm'}), false);
-      eq('non-raid item is unaffected by the raid gate', iwRaidItemReleased({id:'frostveil_spire'}), true);
+      // v7.2: all five bosses drop loot (Skarth opened 11-07.256), so the gate
+      // is exercised by marking Skarth unreleased for the length of the check.
+      eq('Skarth is released (11-07.256)', IW_RAID_BOSSES.skarth.released, true);
+      eq('Skarth gear is recommendable now', iwRaidItemReleased({id:'skarths_rime_helm'}), true);
       var plannerRows = iwGearPlannerItems();
-      ok('unreleased raid gear stays in the planner pool (equipped lookup)',
-         plannerRows.some(function(r){ return r.id === 'skarths_rime_helm'; }));
-      ok('unreleased raid gear is out of the task gear index',
-         !buildTaskGearIndex().some(function(r){ return r.name === "Skarth's Rime Crown"; }));
+      IW_RAID_BOSSES.skarth.released = false; TASK_GEAR_INDEX = null;
+      try {
+        eq('unreleased raid item is not recommendable', iwRaidItemReleased({id:'skarths_rime_helm'}), false);
+        ok('unreleased raid gear stays in the planner pool (equipped lookup)',
+           iwGearPlannerItems().some(function(r){ return r.id === 'skarths_rime_helm'; }));
+        ok('unreleased raid gear is out of the task gear index',
+           !buildTaskGearIndex().some(function(r){ return r.name === "Skarth's Rime Crown"; }));
+      } finally { IW_RAID_BOSSES.skarth.released = true; TASK_GEAR_INDEX = null; }
+      eq('non-raid item is unaffected by the raid gate', iwRaidItemReleased({id:'frostveil_spire'}), true);
       ok('released raid gear is in the task gear index',
          buildTaskGearIndex().some(function(r){ return r.name === "Tyrant's Ember"; }));
+      ok('Skarth gear is back in the task gear index',
+         buildTaskGearIndex().some(function(r){ return r.name === "Skarth's Rime Crown"; }));
 
       var savedCap = IW_GEAR_UPGRADE_CAP;
       IW_GEAR_UPGRADE_CAP = IW_MAX_GEAR_UPGRADE;
       try {
-        ['xptask','attack','defence','itemfind','gather','fire','frost','lightning'].forEach(function(goal){
-          SLOT_ORDER.forEach(function(slot){
-            var w = iwBestInSlot(slot, goal, 99, null).winner;
-            if(w && !iwRaidItemReleased(w))
-              fail.push('BIS ' + slot + '/' + goal + ' recommends unreleased raid gear: ' + w.name);
+        // v7.2: every boss is open, so the sweep marks Skarth unreleased for
+        // its length; otherwise it could not fail.
+        var skarthFrostBis = iwBestInSlot('trinket', 'frost', 99, null).winner;
+        IW_RAID_BOSSES.skarth.released = false;
+        try {
+          ['xptask','attack','defence','itemfind','gather','fire','frost','lightning'].forEach(function(goal){
+            SLOT_ORDER.forEach(function(slot){
+              var w = iwBestInSlot(slot, goal, 99, null).winner;
+              if(w && !iwRaidItemReleased(w))
+                fail.push('BIS ' + slot + '/' + goal + ' recommends unreleased raid gear: ' + w.name);
+            });
           });
-        });
+        } finally { IW_RAID_BOSSES.skarth.released = true; }
+        ok('the sweep can fail: with Skarth released, his gear does win a slot (frost trinket: ' + (skarthFrostBis && skarthFrostBis.name) + ')',
+           !!skarthFrostBis && iwRaidSource(skarthFrostBis) && iwRaidSource(skarthFrostBis).boss === 'skarth');
         // Released raid gear does compete: Tyrant's Forgehands (+30 XP/task)
         // holds the gloves record and must win XP/task gloves at Combat 99.
         var gl = iwBestInSlot('gloves', 'xptask', 99, null).winner;
@@ -41281,11 +41385,10 @@ function syncCombatLevel(val) {
     var boostEl = document.getElementById('skill-boost-skill');
     var savedRace = raceEl ? raceEl.value : null, savedBoost = boostEl ? boostEl.value : null;
     try {
-      // ── Raid releases (10-07.31, 10-08.17, 10-14.24; Skarth Practice only)
-      ['ashmaw','thessaly','morwenna','grimjaw'].forEach(function(b){
+      // ── Raid releases (10-07.31, 10-08.17, 10-14.24; Skarth 11-07.256)
+      ['ashmaw','thessaly','morwenna','grimjaw','skarth'].forEach(function(b){
         eq(b + ' released', IW_RAID_BOSSES[b].released, true);
       });
-      eq('skarth not released (Practice only)', IW_RAID_BOSSES.skarth.released, false);
 
       // ── Smithing set threshold 6 → 5 (10-14.32)
       eq('Smithing set threshold', SET_BONUS_MIN_PIECES, 5);
