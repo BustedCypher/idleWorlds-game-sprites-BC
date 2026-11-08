@@ -20,6 +20,9 @@
        roster with a reason per slot, what each lend does on that boss,
        and the loot. Fight data is /wiki/raid-boss, read 2026-11-07; lend
        values are its level-70 figures. See the RAID GUIDES script.
+     • Grimjaw's tanks take turns on Rime Crush (Curtis, 2026-11-08): a
+       Challenge as it starts channelling also takes the Soul Anchor after
+       it, so Tank A takes the 1st, 3rd, 5th… and Tank B the rest.
      • Ashmaw Hard's three legendaries (Tyrant's Molten Edge, Cinderstride
        Sabatons, Heart of the Cinder Tyrant) are appended to the embedded
        data verbatim from the 2026-11-07 items.json (7,293 → 7,296 rows,
@@ -40614,15 +40617,19 @@ function syncCombatLevel(val) {
         A('Soul Anchor','mark_tank','Marks whoever is tanking for 55 s.'),
         A('Absolute Zero','aoe','Frost damage to every raider except the active tank.')
       ],
+      // Tank turns (player-supplied, Curtis, 2026-11-08): a Challenge cast as
+      // Rime Crush starts channelling takes that Rime Crush AND the Soul Anchor
+      // right after it, and nothing else in the cycle meaningfully targets the
+      // tank. So the two tanks simply alternate on every Rime Crush.
       heavy:'Rime Crush', aoe:'Absolute Zero', dot:{ name:'Frozen', jumps:true }, anchor:{ name:'Soul Anchor', markSec:55 },
       mustKnow:[
-        'Bring two tanks. Soul Anchor marks the tank for 55 s and comes every 45 s, so the same tank can never take two in a row: swap taunt after every anchor.',
-        'Nothing heals, cleanses or shields a second anchor. It is the one mechanic in the game that only the tank swap answers.',
+        'Bring two tanks and take turns on Rime Crush. Challenge as Grimjaw starts channelling it: that one taunt takes the Rime Crush and the Soul Anchor right after it. Tank A takes the odd ones (1st, 3rd, 5th…), Tank B the even ones (2nd, 4th, 6th…).',
+        'Soul Anchor marks the tank for 55 s, and a second anchor while marked kills them outright: nothing heals, cleanses or shields it. Taking turns keeps each tank’s anchors 90 s apart, so never Challenge on the other tank’s turn.',
         'Frozen jumps once if it runs its full 15 s. Cleanse helps but is not required, and Grimjaw has no curse.'
       ],
       roster:[
-        ['combat','Tank A. Takes Rime Crush and every other Soul Anchor.'],
-        ['combat','Tank B. Takes over after each anchor on Tank A. Two Combat lenders each get their own Challenge.'],
+        ['combat','Tank A. Challenges the 1st, 3rd, 5th… Rime Crush, taking it and the Soul Anchor after it.'],
+        ['combat','Tank B. Challenges the 2nd, 4th, 6th… Rime Crush. Two Combat lenders each get their own Challenge.'],
         ['spellcrafting','Rime Crush lands three times a cycle: the tanks need the big heal.'],
         ['jewelcrafting','Up to 36 of the 64 frost resist.'],
         ['smithing','+220% DEF for the tanks under Rime Crush; also cuts Absolute Zero.'],
@@ -40749,21 +40756,32 @@ function syncCombatLevel(val) {
     }
     return groups;
   }
-  /** Grimjaw: who takes each anchor over two cycles, and whether it is safe. */
+  /** Grimjaw: the tanks take turns on the heavy hit. Each turn is one
+   *  Challenge as it starts channelling, which also takes the anchor in the
+   *  next slot. Two cycles of turns, and whether each anchor is safe. */
   function tankSwapPlan(g) {
     if (!g.anchor) return null;
-    var n = g.rotation.length, anchors = [];
-    for (var c = 0; c < 2; c++) slotsOf(g, 'mark_tank').forEach(function (s) { anchors.push({ slot: s, t: (c * n + s) * CADENCE, cycle: c + 1 }); });
-    var lastMarked = { A: -Infinity, B: -Infinity };
-    anchors.forEach(function (a, i) {
-      a.tank = (i % 2 === 0) ? 'A' : 'B';
-      a.sinceOwnLast = a.t - lastMarked[a.tank];
-      a.safe = a.sinceOwnLast > g.anchor.markSec;
-      a.gapPrev = i ? a.t - anchors[i - 1].t : null;
-      lastMarked[a.tank] = a.t;
+    var n = g.rotation.length, turns = [], anchorTimes = [];
+    for (var c = 0; c < 2; c++) slotsOf(g, 'single').forEach(function (s) {
+      var next = g.rotation[s % n], anchorSlot = (next && next.kind === 'mark_tank') ? (s % n) + 1 : null;
+      turns.push({ cycle: c + 1, slot: s, anchorSlot: anchorSlot, t: (c * n + s) * CADENCE,
+                   anchorT: anchorSlot ? (c * n + s + 1) * CADENCE : null });
+      if (anchorSlot) anchorTimes.push((c * n + s + 1) * CADENCE);
     });
-    return { anchors: anchors, oneTankSafe: anchors.every(function (a) { return a.gapPrev == null || a.gapPrev > g.anchor.markSec; }) };
+    var lastMarked = { A: -Infinity, B: -Infinity };
+    turns.forEach(function (tr, i) {
+      tr.n = i + 1;
+      tr.tank = (i % 2 === 0) ? 'A' : 'B';
+      if (tr.anchorT != null) {
+        tr.sinceOwnLast = tr.anchorT - lastMarked[tr.tank];
+        tr.safe = tr.sinceOwnLast > g.anchor.markSec;
+        lastMarked[tr.tank] = tr.anchorT;
+      }
+    });
+    var oneTankSafe = anchorTimes.every(function (t, i) { return !i || t - anchorTimes[i - 1] > g.anchor.markSec; });
+    return { turns: turns, oneTankSafe: oneTankSafe };
   }
+  function ordinal(n) { return n + ({ 1:'st', 2:'nd', 3:'rd' }[(n % 100 >= 11 && n % 100 <= 13) ? 0 : n % 10] || 'th'); }
   /** Loot rows for a guide, from IW_RAID_DROP_SOURCES (Hard: Hard-only rows). */
   function lootFor(g) {
     var src = (typeof IW_RAID_DROP_SOURCES !== 'undefined') ? IW_RAID_DROP_SOURCES : {};
@@ -40798,9 +40816,11 @@ function syncCombatLevel(val) {
     var nHeavy = count(g, 'single'), nAoe = count(g, 'aoe');
     if (lend === 'combat') {
       if (g.anchor) {
-        out.push('Two tanks, A and B. Tank A starts with Challenge up.');
-        out.push('After every ' + g.anchor.name + ', the marked tank stops taunting and the other one Challenges before the next anchor (' + gapText(g, 'mark_tank') + ' later). The swap plan is below.');
-        out.push(g.heavy + ' lands ' + times(nHeavy) + ' a cycle on whoever holds Challenge; a taunt lasts 32 s, so recast for each.');
+        out.push('Two tanks, A and B, taking turns on ' + g.heavy + ' for the whole fight: A takes the 1st, B the 2nd, A the 3rd, and so on.');
+        out.push('On your turn, Challenge as Grimjaw starts channelling ' + g.heavy + '. That one taunt takes the ' + g.heavy + ' and the ' + g.anchor.name +
+          ' right after it, and nothing else in the cycle targets the tank, so it is your only cast until your next turn.');
+        out.push('Never Challenge on the other tank’s turn. Your ' + g.anchor.name + ' mark lasts ' + g.anchor.markSec +
+          ' s and your next turn comes 90 s later, but a second anchor while you are still marked kills you outright.');
       } else {
         out.push('Challenge before every ' + g.heavy + ' (' + slotList(g, 'single') + ', ' + gapText(g, 'single') + ' apart). One taunt lasts 32 s, shorter than the gap, so recast for each one, in its 4 s warning at the latest.');
       }
@@ -40811,7 +40831,7 @@ function syncCombatLevel(val) {
       if (g.curse) out.push('Mend is halved on a cursed target. After ' + g.curse + ', get the curse cleansed first, or heal someone else.');
       if (g.key === 'thessaly') out.push('After each Stormsurge, the biggest raiders have lost the most HP (30% of their own max).');
       if (g.doom) out.push('If a ' + g.doom.name + ' gets through, everyone else loses ' + g.doom.splashPct + '% of max HP at once: heal the raid straight after.');
-      if (g.anchor) out.push('Follow the swap: the tank taking ' + g.heavy + ' changes after every ' + g.anchor.name + '.');
+      if (g.anchor) out.push('The tanks take turns on ' + g.heavy + ': heal whichever one is taking this one (see the tank rotation).');
     } else if (lend === 'gathering') {
       out.push('Cast Regrowth in the 4 s warning before ' + g.aoe + ' (' + slotList(g, 'aoe') + '), so it ticks while the damage lands.');
       out.push('Between raid-wide hits, keep a Regrowth on the tank ahead of ' + g.heavy + '.');
@@ -40933,16 +40953,21 @@ function syncCombatLevel(val) {
       '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>#</th><th data-ui=rg-th>Ability</th><th data-ui=rg-th>What it does</th><th data-ui=rg-th>Who answers it</th></tr></thead>' +
       '<tbody data-ui=rg-tbody>' + rows + '</tbody></table></div>'));
 
-    // Grimjaw's swap plan
+    // Grimjaw's tank rotation: the tanks take turns on the heavy hit.
     var plan = tankSwapPlan(g);
     if (plan) {
-      h.push(panel('rg-swap-panel', 'Tank swap plan',
-        '<p data-ui=rg-lead class="rg-lead">' + esc(g.anchor.name) + ' comes every ' + gapText(g, 'mark_tank') + ' and its mark lasts ' + g.anchor.markSec +
-          ' s, so one tank would always be marked when the next one lands. Alternating, each tank has ' + (plan.anchors[2].t - plan.anchors[0].t) + ' s between its anchors. With three anchors in a cycle, the order flips every cycle.</p>' +
-        '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>Cycle</th><th data-ui=rg-th>Slot</th><th data-ui=rg-th>Tank holding Challenge</th><th data-ui=rg-th>Since that tank’s last anchor</th></tr></thead><tbody data-ui=rg-tbody>' +
-        plan.anchors.map(function (a) {
-          return '<tr data-ui=rg-tr><td data-ui=rg-td>' + a.cycle + '</td><td data-ui=rg-td>' + a.slot + '</td><td data-ui=rg-td><strong>Tank ' + a.tank + '</strong></td><td data-ui=rg-td>' +
-            (isFinite(a.sinceOwnLast) ? a.sinceOwnLast + ' s (mark ' + (a.safe ? 'gone' : 'STILL UP') + ')' : 'first anchor') + '</td></tr>';
+      h.push(panel('rg-swap-panel', 'Tank rotation',
+        '<p data-ui=rg-lead class="rg-lead"><strong>Take turns on ' + esc(g.heavy) + '.</strong> Tank A Challenges the 1st, 3rd, 5th… ' + esc(g.heavy) +
+          ', Tank B the 2nd, 4th, 6th…, for the whole fight. Challenge as Grimjaw starts channelling it: that one taunt takes the ' + esc(g.heavy) +
+          ' and the ' + esc(g.anchor.name) + ' right after it. Nothing else in the cycle targets the tank, so the other tank just waits for the next one.</p>' +
+        '<p data-ui=rg-lead class="rg-lead">Why it is safe: a tank’s turns are 90 s apart and the anchor mark lasts ' + g.anchor.markSec +
+          ' s, so it is gone before that tank’s next anchor. One tank alone would still be marked when the next anchor lands, ' + gapText(g, 'mark_tank') + ' later, and die.</p>' +
+        '<div data-ui=rg-scroll class="rg-scroll"><table data-ui=rg-table class="rg-table"><thead data-ui=rg-thead><tr data-ui=rg-tr><th data-ui=rg-th>' + esc(g.heavy) +
+          '</th><th data-ui=rg-th>Who Challenges</th><th data-ui=rg-th>That taunt takes</th><th data-ui=rg-th>Their last anchor</th></tr></thead><tbody data-ui=rg-tbody>' +
+        plan.turns.map(function (tr) {
+          return '<tr data-ui=rg-tr><td data-ui=rg-td>' + ordinal(tr.n) + ' <span data-ui=rg-kind class="rg-kind">(cycle ' + tr.cycle + ', slot ' + tr.slot + ')</span></td>' +
+            '<td data-ui=rg-td><strong>Tank ' + tr.tank + '</strong></td><td data-ui=rg-td>' + esc(g.heavy) + (tr.anchorSlot ? ' + ' + esc(g.anchor.name) + ' (slot ' + tr.anchorSlot + ')' : '') + '</td>' +
+            '<td data-ui=rg-td>' + (tr.anchorT == null ? '' : isFinite(tr.sinceOwnLast) ? tr.sinceOwnLast + ' s ago, mark ' + (tr.safe ? 'gone' : 'STILL UP') : 'none yet') + '</td></tr>';
         }).join('') + '</tbody></table></div>'));
     }
 
@@ -41056,13 +41081,19 @@ function syncCombatLevel(val) {
       eq('Grimjaw Fortify casts per cycle', gp.length, 3);
       eq('Grimjaw Fortify cast slots', gp.map(function (g) { return g.map(function (e) { return e.slot; }).join('+'); }).join(' '), '3+4 7 9+1');
 
-      // 4. The tank swap.
+      // 4. Grimjaw's tank rotation: turns on Rime Crush, each taking the
+      //    Soul Anchor in the next slot (player-supplied, 2026-11-08).
       var sp = tankSwapPlan(GUIDES.grimjaw);
       ok('one tank cannot survive Soul Anchor', sp && !sp.oneTankSafe);
-      ok('alternating tanks is safe for every anchor', sp && sp.anchors.every(function (a) { return a.safe; }));
-      eq('anchors over two cycles', sp && sp.anchors.length, 6);
-      eq('swap order', sp && sp.anchors.map(function (a) { return a.tank; }).join(''), 'ABABAB');
-      eq('no swap plan without anchors', tankSwapPlan(GUIDES.ashmaw), null);
+      eq('Rime Crush turns over two cycles', sp && sp.turns.length, 6);
+      eq('turn order', sp && sp.turns.map(function (t) { return t.tank; }).join(''), 'ABABAB');
+      eq('each turn is a Rime Crush slot', sp && sp.turns.map(function (t) { return t.slot; }).join(','), '1,4,7,1,4,7');
+      ok('each Rime Crush taunt also takes the next Soul Anchor', sp && sp.turns.every(function (t) {
+        return t.anchorSlot === t.slot + 1 && GUIDES.grimjaw.rotation[t.anchorSlot - 1].kind === 'mark_tank'; }));
+      ok('taking turns is safe for every anchor', sp && sp.turns.every(function (t) { return t.safe !== false; }));
+      ok('a tank’s anchors are 90 s apart', sp && sp.turns.slice(2).every(function (t) { return t.sinceOwnLast === 90; }));
+      ok('Grimjaw guide says to take turns on Rime Crush', /Take turns on Rime Crush/.test(render('grimjaw')) && !/swap taunt after every anchor/.test(render('grimjaw')));
+      eq('no tank rotation without anchors', tankSwapPlan(GUIDES.ashmaw), null);
 
       // 5. Rosters: 8 slots of real lends; duplicates only Grimjaw's two tanks.
       ORDER.forEach(function (k) {
