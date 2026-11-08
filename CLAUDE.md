@@ -99,7 +99,14 @@ Suite V covers the Raids tab (search `RAID GUIDES  (v7.1`): one guide per
 boss plus Ashmaw Hard, copied from `/wiki/raid-boss` (read 2026-11-07; lend
 values are its level-70 figures and are never rescaled). Item stats and drop
 rates come from items.json, never the wiki. The suggested rosters are
-reasoned from the mechanics, not simulated, and each pick says why.
+chosen by `tools/raid-sim` (v7.2): all 120 legal rosters simulated fight by
+fight against the game's own raid table, with what the server hides (heavy-hit
+damage, raider HP, Attack damage, the resist curve, Rend's tick) swept. Each
+guide's `sim` holds its clean-kill rate and what 100% takes; re-run the
+simulator after a raid balance patch. The page (v7.3 glance view: stat tiles,
+role tiles, icon timeline, damage chart) shows each roster as the recommended
+one and must never mention the simulation; suite V fails if it does. Enrage starts are per boss (210/330/360
+s), from the game, not the wiki's 210 s for all.
 
 Suite S covers the Housing Planner (Skill Tools; search `HOUSING PLANNER  (v6.6`).
 It plans the fastest way to pay for a housing goal: Gold from Work Orders,
@@ -422,10 +429,13 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.1 (top-level Raids tab: a guide per
-  guild raid boss plus Ashmaw Hard, a suggested roster, what each lend does,
-  Grimjaw's tank turns on Rime Crush; Ashmaw Hard's items from items.json;
-  suite V), live since 2026-11-08. v6.9 made every craft a 10-second action.
+- `index.html` — **the working file**, v7.3, live since 2026-11-08. v7.3 rebuilt
+  the Raids tab as a glance view (stat tiles, role tiles that light up each
+  raider's abilities, an icon timeline, a boss-damage chart). v7.2 chose each
+  boss's recommended roster with `tools/raid-sim` and took enrage starts,
+  raid-wide hits and poison ticks from the game's own raid table; Skarth is
+  open. v7.1 added the top-level Raids tab and Ashmaw Hard's items from
+  items.json (suite V). v6.9 made every craft a 10-second action.
   v6.7.1 gave the Work Order tab a gold per day by 2x Gather chart, 0-600%,
   with its own dials and per-type toggle chips, and an order-type filter.
   v6.6 added the Housing Planner in Skill Tools: Work Orders and
