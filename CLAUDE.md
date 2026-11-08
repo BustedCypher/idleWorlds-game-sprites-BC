@@ -91,7 +91,15 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwXpCurveTaperSelfCheck` (K) · `iwAshenSkinSelfCheck` (L) ·
 `iwSelfCheckIsolationSelfCheck` (M) · `iwRaidGearSelfCheck` (N) ·
 `iwOctober2026PatchSelfCheck` (O) · `iwHollowNightSelfCheck` (P) · `iwSlotStatFilterSelfCheck` (Q) ·
-`iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S).
+`iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S) ·
+`iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
+`iwRaidGuideSelfCheck` (V).
+
+Suite V covers the Raids tab (search `RAID GUIDES  (v7.1`): one guide per
+boss plus Ashmaw Hard, copied from `/wiki/raid-boss` (read 2026-11-07; lend
+values are its level-70 figures and are never rescaled). Item stats and drop
+rates come from items.json, never the wiki. The suggested rosters are
+reasoned from the mechanics, not simulated, and each pick says why.
 
 Suite S covers the Housing Planner (Skill Tools; search `HOUSING PLANNER  (v6.6`).
 It plans the fastest way to pay for a housing goal: Gold from Work Orders,
@@ -197,6 +205,7 @@ Line numbers drift — grep the anchor instead. Ordered as they appear:
 | Work Order | `WORK ORDER CALCULATOR MODULE` | |
 | Village Add-ons | `VILLAGE ADD-ONS  (v5.4)` | Own IIFE, isolated from the gnModule doll/set-bonus system; feeds `iwSkillLevels()` |
 | Housing Planner | `HOUSING PLANNER  (v6.6` | Engine (`window.iwHousingPlan`), tab IIFE and suite S in one script, just before the regression suites |
+| Raid Guides | `RAID GUIDES  (v7.1` | Guide data (`window.IW_RAID_GUIDES`), renderer and suite V, right after the Housing Planner script; loot comes from `IW_RAID_DROP_SOURCES` |
 | Regression suites | `AUGUST 2026 REGRESSION` | Stages A–G plus later audit suites, including Stage H (Woodcutting & Construction) |
 
 Engine landmarks, in order: game-data constants (`const TIER_NAMES`) →
@@ -210,7 +219,8 @@ switchTab` → Work Order module → **Village Add-ons module** (v5.4, its own
 IIFE) → regression suites A–H.
 
 Tabs: Start · Calculator · Planner · Gear · Work Orders · Skill Tools
-(Construction Planner, Jewelry Calculator, Housing Planner) · Items · Settings.
+(Construction Planner, Jewelry Calculator, Housing Planner) · Raids · Items ·
+Settings.
 
 ## Non-negotiable rules
 
@@ -412,9 +422,13 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v6.7.1 (Work Order tab: a gold per
-  day by 2x Gather chart, 0-600%, with its own dials and per-type toggle
-  chips, and an order-type filter), live since 2026-10-22. v6.6 added the Housing Planner in Skill Tools: Work Orders and
+- `index.html` — **the working file**, v7.1 (top-level Raids tab: a guide per
+  guild raid boss plus Ashmaw Hard, a suggested roster, what each lend does,
+  Grimjaw's tank turns on Rime Crush; Ashmaw Hard's items from items.json;
+  suite V), live since 2026-11-08. v6.9 made every craft a 10-second action.
+  v6.7.1 gave the Work Order tab a gold per day by 2x Gather chart, 0-600%,
+  with its own dials and per-type toggle chips, and an order-type filter.
+  v6.6 added the Housing Planner in Skill Tools: Work Orders and
   salvaging to pay for a house, levels and gear upgrades on the way; suite
   S. v6.5 added the Work Order Board: Plate, Woodcutting and Construction
   orders; crafting-time order pricing; T23+ tier levels; T21+ Smithing set
