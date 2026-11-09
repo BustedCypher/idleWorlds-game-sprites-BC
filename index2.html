@@ -26,6 +26,14 @@
      • XP per level: each step is now Math.round()ed like the game's own
        curve (client module 8300). It was within 1.6 XP to level 120;
        it is now exact (suite K pins 825,097,799 to level 74).
+     • Guild Hall XP (game patches 11-02.199/.200): a new Guild Hall select
+       in the Calculator (+2% XP per level, every skill), filled from the
+       profile's guildHallLevels on import; each skill's own hall (Deep
+       Mine, Lumber Yard, ...) adds +1% per level from the import. Same
+       additive percent as achievements, in calculate(),
+       getEffectiveXPParams(), taskBonusEnv() and the Housing Planner. It
+       was the ~1% gap in Curtis's Iron Ore reading (game +4,385 / +3,759,
+       toolkit 4,348 / 3,728). Suite Y (iwGuildHallXpSelfCheck).
      • Full re-embed of the 2026-11-09 items.json: 7,296 → 7,301 rows (7,300
        current + the archived Hollow Scroll). Rule: the feed's rows and key
        order, wiki_slug and acquisition_detail dropped, empty fields
@@ -11055,6 +11063,12 @@
       if(typeof iwAchievementPctFromProfile==='function')
         iwApplyAchievementFromProfile(iwAchievementPctFromProfile(profile), setInput);
     }catch(e){}
+    // Guild Hall level (profile.guildHallLevels.guild_hall). Absent leaves
+    // the manual pick alone; the skill halls are read straight from the
+    // profile by iwGuildHallXpPct().
+    try{
+      if(typeof iwApplyGuildHallFromProfile==='function') iwApplyGuildHallFromProfile(profile, setInput);
+    }catch(e){}
 
     // Extra gather chance (flat %: combatStats.doubleGatherChancePercent).
     // Applies only to gather-type actions in the calculator, but it's harmless
@@ -12057,6 +12071,29 @@
                 <option value="150">+150% XP</option>
               </select>
               <span data-ui=field-helper class="field-helper" id="achievement-xp-helper">Your achievement XP bonus. Set manually for now.</span>
+            </div>
+            <!-- Guild Hall (game patches 11-02.199/.200; on the game's XP chip
+                 since 11-05.222): +2% XP per level in every skill. Each
+                 skill's own hall (Deep Mine, Lumber Yard, ...) adds +1% per
+                 level to that skill; those come from an imported profile.
+                 Filled from the profile's guildHallLevels on import. See
+                 iwGuildHallXpPct(). -->
+            <div data-ui=field class="field">
+              <label for="guild-hall-level">Guild Hall</label>
+              <select id="guild-hall-level">
+                <option value="0" selected>None (0%)</option>
+                <option value="1">Level 1 (+2%)</option>
+                <option value="2">Level 2 (+4%)</option>
+                <option value="3">Level 3 (+6%)</option>
+                <option value="4">Level 4 (+8%)</option>
+                <option value="5">Level 5 (+10%)</option>
+                <option value="6">Level 6 (+12%)</option>
+                <option value="7">Level 7 (+14%)</option>
+                <option value="8">Level 8 (+16%)</option>
+                <option value="9">Level 9 (+18%)</option>
+                <option value="10">Level 10 (+20%)</option>
+              </select>
+              <span data-ui=field-helper class="field-helper" id="guild-hall-helper">Your guild's Guild Hall level: +2% XP per level in every skill, once built and you have 7+ Guild Points.</span>
             </div>
             <!-- Skill Boost (v6.2; game patch 2026-10-14.11): a Shop boost of
                  +25% XP to ONE skill, for everyone, 24 h. Added to the other
@@ -14576,6 +14613,68 @@ function iwAchievementXpPct() {
   return (Number.isFinite(v) && v >= 0) ? v : 0;
 }
 
+// ── GUILD HALL XP (game patches 0.2.0+2026-11-02.199/.200) ───────────
+// The game's client (module 8983, read 2026-11-10) adds, per skill,
+//   2 × guildHallLevels.guild_hall  +  1 × guildHallLevels[<skill's hall>]
+// into the SAME additive percent as server, race and achievements (its XP
+// chip lists it beside them since 11-05.222). The player's levels are
+// player.guildHallLevels; the server sends the levels that count (built,
+// 7+ Guild Points). Missing before v7.4: Curtis's Iron Ore read +4,385 /
+// +3,759 in game against the Calculator's 4,348 / 3,728, a ~1% gap that
+// fits +2% (Guild Hall level 1). Every XP path reads iwGuildHallXpPct().
+const IW_GUILD_HALL_XP_PER_LEVEL = 2;
+const IW_GUILD_SKILL_HALLS = {
+  combat:'barracks', mining:'deep_mine', smithing:'forge', herbing:'herb_garden',
+  alchemy:'alchemy_lab', jewelcrafting:'gem_cutter', spellcrafting:'arcane_library',
+  tailoring:'loom_house', woodcutting:'lumber_yard', construction:'builders_lodge'
+};
+// Absent is not zero: undefined when the profile carries no levels.
+function iwGuildHallLevelsFromProfile(profile) {
+  if (!profile || typeof profile !== 'object') return undefined;
+  const v = profile.guildHallLevels || (profile.player && profile.player.guildHallLevels);
+  return (v && typeof v === 'object' && !Array.isArray(v)) ? v : undefined;
+}
+// The game's qC(levels, skill). `skill` may be a group or leaf key.
+function iwGuildHallPctFromLevels(levels, skill) {
+  if (!levels) return 0;
+  const n = k => { const x = Number(levels[k]); return Number.isFinite(x) && x > 0 ? x : 0; };
+  const hall = IW_GUILD_SKILL_HALLS[iwCanonicalSkillKey(skill)];
+  return IW_GUILD_HALL_XP_PER_LEVEL * n('guild_hall') + (hall ? n(hall) : 0);
+}
+function iwGuildHallManualLevel() {
+  const el = document.getElementById('guild-hall-level');
+  const v = el ? parseInt(el.value, 10) : NaN;
+  return (Number.isFinite(v) && v >= 0) ? v : 0;
+}
+// The select owns the Guild Hall level (an import fills it); the skill halls
+// come only from an imported profile, which carries every skill's.
+function iwGuildHallXpPct(skill) {
+  let prof;
+  try { prof = iwGuildHallLevelsFromProfile(window.IWProfile); } catch (e) { prof = undefined; }
+  return iwGuildHallPctFromLevels(Object.assign({}, prof || {}, { guild_hall: iwGuildHallManualLevel() }), skill);
+}
+// Write an imported Guild Hall level into the select (normal events fire,
+// so calculate() re-runs). Returns true when a value was applied.
+function iwApplyGuildHallFromProfile(profile, write) {
+  const el = document.getElementById('guild-hall-level');
+  const levels = iwGuildHallLevelsFromProfile(profile);
+  if (!el || !levels || levels.guild_hall == null) return false;
+  const n = Number(levels.guild_hall);
+  if (!Number.isFinite(n) || n < 0) return false;
+  const val = String(Math.round(n));
+  if (![].some.call(el.options, o => o.value === val)) {
+    const opt = document.createElement('option');
+    opt.value = val; opt.textContent = 'Level ' + val + ' (+' + (IW_GUILD_HALL_XP_PER_LEVEL * n) + '%)';
+    el.appendChild(opt);
+  }
+  el.dataset.profileLevel = val;
+  if (typeof write === 'function') write('guild-hall-level', val);
+  else { el.value = val; el.dispatchEvent(new Event('change', { bubbles: true })); }
+  const help = document.getElementById('guild-hall-helper');
+  if (help) help.textContent = 'From your imported profile (+2% XP per level in every skill, plus your skill halls). Change it to override.';
+  return true;
+}
+
 // v6.8 — The Hollow Rider (game patch 0.2.0+2026-10-19.31), Hollow Night's
 // event world boss: it respawns every hour and, when it falls, gives everyone
 // +6 XP/task for an hour. It joins the +24 world boss buff in the flat
@@ -16784,7 +16883,7 @@ function syncCheckbox(rowId, inputId) {
 });
 
 // Numeric / select inputs that affect the calculation
-['xp-per-task','potion-tier','potion-super','housing-tier','zc-leaderboard','achievement-xp','skill-boost-skill'].forEach(id => {
+['xp-per-task','potion-tier','potion-super','housing-tier','zc-leaderboard','achievement-xp','guild-hall-level','skill-boost-skill'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', calculate);
   if (el) el.addEventListener('change', calculate);
@@ -17244,6 +17343,7 @@ function calculate() {
   const serverPct       = document.getElementById('server-bonus').checked ? 25 : 0;
   const newPlayerPct    = document.getElementById('new-player-promo').checked ? 25 : 0;
   const achievementPct  = iwAchievementXpPct();
+  const guildHallPct    = iwGuildHallXpPct(activeSkill);
   const gatherEnabled   = document.getElementById('gather-toggle').checked;
   // gatherPct = 100% base + the bonus % the user enters (e.g. 140 → 240).
   const gatherPct     = gatherEnabled ? (parseFloat(document.getElementById('gather-chance').value)||0) + 100 : 0;
@@ -17312,7 +17412,7 @@ function calculate() {
   const dailyBonus    = dailyInfo.applies ? baseWithFlats * (dailyInfo.bonus / 100) : 0;
   const jcEventPct    = (activeSkill === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   const skillBoostPct = iwSkillBoostPct(activeSkill);
-  const totalPct      = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + achievementPct + skillBoostPct + jcEventPct;
+  const totalPct      = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + achievementPct + guildHallPct + skillBoostPct + jcEventPct;
   // Spellcrafting catch-up — a MULTIPLIER on the finished figure, not part of
   // totalPct (see SPELLCRAFT_CATCHUP_PCT). `a` is the From-level field, which
   // for a Spellcrafting plan IS the player's Spellcrafting level — the same
@@ -18282,6 +18382,7 @@ function getEffectiveXPParams(skill, level) {
   const serverPct       = g('server-bonus')     ? (g('server-bonus').checked ? 25 : 0) : 0;
   const newPlayerPct    = g('new-player-promo') ? (g('new-player-promo').checked ? 25 : 0) : 0;
   const achievementPct  = iwAchievementXpPct();
+  const guildHallPct    = iwGuildHallXpPct(activeSkill);
   const gatherEnabled   = g('gather-toggle')    ? g('gather-toggle').checked : false;
   // Match calculate(): 100% base + the bonus % entered (e.g. 140 → 240).
   const gatherPct       = gatherEnabled ? (parseFloat(g('gather-chance').value) || 0) + 100 : 0;
@@ -18300,7 +18401,7 @@ function getEffectiveXPParams(skill, level) {
   // function's own existing convention rather than plannerGroup).
   const jcEventPct  = (activeSkill === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   const skillBoostPct = iwSkillBoostPct(activeSkill);
-  const totalPct    = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + achievementPct + skillBoostPct + jcEventPct;
+  const totalPct    = zcTeamPct + zcLeaderPct + serverPct + racePct + newPlayerPct + achievementPct + guildHallPct + skillBoostPct + jcEventPct;
 
   // Spellcrafting catch-up — a separate multiplier, NOT part of totalPct.
   // Keyed off the specific leaf/skill being evaluated when one was passed
@@ -27405,6 +27506,7 @@ function taskBonusEnv(taskKey) {
                + (g('server-bonus') && g('server-bonus').checked ? 25 : 0)
                + (g('new-player-promo') && g('new-player-promo').checked ? 25 : 0)
                + iwAchievementXpPct()
+               + iwGuildHallXpPct(group)
                + iwSkillBoostPct(group)
                + racePct + jcEventPct,
     dailyApplies: dailyInfo.applies, dailyPct: dailyInfo.applies ? dailyInfo.bonus : 0,
@@ -39413,6 +39515,7 @@ function syncCombatLevel(val) {
       housingTier: num(P.housingTier) != null ? num(P.housingTier) : num(P.housing && P.housing.tier),
       gold: num(P.gold), salvage: salvage, stock: stock, skills: skills,
       race: P.race || null, achievementPct: num(P.achievementXpBoostPercent),
+      guildHallLevels: (typeof iwGuildHallLevelsFromProfile === 'function' && iwGuildHallLevelsFromProfile(P)) || null,
       zcPct: num(root.zcLeaderboardPercent != null ? root.zcLeaderboardPercent : P.zcLeaderboardPercent),
       zcTeamPct: num(P.zoneControlXpBonus),
       serverBoostEndsAt: Date.parse(P.serverXpBoostEndsAt || root.serverXpBoostEndsAt || '') || null,
@@ -39755,6 +39858,9 @@ function syncCombatLevel(val) {
     if (housing == null) housing = num(prof && (prof.housingTier != null ? prof.housingTier : prof.account_status && prof.account_status.housing_tier));
     var race = (pj && pj.race) || (prof && prof.race) || null;
     var ach = num(pj && pj.achievementPct); if (ach == null) ach = num(prof && prof.achievementXpBoostPercent) || 0;
+    // Guild Hall levels: player.json, else the imported profile, else the
+    // Calculator's Guild Hall select (no skill halls then).
+    var guild = (pj && pj.guildHallLevels) || iwGuildHallLevelsFromProfile(prof) || { guild_hall: iwGuildHallManualLevel() };
     var roles = {}, loSource = {};
     if (pj && pj.loadouts && pj.loadouts.length) {
       var worn = pj.loadouts[0];
@@ -39784,7 +39890,7 @@ function syncCombatLevel(val) {
       name: (pj && pj.displayName) || (prof && prof.displayName) || null,
       xp: xp, base: base, missingSkills: missing,
       housing: housing == null ? 0 : housing,
-      race: race, achPct: ach, zcPct: num(pj && pj.zcPct) || 0, zcTeamPct: num(pj && pj.zcTeamPct) || 0,
+      race: race, achPct: ach, guild: guild, zcPct: num(pj && pj.zcPct) || 0, zcTeamPct: num(pj && pj.zcTeamPct) || 0,
       serverBoostEndsAt: pj ? pj.serverBoostEndsAt : null,
       gfCap: num(pj && pj.gfCap) || WO_GOLD_FIND_CAP,
       gold: num(pj && pj.gold) || 0, salvage: salvHeld + held.total, salvageHeld: salvHeld, stock: held,
@@ -39802,7 +39908,7 @@ function syncCombatLevel(val) {
   // boost. Jewelcrafting carries the never-reverted +100% event line.
   function xpMult(ctx, k, serverOn) {
     var race = (typeof iwRaceXpPct === 'function') ? iwRaceXpPct(ctx.race, k === 'herbing' ? 'gathering' : k) : 0;
-    var pct = ctx.achPct + ctx.zcPct + ctx.zcTeamPct + race + (serverOn ? SERVER_BOOST_PCT : 0) +
+    var pct = ctx.achPct + iwGuildHallPctFromLevels(ctx.guild, k) + ctx.zcPct + ctx.zcTeamPct + race + (serverOn ? SERVER_BOOST_PCT : 0) +
       (k === 'jewelcrafting' ? JEWELCRAFT_XP_EVENT_PCT : 0);
     return (1 + ctx.dailyPct / 100) * (1 + pct / 100);
   }
@@ -45875,6 +45981,98 @@ function syncCombatLevel(val) {
 
 <script>
 /* ════════════════════════════════════════════════════════════════════
+   SUITE Y — GUILD HALL XP (game patches 0.2.0+2026-11-02.199/.200)
+   The game's client (module 8983, read 2026-11-10): a skill gets
+   2 × guild_hall level + 1 × its own hall's level, in the same additive
+   percent as server, race and achievements. Without it the Calculator ran
+   ~1% low for Curtis (Iron Ore: game +4,385 / +3,759, toolkit 4,348 / 3,728).
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwGuildHallXpSelfCheck = function iwGuildHallXpSelfCheck(){
+    var fail = [];
+    function ok(label, cond){ if(!cond) fail.push(label); }
+    function eq(label, got, want){
+      if(got !== want) fail.push(label + ': got ' + String(got) + ', expected ' + String(want));
+    }
+    var sel = document.getElementById('guild-hall-level');
+    var was = sel ? sel.value : null, wasProfile = sel ? sel.dataset.profileLevel : undefined;
+    try {
+      // ── The game's formula ──────────────────────────────────────────
+      eq('Guild Hall 1 gives every skill +2%', iwGuildHallPctFromLevels({ guild_hall: 1 }, 'woodcutting'), 2);
+      eq('Guild Hall 2 + Deep Mine 3 gives Mining +7%', iwGuildHallPctFromLevels({ guild_hall: 2, deep_mine: 3 }, 'mining'), 7);
+      eq('Deep Mine does not reach Smithing', iwGuildHallPctFromLevels({ guild_hall: 2, deep_mine: 3 }, 'smithing'), 4);
+      eq('Gathering uses the Herb Garden (group key)', iwGuildHallPctFromLevels({ herb_garden: 2 }, 'gathering'), 2);
+      eq('Gathering uses the Herb Garden (leaf key)', iwGuildHallPctFromLevels({ herb_garden: 2 }, 'gather_herb'), 2);
+      eq('Barracks reaches Combat', iwGuildHallPctFromLevels({ barracks: 1 }, 'combat'), 1);
+      eq('no levels gives 0', iwGuildHallPctFromLevels(undefined, 'mining'), 0);
+      eq('junk levels give 0', iwGuildHallPctFromLevels({ guild_hall: 'x', deep_mine: -2 }, 'mining'), 0);
+      eq('every skill has its hall', Object.keys(IW_GUILD_SKILL_HALLS).length, 10);
+
+      // ── Absent is not zero on import ────────────────────────────────
+      eq('no guildHallLevels reads as absent', iwGuildHallLevelsFromProfile({ race: 'goblin' }), undefined);
+      eq('flat profile field is read', JSON.stringify(iwGuildHallLevelsFromProfile({ guildHallLevels: { guild_hall: 1 } })), '{"guild_hall":1}');
+      eq('player.json shape is read', JSON.stringify(iwGuildHallLevelsFromProfile({ player: { guildHallLevels: { guild_hall: 3 } } })), '{"guild_hall":3}');
+
+      // ── The select feeds every XP path ──────────────────────────────
+      ok('#guild-hall-level select exists', !!sel);
+      if (sel) {
+        sel.value = '0';
+        var off = getEffectiveXPParams('mining', 50).apply(1000);
+        eq('select at 0 adds nothing', iwGuildHallXpPct('mining') - iwGuildHallPctFromLevels(Object.assign({}, iwGuildHallLevelsFromProfile(window.IWProfile) || {}, { guild_hall: 0 }), 'mining'), 0);
+        sel.value = '1';
+        eq('select at 1 gives +2% (plus any imported skill hall)', iwGuildHallXpPct('woodcutting') >= 2, true);
+        var on = getEffectiveXPParams('mining', 50).apply(1000);
+        ok('the Planner/Advisor XP path counts the Guild Hall (' + off + ' -> ' + on + ')', on > off);
+        // calculate(): drive it with fixed inputs (no events, nothing saved),
+        // read the XP/action it prints at Guild Hall 0 and 1, put it all back.
+        var ids = ['lvl-a', 'lvl-b', 'action-xp'], keep = {};
+        ids.forEach(function(id){ var el = document.getElementById(id); keep[id] = el ? el.value : null; });
+        var xpa = document.getElementById('res-xpa');
+        try {
+          document.getElementById('lvl-a').value = '20';
+          document.getElementById('lvl-b').value = '30';
+          document.getElementById('action-xp').value = '1000';
+          sel.value = '0'; calculate(); var xp0 = xpa ? xpa.textContent : '';
+          sel.value = '5'; calculate(); var xp5 = xpa ? xpa.textContent : '';
+          ok('calculate() prints a number to compare (' + xp0 + ')', /\d/.test(xp0));
+          ok('calculate() counts the Guild Hall (' + xp0 + ' -> ' + xp5 + ')', /\d/.test(xp5) && xp5 !== xp0);
+        } finally {
+          ids.forEach(function(id){ var el = document.getElementById(id); if (el && keep[id] != null) el.value = keep[id]; });
+          sel.value = was; calculate();
+        }
+        ok('taskBonusEnv() adds it', typeof taskBonusEnv === 'function' && /iwGuildHallXpPct\(group\)/.test(String(taskBonusEnv)));
+        // An import writes the level and marks it as from the profile.
+        ok('import applies a level', iwApplyGuildHallFromProfile({ guildHallLevels: { guild_hall: 2 } }, function(id, v){ document.getElementById(id).value = v; }) === true);
+        eq('imported level lands in the select', sel.value, '2');
+        eq('absent levels apply nothing', iwApplyGuildHallFromProfile({ race: 'elf' }), false);
+      }
+
+      // ── Housing Planner ────────────────────────────────────────────
+      var HP = window.iwHousingPlan;
+      ok('Housing Planner present', !!HP);
+      if (HP) {
+        var pj = HP.extractPlayerJson({ renderedAt: Date.now(), player: { id: 'suite-y', guildHallLevels: { guild_hall: 2, deep_mine: 3 } }, inventory: [], skills: [] });
+        eq('player.json summary keeps the levels', JSON.stringify(pj && pj.guildHallLevels), '{"guild_hall":2,"deep_mine":3}');
+        var ctx = HP.buildContext(null, pj, { upgrades: false });
+        eq('Housing Planner context carries them', ctx && ctx.guild && ctx.guild.deep_mine, 3);
+      }
+    } catch(e) { fail.push('Guild Hall suite threw: ' + (e && e.message ? e.message : String(e))); }
+    finally {
+      if (sel) {
+        sel.value = was;
+        if (wasProfile === undefined) delete sel.dataset.profileLevel; else sel.dataset.profileLevel = wasProfile;
+      }
+    }
+    if (fail.length && typeof console !== 'undefined')
+      console.warn('[Guild Hall XP] FAILED:', fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
    v5.0 RELEASE CANDIDATE — consolidated release audit guard
    ════════════════════════════════════════════════════════════════════ */
 (function(){
@@ -45915,7 +46113,8 @@ function syncCombatLevel(val) {
         ['Late October items',window.iwLateOctoberItemsSelfCheck],
         ['Raid Guides',window.iwRaidGuideSelfCheck],
         ['Level-paid gathering',window.iwLevelPaidGatheringSelfCheck],
-        ['November items (2026-11-09 items.json)',window.iwNovember2026ItemsSelfCheck]
+        ['November items (2026-11-09 items.json)',window.iwNovember2026ItemsSelfCheck],
+        ['Guild Hall XP',window.iwGuildHallXpSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;
