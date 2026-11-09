@@ -14,11 +14,15 @@ const trinkets = [
   ['deepvein_lodestone', 'Deepvein Lodestone', 'mining', 24, 61],
   ['emberheart_anvilstone', 'Emberheart Anvilstone', 'smithing', 24, 61],
   ['rimebloom_satchel', 'Rimebloom Satchel', 'herbing', 25, 65],
-  ['stormwoven_grimoire', 'Stormwoven Grimoire', 'spellcrafting', 26, 69],
-  ['astral_loupe', 'Astral Loupe', 'jewelcrafting', 26, 69],
-  ['cinderthread_spindle', 'Cinderthread Spindle', 'tailoring', 28, 72],
-  ['rimebark_charm', 'Rimebark Charm', 'woodcutting', 31, 73],
-  ['stormset_plumb_line', 'Stormset Plumb Line', 'construction', 36, 76],
+  // Game patch 11-07.257: every +2 profession trinket needs level 65 (was
+  // 69, 69, 72, 73 and 76; items.json of 2026-11-09).
+  ['stormwoven_grimoire', 'Stormwoven Grimoire', 'spellcrafting', 26, 65],
+  ['astral_loupe', 'Astral Loupe', 'jewelcrafting', 26, 65],
+  ['cinderthread_spindle', 'Cinderthread Spindle', 'tailoring', 28, 65],
+  // Rimebark Charm 31 → 38 and Stormset Plumb Line 36 → 43 XP/task: game
+  // patch 10-21.77 lifted the zone 22 and 23 trinkets (2026-10-27 items.json).
+  ['rimebark_charm', 'Rimebark Charm', 'woodcutting', 38, 65],
+  ['stormset_plumb_line', 'Stormset Plumb Line', 'construction', 43, 65],
   ['hollow_lantern', 'Hollow Lantern', null, 10, null],
 ];
 test('new trinkets carry current stats and resolve to distinct gear atlas cells', () => {
@@ -60,6 +64,7 @@ function toolkitEngine() {
     IDB_WIKI_BASE: 'https://idleworlds.com/wiki/items',
     IW_RAID_DROP_SOURCES: {},
     iwRaidforgedSetForName: () => null,
+    iwIsWardedShieldRecord: () => false,
   });
   for (const name of ['idbFromApi', 'iwCompatItemRow', 'iwCanonicalSkillKey',
     'iwResolveSkillBonusDbItem', 'iwSkillBonusFromEquippedItem',

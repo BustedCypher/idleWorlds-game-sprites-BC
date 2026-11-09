@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Twenty-five regression suites ship inside the file and are the safety net for
+Thirty-one regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -93,7 +93,30 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwOctober2026PatchSelfCheck` (O) · `iwHollowNightSelfCheck` (P) · `iwSlotStatFilterSelfCheck` (Q) ·
 `iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S) ·
 `iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
-`iwRaidGuideSelfCheck` (V).
+`iwRaidGuideSelfCheck` (V) · `iwLevelPaidGatheringSelfCheck` (W) ·
+`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y).
+
+Suite Y covers the Guild Hall XP bonus (game patches 11-02.199/.200; search
+`SUITE Y — GUILD HALL`). The game's client gives a skill `2 × guild_hall +
+1 × <that skill's hall>` percent, in the same additive group as achievements;
+the levels are `player.guildHallLevels`. The Calculator's `#guild-hall-level`
+select holds the Guild Hall level (an import fills it); skill halls come only
+from an imported profile. Every XP path reads `iwGuildHallXpPct(skill)`.
+
+Suite W covers game patch 11-03.212 (search `SUITE W — LEVEL-PAID`): Mining,
+Woodcutting and Gathering pay the higher of the gathered tier's XP and the
+XP of the tier the **base** level unlocks (`iwGatherXpTier`, `getActions`'
+`effLevel`). +Skill bonuses unlock tiers but do not count here: in game, T2
+Woodcutting paid 194 (Tier 17) where base + bonus reached Tier 18's 206
+(Curtis, 2026-11-10). Never feed this rule base + bonus. Harvest Mana,
+crafting and combat still pay by tier.
+
+Suite X covers the full re-embed of the 2026-11-09 items.json (search
+`SUITE X — THE 2026-11-09`): 7,300 current rows + the archived Hollow Scroll.
+A re-embed is the feed's rows in its key order, minus `wiki_slug` and
+`acquisition_detail`, with empty fields stripped; that rule reproduced every
+unchanged row byte for byte. Its gear prices are post-10-29.156, so
+`craftPatchGearValue()` now stands aside and the feed's price is used.
 
 Suite V covers the Raids tab (search `RAID GUIDES  (v7.1`): one guide per
 boss plus Ashmaw Hard, copied from `/wiki/raid-boss` (read 2026-11-07; lend
@@ -205,7 +228,7 @@ Line numbers drift — grep the anchor instead. Ordered as they appear:
 | Header comments | `IDLEWORLDS TOOLKIT —` | Version history **and an orientation guide to the load-bearing rules. Read it.** |
 | Main CSS | `<style>` (first) | ~228 KB. Eight themes: sapphire (default), dark, light, office, emerald, ruby, topaz, pink |
 | Body markup | `class="tab-bar"` | Tabs, panels, and a **duplicated bottom nav** (`class="botnav"`) |
-| Embedded item data | `id="iw-embedded-items"` | **2.2 MB on ONE line.** 4,452-record snapshot |
+| Embedded item data | `id="iw-embedded-items"` | **3.8 MB on ONE line.** 7,301-record snapshot (items.json of 2026-11-09) |
 | Core engine | `const TIER_NAMES` → `function switchTab` | ~862 KB, the bulk of the logic |
 | Woodcutting & Construction data | `WOODCUTTING & CONSTRUCTION  (v5.4)` | Wood/building names, Parts XP, Assembly bill, add-on buffs — see `constructionPartsXpForLevel` / `buildingBuffs` |
 | Persistence | `IWStore — persistence` | Generic capture by element id |
@@ -429,7 +452,10 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.3, live since 2026-11-08. v7.3 rebuilt
+- `index.html` — **the working file**, v7.4, live since 2026-11-10. v7.4
+  makes gathering XP follow the base level (11-03.212), rounds the XP curve
+  like the game, adds the Guild Hall XP bonus and re-embeds the 2026-11-09
+  items.json (suites W, X and Y). v7.3 rebuilt
   the Raids tab as a glance view (stat tiles, role tiles that light up each
   raider's abilities, an icon timeline, a boss-damage chart). v7.2 chose each
   boss's recommended roster with `tools/raid-sim` and took enrage starts,
