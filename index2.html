@@ -12,14 +12,20 @@
 <title>IdleWorlds Toolkit v7.4</title>
 <!-- v7.4 Gathering XP and the 2026-11-09 items (2026-11-10, Curtis):
      • Gathering XP follows your level (game patch 11-03.212): Mining,
-       Woodcutting and Gathering (herbs and fibre) pay the XP of the highest
-       tier the effective level unlocks, whichever tier is gathered
-       (iwGatherXpTier; getActions' effLevel). The Calculator uses the From
-       level plus the skill bonus and re-prices the action when the level
-       changes (T5 ore at level 73 pays T19's 220 XP, not 44); the Planner's
-       bracket evaluator passes the level; the Housing Planner credits ore,
-       herbs, fibre and wood at their own skill's tier, not the order's.
-       Harvest Mana, crafting and combat still pay by tier.
+       Woodcutting and Gathering (herbs and fibre) pay the higher of the
+       gathered tier's XP and the XP of the tier the BASE level unlocks
+       (iwGatherXpTier; getActions' effLevel). +Skill bonuses unlock tiers
+       but do not lift this: in game T2 wood paid 194 (Tier 17) where base +
+       bonus reached Tier 18's 206 (Curtis, 2026-11-10). The Calculator uses
+       the From level and re-prices the action when it changes (T5 ore at
+       level 73 pays T19's 220 XP, not 44); the Planner's bracket evaluator
+       passes the base level; the Housing Planner credits each gather at
+       least its base tier. Harvest Mana, crafting and combat pay by tier.
+       The game's client confirms it: w7 = 2 × max(skillXp,
+       gatheringXpForSkillLevel(subtype, BASE level)).
+     • XP per level: each step is now Math.round()ed like the game's own
+       curve (client module 8300). It was within 1.6 XP to level 120;
+       it is now exact (suite K pins 825,097,799 to level 74).
      • Full re-embed of the 2026-11-09 items.json: 7,296 → 7,301 rows (7,300
        current + the archived Hollow Scroll). Rule: the feed's rows and key
        order, wiki_slug and acquisition_detail dropped, empty fields
@@ -14746,10 +14752,15 @@ for (let t = 1; t <= 34; t++) WOODCUT_XP[t] = MINING_XP[t];
 // highest tier the skill level unlocks, whichever tier is gathered. Only
 // the material changes. Same idea as Prospecting and Construction Parts.
 // Harvest Mana (Spellcrafting), crafting and combat still pay by tier.
-// The level is the EFFECTIVE level (base + skill bonus), which is what
-// unlocks tiers (Stage F). A tier above the level keeps its own XP: the
-// Calculator lets a player look at a tier they cannot gather yet.
-// Without a level the tier's own XP is returned, never a guess.
+// The level is the BASE level, without +skill bonuses (gloves, trinkets,
+// buildings). Confirmed in game by Curtis on 2026-11-10: T2 Woodcutting
+// paid 194 XP (Tier 17's, unlocked at 65) where base + bonus reached 69
+// (Tier 18, 206). A bonus still unlocks higher tiers, and a gathered
+// tier above the base level's pays its own XP, so the rule is the
+// higher of the two: "your best tier pays exactly what it did before".
+// The Calculator also lets a player look at a tier they cannot gather
+// yet; that keeps its own XP too. Without a level the tier's own XP is
+// returned, never a guess.
 const IW_LEVEL_PAID_GATHER_SKILLS = new Set(['mining', 'gather_herb', 'gather_fiber', 'gathering', 'woodcutting']);
 function iwGatherXpTier(tier, level) {
   const t = parseInt(tier, 10) || 1;
@@ -16516,26 +16527,24 @@ document.getElementById('tier-select').addEventListener('change', function(){
 // LOOKUP RESULT CARD — unchanged from v2.1
 // ═══════════════════════════════════════════════════════════════
 
-// The Calculator's effective level for a level-paid gather skill: its From
-// level plus the skill bonus the Planner uses (gear, add-ons, manual).
-function iwCalcGatherEffectiveLevel(skill) {
+// The Calculator's level for a level-paid gather skill: its From level,
+// the base level. +Skill bonuses do not count toward gathering XP (see
+// iwGatherXpTier); like Prospecting, which also reads the From level only.
+function iwCalcGatherBaseLevel(skill) {
   const el = document.getElementById('lvl-a');
   const base = el ? parseInt(el.value, 10) : NaN;
-  if (!Number.isFinite(base) || base < 1) return undefined;
-  let bonus = 0;
-  try { bonus = Number(iwPlannerSkillBonus(skill)) || 0; } catch (e) { bonus = 0; }
-  return base + Math.max(0, bonus);
+  return (Number.isFinite(base) && base >= 1) ? base : undefined;
 }
 
 function showLookupResult(skill, tier) {
   const t       = parseInt(tier);
   // Building Parts XP depends on effective Construction level, not the
   // recipe's own tier — see getActions()'s construct_parts branch.
-  // Mining / Gathering / Woodcutting XP depends on the effective level too
-  // (game patch 11-03.212): the From level plus this skill's bonus.
+  // Mining / Gathering / Woodcutting XP depends on the level too (game
+  // patch 11-03.212): the From level, without +skill bonuses.
   const actions = getActions(tier, skill,
     skill === 'construct_parts' ? iwConstructionEffectiveLevel()
-    : IW_LEVEL_PAID_GATHER_SKILLS.has(skill) ? iwCalcGatherEffectiveLevel(skill)
+    : IW_LEVEL_PAID_GATHER_SKILLS.has(skill) ? iwCalcGatherBaseLevel(skill)
     : undefined);
   if(!actions.length) {
     appState.selectedAction = null;
@@ -17069,7 +17078,12 @@ function xpForLevel(v) {
     ? 90 * Math.pow(XP_CURVE_EARLY_GROWTH, v - 1)
     : 90 * Math.pow(XP_CURVE_EARLY_GROWTH, XP_CURVE_TAPER_LEVEL - 1)
          * Math.pow(XP_CURVE_LATE_GROWTH, v - XP_CURVE_TAPER_LEVEL);
-  return exp + v * v * 6;
+  // The game rounds each level's step to whole XP (its client, module 8300,
+  // read 2026-11-10: Math.round(90*1.22^(v-1) + 6v²), and past 73
+  // Math.round(1.22^72*1.08^(v-73)*90 + 6v²)); a level costs the sum of the
+  // rounded steps before it. Unrounded, the toolkit was within 1.6 XP to
+  // level 120; rounded, it is exact (suite K).
+  return Math.round(exp + v * v * 6);
 }
 function totalXPToReach(a, b) {
   let total = 0;
@@ -18921,12 +18935,12 @@ function calculateBracketEfficiency(skill, tier, level) {
   // match the currently-imported profile (e.g. mid-plan brackets, or a
   // level a player is theorycrafting rather than currently at).
   // Since game patch 11-03.212 Mining / Gathering / Woodcutting XP follows
-  // the effective level as well (iwGatherXpTier). The Planner's bracket tier
-  // is already the highest unlocked one, so this changes nothing there; it
-  // keeps any lower-tier caller honest.
+  // the BASE level (iwGatherXpTier; +skill bonuses do not count). The
+  // Planner's bracket tier is the highest the effective level unlocks, so
+  // it pays its own XP; this keeps any lower-tier caller honest.
   const effForActions = level == null ? undefined
     : skill === 'construct_parts' ? Number(level) + (iwPlannerSkillBonus('construction') || 0)
-    : IW_LEVEL_PAID_GATHER_SKILLS.has(skill) ? Number(level) + (iwPlannerSkillBonus(skill) || 0)
+    : IW_LEVEL_PAID_GATHER_SKILLS.has(skill) ? Number(level)
     : undefined;
   const actions = getActions(tier, skill, effForActions);
   if (!actions.length) return [];
@@ -39871,10 +39885,12 @@ function syncCombatLevel(val) {
       function gain(k, n, base, y, flat, df) { return n * (base * y + flat * df) * mult[k]; }
       var out = {};
       var yM = 1 + lo.mining.st.dg / 100, yH = 1 + lo.herbing.st.dg / 100, yW = 1 + lo.woodcutting.st.dg / 100;
-      // Gathering pays its own skill's best tier (game patch 11-03.212), so
-      // ore, herbs, fibre and wood earn MINING/GATHERING/WOODCUT_XP at tM,
-      // tH and tWc even when the order's tier (tS, tA, tT, tC) is lower.
+      // Gathering pays the higher of the gathered tier and the tier the BASE
+      // level unlocks (game patch 11-03.212; +skill bonuses do not count). So
+      // ore, herbs, fibre and wood for a lower-tier order (tS, tA, tT, tC)
+      // earn at least the base tiers bM, bH, bW.
       var tM = tierOf(eff('mining', 'mining')), tH = tierOf(eff('herbing', 'herbing'));
+      var bM = tierOf(L.mining || 1), bH = tierOf(L.herbing || 1), bW = tierOf(L.woodcutting || 1);
       var tS = Math.min(tierOf(eff('smithing', 'smithing')), tM), tA = Math.min(tierOf(eff('alchemy', 'alchemy')), tH);
       var tC = Math.min(tierOf(eff('construction', 'construction')), tierOf(eff('woodcutting', 'woodcutting')), tM);
       // Work Orders: every order type the Work Orders tab compares, priced and
@@ -39901,14 +39917,14 @@ function syncCombatLevel(val) {
       if ((m = order('Wood', tWc, { gather: lo.woodcutting.st.dg })))
         both('wood', m, 'woodcutting', { woodcutting: gain('woodcutting', m.gatherActions, WOODCUT_XP[tWc], yW, lo.woodcutting.st.xp, DFA) }, true);
       if ((m = order('Potions', tA, { gather: lo.herbing.st.dg, brew: lo.alchemy.st.brew })))
-        both('potion', m, 'alchemy', { herbing: gain('herbing', m.gatherActions, GATHERING_XP[tH], yH, lo.herbing.st.xp, DFA),
+        both('potion', m, 'alchemy', { herbing: gain('herbing', m.gatherActions, GATHERING_XP[Math.max(tA, bH)], yH, lo.herbing.st.xp, DFA),
                 alchemy: gain('alchemy', m.craftActions, ALCHEMY_XP[tA], 1, lo.alchemy.st.xp, DFA) });
       // Gear: Smithing from ore, Tailoring from fibre. Orders take the
       // best-paying piece, salvage the piece with the most Salvage per
       // second (Plate never gets Bonus Enhance's extra copy; orderModel holds
       // that rule).
-      [['smith', 'smithing', 'mining', tS, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'], SMELT_XP, MINING_XP, tM],
-       ['tailor', 'tailoring', 'herbing', tT, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings'], WEAVE_XP, GATHERING_XP, tH]].forEach(function (g) {
+      [['smith', 'smithing', 'mining', tS, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings', 'Shield', 'Weapon', 'Plate'], SMELT_XP, MINING_XP, bM],
+       ['tailor', 'tailoring', 'herbing', tT, ['Boots', 'Chest', 'Gloves', 'Helmet', 'Leggings'], WEAVE_XP, GATHERING_XP, bH]].forEach(function (g) {
         var fam = g[0], prof = g[1], gath = g[2], t = g[3], bestG = null, bestS = null, yG = 1 + lo[gath].st.dg / 100;
         g[4].forEach(function (name) {
           var mm = order(name, t, { gather: lo[gath].st.dg, enhance: lo[prof].st.enh });
@@ -39917,7 +39933,7 @@ function syncCombatLevel(val) {
           var winG = !bestG || gold / mm.sec > bestG.gold / bestG.sec, winS = !bestS || salv / mm.sec > bestS.salv / bestS.sec;
           if (!winG && !winS) return;
           var xp = {};
-          xp[gath] = gain(gath, mm.gatherActions, g[6][g[7]], yG, lo[gath].st.xp, DFA);
+          xp[gath] = gain(gath, mm.gatherActions, g[6][Math.max(t, g[7])], yG, lo[gath].st.xp, DFA);
           xp[prof] = gain(prof, mm.processActions, g[5][t], 1, lo[prof].st.xp, DFA) + gain(prof, mm.craftActions, craftXp(prof, name, t), 1, lo[prof].st.xp, DFC);
           if (winG) bestG = { tier: t, sec: mm.sec, gold: gold, salv: 0, piece: name, xp: xp };
           if (winS) bestS = { tier: t, sec: mm.sec, gold: 0, salv: salv, piece: name, xp: xp };
@@ -39932,7 +39948,7 @@ function syncCombatLevel(val) {
       var yMix = 1 / (wShare / yW + oShare / yM);
       if ((m = order('Construction', tC, { gather: (yMix - 1) * 100, build: lo.construction.st.build }))) {
         var nW = m.raw * wShare / yW, nO = m.raw * oShare / yM;
-        both('cons', m, 'construction', { woodcutting: gain('woodcutting', nW, WOODCUT_XP[tWc], yW, lo.woodcutting.st.xp, DFA), mining: gain('mining', nO, MINING_XP[tM], yM, lo.mining.st.xp, DFA),
+        both('cons', m, 'construction', { woodcutting: gain('woodcutting', nW, WOODCUT_XP[Math.max(tC, bW)], yW, lo.woodcutting.st.xp, DFA), mining: gain('mining', nO, MINING_XP[Math.max(tC, bM)], yM, lo.mining.st.xp, DFA),
                 construction: gain('construction', m.craftActions, constructionPartsXpForLevel(eff('construction', 'construction')), 1, lo.construction.st.xp, DFA) }, true);
       }
       return (ACTS = out);
@@ -45132,14 +45148,21 @@ function syncCombatLevel(val) {
     function old(v) { return 90 * Math.pow(1.22, v - 1) + v * v * 6; }
     function near(a, b, tol) { return Math.abs(a - b) <= Math.abs(b) * tol; }
     try {
+      // Exact against the game's own curve (client module 8300, 2026-11-10):
+      // each step rounded, cumulative XP to a level is the sum of the steps.
+      if (totalXPToReach(1, 74) !== 825097799) fail.push('cumulative XP to level 74 should be 825,097,799 (game); got ' + totalXPToReach(1, 74));
+      if (totalXPToReach(1, 100) !== 13661884143) fail.push('cumulative XP to level 100 should be 13,661,884,143 (game); got ' + totalXPToReach(1, 100));
+      if (xpForLevel(73) !== Math.round(90 * Math.pow(1.22, 72) + 73 * 73 * 6)) fail.push('level 73 step should be the game rounded step');
       ok('xpForLevel is a function', typeof xpForLevel === 'function');
       ok('totalXPToReach is a function', typeof totalXPToReach === 'function');
       var v, same = true;
-      for (v = 1; v <= 73; v++) if (Math.abs(xpForLevel(v) - old(v)) > 1e-6 * old(v)) same = false;
+      // Since 2026-11-10 each step is rounded like the game's, so compare to
+      // the old curve's rounded step.
+      for (v = 1; v <= 73; v++) if (xpForLevel(v) !== Math.round(old(v))) same = false;
       ok('levels 1-73 unchanged (incl. the 73->74 step)', same);
       ok('74->75 step is tapered below the old curve', xpForLevel(74) < old(74));
-      ok('74->75 step = 73->74 exp term x1.08 + 6v^2',
-         near(xpForLevel(74), (xpForLevel(73) - 6 * 73 * 73) * 1.08 + 6 * 74 * 74, 1e-9));
+      ok('74->75 step = 73->74 exp term x1.08 + 6v^2, rounded',
+         xpForLevel(74) === Math.round(90 * Math.pow(1.22, 72) * 1.08 + 6 * 74 * 74));
       var r = (xpForLevel(91) - 6 * 91 * 91) / (xpForLevel(90) - 6 * 90 * 90);
       ok('late growth is 8%/level (got ' + r.toFixed(4) + ')', near(r, 1.08, 1e-9));
       var s7880 = totalXPToReach(78, 80);
@@ -45693,8 +45716,11 @@ function syncCombatLevel(val) {
 <script>
 /* ════════════════════════════════════════════════════════════════════
    SUITE W — LEVEL-PAID GATHERING (game patch 0.2.0+2026-11-03.212)
-   Mining, Woodcutting and Gathering pay the XP of the highest tier the
-   effective level unlocks, whichever tier is gathered (iwGatherXpTier).
+   Mining, Woodcutting and Gathering pay the higher of the gathered tier's
+   XP and the XP of the tier the BASE level unlocks (iwGatherXpTier).
+   +Skill bonuses unlock tiers but do not lift gathering XP: in game, T2
+   Woodcutting paid 194 (Tier 17) where base + bonus reached Tier 18's 206
+   (Curtis, 2026-11-10).
    ════════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
@@ -45723,10 +45749,30 @@ function syncCombatLevel(val) {
       eq('iwGatherXpTier(5, 73)', iwGatherXpTier(5, 73), 19);
       eq('iwGatherXpTier(5, blank)', iwGatherXpTier(5, ''), 5);
 
-      // The Planner's bracket evaluator feeds the level through.
-      var lvMining = 73 + (Number(iwPlannerSkillBonus('mining')) || 0);
-      var br = calculateBracketEfficiency('mining', 5, 73)[0];
-      ok('bracket mining at T5, level 73 pays the unlocked tier', !!br && br.baseXp === MINING_XP[maxTierForLevel(lvMining)]);
+      // The in-game reading (2026-11-10): base Woodcutting 65-68 with a
+      // bonus past 69. T2 wood pays Tier 17's 194, not Tier 18's 206; a
+      // Tier 18 log the bonus unlocks still pays its own 206.
+      eq('T17 Woodcutting XP', WOODCUT_XP[17], 194);
+      eq('T18 Woodcutting XP', WOODCUT_XP[18], 206);
+      eq('T2 wood at base level 66 pays T17', getActions(2, 'woodcutting', 66)[0].xp, 194);
+      eq('a bonus-unlocked T18 log pays its own XP', getActions(18, 'woodcutting', 66)[0].xp, 206);
+
+      // The Calculator and the Planner pass the base level, never base +
+      // bonus. Checked with a +4 manual skill bonus on the Planner, set and
+      // put back without events (nothing is saved).
+      var lvlA = document.getElementById('lvl-a'), bonusEl = document.getElementById('plan-skill-bonus');
+      if (lvlA && bonusEl) {
+        var lvWas = lvlA.value, bonusWas = bonusEl.value;
+        try {
+          lvlA.value = '66'; bonusEl.value = '4';
+          ok('the +4 bonus is live for the check', (Number(iwPlannerSkillBonus('woodcutting')) || 0) >= 4);
+          eq('Calculator gathering level ignores the bonus', iwCalcGatherBaseLevel('woodcutting'), 66);
+          var brW = calculateBracketEfficiency('woodcutting', 2, 66)[0];
+          eq('Planner T2 wood at base 66 with +4 pays T17', brW && brW.baseXp, 194);
+        } finally { lvlA.value = lvWas; bonusEl.value = bonusWas; }
+      } else fail.push('lvl-a or plan-skill-bonus missing');
+      ok('the Calculator reads no bonus for gathering', !/iwPlannerSkillBonus/.test(String(iwCalcGatherBaseLevel)));
+      ok('the old effective-level helper is gone', typeof iwCalcGatherEffectiveLevel === 'undefined');
 
       // Housing Planner: each gather credits its own skill's tier.
       var sim = window.iwHousingPlan && String(window.iwHousingPlan.simulate);
@@ -45735,7 +45781,8 @@ function syncCombatLevel(val) {
         ['GATHERING_XP[tA]', 'WOODCUT_XP[tC]', 'MINING_XP[tC]', 'g[6][t]'].forEach(function(s){
           ok('Housing Planner no longer uses ' + s, sim.indexOf(s) < 0);
         });
-        ['GATHERING_XP[tH], yH', 'g[6][g[7]]', 'WOODCUT_XP[tWc], yW', "gain('mining', nO, MINING_XP[tM]"].forEach(function(s){
+        ['GATHERING_XP[Math.max(tA, bH)]', 'g[6][Math.max(t, g[7])]', 'WOODCUT_XP[Math.max(tC, bW)]', 'MINING_XP[Math.max(tC, bM)]',
+         'bM = tierOf(L.mining'].forEach(function(s){
           ok('Housing Planner uses ' + s, sim.indexOf(s) >= 0);
         });
       }
