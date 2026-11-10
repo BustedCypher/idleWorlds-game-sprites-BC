@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Thirty-two regression suites ship inside the file and are the safety net for
+Thirty-three regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -94,7 +94,16 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S) ·
 `iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
 `iwRaidGuideSelfCheck` (V) · `iwLevelPaidGatheringSelfCheck` (W) ·
-`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z).
+`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z) · `iwSmithedSocketsSelfCheck` (AA).
+
+Suite AA covers the 2026-11-10 items.json (search `SUITE AA — 2-SOCKET`):
+smithed chests and leggings declare 2 sockets (340 rows), so a full smithed
+set holds 9. Sockets always come from the item's own data
+(`iwDeclaredSockets` → `iwSlotSocketsFor`), and the Gear planner scores
+`sockets × best gem` (`iwScoreItem`); never hard-code a per-slot count. A
+unique can share a tier's name (Ashspire Hauberk): `buildItemClassIndex`
+calls a tier-named piece metal only for smithed shapes and tier
+rings/amulets/relics.
 
 Suite Z covers the server-wide 2x Gather boost row in Your bonuses (game patch
 10-14.11; search `SUITE Z — SERVER-WIDE`): +25 points of 2x Gather chance on
@@ -233,7 +242,7 @@ Line numbers drift — grep the anchor instead. Ordered as they appear:
 | Header comments | `IDLEWORLDS TOOLKIT —` | Version history **and an orientation guide to the load-bearing rules. Read it.** |
 | Main CSS | `<style>` (first) | ~228 KB. Eight themes: sapphire (default), dark, light, office, emerald, ruby, topaz, pink |
 | Body markup | `class="tab-bar"` | Tabs, panels, and a **duplicated bottom nav** (`class="botnav"`) |
-| Embedded item data | `id="iw-embedded-items"` | **3.8 MB on ONE line.** 7,301-record snapshot (items.json of 2026-11-09) |
+| Embedded item data | `id="iw-embedded-items"` | **3.8 MB on ONE line.** 7,313-record snapshot (items.json of 2026-11-10) |
 | Core engine | `const TIER_NAMES` → `function switchTab` | ~862 KB, the bulk of the logic |
 | Woodcutting & Construction data | `WOODCUTTING & CONSTRUCTION  (v5.4)` | Wood/building names, Parts XP, Assembly bill, add-on buffs — see `constructionPartsXpForLevel` / `buildingBuffs` |
 | Persistence | `IWStore — persistence` | Generic capture by element id |
@@ -457,7 +466,9 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.5, live since 2026-11-10. v7.5 adds
+- `index.html` — **the working file**, v7.6, live since 2026-11-10. v7.6
+  re-embeds the 2026-11-10 items.json, where smithed chests and leggings have
+  2 sockets, and stops tier-named uniques reading as metal (suite AA). v7.5 adds
   the server-wide 2x Gather boost row to Your bonuses (suite Z). v7.4
   makes gathering XP follow the base level (11-03.212), rounds the XP curve
   like the game, adds the Guild Hall XP bonus and re-embeds the 2026-11-09

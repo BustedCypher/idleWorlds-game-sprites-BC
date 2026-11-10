@@ -61,9 +61,12 @@ const zoneUnique = row => /^(Rare zone drop: .*possible pieces|Ultra-rare zone d
   /\(Zone (2[3-9]|3[0-4])\)|in Zone (2[3-9]|3[0-4]) /.test(row.acquisition_summary);
 // No art yet: the 2026-11-09 feed's Grimsby profession gloves and amulets
 // and Ashmaw Hard drops (game patch 11-07.257), and Possessed Shard (a trade
-// good since the 2026-10-27 feed).
+// good since the 2026-10-27 feed), plus the Harvest event's Golden Wishbone,
+// Harvest Acorn and ten Harvest Scrolls (items.json of 2026-11-10).
+const HARVEST_SKILLS = ['combat', 'mining', 'smithing', 'herbing', 'alchemy', 'jewelcrafting', 'spellcrafting', 'tailoring', 'woodcutting', 'construction'];
 const NEW_WITHOUT_ART = ['brewmasters_mitts', 'foremans_grips', 'alembic_pendant', 'scribes_sigil', 'keystone_medallion',
-  'tyrants_molten_edge', 'cinderstride_sabatons', 'heart_of_the_cinder_tyrant', 'possessed_shard'];
+  'tyrants_molten_edge', 'cinderstride_sabatons', 'heart_of_the_cinder_tyrant', 'possessed_shard',
+  'harvest_wishbone', 'harvest_acorn'].concat(HARVEST_SKILLS.map(k => 'harvest_scroll_' + k));
 test('the toolkit Items needing art worklist holds only Warded Shields, Aegis Cores, zone 23-34 uniques and the listed new items', async () => {
   const {html, resolver} = shipped();
   const items = JSON.parse(html.match(/<script[^>]*id="iw-embedded-items"[^>]*>([\s\S]*?)<\/script>/)[1]).items;
@@ -83,6 +86,6 @@ test('the toolkit Items needing art worklist holds only Warded Shields, Aegis Co
   assert.deepEqual(Array.from(unexpected, row => row.name), []);
   // Each listed item really is on the worklist (drop it here once painted).
   assert.deepEqual(NEW_WITHOUT_ART.filter(id => !needed.some(row => row.id === id)), []);
-  assert.equal(needed.filter(row => row.atlas === 'gear').length, 510 + 156 + 8);
-  assert.equal(needed.filter(row => row.atlas === 'item').length, 34 + 1);
+  assert.equal(needed.filter(row => row.atlas === 'gear').length, 510 + 156 + 8 + 1);
+  assert.equal(needed.filter(row => row.atlas === 'item').length, 34 + 1 + 11);
 });
