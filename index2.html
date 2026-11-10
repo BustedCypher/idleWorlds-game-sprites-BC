@@ -9,7 +9,19 @@
      this comment and the robots tag. Any path-keyed staging behaviour
      switches itself off under /index.html, so a straight copy is safe. -->
 <meta name="robots" content="noindex, nofollow">
-<title>IdleWorlds Toolkit v7.4</title>
+<title>IdleWorlds Toolkit v7.5</title>
+<!-- v7.5 Server-wide 2x Gather boost (2026-11-10, Curtis; game patches
+     10-14.11 and 10-19.23; pushed straight to index.html):
+     • New "Server-wide 2x Gather boost +25%" row in Your bonuses, under the
+       server XP row. The Shop boost and the Weekend / Gatherer's Rallies
+       give everyone +25% 2x Gather chance, added in points to the gear's
+       (the game's profile card prints it as "+25% server" beside
+       combatStats). iwServerGatherBoostPct() feeds calculate(),
+       getEffectiveXPParams(), iwGatherYield() and taskBonusEnv(); it
+       applies even with no gear gather. Manual, like the server XP row.
+     • Suite Z (iwServerGatherBoostSelfCheck); self-check 12's yield check
+       follows the boost.
+-->
 <!-- v7.4 Gathering XP and the 2026-11-09 items (2026-11-10, Curtis):
      • Gathering XP follows your level (game patch 11-03.212): Mining,
        Woodcutting and Gathering (herbs and fibre) pay the higher of the
@@ -10463,7 +10475,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v7.4</span>
+  <span data-ui=ver-pill class="ver-pill">v7.5</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -12158,6 +12170,16 @@
             <input type="checkbox" id="server-bonus">
             <span data-ui=check-box class="check-box">✓</span>
             <span data-ui=check-label class="check-label">Server-wide XP bonus</span>
+            <span data-ui=check-badge class="check-badge">+25%</span>
+          </label>
+          <!-- Server-wide 2x Gather Boost (game patch 2026-10-14.11; also in
+               the Weekend and Gatherer's Rallies, 10-19.23): +25% 2x Gather
+               chance for everyone, added in points to your gear's chance.
+               See iwServerGatherBoostPct(). -->
+          <label class="check-row" id="row-server-gather">
+            <input type="checkbox" id="server-gather-bonus">
+            <span data-ui=check-box class="check-box">✓</span>
+            <span data-ui=check-label class="check-label">Server-wide 2x Gather boost</span>
             <span data-ui=check-badge class="check-badge">+25%</span>
           </label>
           <label class="check-row" id="row-zc-team">
@@ -14675,6 +14697,20 @@ function iwApplyGuildHallFromProfile(profile, write) {
   return true;
 }
 
+// ── SERVER-WIDE 2x GATHER BOOST (game patch 0.2.0+2026-10-14.11) ─────
+// "+25% 2x Gather chance for everyone", also turned on by the Weekend and
+// Gatherer's Rallies (10-19.23). The game's profile card prints it beside
+// the gear total as "+25% server" (serverBoosts.doubleGatherChancePercent),
+// so it is ADDED in points to the gear's 2x Gather (which the profile
+// import fills from combatStats and which does not include it). Applies
+// even with no gear gather. Every gather path reads it from here:
+// calculate(), getEffectiveXPParams(), iwGatherYield(), taskBonusEnv().
+const IW_SERVER_GATHER_BOOST_PCT = 25;
+function iwServerGatherBoostPct() {
+  const el = document.getElementById('server-gather-bonus');
+  return (el && el.checked) ? IW_SERVER_GATHER_BOOST_PCT : 0;
+}
+
 // v6.8 — The Hollow Rider (game patch 0.2.0+2026-10-19.31), Hollow Night's
 // event world boss: it respawns every hour and, when it falls, gives everyone
 // +6 XP/task for an hour. It joins the +24 world boss buff in the flat
@@ -16872,8 +16908,8 @@ function syncCheckbox(rowId, inputId) {
 // 'change', then the row click listener flipped inp.checked back and called
 // calculate() again with the wrong (un-toggled) state — making server-bonus and
 // zc-team always read as unchecked despite appearing visually active.
-['server-bonus','zc-team','new-player-promo','boss-active','hollow-rider-active'].forEach(id => {
-  const rowMap = { 'server-bonus':'row-server', 'zc-team':'row-zc-team',
+['server-bonus','server-gather-bonus','zc-team','new-player-promo','boss-active','hollow-rider-active'].forEach(id => {
+  const rowMap = { 'server-bonus':'row-server', 'server-gather-bonus':'row-server-gather', 'zc-team':'row-zc-team',
                    'new-player-promo':'row-new-player',
                    'boss-active':'row-world-boss',
                    'hollow-rider-active':'row-hollow-rider' };
@@ -17346,7 +17382,10 @@ function calculate() {
   const guildHallPct    = iwGuildHallXpPct(activeSkill);
   const gatherEnabled   = document.getElementById('gather-toggle').checked;
   // gatherPct = 100% base + the bonus % the user enters (e.g. 140 → 240).
-  const gatherPct     = gatherEnabled ? (parseFloat(document.getElementById('gather-chance').value)||0) + 100 : 0;
+  // The server 2x Gather boost adds 25 points, with or without gear gather.
+  const serverGatherPct = iwServerGatherBoostPct();
+  const gatherOn      = gatherEnabled || serverGatherPct > 0;
+  const gatherPct     = gatherOn ? (gatherEnabled ? (parseFloat(document.getElementById('gather-chance').value)||0) : 0) + 100 + serverGatherPct : 0;
 
   // ── Daily Skill Bonus (auto, no user input) ──────────────────
   // Replaces the old manual "Daily Profession" toggle and occupies the
@@ -17370,7 +17409,7 @@ function calculate() {
   // Use the resolved action leaf when one exists. For Spellcrafting this is
   // the difference between Harvest Mana (gather) and enchants/caches (craft).
   const skillCanGather     = iwIsGatherActionSkill(activeSkill, leafSkill);
-  const isGatherAction     = skillCanGather && gatherEnabled && gatherPct > 0;
+  const isGatherAction     = skillCanGather && gatherOn && gatherPct > 0;
   const guaranteedResources = isGatherAction ? Math.floor(gatherPct / 100) : 1;
   const partialChance       = isGatherAction ? (gatherPct % 100) / 100 : 0;
 
@@ -17543,7 +17582,7 @@ function calculate() {
   const rphEl    = document.getElementById('res-rph');
   const rphSubEl = document.getElementById('res-rph-sub');
   rphEl.textContent = fmt(actPerHour * resourcesPerAction);
-  rphSubEl.textContent = (gatherEnabled && gatherPct > 0)
+  rphSubEl.textContent = (gatherOn && gatherPct > 0)
     ? resourcesPerAction.toFixed(2) + ' avg per action'
     : '1 per action';
 
@@ -18385,7 +18424,10 @@ function getEffectiveXPParams(skill, level) {
   const guildHallPct    = iwGuildHallXpPct(activeSkill);
   const gatherEnabled   = g('gather-toggle')    ? g('gather-toggle').checked : false;
   // Match calculate(): 100% base + the bonus % entered (e.g. 140 → 240).
-  const gatherPct       = gatherEnabled ? (parseFloat(g('gather-chance').value) || 0) + 100 : 0;
+  // Mirror calculate(): the server 2x Gather boost adds 25 points.
+  const serverGatherPct = iwServerGatherBoostPct();
+  const gatherOn        = gatherEnabled || serverGatherPct > 0;
+  const gatherPct       = gatherOn ? (gatherEnabled ? (parseFloat(g('gather-chance').value) || 0) : 0) + 100 + serverGatherPct : 0;
 
   const xpBuffBonus = potionFlat + worldBossFlat + equipFlat;
 
@@ -18485,7 +18527,7 @@ function getEffectiveXPParams(skill, level) {
   // figure rather than joining the additive stack above it.
   if (scCatchup > 1) parts.push(`Spellcrafting catch-up +${SPELLCRAFT_CATCHUP_PCT}%`);
   if (xpBuffBonus > 0)  parts.push(`flat +${xpBuffBonus} XP/10s`);
-  if (gatherEnabled && gatherPct > 0 && expectedResources > 1) parts.push(`×${expectedTxt} avg per gather`);
+  if (gatherOn && gatherPct > 0 && expectedResources > 1) parts.push(`×${expectedTxt} avg per gather`);
 
   return {
     apply,
@@ -18562,8 +18604,10 @@ function actionSeconds(baseSec, housingTier) {
 function iwGatherYield() {
   try {
     var tog = document.getElementById('gather-toggle');
-    if (!tog || !tog.checked) return 1;
-    var pct = (parseFloat(document.getElementById('gather-chance').value) || 0) + 100;
+    var boost = iwServerGatherBoostPct();
+    var gear = (tog && tog.checked);
+    if (!gear && !boost) return 1;
+    var pct = (gear ? (parseFloat(document.getElementById('gather-chance').value) || 0) : 0) + 100 + boost;
     var y = pct / 100;
     return (isFinite(y) && y > 1) ? y : 1;
   } catch (e) { return 1; }
@@ -18613,7 +18657,7 @@ function iwGatherModelSelfCheck() {
     var tog = document.getElementById('gather-toggle');
     var box = document.getElementById('gather-chance');
     if (tog && box) {
-      var want = (tog.checked ? (parseFloat(box.value) || 0) + 100 : 100) / 100;
+      var want = ((tog.checked ? (parseFloat(box.value) || 0) : 0) + 100 + iwServerGatherBoostPct()) / 100;
       if (want < 1) want = 1;
       if (Math.abs(y - want) > 1e-9) fails.push('yield disagrees with the gather inputs');
     }
@@ -27499,6 +27543,7 @@ function taskBonusEnv(taskKey) {
   const jcEventPct = (group === 'jewelcrafting') ? JEWELCRAFT_XP_EVENT_PCT : 0;
   return {
     potionFlat : (typeof getPotionFlat === 'function') ? getPotionFlat() : 0,
+    serverGatherPct: iwServerGatherBoostPct(),
     bossFlat   : (g('boss-active') && g('boss-active').checked ? 24 : 0) + iwHollowRiderFlat(),
     housing    : parseInt(g('housing-tier') ? g('housing-tier').value : 0) || 0,
     totalPct   : (g('zc-team') && g('zc-team').checked ? 10 : 0)
@@ -28003,7 +28048,7 @@ function renderTaskGearAdvisor(combatLevel) {
   // invariant across each comparison and belongs in BOTH sides' totals.
   const sb = SET_BONUS[tier] || {};
   const baseFlat   = taskSetFlat(baseline) + (sb.xpPerTask || 0);
-  const baseGather = 100 + taskSetGather(baseline) + (sb.dblGather || 0); // 100% innate
+  const baseGather = 100 + taskSetGather(baseline) + (sb.dblGather || 0) + (env.serverGatherPct || 0); // 100% innate + server boost
   const baseXPa    = taskXPPerAction(a.xp, a.time, baseFlat, baseGather, env, isGather);
   const taskSec     = actionSeconds(a.time, env.housing); // real elapsed seconds after Housing
   const baseHr      = baseXPa / taskSec * 3600;
@@ -46073,6 +46118,84 @@ function syncCombatLevel(val) {
 
 <script>
 /* ════════════════════════════════════════════════════════════════════
+   SUITE Z — SERVER-WIDE 2x GATHER BOOST (game patch 0.2.0+2026-10-14.11)
+   "+25% 2x Gather chance for everyone", added in points to the gear's
+   2x Gather (the game's profile card prints it as "+25% server" beside
+   combatStats). Pins the Your bonuses row and every gather path.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwServerGatherBoostSelfCheck = function iwServerGatherBoostSelfCheck(){
+    var fail = [];
+    function ok(label, cond){ if(!cond) fail.push(label); }
+    function eq(label, got, want){
+      if(got !== want) fail.push(label + ': got ' + String(got) + ', expected ' + String(want));
+    }
+    function near(label, got, want){
+      if(!(Math.abs(Number(got) - want) < 1e-9)) fail.push(label + ': got ' + String(got) + ', expected ' + String(want));
+    }
+    var $ = function(id){ return document.getElementById(id); };
+    var box = $('server-gather-bonus'), tog = $('gather-toggle'), gc = $('gather-chance');
+    var ids = ['lvl-a', 'lvl-b', 'action-xp'], keep = {};
+    ids.forEach(function(id){ keep[id] = $(id) ? $(id).value : null; });
+    var kept = box && tog && gc ? { b: box.checked, t: tog.checked, g: gc.value } : null;
+    var keptState = { sg: appState.selectedSkillGroup, lf: appState.resolvedLeafSkill };
+    try {
+      // ── The row ─────────────────────────────────────────────────────
+      ok('#server-gather-bonus checkbox exists', !!box);
+      var row = $('row-server-gather');
+      ok('row sits in Your bonuses, right after the server XP row', !!row && row.previousElementSibling && row.previousElementSibling.id === 'row-server');
+      ok('row reads "Server-wide 2x Gather boost"', !!row && /Server-wide 2x Gather boost/.test(row.textContent));
+      ok('row badge says +25%', !!row && /\+25%/.test((row.querySelector('.check-badge') || {}).textContent || ''));
+      eq('boost size', IW_SERVER_GATHER_BOOST_PCT, 25);
+      if (!kept) throw new Error('gather controls missing');
+
+      // ── Planner path (getEffectiveXPParams) and upstream yield ─────
+      tog.checked = true; gc.value = '80'; box.checked = false;
+      eq('boost off reads 0', iwServerGatherBoostPct(), 0);
+      var p = getEffectiveXPParams('mining', 50);
+      eq('gear 80%: guaranteed', p.guaranteedResources, 1);
+      near('gear 80%: average', p.expectedResources, 1.8);
+      near('gear 80%: yield', iwGatherYield(), 1.8);
+      box.checked = true;
+      eq('boost on reads 25', iwServerGatherBoostPct(), 25);
+      p = getEffectiveXPParams('mining', 50);
+      eq('gear 80% + boost = 205%: guaranteed', p.guaranteedResources, 2);
+      near('gear 80% + boost: average', p.expectedResources, 2.05);
+      near('gear 80% + boost: yield', iwGatherYield(), 2.05);
+      tog.checked = false; gc.value = '0';
+      p = getEffectiveXPParams('mining', 50);
+      near('boost with no gear gather still counts', p.expectedResources, 1.25);
+      near('boost alone: yield', iwGatherYield(), 1.25);
+      eq('a craft never gathers', getEffectiveXPParams('smith_chest', 50).guaranteedResources, 1);
+      eq('Task Advisor sees the boost', taskBonusEnv('mining').serverGatherPct, 25);
+
+      // ── calculate(): same 156 → 282 jump the probe showed ─────────
+      appState.selectedSkillGroup = 'mining'; appState.resolvedLeafSkill = 'mining';
+      $('lvl-a').value = '20'; $('lvl-b').value = '30'; $('action-xp').value = '100';
+      tog.checked = true; gc.value = '80'; box.checked = false;
+      calculate(); var off = $('res-xpa').textContent;
+      box.checked = true;
+      calculate(); var on = $('res-xpa').textContent;
+      ok('calculate() prints a number (' + off + ')', /\d/.test(off));
+      ok('calculate(): the boost lifts 180% to 205%, a second guaranteed ore (' + off + ' -> ' + on + ')',
+         /\d/.test(on) && parseInt(on.replace(/\D/g, ''), 10) > parseInt(off.replace(/\D/g, ''), 10) * 1.5);
+    } catch(e) { fail.push('server gather suite threw: ' + (e && e.message ? e.message : String(e))); }
+    finally {
+      if (kept) { box.checked = kept.b; tog.checked = kept.t; gc.value = kept.g; }
+      ids.forEach(function(id){ if ($(id) && keep[id] != null) $(id).value = keep[id]; });
+      appState.selectedSkillGroup = keptState.sg; appState.resolvedLeafSkill = keptState.lf;
+      try { calculate(); } catch (e) {}
+    }
+    if (fail.length && typeof console !== 'undefined')
+      console.warn('[Server gather boost] FAILED:', fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
    v5.0 RELEASE CANDIDATE — consolidated release audit guard
    ════════════════════════════════════════════════════════════════════ */
 (function(){
@@ -46114,7 +46237,8 @@ function syncCombatLevel(val) {
         ['Raid Guides',window.iwRaidGuideSelfCheck],
         ['Level-paid gathering',window.iwLevelPaidGatheringSelfCheck],
         ['November items (2026-11-09 items.json)',window.iwNovember2026ItemsSelfCheck],
-        ['Guild Hall XP',window.iwGuildHallXpSelfCheck]
+        ['Guild Hall XP',window.iwGuildHallXpSelfCheck],
+        ['Server 2x Gather boost',window.iwServerGatherBoostSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;

@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Thirty-one regression suites ship inside the file and are the safety net for
+Thirty-two regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -94,7 +94,12 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S) ·
 `iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
 `iwRaidGuideSelfCheck` (V) · `iwLevelPaidGatheringSelfCheck` (W) ·
-`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y).
+`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z).
+
+Suite Z covers the server-wide 2x Gather boost row in Your bonuses (game patch
+10-14.11; search `SUITE Z — SERVER-WIDE`): +25 points of 2x Gather chance on
+top of the gear's, read through `iwServerGatherBoostPct()` by every gather
+path, and applied even with no gear gather.
 
 Suite Y covers the Guild Hall XP bonus (game patches 11-02.199/.200; search
 `SUITE Y — GUILD HALL`). The game's client gives a skill `2 × guild_hall +
@@ -452,7 +457,8 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.4, live since 2026-11-10. v7.4
+- `index.html` — **the working file**, v7.5, live since 2026-11-10. v7.5 adds
+  the server-wide 2x Gather boost row to Your bonuses (suite Z). v7.4
   makes gathering XP follow the base level (11-03.212), rounds the XP curve
   like the game, adds the Guild Hall XP bonus and re-embeds the 2026-11-09
   items.json (suites W, X and Y). v7.3 rebuilt
