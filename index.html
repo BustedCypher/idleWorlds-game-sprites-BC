@@ -3,7 +3,17 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v7.6</title>
+<title>IdleWorlds Toolkit v7.7</title>
+<!-- v7.7 Profile xpBonuses import (2026-11-11, Curtis):
+     • Multi Skill Boost chips; a fresh profile import prefills server XP,
+       Zone Control rank/team, gear/world-boss flats, potion and daily boost.
+       IWStore replay preserves saved controls; new-player promo stays manual.
+     • Same-day profile daily flags are an offline answer, including "none
+       today"; catch-up follows each skill's flag at its imported level.
+     • Flat XP is no longer scaled by housing; housing still shortens actions.
+       The Calculator's game breakdown row flags a percent mismatch.
+     • Suite AB (iwProfileXpBonusesSelfCheck).
+-->
 <!-- v7.6 2-socket smithed chests and leggings (2026-11-10, Curtis; pushed
      straight to index.html):
      • Full re-embed of the 2026-11-10 items.json (7,301 → 7,313 rows):
@@ -681,12 +691,14 @@
        row that DISPLAYED half the amount actually awarded. See suite H
        (iwWoodcuttingConstructionSelfCheck) section 2.
 
-     • v5.5 Daily XP Boost, live-only .. the game replaced the fixed
+     • v5.5 Daily XP Boost, no rotation .. the game replaced the fixed
        rotation with a random draw of 3 of the 10 skills per day, so
        DAILY_BONUS_CONFIG.rotation and referenceDateUTC are GONE and must
-       not come back — there is nothing left to compute. The wiki page is
-       the only source (parseDailyBoostPage → applyLiveDailyBoost), cached
-       for one game day under iwDailyBoostV1 and expired by
+       not come back — there is nothing left to compute. v7.7 also takes a
+       fresh profile's daily flags as a same-day offline answer (including
+       "none today", source:'profile'), ahead of the wiki fallback
+       (parseDailyBoostPage → applyLiveDailyBoost). Both are cached for one
+       game day under iwDailyBoostV1 and expired by
        serverDayString()'s noon-ET boundary. With no live and no same-day
        cached answer the toolkit applies NOTHING and says "unavailable":
        a guessed 3-of-10 is +20% on skills that have none and none on
@@ -6726,6 +6738,56 @@
   .site-footer-nav { display: flex !important; flex-wrap: wrap !important; justify-content: center !important; gap: 6px 4px !important; }
   .site-footer-note { max-width: 560px !important; text-align: center !important; font-size: 11px !important; line-height: 1.6 !important; color: var(--text3) !important; }
 
+  /* Game XP breakdown (v7.7). Visibility belongs to hidden + inline style. */
+  .xgb{margin:10px 0 0;padding:8px 10px;border-radius:8px;
+    border:1px solid var(--ash-edge-mid,var(--border2,#343740));
+    background:var(--ash-ink-800,var(--sunken,#0b0c0f));
+    color:var(--ash-dim,var(--text2,#8b93b0));font:11px/1.7 var(--ash-font-ui,inherit)}
+  .xgb-k{font-weight:700;color:var(--ash-text-hi,var(--text,#e8ecf5));margin-right:6px}
+  .xgb-parts{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;vertical-align:middle;max-width:100%}
+  .xgb-part{padding:1px 6px;border-radius:999px;line-height:1.5;
+    border:1px solid var(--ash-edge-mid,var(--border2,#343740));
+    background:var(--ash-ink-700,var(--surface,#141519))}
+  .xgb-sum{margin-left:6px;color:var(--ash-text-hi,var(--text,#e8ecf5))}
+  .xgb-mult{color:var(--ash-dim,var(--text2,#8b93b0));white-space:nowrap}
+  .xgb-warn,.xgb-ok{display:inline-block;margin-left:6px;font-weight:600}
+  .xgb-warn{color:var(--ash-warn,var(--orange,#D9954A))}
+  .xgb-ok{color:var(--ash-good,var(--green,#82B88A))}
+
+  /* ── Skill Boost chips (v7.7) — one chip per skill, several can be lit.
+     The same block sits in the legacy and Ashen sheets; tokens fall back from
+     --ash-* to the legacy names. --sb-c is the skill colour (inline per chip).
+     Pure styling: no display rule here hides or shows anything. */
+  .sb-field{grid-column:1/-1}
+  .sb-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+  .sb-chip{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:3px 10px 3px 5px;
+    border-radius:999px;cursor:pointer;font:600 12px/1 var(--ash-font-ui,inherit);letter-spacing:.02em;
+    color:var(--ash-dim,var(--text2,#8b93b0));background:var(--ash-ink-800,var(--sunken,#0b0c0f));
+    border:1px dashed var(--ash-edge-mid,var(--border2,#343740));opacity:.78;
+    transition:background .18s ease,border-color .18s ease,color .18s ease,opacity .18s ease,box-shadow .18s ease}
+  .sb-chip:hover{opacity:1;border-color:var(--sb-c)}
+  .sb-chip:focus-visible{outline:2px solid var(--ash-accent,var(--accent,#2ec4a0));outline-offset:2px}
+  .sb-glyph{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;
+    background:rgba(0,0,0,.28);filter:grayscale(.85);transition:filter .18s ease,transform .18s ease}
+  .sb-badge{display:none;font:800 10px/1 var(--ash-font-ui,inherit);padding:3px 5px;border-radius:999px;
+    color:#140f08;background:var(--sb-c)}
+  .sb-prof{display:none;font-size:11px;line-height:1;color:var(--sb-c)}
+  .sb-chip.is-on{opacity:1;border-style:solid;border-color:var(--sb-c);color:var(--ash-text-hi,var(--text,#e8ecf5));
+    background:linear-gradient(135deg,color-mix(in srgb,var(--sb-c) 30%,transparent),color-mix(in srgb,var(--sb-c) 10%,transparent));
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--sb-c) 35%,transparent),0 0 12px color-mix(in srgb,var(--sb-c) 30%,transparent)}
+  .sb-chip.is-on .sb-glyph{filter:none;background:color-mix(in srgb,var(--sb-c) 35%,#000)}
+  .sb-chip.is-on .sb-badge{display:inline-block}
+  .sb-chip.is-profile .sb-prof{display:inline-block}
+  .sb-chip.sb-pop{animation:sb-pop .32s cubic-bezier(.2,.8,.2,1.2)}
+  .sb-chip.sb-pop .sb-glyph{animation:sb-spin .32s ease}
+  .sb-chip.sb-pop::after{content:'';position:absolute;inset:-4px;border-radius:999px;pointer-events:none;
+    border:2px solid var(--sb-c);animation:sb-ring .32s ease-out forwards}
+  .sb-count{margin-left:4px;font:600 11px/1 var(--ash-font-ui,inherit);color:var(--ash-faint,var(--text3,#4e566d))}
+  @keyframes sb-pop{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+  @keyframes sb-spin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(-14deg) scale(1.2)}100%{transform:rotate(0) scale(1)}}
+  @keyframes sb-ring{0%{opacity:.85;transform:scale(.92)}100%{opacity:0;transform:scale(1.18)}}
+  @media (prefers-reduced-motion:reduce){.sb-chip,.sb-glyph{transition:none}
+    .sb-chip.sb-pop,.sb-chip.sb-pop .sb-glyph{animation:none}.sb-chip.sb-pop::after{display:none}}
 </style>
 <script>
 /* Theme boot — must run before first paint. Reads the saved theme and
@@ -10419,6 +10481,56 @@
   .rg-node-who{margin:0}
   }
   @media (prefers-reduced-motion:reduce){.rg-node{transition:none}}
+  /* Game XP breakdown (v7.7). Visibility belongs to hidden + inline style. */
+  .xgb{margin:10px 0 0;padding:8px 10px;border-radius:8px;
+    border:1px solid var(--ash-edge-mid,var(--border2,#343740));
+    background:var(--ash-ink-800,var(--sunken,#0b0c0f));
+    color:var(--ash-dim,var(--text2,#8b93b0));font:11px/1.7 var(--ash-font-ui,inherit)}
+  .xgb-k{font-weight:700;color:var(--ash-text-hi,var(--text,#e8ecf5));margin-right:6px}
+  .xgb-parts{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;vertical-align:middle;max-width:100%}
+  .xgb-part{padding:1px 6px;border-radius:999px;line-height:1.5;
+    border:1px solid var(--ash-edge-mid,var(--border2,#343740));
+    background:var(--ash-ink-700,var(--surface,#141519))}
+  .xgb-sum{margin-left:6px;color:var(--ash-text-hi,var(--text,#e8ecf5))}
+  .xgb-mult{color:var(--ash-dim,var(--text2,#8b93b0));white-space:nowrap}
+  .xgb-warn,.xgb-ok{display:inline-block;margin-left:6px;font-weight:600}
+  .xgb-warn{color:var(--ash-warn,var(--orange,#D9954A))}
+  .xgb-ok{color:var(--ash-good,var(--green,#82B88A))}
+
+  /* ── Skill Boost chips (v7.7) — one chip per skill, several can be lit.
+     The same block sits in the legacy and Ashen sheets; tokens fall back from
+     --ash-* to the legacy names. --sb-c is the skill colour (inline per chip).
+     Pure styling: no display rule here hides or shows anything. */
+  .sb-field{grid-column:1/-1}
+  .sb-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+  .sb-chip{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:3px 10px 3px 5px;
+    border-radius:999px;cursor:pointer;font:600 12px/1 var(--ash-font-ui,inherit);letter-spacing:.02em;
+    color:var(--ash-dim,var(--text2,#8b93b0));background:var(--ash-ink-800,var(--sunken,#0b0c0f));
+    border:1px dashed var(--ash-edge-mid,var(--border2,#343740));opacity:.78;
+    transition:background .18s ease,border-color .18s ease,color .18s ease,opacity .18s ease,box-shadow .18s ease}
+  .sb-chip:hover{opacity:1;border-color:var(--sb-c)}
+  .sb-chip:focus-visible{outline:2px solid var(--ash-accent,var(--accent,#2ec4a0));outline-offset:2px}
+  .sb-glyph{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;
+    background:rgba(0,0,0,.28);filter:grayscale(.85);transition:filter .18s ease,transform .18s ease}
+  .sb-badge{display:none;font:800 10px/1 var(--ash-font-ui,inherit);padding:3px 5px;border-radius:999px;
+    color:#140f08;background:var(--sb-c)}
+  .sb-prof{display:none;font-size:11px;line-height:1;color:var(--sb-c)}
+  .sb-chip.is-on{opacity:1;border-style:solid;border-color:var(--sb-c);color:var(--ash-text-hi,var(--text,#e8ecf5));
+    background:linear-gradient(135deg,color-mix(in srgb,var(--sb-c) 30%,transparent),color-mix(in srgb,var(--sb-c) 10%,transparent));
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--sb-c) 35%,transparent),0 0 12px color-mix(in srgb,var(--sb-c) 30%,transparent)}
+  .sb-chip.is-on .sb-glyph{filter:none;background:color-mix(in srgb,var(--sb-c) 35%,#000)}
+  .sb-chip.is-on .sb-badge{display:inline-block}
+  .sb-chip.is-profile .sb-prof{display:inline-block}
+  .sb-chip.sb-pop{animation:sb-pop .32s cubic-bezier(.2,.8,.2,1.2)}
+  .sb-chip.sb-pop .sb-glyph{animation:sb-spin .32s ease}
+  .sb-chip.sb-pop::after{content:'';position:absolute;inset:-4px;border-radius:999px;pointer-events:none;
+    border:2px solid var(--sb-c);animation:sb-ring .32s ease-out forwards}
+  .sb-count{margin-left:4px;font:600 11px/1 var(--ash-font-ui,inherit);color:var(--ash-faint,var(--text3,#4e566d))}
+  @keyframes sb-pop{0%{transform:scale(1)}45%{transform:scale(1.09)}100%{transform:scale(1)}}
+  @keyframes sb-spin{0%{transform:rotate(0) scale(1)}50%{transform:rotate(-14deg) scale(1.2)}100%{transform:rotate(0) scale(1)}}
+  @keyframes sb-ring{0%{opacity:.85;transform:scale(.92)}100%{opacity:0;transform:scale(1.18)}}
+  @media (prefers-reduced-motion:reduce){.sb-chip,.sb-glyph{transition:none}
+    .sb-chip.sb-pop,.sb-chip.sb-pop .sb-glyph{animation:none}.sb-chip.sb-pop::after{display:none}}
 </style>
 
 <script>
@@ -10489,7 +10601,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v7.6</span>
+  <span data-ui=ver-pill class="ver-pill">v7.7</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -11094,6 +11206,18 @@
     // profile by iwGuildHallXpPct().
     try{
       if(typeof iwApplyGuildHallFromProfile==='function') iwApplyGuildHallFromProfile(profile, setInput);
+    }catch(e){}
+    // Skill Boosts (profile.xpBonuses.skills.<k>.parts skillBoost, v7.7).
+    // Absent xpBonuses, or IWStore replaying a stored profile, leaves the
+    // chips alone; a fresh import ticks exactly the boosted skills.
+    try{
+      if(typeof iwApplySkillBoostsFromProfile==='function') iwApplySkillBoostsFromProfile(profile);
+    }catch(e){}
+    // The rest of xpBonuses (v7.7): server / team zone / ZC rank, the flat
+    // XP per task (gear, world bosses, potion) and today's Daily XP Boost.
+    // Same rules: absent, or an IWStore replay, touches nothing.
+    try{
+      if(typeof iwApplyXpBonusesFromProfile==='function') iwApplyXpBonusesFromProfile(profile);
     }catch(e){}
 
     // Extra gather chance (flat %: combatStats.doubleGatherChancePercent).
@@ -12121,27 +12245,21 @@
               </select>
               <span data-ui=field-helper class="field-helper" id="guild-hall-helper">Your guild's Guild Hall level: +2% XP per level in every skill, once built and you have 7+ Guild Points.</span>
             </div>
-            <!-- Skill Boost (v6.2; game patch 2026-10-14.11): a Shop boost of
-                 +25% XP to ONE skill, for everyone, 24 h. Added to the other
-                 % bonuses (server 25% + skill 25% = +50%). A skill picker,
-                 not a checkbox: the Task Advisor scores every skill at once,
-                 and only the boosted one gets it. See iwSkillBoostPct(). -->
-            <div data-ui=field class="field">
-              <label for="skill-boost-skill">Skill Boost</label>
-              <select id="skill-boost-skill">
-                <option value="" selected>None</option>
-                <option value="combat">Combat (+25%)</option>
-                <option value="mining">Mining (+25%)</option>
-                <option value="gathering">Gathering (+25%)</option>
-                <option value="woodcutting">Woodcutting (+25%)</option>
-                <option value="smithing">Smithing (+25%)</option>
-                <option value="alchemy">Alchemy (+25%)</option>
-                <option value="jewelcrafting">Jewelcrafting (+25%)</option>
-                <option value="spellcrafting">Spellcrafting (+25%)</option>
-                <option value="tailoring">Tailoring (+25%)</option>
-                <option value="construction">Construction (+25%)</option>
-              </select>
-              <span data-ui=field-helper class="field-helper">Active Shop 📈 Skill Boost, if any. +25% XP to that skill only.</span>
+            <!-- Skill Boosts (v6.2; game patch 2026-10-14.11): a Shop boost of
+                 +25% XP to one skill, for everyone, 24 h. Added to the other
+                 % bonuses (server 25% + skill 25% = +50%). SEVERAL can run at
+                 once (v7.7: the 2026-11-11 profile had combat, mining and
+                 jewelcrafting boosted together), so this is a chip row, one
+                 chip per skill. #skill-boost-skill is a hidden input holding a
+                 comma list of canonical skill keys ("combat,mining"); it kept
+                 the old select's id so IWStore carries a saved single pick
+                 straight over. Chips are drawn by iwRenderSkillBoostChips().
+                 See iwSkillBoostPct(). -->
+            <div data-ui=field class="field sb-field">
+              <label id="skill-boost-label">Skill Boosts</label>
+              <input type="hidden" id="skill-boost-skill" value="">
+              <div class="sb-chips" id="skill-boost-chips" role="group" aria-labelledby="skill-boost-label"></div>
+              <span data-ui=field-helper class="field-helper" id="skill-boost-helper">Active Shop 📈 Skill Boosts. Tap each boosted skill: +25% XP to that skill.</span>
             </div>
           </div>
         </div>
@@ -12236,6 +12354,7 @@
             <div data-ui=lbl class="lbl">XP per action</div>
           </div>
         </div>
+        <div data-ui=xp-game-breakdown class="xgb" id="xp-game-breakdown" hidden style="display:none"></div>
         <div data-ui=result-tear class="result-tear" aria-hidden="true"></div>
         <div data-ui=plain-summary class="plainline" id="plain-summary" style="display: flex;">
           <span data-ui=pl-icon class="pl-icon" aria-hidden="true">🧭</span>
@@ -13868,8 +13987,8 @@ function oresPerBar(t) {
 const HOUSING_NAMES = { 0:'None', 1:'Camp', 2:'Cottage', 3:'Villa', 4:'Manor', 5:'Citadel' };
 
 // ───────────────────────────────────────────────────────────────
-// durationFactor — flat XP bonuses scale by action duration / 10.
-// Housing tier reduces effective duration (only matters for >10s crafts).
+// Housing shortens action time; flat XP per action is independent of it.
+// getDurationFactor remains a compatibility helper, not an XP multiplier.
 // ───────────────────────────────────────────────────────────────
 function effectiveDuration(baseSec, housingTier) {
   if (housingTier <= 0) return baseSec;
@@ -14632,12 +14751,130 @@ function iwAchievementXpTiers() {
 
 // v6.2 — Skill Boost (game patch 0.2.0+2026-10-14.11): +25% XP to ONE
 // chosen skill, in the same additive % group as server/ZC/race/achievements
-// ("server boost 25% + Combat boost 25% = +50% Combat XP"). #skill-boost-skill
-// holds the boosted skill GROUP key; every XP path reads it through here.
+// ("server boost 25% + Combat boost 25% = +50% Combat XP"). Every XP path
+// reads it through here.
+// v7.7 — several skills can be boosted at once (2026-11-11 profile: combat,
+// mining and jewelcrafting together). #skill-boost-skill is now a hidden
+// input holding a comma list of skill keys. Keys are compared canonically,
+// so 'gathering' (the old select's value, and the Calculator's group key)
+// and 'herbing' (the game's key) are the same skill. A saved single value
+// from before v7.7 is a one-item list, so nothing needs migrating.
 const IW_SKILL_BOOST_PCT = 25;
-function iwSkillBoostPct(group) {
+// The ten skills, in the order the chips show them, with the toolkit's own
+// glyphs (SKILL_LABELS) and a colour for the lit chip.
+const IW_SKILL_BOOST_SKILLS = [
+  { key:'combat',        name:'Combat',        glyph:'⚔️', color:'#E06666' },
+  { key:'mining',        name:'Mining',        glyph:'⛏️', color:'#C9A46A' },
+  { key:'herbing',       name:'Gathering',     glyph:'🌿', color:'#6FBF73' },
+  { key:'woodcutting',   name:'Woodcutting',   glyph:'🪓', color:'#B07A45' },
+  { key:'smithing',      name:'Smithing',      glyph:'🔨', color:'#D9954A' },
+  { key:'alchemy',       name:'Alchemy',       glyph:'🧪', color:'#B98FE0' },
+  { key:'jewelcrafting', name:'Jewelcrafting', glyph:'💎', color:'#5BC0D5' },
+  { key:'spellcrafting', name:'Spellcrafting', glyph:'✨', color:'#8C9BF2' },
+  { key:'tailoring',     name:'Tailoring',     glyph:'🧵', color:'#E08AB8' },
+  { key:'construction',  name:'Construction',  glyph:'🏗️', color:'#C9B458' }
+];
+// The boosted skills as a canonical, de-duplicated, chip-ordered list.
+function iwParseSkillBoostList(value) {
+  const want = {};
+  String(value == null ? '' : value).split(',').forEach(s => {
+    const k = s.trim() ? iwCanonicalSkillKey(s) : '';
+    if (k) want[k] = true;
+  });
+  return IW_SKILL_BOOST_SKILLS.map(s => s.key).filter(k => want[k]);
+}
+function iwSkillBoostSkills() {
   const el = document.getElementById('skill-boost-skill');
-  return el && el.value && el.value === group ? IW_SKILL_BOOST_PCT : 0;
+  return el ? iwParseSkillBoostList(el.value) : [];
+}
+function iwSkillBoostPct(group) {
+  if (group == null || group === '') return 0;
+  return iwSkillBoostSkills().indexOf(iwCanonicalSkillKey(group)) >= 0 ? IW_SKILL_BOOST_PCT : 0;
+}
+// Write the boosted set the way a player would: value, then the input and
+// change events (calculate() and the chip repaint listen for them).
+// `fromProfile`, when given, is the set the import reported; it marks
+// those chips until the player toggles them. Returns the stored list.
+function iwSetSkillBoosts(list, fromProfile) {
+  const el = document.getElementById('skill-boost-skill');
+  if (!el) return [];
+  const keys = iwParseSkillBoostList((list || []).join(','));
+  if (fromProfile !== undefined) el.dataset.profileSkills = iwParseSkillBoostList((fromProfile || []).join(',')).join(',');
+  const val = keys.join(',');
+  if (el.value !== val) {
+    el.value = val;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  } else {
+    iwRenderSkillBoostChips();
+  }
+  return keys;
+}
+// Profile import (plan Step 2): tick exactly the skills whose xpBonuses
+// parts carry `skillBoost`. Absent xpBonuses leaves the player's pick alone,
+// and so does IWStore replaying a stored profile on load (boosts last 24 h;
+// the saved chip value is the player's latest). Returns true when the
+// import set the chips.
+function iwApplySkillBoostsFromProfile(profile) {
+  if (typeof window.iwStoreIsRestoring === 'function' && window.iwStoreIsRestoring()) return false;
+  const xb = iwXpBonusesFromProfile(profile);
+  if (!xb) return false;
+  const boosted = [];
+  Object.keys(xb.skills).forEach(k => {
+    const pct = xb.skills[k].parts.skillBoost;
+    if (pct === undefined || pct <= 0) return;
+    boosted.push(k);
+    if (pct !== IW_SKILL_BOOST_PCT && typeof console !== 'undefined')
+      console.warn('[Skill Boost] profile reports +' + pct + '% on ' + k + '; the toolkit applies +' + IW_SKILL_BOOST_PCT + '%.');
+  });
+  iwSetSkillBoosts(boosted, boosted);
+  return true;
+}
+// Draw the chip row from the hidden value. Cheap and idempotent: every
+// change to #skill-boost-skill (player, import, IWStore restore) repaints.
+function iwRenderSkillBoostChips() {
+  const host = document.getElementById('skill-boost-chips');
+  const el = document.getElementById('skill-boost-skill');
+  if (!host || !el) return;
+  const on = iwParseSkillBoostList(el.value);
+  const fromProfile = iwParseSkillBoostList(el.dataset.profileSkills || '');
+  if (!host.childElementCount) {
+    host.innerHTML = IW_SKILL_BOOST_SKILLS.map(s =>
+      '<button type="button" class="sb-chip" data-sb-skill="' + s.key + '" aria-pressed="false"' +
+      ' style="--sb-c:' + s.color + '" title="' + s.name + ' Skill Boost">' +
+      '<span class="sb-glyph" aria-hidden="true">' + s.glyph + '</span>' +
+      '<span class="sb-name">' + s.name + '</span>' +
+      '<span class="sb-badge" aria-hidden="true">+' + IW_SKILL_BOOST_PCT + '%</span>' +
+      '<span class="sb-prof" aria-hidden="true" title="From your imported profile">⇣</span>' +
+      '</button>').join('') +
+      '<span class="sb-count" id="skill-boost-count" aria-live="polite"></span>';
+  }
+  [].forEach.call(host.querySelectorAll('.sb-chip'), b => {
+    const k = b.getAttribute('data-sb-skill');
+    const lit = on.indexOf(k) >= 0;
+    b.setAttribute('aria-pressed', lit ? 'true' : 'false');
+    b.classList.toggle('is-on', lit);
+    b.classList.toggle('is-profile', lit && fromProfile.indexOf(k) >= 0);
+  });
+  const count = document.getElementById('skill-boost-count');
+  if (count) count.textContent = on.length === 0 ? 'None boosted'
+    : on.length === 1 ? '1 skill boosted' : on.length + ' skills boosted';
+}
+// A chip click flips its skill and drops the profile marker for that skill:
+// the player has now chosen it themselves.
+function iwToggleSkillBoostChip(btn) {
+  const el = document.getElementById('skill-boost-skill');
+  if (!el || !btn) return;
+  const k = btn.getAttribute('data-sb-skill');
+  const cur = iwParseSkillBoostList(el.value);
+  const next = cur.indexOf(k) >= 0 ? cur.filter(x => x !== k) : cur.concat([k]);
+  const prof = iwParseSkillBoostList(el.dataset.profileSkills || '').filter(x => x !== k);
+  if (next.indexOf(k) >= 0) {
+    btn.classList.remove('sb-pop');
+    void btn.offsetWidth;                 // restart the pop animation
+    btn.classList.add('sb-pop');
+  }
+  iwSetSkillBoosts(next, prof);
 }
 
 // The select only ever holds a value it has an option for — the manual tiers,
@@ -14709,6 +14946,346 @@ function iwApplyGuildHallFromProfile(profile, write) {
   const help = document.getElementById('guild-hall-helper');
   if (help) help.textContent = 'From your imported profile (+2% XP per level in every skill, plus your skill halls). Change it to override.';
   return true;
+}
+
+// ── PROFILE xpBonuses (v7.7, /api/player-profile as of 2026-11-11) ────
+// The profile now carries the game's own XP breakdown:
+//   formula      "xp per action = (base + flatPerTask.total) * (daily ? 1.2 : 1)
+//                 * (1 + percent / 100) * (catchUp ? 1.2 : 1)"
+//   flatPerTask  { gear, potion, worldBosses, total }
+//   everySkill   [{ key, label, percent }]  achievements, server, zcRank,
+//                                           guildHall, teamZone, …
+//   skills.<k>   { percent, daily, catchUp, effectivePercent,
+//                  parts:[{ key, label, percent }] }  everySkill + skillBoost, race, …
+// iwXpBonusesFromProfile(profile, fetchedAt) normalises it, and is pure: no
+// DOM, no storage. Absent is not zero: no xpBonuses, or a non-number,
+// gives undefined, never 0. A part that is MISSING from a present block is
+// a different thing (the server lists only non-zero parts); that reading
+// belongs to the importer, not here. Skill keys go through
+// iwCanonicalSkillKey, so the game's 'herbing' is the toolkit's 'herbing'
+// (display name Gathering). `fetchedAt` (ms or Date) dates the snapshot:
+// `daily` is valid only for its serverDay. Plan:
+// docs/superpowers/plans/2026-11-11-profile-xp-bonuses-import.md, Step 1.
+function iwXpBonusesFromProfile(profile, fetchedAt) {
+  if (!profile || typeof profile !== 'object') return undefined;
+  const xb = profile.xpBonuses;
+  if (!xb || typeof xb !== 'object' || Array.isArray(xb)) return undefined;
+  const num = v => (typeof v === 'number' && Number.isFinite(v)) ? v
+    : (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) ? Number(v)
+    : undefined;
+  const bool = v => (typeof v === 'boolean') ? v : undefined;
+  // [{key, percent}] → { key: percent }. Repeated keys add up; unknown
+  // keys are kept, so a new game bonus is counted rather than dropped.
+  // The game's own label for each key is collected into `labels`.
+  const labels = {};
+  const partMap = list => {
+    const out = {};
+    if (!Array.isArray(list)) return out;
+    list.forEach(p => {
+      if (!p || typeof p !== 'object' || p.key == null) return;
+      const pct = num(p.percent);
+      if (pct === undefined) return;
+      const k = String(p.key);
+      out[k] = (out[k] || 0) + pct;
+      if (typeof p.label === 'string' && p.label && !labels[k]) labels[k] = p.label;
+    });
+    return out;
+  };
+  const fl = (xb.flatPerTask && typeof xb.flatPerTask === 'object') ? xb.flatPerTask : {};
+  const flat = {
+    gear: num(fl.gear), potion: num(fl.potion),
+    worldBosses: num(fl.worldBosses), total: num(fl.total)
+  };
+  const skills = {};
+  const src = (xb.skills && typeof xb.skills === 'object' && !Array.isArray(xb.skills)) ? xb.skills : {};
+  Object.keys(src).forEach(raw => {
+    const s = src[raw];
+    if (!s || typeof s !== 'object') return;
+    const key = iwCanonicalSkillKey(raw);
+    if (!key) return;
+    skills[key] = {
+      percent: num(s.percent),
+      daily: bool(s.daily),
+      catchUp: bool(s.catchUp),
+      effectivePercent: num(s.effectivePercent),
+      parts: partMap(s.parts)
+    };
+  });
+  let at;
+  if (fetchedAt instanceof Date) at = fetchedAt.getTime();
+  else at = num(fetchedAt);
+  let serverDay;
+  if (at !== undefined) {
+    try { serverDay = serverDayString(new Date(at), DAILY_BONUS_CONFIG); } catch (e) { serverDay = undefined; }
+  }
+  return {
+    fetchedAt: at,
+    serverDay: serverDay,
+    formula: typeof xb.formula === 'string' ? xb.formula : undefined,
+    flat: flat,
+    every: partMap(xb.everySkill),
+    skills: skills,
+    labels: labels
+  };
+}
+// The parsed xpBonuses of a profile object, memoised on that object (the
+// Planner asks per bracket). No `fetchedAt`, so no serverDay: callers that
+// need the day of the snapshot use the importer, not this.
+let _iwXpBonusesMemo = { p: null, v: undefined };
+function iwXpBonusesCached(profile) {
+  if (!profile || typeof profile !== 'object') return undefined;
+  if (_iwXpBonusesMemo.p !== profile) _iwXpBonusesMemo = { p: profile, v: iwXpBonusesFromProfile(profile) };
+  return _iwXpBonusesMemo.v;
+}
+function iwCurrentXpBonuses() {
+  let p; try { p = window.IWProfile; } catch (e) { p = null; }
+  return iwXpBonusesCached(p);
+}
+// The game's own multiplier for one skill, from its flags:
+// (daily ? 1.2 : 1) × (1 + percent/100) × (catchUp ? 1.2 : 1). Returns the
+// percent form, as the payload's effectivePercent, or undefined.
+function iwXpBonusesEffectivePct(skillEntry) {
+  if (!skillEntry || typeof skillEntry.percent !== 'number') return undefined;
+  const m = (skillEntry.daily ? 1.2 : 1) * (1 + skillEntry.percent / 100) * (skillEntry.catchUp ? 1.2 : 1);
+  return Math.round((m - 1) * 1000) / 10;
+}
+
+// ── PROFILE xpBonuses → Calculator controls (v7.7, plan Steps 3–5) ─────
+// A fresh profile import writes the game's numbers into the Calculator's
+// own controls, the way a player would (value + change event), so every
+// XP path (calculate(), getEffectiveXPParams(), taskBonusEnv()) moves with
+// them and the player can still change any of them (prefill, never lock).
+// Rules (plan D2/D3):
+//   • no xpBonuses → nothing is touched;
+//   • IWStore replaying a stored profile → nothing is touched: the saved
+//     controls are the player's latest, the stored profile may be old;
+//   • inside a present block, a MISSING part is 0 (the server lists only
+//     the non-zero ones), so the server and team-zone boxes are unticked;
+//   • #new-player-promo is manual only and never touched (Curtis, 11-11).
+function iwXbWarn(msg) {
+  if (typeof console !== 'undefined' && console.warn) console.warn('[xpBonuses] ' + msg);
+}
+function iwXbSetCheck(id, on) {
+  const el = document.getElementById(id);
+  if (!el || el.type !== 'checkbox' || !!el.checked === !!on) return false;
+  el.checked = !!on;
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+}
+// Select a value, adding an option for one the markup lacks (an off-grid
+// ZC rank), as iwApplyAchievementFromProfile does.
+function iwXbSetSelect(id, value, labelFor) {
+  const el = document.getElementById(id);
+  if (!el) return false;
+  const val = String(value);
+  if (![].some.call(el.options, o => o.value === val)) {
+    const opt = document.createElement('option');
+    opt.value = val; opt.textContent = labelFor ? labelFor(val) : val;
+    el.appendChild(opt);
+  }
+  if (el.value === val) return false;
+  el.value = val;
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+}
+function iwXbFieldHelper(id) {
+  const el = document.getElementById(id);
+  const f = el && el.closest ? el.closest('.field') : null;
+  return f ? f.querySelector('.field-helper') : null;
+}
+// Every #potion-tier / #potion-super pick whose flat XP equals `flat`.
+function iwPotionPicksForFlat(flat) {
+  const sel = document.getElementById('potion-tier');
+  if (!sel || typeof flat !== 'number') return [];
+  const out = [];
+  [].forEach.call(sel.options, o => {
+    const v = o.value;
+    if (!v || v === '0') return;
+    if (potionFlatForSelection(v) === flat) out.push({ tier: v, sup: false });
+    if (v.indexOf('normal:') === 0 && potionFlatForSelection('super:' + v.slice(7)) === flat)
+      out.push({ tier: v, sup: true });
+  });
+  return out;
+}
+// flatPerTask.potion → the potion picker. One matching potion is applied;
+// none or several leave the picker alone and say so in its helper line.
+function iwApplyPotionFromProfile(flat) {
+  const sel = document.getElementById('potion-tier');
+  const sup = document.getElementById('potion-super');
+  if (!sel || typeof flat !== 'number') return false;
+  let pick;
+  if (flat === 0) pick = { tier: '0', sup: false };
+  else {
+    const m = iwPotionPicksForFlat(flat);
+    if (m.length !== 1) {
+      const help = document.getElementById('potion-helper');
+      if (help) help.textContent = 'Your profile reports +' + flat + ' XP/task from potions, which ' +
+        (m.length ? 'more than one potion gives' : 'no potion here gives') + '. Pick yours.';
+      return false;
+    }
+    pick = m[0];
+  }
+  if (sup && !!sup.checked !== pick.sup) {
+    sup.checked = pick.sup;
+    sup.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (sel.value !== pick.tier) {
+    sel.value = pick.tier;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (typeof iwRefreshPotionUi === 'function') iwRefreshPotionUi();
+  return true;
+}
+// skills.<k>.daily → today's Daily XP Boost (plan Step 5). Only when the
+// snapshot is from the current game day and every skill states its flag.
+// No daily skill at all is an answer ("none today"), not "unknown".
+function iwApplyDailyBoostFromXpBonuses(xb, nowMs) {
+  if (!xb || !xb.serverDay) return false;
+  const now = new Date(nowMs != null ? nowMs : Date.now());
+  if (xb.serverDay !== serverDayString(now, DAILY_BONUS_CONFIG)) return false;
+  const keys = Object.keys(xb.skills);
+  if (!keys.length || keys.some(k => xb.skills[k].daily === undefined)) return false;
+  const want = {};
+  keys.forEach(k => { if (xb.skills[k].daily) { const g = wikiSkillToGroup(k); if (g) want[g] = true; } });
+  DAILY_BONUS_LIVE.groups    = DAILY_SKILL_GROUPS.map(g => g.key).filter(k => want[k]);
+  DAILY_BONUS_LIVE.bonus     = DAILY_BONUS_CONFIG.bonusPercent;
+  DAILY_BONUS_LIVE.serverDay = xb.serverDay;
+  DAILY_BONUS_LIVE.source    = 'profile';
+  DAILY_BONUS_LIVE.fetchedAt = xb.fetchedAt != null ? xb.fetchedAt : now.getTime();
+  saveCachedDailyBoost();
+  if (typeof syncDailyOverrideDefaults === 'function') syncDailyOverrideDefaults();
+  if (typeof renderDailyBonus === 'function') renderDailyBonus();
+  return true;
+}
+// The importer. Called from applyProfileCore inside its re-entrancy guard.
+// Returns true when the profile carried xpBonuses and was applied.
+function iwApplyXpBonusesFromProfile(profile, nowMs) {
+  if (typeof window.iwStoreIsRestoring === 'function' && window.iwStoreIsRestoring()) return false;
+  const now = nowMs != null ? nowMs : Date.now();
+  const xb = iwXpBonusesFromProfile(profile, now);
+  if (!xb) return false;
+  const e = xb.every;
+
+  // Step 3 — percents every skill gets.
+  if (e.server !== undefined && e.server !== 25)
+    iwXbWarn('server XP boost is +' + e.server + '%; the Server-wide box adds +25%.');
+  iwXbSetCheck('server-bonus', (e.server || 0) > 0);
+  if (e.teamZone !== undefined && e.teamZone !== 10)
+    iwXbWarn('team zone bonus is +' + e.teamZone + '%; the Zone Control box adds +10%.');
+  iwXbSetCheck('zc-team', (e.teamZone || 0) > 0);
+  iwXbSetSelect('zc-leaderboard', Math.round(e.zcRank || 0), v => 'From your profile (+' + v + '%)');
+  const zh = iwXbFieldHelper('zc-leaderboard');
+  if (zh) zh.textContent = 'Your monthly ZC rank, from your imported profile. Change it to override.';
+  // Imported elsewhere already; cross-check only.
+  if (e.achievements !== undefined && e.achievements !== iwAchievementXpPct())
+    iwXbWarn('achievements +' + e.achievements + '% in xpBonuses, +' + iwAchievementXpPct() + '% in the toolkit.');
+  // Guild Hall: /api/player-profile sends no guildHallLevels (only
+  // player.json does), so without them the select stayed at 0 and every
+  // skill read 2% short. The everySkill part is 2 × the Guild Hall level;
+  // fill the select from it. Real guildHallLevels, when present, win.
+  if (e.guildHall !== undefined) {
+    const lvl = e.guildHall / IW_GUILD_HALL_XP_PER_LEVEL;
+    if (!iwGuildHallLevelsFromProfile(profile) && Number.isInteger(lvl) && lvl >= 0)
+      iwApplyGuildHallFromProfile({ guildHallLevels: { guild_hall: lvl } });
+    if (e.guildHall !== IW_GUILD_HALL_XP_PER_LEVEL * iwGuildHallManualLevel())
+      iwXbWarn('Guild Hall +' + e.guildHall + '% in xpBonuses, level ' + iwGuildHallManualLevel() + ' in the toolkit.');
+  }
+
+  // Step 4 — flat XP per task.
+  const f = xb.flat;
+  if (f.gear !== undefined) {
+    const el = document.getElementById('xp-per-task');
+    const v = String(Math.round(f.gear));
+    if (el && el.value !== v) {
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+  if (f.worldBosses !== undefined) {
+    const wb = f.worldBosses;
+    const rider = document.getElementById('hollow-rider-active');
+    const riderLive = !!(rider && window.iwHollowRiderLive === true);
+    const bossOn = wb >= 24;
+    const riderOn = riderLive && (wb - (bossOn ? 24 : 0)) === IW_HOLLOW_RIDER_FLAT;
+    iwXbSetCheck('boss-active', bossOn);
+    if (riderLive) iwXbSetCheck('hollow-rider-active', riderOn);
+    if ((bossOn ? 24 : 0) + (riderOn ? IW_HOLLOW_RIDER_FLAT : 0) !== wb)
+      iwXbWarn('world boss flat is +' + wb + ' XP/task, which the toolkit cannot model exactly.');
+  }
+  iwApplyPotionFromProfile(f.potion);
+
+  // Step 5 — today's Daily XP Boost.
+  iwApplyDailyBoostFromXpBonuses(xb, now);
+  return true;
+}
+
+// ── Per-skill catch-up from the profile (plan Step 6) ─────────────────
+// skills.<k>.catchUp is the server's own flag. It is trusted only at the
+// level the profile was taken at, so a Planner bracket at a future level
+// falls back to the toolkit's rule. undefined = the profile cannot say.
+function iwCatchupFromProfile(skillKey, level) {
+  let p; try { p = window.IWProfile; } catch (e) { p = null; }
+  const xb = iwXpBonusesCached(p);
+  if (!xb) return undefined;
+  const k = iwIsSpellcraftingKey(skillKey) ? 'spellcrafting' : iwCanonicalSkillKey(skillKey);
+  const s = xb.skills[k];
+  if (!s || s.catchUp === undefined) return undefined;
+  const lvl = Number(level);
+  if (level == null || !Number.isFinite(lvl) || !Array.isArray(p.skills)) return undefined;
+  const row = p.skills.find(r => r && iwCanonicalSkillKey(r.skillKey || r.key) === k);
+  if (!row || Number(row.level) !== lvl) return undefined;
+  return s.catchUp;
+}
+
+// ── Game breakdown row (plan Step 7) ──────────────────────────────────
+// The toolkit's additive XP percent for a skill: what calculate() builds
+// as totalPct, minus the Jewelcrafting event (the game would list that as
+// a part of its own). Compared against xpBonuses.skills.<k>.percent.
+function iwToolkitXpPercentFor(group) {
+  const g = id => document.getElementById(id);
+  const raceEl = g('race-select');
+  return (g('zc-team') && g('zc-team').checked ? 10 : 0)
+    + (parseInt(g('zc-leaderboard') ? g('zc-leaderboard').value : 0, 10) || 0)
+    + (g('server-bonus') && g('server-bonus').checked ? 25 : 0)
+    + (g('new-player-promo') && g('new-player-promo').checked ? 25 : 0)
+    + iwRaceXpPct(raceEl ? raceEl.value : '', group)
+    + iwAchievementXpPct()
+    + iwGuildHallXpPct(group)
+    + iwSkillBoostPct(group);
+}
+const IW_XB_PART_NAMES = {
+  achievements:'Achievements', server:'Server', zcRank:'ZC rank', guildHall:'Guild Hall',
+  teamZone:'Team zone', skillBoost:'Skill boost', race:'Race'
+};
+function iwRenderGameXpBreakdown(group, toolkitPct) {
+  const host = document.getElementById('xp-game-breakdown');
+  if (!host) return;
+  const xb = iwCurrentXpBonuses();
+  const k = group ? iwCanonicalSkillKey(group) : '';
+  const s = xb && k ? xb.skills[k] : undefined;
+  if (!s || typeof s.percent !== 'number') {
+    host.hidden = true; host.style.display = 'none'; host.innerHTML = '';
+    return;
+  }
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+  const fmtPct = n => (Math.round(n * 10) / 10).toString();
+  const parts = Object.keys(s.parts).map(p =>
+    '<span class="xgb-part">+' + fmtPct(s.parts[p]) + '% ' +
+    esc(IW_XB_PART_NAMES[p] || (xb.labels && xb.labels[p]) || p) + '</span>').join('');
+  const mult = (s.daily ? ' <span class="xgb-mult">× 1.2 daily</span>' : '') +
+               (s.catchUp ? ' <span class="xgb-mult">× 1.2 catch-up</span>' : '');
+  const eff = typeof s.effectivePercent === 'number' ? s.effectivePercent : iwXpBonusesEffectivePct(s);
+  const diff = typeof toolkitPct === 'number' ? Math.round((toolkitPct - s.percent) * 10) / 10 : 0;
+  const check = Math.abs(diff) >= 0.5
+    ? '<span class="xgb-warn">Toolkit differs from game: ' + (diff > 0 ? '+' : '') + fmtPct(diff) + '%</span>'
+    : '<span class="xgb-ok">Matches the toolkit</span>';
+  host.innerHTML =
+    '<span class="xgb-k">Game XP bonus, ' + esc(iwSkillDisplayName(k)) + '</span>' +
+    '<span class="xgb-parts">' + parts + '</span>' +
+    '<span class="xgb-sum">= +' + fmtPct(s.percent) + '%' + mult +
+      (mult ? ' → <b>+' + fmtPct(eff) + '%</b>' : '') + '</span>' + check;
+  host.hidden = false; host.style.display = '';
 }
 
 // ── SERVER-WIDE 2x GATHER BOOST (game patch 0.2.0+2026-10-14.11) ─────
@@ -14873,6 +15450,10 @@ function iwIsSpellcraftingKey(key) {
  * worse failure than omitting a bonus we cannot prove applies.
  */
 function iwSpellcraftCatchupMult(skillKey, level) {
+  // v7.7: the imported profile's own per-skill flag wins at the level it
+  // was taken at (iwCatchupFromProfile); anywhere else, the rule below.
+  const fromProfile = iwCatchupFromProfile(skillKey, level);
+  if (fromProfile !== undefined) return fromProfile ? 1 + SPELLCRAFT_CATCHUP_PCT / 100 : 1;
   if (!iwIsSpellcraftingKey(skillKey)) return 1;
   const lvl = Number(level);
   if (level == null || !Number.isFinite(lvl)) return 1;
@@ -15885,6 +16466,9 @@ function saveCachedDailyBoost() {
       resetsText: DAILY_BONUS_LIVE.resetsText,
       history: DAILY_BONUS_LIVE.history,
       fetchedAt: DAILY_BONUS_LIVE.fetchedAt,
+      // v7.7: 'profile' survives a reload, so an empty "none today" answer
+      // from the profile is kept rather than read as "no cache".
+      source: DAILY_BONUS_LIVE.source === 'profile' ? 'profile' : undefined,
     }));
   } catch (e) { /* quota / blocked storage — cache is an optimisation */ }
 }
@@ -15901,7 +16485,8 @@ function loadCachedDailyBoost(nowDate) {
   let o = null;
   try { o = JSON.parse(localStorage.getItem(DAILY_BOOST_CACHE_KEY) || 'null'); }
   catch (e) { return false; }
-  if (!o || o.v !== 1 || !Array.isArray(o.groups) || !o.groups.length) return false;
+  if (!o || o.v !== 1 || !Array.isArray(o.groups)) return false;
+  if (!o.groups.length && o.source !== 'profile') return false;
   if (o.serverDay !== serverDayString(nowDate || new Date(), DAILY_BONUS_CONFIG)) return false;
   DAILY_BONUS_LIVE.groups     = o.groups.slice();
   DAILY_BONUS_LIVE.bonus      = o.bonus;
@@ -15909,7 +16494,7 @@ function loadCachedDailyBoost(nowDate) {
   DAILY_BONUS_LIVE.resetsText = o.resetsText || null;
   DAILY_BONUS_LIVE.history    = Array.isArray(o.history) ? o.history : [];
   DAILY_BONUS_LIVE.fetchedAt  = o.fetchedAt || null;
-  DAILY_BONUS_LIVE.source     = 'cache';
+  DAILY_BONUS_LIVE.source     = o.source === 'profile' ? 'profile' : 'cache';
   return true;
 }
 
@@ -15975,6 +16560,21 @@ function getActiveDailyBonus(nowDate) {
     };
   }
   const today = serverDayString(nowDate || new Date(), cfg);
+  // v7.7: the imported profile can say "no daily boost today". It never
+  // happens in game (Curtis, 2026-11-11), but an empty set from the profile
+  // is an answer, unlike an empty set from nowhere ("unknown" below).
+  if (DAILY_BONUS_LIVE.source === 'profile' && Array.isArray(DAILY_BONUS_LIVE.groups) &&
+      !DAILY_BONUS_LIVE.groups.length && DAILY_BONUS_LIVE.serverDay === today) {
+    return {
+      skills: [],
+      label: '🚫 No daily boost today',
+      bonus: DAILY_BONUS_LIVE.bonus != null ? DAILY_BONUS_LIVE.bonus : dft,
+      dayIndex: -1,
+      isOverride: false,
+      isLive: true,
+      source: 'profile',
+    };
+  }
   if (DAILY_BONUS_LIVE.groups && DAILY_BONUS_LIVE.groups.length &&
       DAILY_BONUS_LIVE.serverDay === today) {
     return {
@@ -16197,6 +16797,21 @@ function parseDailyBoostPage(text) {
 function applyLiveDailyBoost(parsed, nowDate) {
   const cfg = DAILY_BONUS_CONFIG;
   if (!parsed || !parsed.groups || !parsed.groups.length) return false;
+  // v7.7: a same-day answer from the imported profile is the game's own
+  // word for this player and is kept. The wiki still supplies its history
+  // and reset text; a disagreement is logged, not applied.
+  const today = serverDayString(nowDate || new Date(), cfg);
+  if (DAILY_BONUS_LIVE.source === 'profile' && DAILY_BONUS_LIVE.serverDay === today) {
+    const mine = (DAILY_BONUS_LIVE.groups || []).slice().sort().join(',');
+    const wiki = parsed.groups.slice().sort().join(',');
+    if (mine !== wiki && typeof console !== 'undefined')
+      console.warn('[Daily XP Boost] the wiki says ' + wiki + ', your profile says ' +
+        (mine || 'none') + '; keeping the profile.');
+    if (parsed.history) DAILY_BONUS_LIVE.history = parsed.history;
+    if (parsed.resetsText) DAILY_BONUS_LIVE.resetsText = parsed.resetsText;
+    saveCachedDailyBoost();
+    return true;
+  }
   if (parsed.bonusPercent) cfg.bonusPercent = parsed.bonusPercent;
 
   DAILY_BONUS_LIVE.groups     = parsed.groups.slice();
@@ -16379,8 +16994,9 @@ function renderDailyBonus() {
       : active.isUnknown
           ? (DAILY_BONUS_SYNC.status === 'pending'
                ? 'Checking the wiki…' : 'Wiki unreachable · no boost applied')
-          : ('Active Today · ' + (active.source === 'cache'
-               ? 'cached' : 'live from wiki') +
+          : ('Active Today · ' + (active.source === 'profile'
+               ? 'from your profile'
+               : active.source === 'cache' ? 'cached' : 'live from wiki') +
              (DAILY_BONUS_LIVE.resetsText
                 ? ' · resets ' + DAILY_BONUS_LIVE.resetsText : ''));
   const html =
@@ -16938,6 +17554,23 @@ function syncCheckbox(rowId, inputId) {
   if (el) el.addEventListener('input', calculate);
   if (el) el.addEventListener('change', calculate);
 });
+// Skill Boost chips (v7.7): draw once, repaint on every value change
+// (player click, import, IWStore restore), and toggle on click. The chips
+// are <button aria-pressed>, so Space and Enter work without extra code.
+(function () {
+  const el = document.getElementById('skill-boost-skill');
+  const host = document.getElementById('skill-boost-chips');
+  if (!el || !host) return;
+  ['input', 'change'].forEach(evt => el.addEventListener(evt, iwRenderSkillBoostChips));
+  host.addEventListener('click', ev => {
+    const b = ev.target && ev.target.closest ? ev.target.closest('.sb-chip') : null;
+    if (b && host.contains(b)) iwToggleSkillBoostChip(b);
+  });
+  host.addEventListener('animationend', ev => {
+    if (ev.target && ev.target.classList) ev.target.classList.remove('sb-pop');
+  });
+  iwRenderSkillBoostChips();
+})();
 // The potion helper line names the potion actually applied (v6.3).
 ['potion-tier','potion-super'].forEach(id => {
   const el = document.getElementById(id);
@@ -17428,9 +18061,11 @@ function calculate() {
   const partialChance       = isGatherAction ? (gatherPct % 100) / 100 : 0;
 
   // ── Core XP formula (additive percent, flat-before-multiplier) ─
-  //   durationFactor   = max(1, round(effectiveDuration / 10))
   //   xpBuffBonus      = potionFlat + worldBossFlat + equipFlat
-  //   flatBonus        = xpBuffBonus × durationFactor   (loops = 1)
+  //   flatBonus        = xpBuffBonus   (v7.7: no housing/duration factor;
+  //                      flat XP comes from the skill and tier, and
+  //                      housing only shortens the action — Curtis,
+  //                      2026-11-11; matches xpBonuses.formula)
   //   gatherBaseXP     = baseXP × guaranteedResources   (guaranteed only)
   //   baseWithFlats    = gatherBaseXP + flatBonus
   //   dailyBonus       = baseWithFlats × bonus%   [if skill matches today]
@@ -17447,9 +18082,8 @@ function calculate() {
   //                      + (JEWELCRAFT_XP_EVENT_PCT when this is a
   //                      Jewelcrafting action — see its own comment)
   //   finalXp          = round((baseWithFlats + dailyBonus) × (1 + total%/100))
-  const df            = getDurationFactor(actionTime, housingTier);
   const xpBuffBonus   = potionFlat + worldBossFlat + equipFlat;
-  const flatBonus     = xpBuffBonus * df;
+  const flatBonus     = xpBuffBonus;
   // v38.9.3: combat-only low-tier dampening. Applied per-kill BEFORE the
   // shared flat/percent formula, with its own max(1, round(...)) — matching
   // the engine, which rounds twice (once per kill, once per batch).
@@ -17503,6 +18137,7 @@ function calculate() {
 
   document.getElementById('boss-badge').classList.toggle('show', xpBuffBonus > 0);
   document.getElementById('buff-total-val').textContent = fmt(effectiveXP) + ' XP';
+  try { iwRenderGameXpBreakdown(activeSkill, totalPct - jcEventPct); } catch (e) { /* profile breakdown is optional */ }
 
   // ── Auto action-time display (base task time → housing-reduced effective) ─
   (function updateActionTimeDisplay(){
@@ -18508,9 +19143,9 @@ function getEffectiveXPParams(skill, level) {
   // hundreds of gather, and every non-gathering skill).
   const oneShot = (baseXP, actionTime, resources) => {
     const res = resources != null ? resources : 1;
-    const df = getDurationFactor(actionTime != null ? actionTime : 10, housingTier);
+    // v7.7: flat XP is not scaled by housing or duration (see calculate()).
     const gatherBaseXP = baseXP * res;
-    const baseWithFlats = gatherBaseXP + xpBuffBonus * df;
+    const baseWithFlats = gatherBaseXP + xpBuffBonus;
     const dailyBonus = dailyInfo.applies
       ? baseWithFlats * (dailyInfo.bonus / 100) : 0;
     return Math.round((baseWithFlats + dailyBonus) * (1 + totalPct / 100) * scCatchup);
@@ -27594,9 +28229,9 @@ function taskBonusEnv(taskKey) {
 
 // ── Exact per-action XP (formula clone, gear stats injected) ──
 function taskXPPerAction(baseXP, time, gearFlat, gatherPct, env, isGather) {
-  const df  = getDurationFactor(time, env.housing);
+  // v7.7: flat XP is not scaled by housing or duration (see calculate()).
   const res = isGather ? Math.max(1, Math.floor(gatherPct / 100)) : 1;
-  const baseWithFlats = baseXP * res + (env.potionFlat + env.bossFlat + gearFlat) * df;
+  const baseWithFlats = baseXP * res + (env.potionFlat + env.bossFlat + gearFlat);
   // NOT rounded here — see the single-final-round note on calculate().
   const daily = env.dailyApplies ? baseWithFlats * (env.dailyPct / 100) : 0;
   return Math.round((baseWithFlats + daily) * (1 + env.totalPct / 100) * (env.scCatchup || 1));
@@ -32120,6 +32755,12 @@ function syncCombatLevel(val) {
   var mem = null;            // fallback when localStorage is unavailable
   var usable = true;
   var restoring = false;
+  // v7.7: read-only view of `restoring` for importers that must tell a
+  // fresh import from IWStore replaying a stored profile on load. Snapshot
+  // data with a short life (Skill Boosts, the daily boost) is applied only
+  // on a fresh import; on a replay the saved controls already hold the
+  // player's own values, and the stored profile may be days old.
+  window.iwStoreIsRestoring = function () { return restoring; };
   var saveTimer = null;
 
   function read() {
@@ -42031,6 +42672,25 @@ function syncCombatLevel(val) {
         eq('Skill Boost adds 25% to the boosted skill', b1 - b0, 25);
         eq('Skill Boost reader, boosted', iwSkillBoostPct('mining'), 25);
         eq('Skill Boost reader, other skill', iwSkillBoostPct('combat'), 0);
+        // v7.7: several boosts at once (2026-11-11 profile: combat, mining
+        // and jewelcrafting), stored as a comma list of skill keys.
+        boostEl.value = 'combat,mining,jewelcrafting';
+        var b3 = taskBonusEnv(miTask).totalPct;
+        eq('Skill Boosts: mining keeps +25% beside two others', b3 - b0, 25);
+        eq('Skill Boosts: combat boosted too', iwSkillBoostPct('combat'), 25);
+        eq('Skill Boosts: jewelcrafting boosted too', iwSkillBoostPct('jewelcrafting'), 25);
+        eq('Skill Boosts: smithing not boosted', iwSkillBoostPct('smithing'), 0);
+        eq('Skill Boosts: list reads back in chip order',
+          iwSkillBoostSkills().join(','), 'combat,mining,jewelcrafting');
+        // The old select stored 'gathering'; the game says 'herbing'.
+        boostEl.value = 'gathering';
+        eq('Skill Boosts: a saved "gathering" boosts herbing', iwSkillBoostPct('herbing'), 25);
+        eq('Skill Boosts: and reads back as the gathering group', iwSkillBoostPct('gathering'), 25);
+        boostEl.value = ' mining , ,bogus,mining';
+        eq('Skill Boosts: blanks, unknowns and repeats are dropped', iwSkillBoostSkills().join(','), 'mining');
+        eq('Skill Boosts: an empty group is never boosted', iwSkillBoostPct(''), 0);
+        ok('Skill Boosts: ten chips drawn',
+          document.querySelectorAll('#skill-boost-chips .sb-chip').length === 10);
       } else fail.push('#skill-boost-skill missing');
 
       // ── Achievements: 20 × 5% since 09-21.717
@@ -42511,6 +43171,275 @@ function syncCombatLevel(val) {
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runStageA, {once:true});
   else setTimeout(runStageA, 0);
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   SUITE AB — PROFILE xpBonuses IMPORT (v7.7, 2026-11-11)
+   Real profile figures, trimmed to the XP inputs. Never applyProfile():
+   exercise the import helpers and restore controls, profile, daily state
+   and storage, including the UI side effects of their change events.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  window.iwProfileXpBonusesSelfCheck = function iwProfileXpBonusesSelfCheck(){
+    var fail = [];
+    function ok(label, cond){ if(!cond) fail.push(label); }
+    function eq(label, got, want){
+      if(got !== want) fail.push(label + ': got ' + String(got) + ', expected ' + String(want));
+    }
+    var ids = ['skill-boost-skill','server-bonus','zc-team','zc-leaderboard',
+      'new-player-promo','boss-active','xp-per-task','potion-tier','potion-super',
+      'race-select','achievement-xp','guild-hall-level','hollow-rider-active'];
+    var controls = [], keepLive = {}, keepStorage = {}, storageRead = {};
+    var keepProfile, keepMemo, keepOverride, keepEventOverride, keepRestoring;
+    var hadEventOverride, hadRestoring, keepProfileSkills, keepBreakdown, keepUi = [], touched = false;
+    function g(id){ return document.getElementById(id); }
+    // Assign through the real persistent setter without broadcasting fixtures
+    // to unrelated panels. Transient control events must not queue IWStore's
+    // delayed save after the outer storage guard has restored the real state.
+    function stopProfile(ev){ ev.stopImmediatePropagation(); }
+    function stopControlEvent(ev){
+      if(ev.target && ids.indexOf(ev.target.id) >= 0) ev.stopImmediatePropagation();
+    }
+    function controlState(){
+      return JSON.stringify(controls.map(function(s){ return [s.el.id, s.el.value, s.el.checked]; }));
+    }
+    function restore(label, fn){
+      try { fn(); } catch(e){ fail.push(label + ': ' + (e && e.message ? e.message : String(e))); }
+    }
+    try {
+      keepProfile = window.IWProfile;
+      keepMemo = _iwXpBonusesMemo;
+      keepRestoring = window.iwStoreIsRestoring;
+      hadRestoring = Object.prototype.hasOwnProperty.call(window, 'iwStoreIsRestoring');
+      keepOverride = { enabled: dailyBonusOverride.enabled, groups: dailyBonusOverride.groups };
+      keepEventOverride = DAILY_BONUS_CONFIG.override;
+      hadEventOverride = Object.prototype.hasOwnProperty.call(DAILY_BONUS_CONFIG, 'override');
+      ['groups','bonus','serverDay','source','fetchedAt','resetsText','history'].forEach(function(k){
+        keepLive[k] = DAILY_BONUS_LIVE[k];
+      });
+      ids.concat(DAILY_SKILL_GROUPS.map(function(s){ return 'daily-override-' + s.key; })).forEach(function(id){
+        var el = g(id);
+        ok('control exists: ' + id, !!el);
+        if(el) controls.push({ el: el, value: el.value, checked: el.checked, disabled: el.disabled });
+      });
+      if (fail.length) return fail;
+      keepProfileSkills = g('skill-boost-skill').getAttribute('data-profile-skills');
+      var breakdown = g('xp-game-breakdown');
+      if(breakdown) keepBreakdown = { el:breakdown, html:breakdown.innerHTML,
+        hidden:breakdown.hidden, style:breakdown.getAttribute('style') };
+      // These helpers/row states are changed by import events, not calculate().
+      [iwXbFieldHelper('zc-leaderboard'), g('potion-helper'), g('guild-hall-helper'),
+        g('potion-super').closest('.potion-super'), g('row-server'), g('row-zc-team'),
+        g('row-world-boss'), g('row-hollow-rider')].forEach(function(el, i){
+        if(el) keepUi.push({ el: el, html: i < 3 ? el.innerHTML : null,
+          cls: el.getAttribute('class') });
+      });
+      ['iw_state_v2', DAILY_BOOST_CACHE_KEY].forEach(function(k){
+        try { keepStorage[k] = localStorage.getItem(k); storageRead[k] = true; } catch(e) {}
+      });
+      touched = true;
+      window.addEventListener('iw:profile', stopProfile, true);
+      window.addEventListener('input', stopControlEvent, true);
+      window.addEventListener('change', stopControlEvent, true);
+      dailyBonusOverride.enabled = false;
+      DAILY_BONUS_CONFIG.override = null;
+
+      var now = Date.now(); // One import instant, shared by every dated assertion.
+      var levels = { mining:74, smithing:73, jewelcrafting:72, herbing:71,
+        alchemy:68, spellcrafting:68, combat:66, woodcutting:66, tailoring:65, construction:57 };
+      var every = [
+        { key:'achievements', label:'Achievements', percent:50 },
+        { key:'server', label:'Server XP boost', percent:25 },
+        { key:'zcRank', label:'Zone Control rank', percent:20 },
+        { key:'guildHall', label:'Guild Hall', percent:2 },
+        { key:'teamZone', label:'Your team holds this zone', percent:10 }
+      ];
+      var fixture = {
+        // Use IWStore's session-only test marker so its private memory fallback
+        // cannot retain this fixture when there was no original profile.
+        __iwBundledTestProfile:true,
+        skills: Object.keys(levels).map(function(k){ return { skillKey:k, level:levels[k] }; }),
+        race:'goblin', achievementXpBoostPercent:50, guildHallLevels:{ guild_hall:1 },
+        combatStats:{ xpTaskBonus:171 },
+        xpBonuses:{
+          formula:'xp per action = (base + flatPerTask.total) * (daily ? 1.2 : 1) * (1 + percent / 100) * (catchUp ? 1.2 : 1)',
+          flatPerTask:{ gear:171, potion:44, worldBosses:24, total:239 },
+          everySkill:every, skills:{}
+        }
+      };
+      var boosted = ['combat','mining','jewelcrafting'];
+      Object.keys(levels).forEach(function(k){
+        var parts = every.slice();
+        if(boosted.indexOf(k) >= 0) parts.push({ key:'skillBoost', label:'Skill Boost', percent:25 });
+        if(k === 'mining' || k === 'jewelcrafting') parts.push({ key:'race', label:'Race', percent:5 });
+        var percent = k === 'combat' ? 132 : (k === 'mining' || k === 'jewelcrafting') ? 137 : 107;
+        var daily = ['herbing','alchemy','spellcrafting'].indexOf(k) >= 0;
+        fixture.xpBonuses.skills[k] = { percent:percent, daily:daily, catchUp:k === 'spellcrafting',
+          effectivePercent:k === 'spellcrafting' ? 198.1 : daily ? 148.4 : percent, parts:parts };
+      });
+
+      var xb = iwXpBonusesFromProfile(fixture, now);
+      ok('parser returns xpBonuses', !!xb);
+      if(!xb) return fail;
+      eq('parser: ten skills', Object.keys(xb.skills).length, 10);
+      ok('parser: canonical herbing key', !!xb.skills.herbing);
+      eq('parser: ZC rank', xb.every.zcRank, 20);
+      eq('parser: total flat XP', xb.flat.total, 239);
+      Object.keys(xb.skills).forEach(function(k){
+        var s = xb.skills[k];
+        eq(k + ': effective percent from flags', iwXpBonusesEffectivePct(s), s.effectivePercent);
+        eq(k + ': parts sum to percent', Object.keys(s.parts).reduce(function(sum, p){ return sum + s.parts[p]; }, 0), s.percent);
+      });
+
+      window.IWProfile = fixture;
+      g('race-select').value = 'goblin';
+      g('achievement-xp').value = '50';
+      g('guild-hall-level').value = '1';
+      eq('Skill Boost import accepted', iwApplySkillBoostsFromProfile(fixture), true);
+      [true, false].forEach(function(promo){
+        g('new-player-promo').checked = promo;
+        eq('XP import accepted (promo ' + promo + ')', iwApplyXpBonusesFromProfile(fixture, now), true);
+        eq('promo unchanged (' + promo + ')', g('new-player-promo').checked, promo);
+      });
+      Object.keys(levels).forEach(function(k){
+        var group = wikiSkillToGroup(k);
+        eq(k + ': Skill Boost percent', iwSkillBoostPct(group), boosted.indexOf(k) >= 0 ? 25 : 0);
+        eq(k + ': HEADLINE toolkit/game additive percent', iwToolkitXpPercentFor(group), fixture.xpBonuses.skills[k].percent);
+      });
+      eq('ZC rank control', g('zc-leaderboard').value, '20');
+      ['zc-team','server-bonus','boss-active'].forEach(function(id){ eq(id + ' imported on', g(id).checked, true); });
+      eq('gear flat control', g('xp-per-task').value, '171');
+      // The real /api/player-profile has no guildHallLevels: the level must
+      // come from xpBonuses' guildHall part (2 × level), or every skill is 2% short.
+      var noHalls = JSON.parse(JSON.stringify(fixture));
+      delete noHalls.guildHallLevels;
+      window.IWProfile = noHalls;
+      g('guild-hall-level').value = '0';
+      iwApplyXpBonusesFromProfile(noHalls, now);
+      eq('Guild Hall level from xpBonuses when the profile has no levels', g('guild-hall-level').value, '1');
+      eq('and the toolkit total then matches mining', iwToolkitXpPercentFor('mining'), 137);
+      window.IWProfile = fixture;
+
+      eq('daily groups from profile', getActiveDailyBonus(new Date(now)).skills.slice().sort().join(','),
+        'alchemy,gathering,spellcrafting');
+      eq('stale daily snapshot rejected', iwApplyDailyBoostFromXpBonuses(
+        iwXpBonusesFromProfile(fixture, now - 86400000 * 2), now), false);
+      var noDaily = JSON.parse(JSON.stringify(fixture));
+      Object.keys(noDaily.xpBonuses.skills).forEach(function(k){ noDaily.xpBonuses.skills[k].daily = false; });
+      eq('known empty daily accepted', iwApplyDailyBoostFromXpBonuses(iwXpBonusesFromProfile(noDaily, now), now), true);
+      function checkNoDaily(label){
+        var none = getActiveDailyBonus(new Date(now));
+        eq(label + ': no boosted skills', none.skills.length, 0);
+        eq(label + ': no rotation index', none.dayIndex, -1);
+        ok(label + ': answer is known', !none.isUnknown);
+        eq(label + ': source is profile', none.source, 'profile');
+      }
+      checkNoDaily('empty daily');
+      DAILY_BONUS_LIVE.groups = null;
+      DAILY_BONUS_LIVE.source = null;
+      eq('empty profile daily cache reloads', loadCachedDailyBoost(new Date(now)), true);
+      checkNoDaily('reloaded empty daily');
+
+      eq('Spellcrafting catch-up at imported level', iwSpellcraftCatchupMult('spellcrafting', 68), 1.2);
+      eq('Mining explicitly has no catch-up', iwSpellcraftCatchupMult('mining', 74), 1);
+      eq('Spellcrafting future level falls back above cap', iwSpellcraftCatchupMult('spellcrafting', 75), 1);
+      // Cases where the server flag and the built-in rule DISAGREE, so a
+      // broken profile path cannot pass by falling back to the rule.
+      var flagged = JSON.parse(JSON.stringify(fixture));
+      flagged.xpBonuses.skills.mining.catchUp = true;
+      flagged.xpBonuses.skills.spellcrafting.catchUp = false;
+      window.IWProfile = flagged;
+      eq('server catch-up flag on Mining wins at its level', iwSpellcraftCatchupMult('mining', 74), 1.2);
+      eq('server "no catch-up" on Spellcrafting 68 wins over the rule', iwSpellcraftCatchupMult('spellcrafting', 68), 1);
+      eq('Mining flag ignored at another level', iwSpellcraftCatchupMult('mining', 75), 1);
+      window.IWProfile = fixture;
+
+      var absent = JSON.parse(JSON.stringify(fixture));
+      delete absent.xpBonuses;
+      var beforeAbsent = controlState();
+      eq('absent xpBonuses rejected', iwApplyXpBonusesFromProfile(absent, now), false);
+      eq('absent xpBonuses changes no controls', controlState(), beforeAbsent);
+
+      for(var h = 0; h <= 5; h++) eq('housing ' + h + ': action seconds', effectiveDuration(10, h), 10 - h);
+      var env = { housing:0, potionFlat:0, bossFlat:0, dailyApplies:false, dailyPct:0, totalPct:0, scCatchup:1 };
+      var flat0 = taskXPPerAction(100, 10, 50, 0, env, false);
+      env.housing = 5;
+      eq('flat XP is independent of housing', taskXPPerAction(100, 10, 50, 0, env, false), flat0);
+      eq('flat XP is included once', flat0, 150);
+
+      // A replay must short-circuit even when controls disagree with the profile.
+      g('server-bonus').checked = false;
+      var beforeReplay = controlState();
+      try {
+        window.iwStoreIsRestoring = function(){ return true; };
+        eq('IWStore replay rejects XP import', iwApplyXpBonusesFromProfile(fixture, now), false);
+        eq('IWStore replay changes no controls', controlState(), beforeReplay);
+      } finally {
+        if(hadRestoring) window.iwStoreIsRestoring = keepRestoring;
+        else delete window.iwStoreIsRestoring;
+      }
+
+      var host = g('xp-game-breakdown');
+      ok('breakdown host exists', !!host);
+      if(host){
+        iwRenderGameXpBreakdown('mining', 137);
+        ok('matching breakdown shown', !host.hidden && host.style.display !== 'none');
+        ok('matching breakdown message', host.textContent.indexOf('Matches the toolkit') >= 0);
+        iwRenderGameXpBreakdown('mining', 100);
+        ok('mismatch breakdown message', host.textContent.indexOf('differs') >= 0);
+        window.IWProfile = absent;
+        iwRenderGameXpBreakdown('mining', 137);
+        ok('no profile xpBonuses hides breakdown', host.hidden && host.style.display === 'none');
+      }
+    } catch(e){
+      fail.push('suite threw: ' + (e && e.message ? e.message : String(e)));
+    } finally {
+      if(touched){
+        restore('restore profile', function(){ window.IWProfile = keepProfile; _iwXpBonusesMemo = keepMemo; });
+        restore('restore controls', function(){
+          controls.forEach(function(s){ s.el.value = s.value; s.el.checked = s.checked; s.el.disabled = s.disabled; });
+          var el = g('skill-boost-skill');
+          if(keepProfileSkills === null) el.removeAttribute('data-profile-skills');
+          else el.setAttribute('data-profile-skills', keepProfileSkills);
+        });
+        restore('restore daily state', function(){
+          Object.keys(keepLive).forEach(function(k){ DAILY_BONUS_LIVE[k] = keepLive[k]; });
+          dailyBonusOverride.enabled = keepOverride.enabled;
+          dailyBonusOverride.groups = keepOverride.groups;
+          if(hadEventOverride) DAILY_BONUS_CONFIG.override = keepEventOverride;
+          else delete DAILY_BONUS_CONFIG.override;
+        });
+        restore('restore import UI', function(){
+          iwRenderSkillBoostChips();
+          keepUi.forEach(function(s){
+            if(s.html !== null) s.el.innerHTML = s.html;
+            if(s.cls === null) s.el.removeAttribute('class'); else s.el.setAttribute('class', s.cls);
+          });
+          if(typeof renderDailyBonus === 'function') renderDailyBonus();
+          if(keepBreakdown){
+            keepBreakdown.el.innerHTML = keepBreakdown.html;
+            keepBreakdown.el.hidden = keepBreakdown.hidden;
+            if(keepBreakdown.style === null) keepBreakdown.el.removeAttribute('style');
+            else keepBreakdown.el.setAttribute('style', keepBreakdown.style);
+          }
+        });
+        restore('restore storage', function(){
+          Object.keys(storageRead).forEach(function(k){
+            if(keepStorage[k] === null) localStorage.removeItem(k); else localStorage.setItem(k, keepStorage[k]);
+          });
+        });
+        window.removeEventListener('iw:profile', stopProfile, true);
+        window.removeEventListener('input', stopControlEvent, true);
+        window.removeEventListener('change', stopControlEvent, true);
+        restore('recalculate restored controls', function(){ if(typeof calculate === 'function') calculate(); });
+      }
+    }
+    if(fail.length && typeof console !== 'undefined') console.warn('[Profile XP bonuses] FAILED:', fail.join(' | '));
+    return fail;
+  };
 })();
 </script>
 
@@ -46168,8 +47097,14 @@ function syncCombatLevel(val) {
     }
     var $ = function(id){ return document.getElementById(id); };
     var box = $('server-gather-bonus'), tog = $('gather-toggle'), gc = $('gather-chance');
-    var ids = ['lvl-a', 'lvl-b', 'action-xp'], keep = {};
+    // v7.7: 'xp-per-task' and 'potion-tier' (plus the two boxes below) are
+    // zeroed for the calculate() check: with a real profile's flats (gear
+    // 171 + potion 44 + world boss 24) the second ore is diluted below the
+    // ×1.5 bar, so the check measured the player's state, not the boost.
+    var ids = ['lvl-a', 'lvl-b', 'action-xp', 'xp-per-task', 'potion-tier'], keep = {};
     ids.forEach(function(id){ keep[id] = $(id) ? $(id).value : null; });
+    var flatBoxes = ['potion-super', 'boss-active', 'hollow-rider-active'], keepBox = {};
+    flatBoxes.forEach(function(id){ keepBox[id] = $(id) ? $(id).checked : null; });
     var kept = box && tog && gc ? { b: box.checked, t: tog.checked, g: gc.value } : null;
     var keptState = { sg: appState.selectedSkillGroup, lf: appState.resolvedLeafSkill };
     try {
@@ -46205,6 +47140,9 @@ function syncCombatLevel(val) {
       // ── calculate(): same 156 → 282 jump the probe showed ─────────
       appState.selectedSkillGroup = 'mining'; appState.resolvedLeafSkill = 'mining';
       $('lvl-a').value = '20'; $('lvl-b').value = '30'; $('action-xp').value = '100';
+      if ($('xp-per-task')) $('xp-per-task').value = '0';
+      if ($('potion-tier')) $('potion-tier').value = '0';
+      flatBoxes.forEach(function(id){ if ($(id)) $(id).checked = false; });
       tog.checked = true; gc.value = '80'; box.checked = false;
       calculate(); var off = $('res-xpa').textContent;
       box.checked = true;
@@ -46216,6 +47154,7 @@ function syncCombatLevel(val) {
     finally {
       if (kept) { box.checked = kept.b; tog.checked = kept.t; gc.value = kept.g; }
       ids.forEach(function(id){ if ($(id) && keep[id] != null) $(id).value = keep[id]; });
+      flatBoxes.forEach(function(id){ if ($(id) && keepBox[id] != null) $(id).checked = keepBox[id]; });
       appState.selectedSkillGroup = keptState.sg; appState.resolvedLeafSkill = keptState.lf;
       try { calculate(); } catch (e) {}
     }
@@ -46372,7 +47311,8 @@ function syncCombatLevel(val) {
         ['November items (2026-11-09 items.json)',window.iwNovember2026ItemsSelfCheck],
         ['Guild Hall XP',window.iwGuildHallXpSelfCheck],
         ['Server 2x Gather boost',window.iwServerGatherBoostSelfCheck],
-        ['Smithed 2-socket chests and leggings',window.iwSmithedSocketsSelfCheck]
+        ['Smithed 2-socket chests and leggings',window.iwSmithedSocketsSelfCheck],
+        ['Profile XP bonuses import (AB)',window.iwProfileXpBonusesSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;

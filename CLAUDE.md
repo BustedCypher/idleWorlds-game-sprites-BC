@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Thirty-three regression suites ship inside the file and are the safety net for
+Thirty-four regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -94,7 +94,17 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S) ·
 `iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
 `iwRaidGuideSelfCheck` (V) · `iwLevelPaidGatheringSelfCheck` (W) ·
-`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z) · `iwSmithedSocketsSelfCheck` (AA).
+`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z) · `iwSmithedSocketsSelfCheck` (AA) · `iwProfileXpBonusesSelfCheck` (AB).
+
+Suite AB covers the profile `xpBonuses` import (search `SUITE AB`): all ten
+skills' parts and effective percentages, multiple Skill Boosts, imported
+server/ZC/team/flats, same-day daily flags (including a known empty set),
+per-skill catch-up, housing-independent flat XP and the game breakdown row.
+Fresh imports prefill the controls; IWStore replay must never reapply them,
+and `#new-player-promo` stays manual. Skill Boost chips share the hidden
+comma-list `#skill-boost-skill`; `iwSkillBoostPct(group)` reads that set, so
+several skills can carry the boost at once. The suite restores its profile,
+controls, daily state and cache after checking them.
 
 Suite AA covers the 2026-11-10 items.json (search `SUITE AA — 2-SOCKET`):
 smithed chests and leggings declare 2 sockets (340 rows), so a full smithed
@@ -377,13 +387,18 @@ the only human-readable record of which art `index.html` expects, and it is
 what would make a future move to a real long-cache CDN safe. Atlas PNG and
 manifest must always be replaced together.
 
-**The Daily XP Boost has no offline answer.** As of 2026-09 the game draws
+**The Daily XP Boost has no computed rotation.** As of 2026-09 the game draws
 **3 of the 10 skills at random each day** (no repeat from either of the previous
 2 days). There is no rotation, no anchor date and nothing to compute — v5.5
 deleted `DAILY_BONUS_CONFIG.rotation` and `referenceDateUTC`, and reintroducing
-either is a regression, not a fallback. The wiki page is the only source;
-`serverDayString()` still owns the noon-ET boundary and expires the one-day
-`iwDailyBoostV1` cache. When there is no live and no same-day cached answer,
+either is a regression, not a fallback. Since v7.7, a fresh profile import's
+`xpBonuses.skills.<k>.daily` is an offline answer for that import's game day,
+stored in `iwDailyBoostV1` with `source:'profile'`. A known empty profile set
+means "No daily boost today", not `isUnknown`, and survives a cache reload.
+A same-day profile answer takes precedence over the wiki; IWStore replay
+does not refresh it. The wiki still supplies the live fallback.
+`serverDayString()` owns the noon-ET boundary and expires the one-day cache.
+When there is no live and no same-day cached answer,
 `getActiveDailyBonus()` returns an **empty** skill set flagged `isUnknown` and
 the panel says "unavailable" — it must never guess. A wrong 3-of-10 guess
 applies +20% to skills that have no boost and withholds it from ones that do,
@@ -466,7 +481,10 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.6, live since 2026-11-10. v7.6
+- `index.html` — **the working file**, v7.7, live since 2026-11-11. v7.7 imports the profile's
+  `xpBonuses` into multiple Skill Boost chips and the server/ZC/team/flats,
+  potion and daily controls on a fresh import, with per-skill catch-up,
+  housing-independent flat XP and a game breakdown row (suite AB). v7.6
   re-embeds the 2026-11-10 items.json, where smithed chests and leggings have
   2 sockets, and stops tier-named uniques reading as metal (suite AA). v7.5 adds
   the server-wide 2x Gather boost row to Your bonuses (suite Z). v7.4

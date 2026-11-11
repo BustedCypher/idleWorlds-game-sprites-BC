@@ -24,7 +24,7 @@ game swaps that loadout in for). All 12 slot keys are always present, and all
 | 5 | Amulet/belt/trinket `VariantId` fields | **Done** (sent as `null`) |
 | 6 | `socketCount` on every socketable item | Partly: added to `itemVariants` rows, not to `inventory[].item` |
 | 7 | `socketEffect` on `itemVariants` | **Done** |
-| 8 | `combatStats` in player.json | Not yet |
+| 8 | `combatStats` and `xpBonuses` in player.json | Not yet; `/api/player-profile` now sends both. |
 
 New question for the developer: `itemVariants[].socketCount` is `1` on rings,
 cloaks and profession uniques (Prospector's Pick, Jeweler's Chisel), which
@@ -99,9 +99,13 @@ it) do not, so the toolkit has to guess the count.
 **7. `socketEffect` / `socketEffect2` on `itemVariants` rows,** not only the
 gem key, so effects never have to be looked up from the gem tier.
 
-**8. `combatStats` in `player.json`,** the same aggregate block
-`/api/player-profile` has (XP per task, item find and so on). It lets
-`player.json` stand in for a full profile import.
+**8. `combatStats` and `xpBonuses` in `player.json`,** the same blocks
+`/api/player-profile` sends. `combatStats` supplies XP per task, item find and
+other aggregate stats. As of 2026-11-11, the profile endpoint also sends
+`xpBonuses`: `formula`, `flatPerTask`, `everySkill` and per-skill `percent`,
+`parts`, `daily`, `catchUp` and `effectivePercent`. Please include that same
+block in `player.json` so its import can prefill the XP controls and today's
+daily boost, like a full profile import.
 
 **9. Anything else a loadout stores** (title, potions, enchant choice): send it
 as extra fields on the loadout entry. The toolkit ignores fields it does not
