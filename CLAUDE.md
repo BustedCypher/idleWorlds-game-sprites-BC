@@ -94,7 +94,19 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwPlayerJsonImportSelfCheck` (R) · `iwHousingPlannerSelfCheck` (S) ·
 `iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
 `iwRaidGuideSelfCheck` (V) · `iwLevelPaidGatheringSelfCheck` (W) ·
-`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z) · `iwSmithedSocketsSelfCheck` (AA) · `iwProfileXpBonusesSelfCheck` (AB).
+`iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z) · `iwSmithedSocketsSelfCheck` (AA) · `iwProfileXpBonusesSelfCheck` (AB) ·
+`iwGemDropChanceSelfCheck` (AC).
+
+Suite AC covers drop chances on item cards and tooltips (search
+`SUITE AC — GEM AND ITEM DROP`). `iwDropSources(item)` lists every source the
+item's wiki page gives a chance for, read from items.json's
+`acquisition_detail` (the wiki page's own source list, `' | '`-separated,
+`Source — where — chance`), shown as "1 in N (x%)" plus the wiki's wording.
+Raw gems' prospecting part uses the wiki rule, 1 in (100 × tier)
+(`iwGemDropInfo`): the feed rounds it to one figure (Topaz "0.3%", true
+0.25%). The embed keeps `acquisition_detail` **only on rows that state a
+chance** (526 on 2026-11-11, ~88 KB); a re-embed must keep doing that or
+every multi-source item (Upgrade Orbs: 6 sources) loses all but one.
 
 Suite AB covers the profile `xpBonuses` import (search `SUITE AB`): all ten
 skills' parts and effective percentages, multiple Skill Boosts, imported
@@ -138,7 +150,8 @@ crafting and combat still pay by tier.
 Suite X covers the full re-embed of the 2026-11-09 items.json (search
 `SUITE X — THE 2026-11-09`): 7,300 current rows + the archived Hollow Scroll.
 A re-embed is the feed's rows in its key order, minus `wiki_slug` and
-`acquisition_detail`, with empty fields stripped; that rule reproduced every
+`acquisition_detail` (since v7.8, kept on rows whose detail states a chance;
+see suite AC), with empty fields stripped; that rule reproduced every
 unchanged row byte for byte. Its gear prices are post-10-29.156, so
 `craftPatchGearValue()` now stands aside and the feed's price is used.
 
@@ -481,7 +494,9 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.7, live since 2026-11-11. v7.7 imports the profile's
+- `index.html` — **the working file**, v7.8, live since 2026-11-11. v7.8 lists every
+  wiki drop chance on item cards and tooltips, gems by 1 in (100 × tier)
+  (suite AC). v7.7 imports the profile's
   `xpBonuses` into multiple Skill Boost chips and the server/ZC/team/flats,
   potion and daily controls on a fresh import, with per-skill catch-up,
   housing-independent flat XP and a game breakdown row (suite AB). v7.6
