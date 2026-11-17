@@ -3,7 +3,25 @@
 <html lang="en" data-theme="sapphire"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IdleWorlds Toolkit v7.8</title>
+<title>IdleWorlds Toolkit v7.9</title>
+<!-- v7.9 Belt Planner (2026-11-16, Curtis):
+     • Skill Tools → Belt Planner, for the Artisan's Belt and the Warrior's
+       Belt (game beta of 2026-11-15). Strap, Focus, Buckle, three Pouches
+       and a charm box; totals against a saved belt; the best belt the box
+       can make; ranked single upgrades; stitch, fuse, part and Thread/Grit
+       costs. Combat belts are compared with the Enchanted Belt.
+     • Rules and numbers come from /wiki/artisan-belt, /wiki/combat-belt and
+       /wiki/charms (read 2026-11-16). Per-stat values, Focus rates, part
+       odds and Overstitch costs are fitted to the wiki's tables; suite AD
+       (iwBeltPlannerSelfCheck) pins every published figure.
+     • The worn belt comes in with the profile import (beltShowcase, seen
+       2026-11-17) and is read automatically, once per distinct belt. Charm
+       tiers are solved from the values it prints; on Curtis's belt the
+       engine then gives the game's own totals (13.9% 2x Gather, 5.9 XP).
+     • The full charm box can be pasted from /api/artisan-belt/v2. That
+       shape is taken from the game client and has not been tried on a
+       real response.
+     • State lives in iwBeltPlanV1. The item data is unchanged (2026-11-10). -->
 <!-- v7.8 Drop chances on item cards (2026-11-11, Curtis; pushed straight
      to index.html):
      • Every item card and tooltip lists each source its wiki page gives a
@@ -1645,7 +1663,7 @@
     transition: max-height .2s ease, opacity .16s ease;
   }
   .skill-tools-nav.open > .skill-tools-menu {
-    max-height: 140px;
+    max-height: 200px;
     opacity: 1;
     pointer-events: auto;
   }
@@ -1790,7 +1808,7 @@
     left: 50%;
     bottom: calc(100% + 11px);
     width: min(270px, calc(100vw - 24px));
-    max-height: 180px;
+    max-height: 250px;
     padding: 7px;
     gap: 5px;
     opacity: 0;
@@ -1805,7 +1823,7 @@
     transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
   }
   .botnav .skill-tools-nav.open > .skill-tools-menu {
-    max-height: 180px;
+    max-height: 250px;
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
@@ -6983,6 +7001,83 @@
 .hp-details summary{cursor:pointer;font-weight:600}
 @media (max-width:700px){.hp-goal-field{max-width:none}}
 </style>
+<!-- Belt Planner (v7.9), classic skin. Nothing here hides an element, so
+     the Ashen BEHAVIOUR PARITY block has nothing to mirror. -->
+<style data-iw-sheet="legacy" id="iw-belt-planner-styles">
+#tab-belt-planner{--bp-ink:var(--text);--bp-dim:var(--text-2);--bp-line:var(--border);--bp-card:var(--surface);--bp-sunken:var(--surface-2);--bp-accent:var(--accent);--bp-good:#4cce6e;--bp-warn:#e8a428;--bp-bad:#e05555;--bp-r:12px;--bp-r-sm:var(--r-sm,8px)}
+#tab-belt-planner{min-width:0;max-width:100%}
+#tab-belt-planner *{box-sizing:border-box}
+#tab-belt-planner [data-bp="body"]{display:flex;flex-direction:column;gap:14px}
+.bp-stack{display:flex;flex-direction:column;gap:12px}
+.bp-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.bp-top{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.bp-kinds{display:inline-flex;padding:3px;border:1px solid var(--bp-line);border-radius:999px;background:var(--bp-sunken)}
+.bp-kind{min-height:32px;padding:4px 14px;border:0;border-radius:999px;background:transparent;color:var(--bp-dim);font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.bp-kind[aria-pressed="true"]{background:var(--bp-card);color:var(--bp-ink);box-shadow:inset 0 0 0 1px var(--bp-accent)}
+.bp-kind:focus-visible,.bp-slot-charm:focus-visible{outline:2px solid var(--bp-accent);outline-offset:2px}
+.bp-tier{display:inline-flex;align-items:center;min-height:36px;font-size:15px;font-weight:700;color:var(--bp-ink);white-space:nowrap}
+.bp-f{display:flex;flex-direction:column;gap:4px;min-width:130px;flex:0 1 170px}
+.bp-f-s{min-width:84px;flex:0 0 96px}
+.bp-f>span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--bp-dim)}
+#tab-belt-planner select,#tab-belt-planner input[type=number],#tab-belt-planner textarea{width:100%;min-height:36px;padding:6px 9px;border:1px solid var(--bp-line);border-radius:var(--bp-r-sm);background:var(--bp-sunken);color:var(--bp-ink);font:inherit;font-size:13px}
+#tab-belt-planner textarea{font:11px var(--mono,monospace)}
+.bp-muted{margin:0;font-size:12.5px;line-height:1.5;color:var(--bp-dim)}
+.bp-muted a{color:var(--bp-accent)}
+.bp-warn,.bp-flash{padding:8px 11px;border:1px solid var(--bp-line);border-left:3px solid var(--bp-warn);border-radius:var(--bp-r-sm);font-size:13px;line-height:1.5;color:var(--bp-ink);background:var(--bp-sunken)}
+.bp-flash[data-state="ok"]{border-left-color:var(--bp-good)}
+.bp-flash[data-state="err"]{border-left-color:var(--bp-bad)}
+.bp-belt{display:flex;flex-direction:column;gap:12px}
+.bp-strap{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.bp-gives{display:inline-flex;align-items:center;min-height:36px;font-size:13px;font-weight:600;color:var(--bp-ink)}
+.bp-slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bp-slot{display:flex;flex-direction:column;gap:8px;min-width:0;padding:10px;border:1px solid var(--bp-line);border-top:3px solid var(--bp-rar,var(--bp-line));border-radius:var(--bp-r-sm);background:var(--bp-sunken)}
+.bp-slot-off{border-style:dashed}
+.bp-slot-name{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bp-dim)}
+.bp-buckle{border-top-color:var(--bp-accent)}
+.bp-slot-live{font-size:13px;font-weight:600;color:var(--bp-ink)}
+.bp-slot-charm{display:flex;gap:8px;align-items:center;min-width:0;padding:2px 0;border:0;background:none;color:var(--bp-ink);font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer}
+.bp-slot-charm small{display:block;font-size:11.5px;font-weight:500;color:var(--bp-warn)}
+#tab-belt-planner .bp-mini{min-height:28px;padding:3px 10px;font-size:12px}
+.bp-gem{flex:none;display:inline-block;width:16px;height:16px;margin:4px;transform:rotate(45deg);border-radius:3px;background:linear-gradient(135deg,rgba(255,255,255,.55),transparent 45%),var(--bp-gem);box-shadow:0 0 0 2px var(--bp-rar)}
+.bp-gem-foil{box-shadow:0 0 0 2px var(--bp-rar),0 0 0 4px rgba(255,255,255,.55)}
+.bp-gem-prismatic{box-shadow:0 0 0 2px var(--bp-rar),0 0 0 4px #ff6ec4,0 0 0 6px #6effe2}
+.bp-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.bp-tile{padding:9px 12px;border:1px solid var(--bp-line);border-radius:var(--bp-r-sm);background:var(--bp-sunken)}
+.bp-tile-idle .bp-tile-val{color:var(--bp-dim)}
+.bp-tile-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--bp-dim)}
+.bp-tile-val{font-size:22px;font-weight:700;line-height:1.2;color:var(--bp-ink)}
+.bp-tile-sub{font-size:11.5px;line-height:1.4;color:var(--bp-dim)}
+.bp-tile-delta{font-size:12px;font-weight:600}
+.bp-tile-delta[data-dir="up"],.bp-up,.bp-table td.bp-up{color:var(--bp-good)}
+.bp-tile-delta[data-dir="down"],.bp-table td.bp-down{color:var(--bp-bad)}
+.bp-count{margin-left:6px;font-size:12px;font-weight:500;letter-spacing:0;color:var(--bp-dim)}
+.bp-list{display:flex;flex-direction:column}
+.bp-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bp-line)}
+.bp-list>.bp-item:first-child{border-top:0;padding-top:0}
+.bp-item-main{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;font-size:12px;line-height:1.4;color:var(--bp-dim)}
+.bp-item-main strong{font-size:13.5px;color:var(--bp-ink)}
+.bp-item-val{flex:none;font-size:14px;font-weight:700;color:var(--bp-ink);white-space:nowrap}
+.bp-edit{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--bp-line);border-radius:var(--bp-r-sm);background:var(--bp-sunken)}
+.bp-list>.bp-edit{margin-bottom:8px}
+.bp-more summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--bp-dim)}
+.bp-quirks{display:flex;flex-wrap:wrap;gap:6px 14px;padding-top:8px}
+.bp-check{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;color:var(--bp-ink);cursor:pointer}
+.bp-fold{border:1px solid var(--bp-line);border-radius:var(--bp-r);background:var(--bp-card)}
+.bp-fold>summary{padding:11px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--bp-ink)}
+.bp-fold>.bp-stack{padding:2px 14px 14px}
+.bp-h3{margin:6px 0 0;font-size:14px;font-weight:700;color:var(--bp-ink)}
+.bp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bp-table{border-collapse:collapse;width:100%}
+.bp-table th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--bp-dim);text-align:left}
+.bp-table th,.bp-table td{padding:6px 10px;border-bottom:1px solid var(--bp-line);white-space:nowrap;font-size:13px;color:var(--bp-ink)}
+.bp-meter{display:flex;flex-direction:column;gap:6px}
+.bp-meter-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:13px;color:var(--bp-dim)}
+.bp-meter-top strong{color:var(--bp-ink)}
+.bp-meter-bar{height:8px;border-radius:999px;background:var(--bp-sunken);border:1px solid var(--bp-line);overflow:hidden}
+.bp-meter-bar span{display:block;height:100%;background:var(--bp-accent)}
+@media (max-width:820px){.bp-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.bp-f{flex:1 1 130px}.bp-item{flex-wrap:wrap}.bp-item-main{flex-basis:60%}}
+</style>
 <style data-iw-sheet="legacy" id="iw-raid-guide-styles">
 /* Raid Guides (v7.3 glance view). Role colours: the reference palette's first three
    categorical slots (validated all-pairs on these surfaces); Damage stays neutral ink. */
@@ -7512,7 +7607,7 @@
   /* An open dropdown must escape its panel's clipping. */
   .panel.has-open-dd { overflow: visible; position: relative; z-index: 60; }
   .skill-tools-menu { display: grid; max-height: 0; opacity: 0; overflow: hidden; pointer-events: none; }
-  .skill-tools-nav.open > .skill-tools-menu { max-height: 140px; opacity: 1; pointer-events: auto; }
+  .skill-tools-nav.open > .skill-tools-menu { max-height: 200px; opacity: 1; pointer-events: auto; }
 
   /* ── 5. Page + base elements ──────────────────────────────────────── */
   html, body { background-color: var(--ash-ink-900); }
@@ -7891,7 +7986,7 @@
   .botnav .skill-tools-toggle .skill-chevron { position: absolute; top: 5px; right: calc(50% - 19px); margin: 0; font-size: 8px; }
   .botnav .skill-tools-menu {
     position: absolute; left: 50%; bottom: calc(100% + 11px);
-    width: min(270px, calc(100vw - 24px)); max-height: 180px; padding: 7px; gap: 5px;
+    width: min(270px, calc(100vw - 24px)); max-height: 250px; padding: 7px; gap: 5px;
     visibility: hidden; opacity: 0; overflow: visible;
     transform: translate(-50%, 8px);
     background: var(--ash-ground); background-blend-mode: var(--ash-ground-blend);
@@ -7899,7 +7994,7 @@
     box-shadow: 0 12px 28px rgba(0,0,0,.6);
     transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
   }
-  .botnav .skill-tools-nav.open > .skill-tools-menu { max-height: 180px; visibility: visible; transform: translate(-50%, 0); }
+  .botnav .skill-tools-nav.open > .skill-tools-menu { max-height: 250px; visibility: visible; transform: translate(-50%, 0); }
   .botnav .skill-tool-child { width: 100%; min-height: 44px; flex: none; flex-direction: row; justify-content: flex-start; gap: 10px; padding: 10px 12px; font-size: 13px; }
   .botnav .skill-tool-child .tab-label { font-size: 12.5px; }
   .botnav .skill-tool-child.active::before { left: -1px; top: 50%; transform: translateY(-50%); width: 3px; height: 22px; }
@@ -10357,6 +10452,83 @@
   .hp-details summary { cursor: pointer; color: var(--ash-accent-dim); font-weight: 600; }
   @media (max-width: 700px) { .hp-goal-field { max-width: none; } }
 
+  /* ── Belt Planner (v7.9) ──────────────────────────────────────────────
+     Same rules as the legacy sheet, on Ashen tokens. Nothing here hides an
+     element the BEHAVIOUR PARITY block tracks. */
+  #tab-belt-planner { --bp-ink: var(--ash-text); --bp-dim: var(--ash-dim); --bp-line: var(--ash-edge-faint); --bp-card: var(--ash-ink-900); --bp-sunken: var(--ash-ink-950); --bp-accent: var(--ash-accent); --bp-good: var(--ash-good); --bp-warn: var(--ash-warn); --bp-bad: var(--ash-bad); --bp-r: var(--ash-r-control); --bp-r-sm: var(--ash-r-control); }
+  #tab-belt-planner{min-width:0;max-width:100%}
+  #tab-belt-planner *{box-sizing:border-box}
+  #tab-belt-planner [data-bp="body"]{display:flex;flex-direction:column;gap:14px}
+  .bp-stack{display:flex;flex-direction:column;gap:12px}
+  .bp-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+  .bp-top{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+  .bp-kinds{display:inline-flex;padding:3px;border:1px solid var(--bp-line);border-radius:999px;background:var(--bp-sunken)}
+  .bp-kind{min-height:32px;padding:4px 14px;border:0;border-radius:999px;background:transparent;color:var(--bp-dim);font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .bp-kind[aria-pressed="true"]{background:var(--bp-card);color:var(--bp-ink);box-shadow:inset 0 0 0 1px var(--bp-accent)}
+  .bp-kind:focus-visible,.bp-slot-charm:focus-visible{outline:2px solid var(--bp-accent);outline-offset:2px}
+  .bp-tier{display:inline-flex;align-items:center;min-height:36px;font-size:15px;font-weight:700;color:var(--bp-ink);white-space:nowrap}
+  .bp-f{display:flex;flex-direction:column;gap:4px;min-width:130px;flex:0 1 170px}
+  .bp-f-s{min-width:84px;flex:0 0 96px}
+  .bp-f>span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--bp-dim)}
+  #tab-belt-planner select,#tab-belt-planner input[type=number],#tab-belt-planner textarea{width:100%;min-height:36px;padding:6px 9px;border:1px solid var(--bp-line);border-radius:var(--bp-r-sm);background:var(--bp-sunken);color:var(--bp-ink);font:inherit;font-size:13px}
+  #tab-belt-planner textarea{font:11px var(--mono,monospace)}
+  .bp-muted{margin:0;font-size:12.5px;line-height:1.5;color:var(--bp-dim)}
+  .bp-muted a{color:var(--bp-accent)}
+  .bp-warn,.bp-flash{padding:8px 11px;border:1px solid var(--bp-line);border-left:3px solid var(--bp-warn);border-radius:var(--bp-r-sm);font-size:13px;line-height:1.5;color:var(--bp-ink);background:var(--bp-sunken)}
+  .bp-flash[data-state="ok"]{border-left-color:var(--bp-good)}
+  .bp-flash[data-state="err"]{border-left-color:var(--bp-bad)}
+  .bp-belt{display:flex;flex-direction:column;gap:12px}
+  .bp-strap{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+  .bp-gives{display:inline-flex;align-items:center;min-height:36px;font-size:13px;font-weight:600;color:var(--bp-ink)}
+  .bp-slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .bp-slot{display:flex;flex-direction:column;gap:8px;min-width:0;padding:10px;border:1px solid var(--bp-line);border-top:3px solid var(--bp-rar,var(--bp-line));border-radius:var(--bp-r-sm);background:var(--bp-sunken)}
+  .bp-slot-off{border-style:dashed}
+  .bp-slot-name{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bp-dim)}
+  .bp-buckle{border-top-color:var(--bp-accent)}
+  .bp-slot-live{font-size:13px;font-weight:600;color:var(--bp-ink)}
+  .bp-slot-charm{display:flex;gap:8px;align-items:center;min-width:0;padding:2px 0;border:0;background:none;color:var(--bp-ink);font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer}
+  .bp-slot-charm small{display:block;font-size:11.5px;font-weight:500;color:var(--bp-warn)}
+  #tab-belt-planner .bp-mini{min-height:28px;padding:3px 10px;font-size:12px}
+  .bp-gem{flex:none;display:inline-block;width:16px;height:16px;margin:4px;transform:rotate(45deg);border-radius:3px;background:linear-gradient(135deg,rgba(255,255,255,.55),transparent 45%),var(--bp-gem);box-shadow:0 0 0 2px var(--bp-rar)}
+  .bp-gem-foil{box-shadow:0 0 0 2px var(--bp-rar),0 0 0 4px rgba(255,255,255,.55)}
+  .bp-gem-prismatic{box-shadow:0 0 0 2px var(--bp-rar),0 0 0 4px #ff6ec4,0 0 0 6px #6effe2}
+  .bp-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .bp-tile{padding:9px 12px;border:1px solid var(--bp-line);border-radius:var(--bp-r-sm);background:var(--bp-sunken)}
+  .bp-tile-idle .bp-tile-val{color:var(--bp-dim)}
+  .bp-tile-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--bp-dim)}
+  .bp-tile-val{font-size:22px;font-weight:700;line-height:1.2;color:var(--bp-ink)}
+  .bp-tile-sub{font-size:11.5px;line-height:1.4;color:var(--bp-dim)}
+  .bp-tile-delta{font-size:12px;font-weight:600}
+  .bp-tile-delta[data-dir="up"],.bp-up,.bp-table td.bp-up{color:var(--bp-good)}
+  .bp-tile-delta[data-dir="down"],.bp-table td.bp-down{color:var(--bp-bad)}
+  .bp-count{margin-left:6px;font-size:12px;font-weight:500;letter-spacing:0;color:var(--bp-dim)}
+  .bp-list{display:flex;flex-direction:column}
+  .bp-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bp-line)}
+  .bp-list>.bp-item:first-child{border-top:0;padding-top:0}
+  .bp-item-main{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;font-size:12px;line-height:1.4;color:var(--bp-dim)}
+  .bp-item-main strong{font-size:13.5px;color:var(--bp-ink)}
+  .bp-item-val{flex:none;font-size:14px;font-weight:700;color:var(--bp-ink);white-space:nowrap}
+  .bp-edit{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--bp-line);border-radius:var(--bp-r-sm);background:var(--bp-sunken)}
+  .bp-list>.bp-edit{margin-bottom:8px}
+  .bp-more summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--bp-dim)}
+  .bp-quirks{display:flex;flex-wrap:wrap;gap:6px 14px;padding-top:8px}
+  .bp-check{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;color:var(--bp-ink);cursor:pointer}
+  .bp-fold{border:1px solid var(--bp-line);border-radius:var(--bp-r);background:var(--bp-card)}
+  .bp-fold>summary{padding:11px 14px;cursor:pointer;font-size:14px;font-weight:600;color:var(--bp-ink)}
+  .bp-fold>.bp-stack{padding:2px 14px 14px}
+  .bp-h3{margin:6px 0 0;font-size:14px;font-weight:700;color:var(--bp-ink)}
+  .bp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .bp-table{border-collapse:collapse;width:100%}
+  .bp-table th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--bp-dim);text-align:left}
+  .bp-table th,.bp-table td{padding:6px 10px;border-bottom:1px solid var(--bp-line);white-space:nowrap;font-size:13px;color:var(--bp-ink)}
+  .bp-meter{display:flex;flex-direction:column;gap:6px}
+  .bp-meter-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:13px;color:var(--bp-dim)}
+  .bp-meter-top strong{color:var(--bp-ink)}
+  .bp-meter-bar{height:8px;border-radius:999px;background:var(--bp-sunken);border:1px solid var(--bp-line);overflow:hidden}
+  .bp-meter-bar span{display:block;height:100%;background:var(--bp-accent)}
+  @media (max-width:820px){.bp-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:480px){.bp-f{flex:1 1 130px}.bp-item{flex-wrap:wrap}.bp-item-main{flex-basis:60%}}
+
   /* ── Raid Guides (v7.3 glance view) ─────────────────────────────────
      Same rules as the legacy sheet, on Ashen tokens. Nothing here hides an
      element the BEHAVIOUR PARITY block tracks. */
@@ -10612,7 +10784,7 @@
     <div data-ui=brandname class="brandname">IdleWorlds <em>Toolkit</em></div>
     <div data-ui=brandsub class="brandsub">Fan-made companion</div>
   </div>
-  <span data-ui=ver-pill class="ver-pill">v7.8</span>
+  <span data-ui=ver-pill class="ver-pill">v7.9</span>
   <div data-ui=appbar-spacer class="appbar-spacer"></div>
   <!-- Back to the game, below 1060px only: the rail's own button carries it
        on desktop, and the bottom nav has no room for an eighth item. -->
@@ -10684,6 +10856,10 @@
         <button class="tab-btn skill-tool-child" data-tab="housing-planner" role="tab" aria-selected="false" aria-controls="tab-housing-planner" onclick="switchTab(&#39;housing-planner&#39;)">
           <span data-ui=tab-icon class="tab-icon" aria-hidden="true">🏰</span>
           <span data-ui=tab-label class="tab-label">Housing Planner</span>
+        </button>
+        <button class="tab-btn skill-tool-child" data-tab="belt-planner" role="tab" aria-selected="false" aria-controls="tab-belt-planner" onclick="switchTab(&#39;belt-planner&#39;)">
+          <span data-ui=tab-icon class="tab-icon" aria-hidden="true">🧵</span>
+          <span data-ui=tab-label class="tab-label">Belt Planner</span>
         </button>
       </div>
     </div>
@@ -12885,6 +13061,21 @@
   </div>
 
   <!-- ═══════════════════════════════════════════
+       SKILL TOOL — BELT PLANNER (v7.9)
+       Rendered whole by the BELT PLANNER script into [data-bp="body"].
+       Controls carry no ids on purpose (IWStore snapshots ids); the tab
+       keeps its own state in iwBeltPlanV1.
+  ════════════════════════════════════════════ -->
+  <div data-ui=tab-belt-planner class="tab-pane" id="tab-belt-planner" role="tabpanel" aria-label="Belt Planner">
+    <div data-ui=pane-head class="pane-head">
+      <div data-ui=pane-eyebrow class="pane-eyebrow">Artisan's Belt and Warrior's Belt</div>
+      <h2 class="pane-title">Belt Planner</h2>
+      <p class="pane-sub">Build your belt, then change any piece to see what it gives.</p>
+    </div>
+    <div data-ui=bp-body data-bp="body"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
        RAIDS — Raid Guides (v7.1)
        One guide per guild raid boss, plus Ashmaw Hard: what the fight
        asks for, its rotation and who answers each ability, a suggested
@@ -13663,6 +13854,10 @@
         <button class="tab-btn skill-tool-child" data-tab="housing-planner" role="tab" aria-selected="false" aria-controls="tab-housing-planner" onclick="switchTab(&#39;housing-planner&#39;)">
           <span data-ui=tab-icon class="tab-icon" aria-hidden="true">🏰</span>
           <span data-ui=tab-label class="tab-label">Housing Planner</span>
+        </button>
+        <button class="tab-btn skill-tool-child" data-tab="belt-planner" role="tab" aria-selected="false" aria-controls="tab-belt-planner" onclick="switchTab(&#39;belt-planner&#39;)">
+          <span data-ui=tab-icon class="tab-icon" aria-hidden="true">🧵</span>
+          <span data-ui=tab-label class="tab-label">Belt Planner</span>
         </button>
       </div>
     </div>
@@ -32647,7 +32842,7 @@ function switchTab(name) {
     btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
-  const isSkillTool = name === 'construction-village' || name === 'jewelry' || name === 'housing-planner';
+  const isSkillTool = name === 'construction-village' || name === 'jewelry' || name === 'housing-planner' || name === 'belt-planner';
   document.querySelectorAll('.skill-tools-toggle').forEach(btn => {
     btn.classList.toggle('active', isSkillTool);
   });
@@ -32666,7 +32861,7 @@ function switchTab(name) {
   });
 
   // Per-tab side effects
-  if (name === 'calculator' || name === 'planner' || name === 'gear-new' || name === 'database' || name === 'work-order' || name === 'jewelry' || name === 'construction-village' || name === 'housing-planner' || name === 'raids') {
+  if (name === 'calculator' || name === 'planner' || name === 'gear-new' || name === 'database' || name === 'work-order' || name === 'jewelry' || name === 'construction-village' || name === 'housing-planner' || name === 'belt-planner' || name === 'raids') {
     // v43.9: feeds the Start page's "Pick a tool" checklist row — see
     // iwMarkToolVisited(). Guarded because this file's IIFEs load in a
     // specific order and switchTab can theoretically fire before that
@@ -32698,6 +32893,11 @@ function switchTab(name) {
 
   if (name === 'housing-planner' && typeof window.iwHousingPlannerEnter === 'function') {
     window.iwHousingPlannerEnter();
+  }
+
+  // v7.9: Belt Planner (Skill Tools).
+  if (name === 'belt-planner' && typeof window.iwBeltPlannerEnter === 'function') {
+    window.iwBeltPlannerEnter();
   }
 
   // v7.1 — Raid Guides: (re)paint on entry so item links pick up the
@@ -33214,7 +33414,7 @@ function syncCombatLevel(val) {
         KEY,
         'iw_gem_alltiers_v1', 'iwGearExpandersV1', 'iw_gear_expanders_v1',
         'iwSocketPlanV1', 'iwPlatePlanV1', 'iwEnchantPlanV1', 'iwEnhancementRemovalPlanV1',
-        'iwVillageAddonsV1', 'iwConstructionVillageV1', 'iwHousingPlanV1',
+        'iwVillageAddonsV1', 'iwConstructionVillageV1', 'iwHousingPlanV1', 'iwBeltPlanV1',
         'iwShoppingOwned', 'iwShoppingGear',
         'iw_ui_mode_v1', 'iw_theme_v1', 'iw_skin_v1', 'iw_goalcards_v1',
         'iw-settings-open-v1', 'iwCollapseSkills', 'iwVisitedTool',
@@ -41686,6 +41886,1497 @@ function syncCombatLevel(val) {
 
 <script>
 /* ═════════════════════════════════════════════════════════════════════
+   BELT PLANNER  (v7.9, 2026-11-16)  — Skill Tools → Belt Planner
+   ─────────────────────────────────────────────────────────────────────
+   A gear planner for the two charm belts (game beta of 2026-11-15): the
+   Artisan's Belt and the Warrior's Belt. Set the Strap, Buckle, Pouches
+   and charms as they are, then change any piece and read what the belt
+   gives, the best belt the charm box can make, and what upgrades cost.
+
+   Sources (read 2026-11-16): /wiki/artisan-belt, /wiki/combat-belt and
+   /wiki/charms. items.json has only bare rows for the two belts and the
+   Safety Pin, so nothing here comes from the item database except the
+   Enchanted Belt comparison.
+
+   Rules the wiki states, and this engine uses as written:
+     charm = rarity power x tier x stat value x stitches x finish
+     then x Strap, x (1 + Buckle colour set), x (1 + family set).
+     A charm works at its own tier or the wearer's, whichever is lower.
+     The sets multiply each other: only that reproduces the wiki's
+     "finished belt" columns (39 / 34 / 57 for 2x Gather at T23/T20/T34).
+
+   What is FITTED, not stated (suite AD pins every published figure, so a
+   wiki change shows up as a failure rather than a silent drift):
+     • each stat's value (2x Gather 0.3 ... Combat XP 0.252), solved from
+       the one-Legendary and finished-belt tables;
+     • each Focus's stat per tier, from its three published tiers;
+     • part quality odds by material tier (three published columns);
+     • Overstitch chance, cost and pins past +5 (eight published levels).
+   /wiki/charms section 12 prints larger 2x Gather numbers (+8.0% for one
+   T23 Legendary) than its own section 4 and both belt pages (+4.8%). The
+   belt pages and section 4 agree with each other, so they are used.
+
+   The import reads the game's own belt response (/api/artisan-belt/v2,
+   or ?kind=combat). Its shape is taken from the game client, not from a
+   real payload, so parseGame() is tolerant: an unknown field is skipped
+   and reported, never guessed.
+
+   Controls carry no ids, so IWStore never sees them. State: iwBeltPlanV1.
+   ═════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var RARITY = [
+    { key: 'common',    name: 'Common',    power: 0.12, odds: '1 in 2',       hex: '#a3a3a3' },
+    { key: 'uncommon',  name: 'Uncommon',  power: 0.2,  odds: '1 in 4',       hex: '#4ade80' },
+    { key: 'rare',      name: 'Rare',      power: 0.3,  odds: '1 in 11',      hex: '#60a5fa' },
+    { key: 'epic',      name: 'Epic',      power: 0.45, odds: '1 in 40',      hex: '#c084fc' },
+    { key: 'legendary', name: 'Legendary', power: 0.7,  odds: '1 in 200',     hex: '#fb923c' },
+    { key: 'mythic',    name: 'Mythic',    power: 1,    odds: '1 in 10,000',  hex: '#f43f5e' },
+    { key: 'relic',     name: 'Relic',     power: 1.2,  odds: '1 in 250,001', hex: '#fde047' }
+  ];
+  var QUALITY = [
+    { key: 'normal',     name: 'Normal',     strap: 1,    two: 3, three: 6,  cap: 'rare',      hex: '#9ca3af' },
+    { key: 'fine',       name: 'Fine',       strap: 1.1,  two: 4, three: 8,  cap: 'epic',      hex: '#4ade80' },
+    { key: 'masterwork', name: 'Masterwork', strap: 1.25, two: 5, three: 12, cap: 'legendary', hex: '#60a5fa' },
+    { key: 'legendary',  name: 'Legendary',  strap: 1.4,  two: 7, three: 16, cap: 'mythic',    hex: '#fb923c' }
+  ];
+  var FINISH = [
+    { key: 'plain',     name: 'Plain',     mult: 1 },
+    { key: 'foil',      name: 'Foil',      mult: 1.1 },
+    { key: 'prismatic', name: 'Prismatic', mult: 1.25 }
+  ];
+  var COLOR = [
+    { key: 'ruby',     name: 'Ruby',     hex: '#e0115f' },
+    { key: 'sapphire', name: 'Sapphire', hex: '#1d5fd6' },
+    { key: 'emerald',  name: 'Emerald',  hex: '#2fbf71' },
+    { key: 'topaz',    name: 'Topaz',    hex: '#f5b041' }
+  ];
+  /* where: 'all' | 'gather' (gathering skills) | 'bonuscraft' (Smithing,
+     Alchemy, Construction). Keys are the game client's own stat keys. */
+  var STATS = {
+    artisan: [
+      { key: 'doubleGather', name: '2x Gather',   unit: '%', value: 0.3,  odds: 22, where: 'gather' },
+      { key: 'xpTask',       name: 'XP per task', unit: '',  value: 0.3,  odds: 22, where: 'all' },
+      { key: 'itemFind',     name: 'Item Find',   unit: '%', value: 0.2,  odds: 18, where: 'all' },
+      { key: 'craftChance',  name: 'Bonus Craft', unit: '%', value: 0.09, odds: 14, where: 'bonuscraft' },
+      { key: 'orbFind',      name: 'Orb Find',    unit: '%', value: 0.3,  odds: 12, where: 'gather' },
+      { key: 'threadFind',   name: 'Thread Find', unit: '%', value: 0.24, odds: 12, where: 'all' }
+    ],
+    combat: [
+      { key: 'combatXp',        name: 'Combat XP',        unit: '%', value: 0.252, odds: 22, where: 'all' },
+      { key: 'combatXpTask',    name: 'XP per fight',     unit: '',  value: 0.45,  odds: 22, where: 'all' },
+      { key: 'atk',             name: 'ATK',              unit: '',  value: 0.12,  odds: 9,  where: 'all' },
+      { key: 'def',             name: 'DEF',              unit: '',  value: 0.12,  odds: 9,  where: 'all' },
+      { key: 'hp',              name: 'HP',               unit: '',  value: 0.36,  odds: 7,  where: 'all' },
+      { key: 'fireResist',      name: 'Fire Resist',      unit: '',  value: 0.06,  odds: 4,  where: 'all' },
+      { key: 'frostResist',     name: 'Frost Resist',     unit: '',  value: 0.06,  odds: 4,  where: 'all' },
+      { key: 'lightningResist', name: 'Lightning Resist', unit: '',  value: 0.06,  odds: 4,  where: 'all' },
+      { key: 'crit',            name: 'Crit',             unit: '%', value: 0.03,  odds: 5,  where: 'all' },
+      { key: 'combatItemFind',  name: 'Item Find',        unit: '%', value: 0.2,   odds: 14, where: 'all' }
+    ]
+  };
+  /* Focus: stat per wearer tier on a Normal strap (x the Strap's quality). */
+  var FOCUS = {
+    artisan: [
+      { key: 'gatherer',   name: 'Gatherer',        text: 'More from every gathering action.', stats: { doubleGather: 0.5 } },
+      { key: 'crafter',    name: 'Crafter',         text: 'Free extra crafts and XP.',         stats: { craftChance: 0.2, xpTask: 0.3 } },
+      { key: 'scholar',    name: 'Scholar',         text: 'XP first, a little Item Find.',     stats: { xpTask: 0.5, itemFind: 0.2 } },
+      { key: 'prospector', name: 'Prospector',      text: 'Upgrade Orbs and 2x Gather.',       stats: { orbFind: 1, doubleGather: 0.25 } },
+      { key: 'weaver',     name: 'Weaver',          text: 'More Thread and XP.',               stats: { threadFind: 1, xpTask: 0.3 } },
+      { key: 'treasure',   name: 'Treasure Hunter', text: 'Item Find in every skill.',         stats: { itemFind: 0.45 } }
+    ],
+    combat: [
+      { key: 'brawler',   name: 'Brawler',   text: 'Hit hard, last long.',               stats: { atk: 0.6, hp: 0.6 } },
+      { key: 'guardian',  name: 'Guardian',  text: 'Armour and a bit of every resist.',  stats: { def: 0.7, fireResist: 0.2, frostResist: 0.2, lightningResist: 0.2 } },
+      { key: 'veteran',   name: 'Veteran',   text: 'Learn from every fight.',            stats: { combatXpTask: 0.5, combatXp: 0.25 } },
+      { key: 'duelist',   name: 'Duelist',   text: 'Attack and critical hits.',          stats: { atk: 0.5, crit: 0.1 } },
+      { key: 'warden',    name: 'Warden',    text: 'Built for the elemental zones.',     stats: { fireResist: 0.4, frostResist: 0.4, lightningResist: 0.4 } },
+      { key: 'plunderer', name: 'Plunderer', text: 'Loot and XP from every win.',        stats: { combatItemFind: 0.3, combatXpTask: 0.3 } }
+    ]
+  };
+  /* Families. add = flat stats the three-charm signature adds (only where
+     the wiki's wording maps onto a belt stat); addSkill limits it to one
+     skill. The rest of a signature is text. */
+  var FAMILY = [
+    { key: 'miners',     name: "Miners' Guild", belt: 'artisan', from: 'Mining',        sig: 'Mining Upgrade Orbs +15%' },
+    { key: 'green',      name: 'Green Circle',  belt: 'artisan', from: 'Herbing',       sig: '+5% Herbing XP' },
+    { key: 'woodward',   name: 'Woodward',      belt: 'artisan', from: 'Woodcutting',   sig: '+5% Woodcutting XP' },
+    { key: 'arcanum',    name: 'Arcanum',       belt: 'artisan', from: 'Spellcrafting', sig: '+5% Spellcrafting XP' },
+    { key: 'forgeborn',  name: 'Forgeborn',     belt: 'artisan', from: 'Smithing',      sig: '+1% Bonus Craft in Smithing',     add: { craftChance: 1 }, addSkill: 'smithing' },
+    { key: 'alembic',    name: 'Alembic',       belt: 'artisan', from: 'Alchemy',       sig: '+1% Bonus Craft in Alchemy',      add: { craftChance: 1 }, addSkill: 'alchemy' },
+    { key: 'gemwright',  name: 'Gemwright',     belt: 'artisan', from: 'Jewelcrafting', sig: '+5% Jewelcrafting XP' },
+    { key: 'loomhall',   name: 'Loomhall',      belt: 'artisan', from: 'Tailoring',     sig: 'Thread +10%', currencyPct: 10 },
+    { key: 'masons',     name: "Masons' Lodge", belt: 'artisan', from: 'Construction',  sig: '+1% Bonus Craft in Construction', add: { craftChance: 1 }, addSkill: 'construction' },
+    { key: 'harvest',    name: 'Harvest Feast', belt: 'artisan', from: 'Harvest Feast (November event)', sig: '+5% Item Find', add: { itemFind: 5 }, limited: true },
+    { key: 'wildlands',  name: 'Wildlands',     belt: 'combat',  from: 'Zones 1-6',     sig: '+5% Grit', currencyPct: 5 },
+    { key: 'frontier',   name: 'Frontier',      belt: 'combat',  from: 'Zones 7-12',    sig: '+2 DEF', add: { def: 2 } },
+    { key: 'ashen',      name: 'Ashen Reach',   belt: 'combat',  from: 'Zones 13-17',   sig: '+2 ATK', add: { atk: 2 } },
+    { key: 'stormbound', name: 'Stormbound',    belt: 'combat',  from: 'Zones 18-23',   sig: '+3 to every resist', add: { fireResist: 3, frostResist: 3, lightningResist: 3 } },
+    { key: 'abyssal',    name: 'Abyssal',       belt: 'combat',  from: 'Zones 24 and up', sig: '+5% Combat XP', add: { combatXp: 5 } },
+    { key: 'trial',      name: 'Trial-Forged',  belt: 'both',    from: 'The Belt Trials', sig: 'charms turn up 10% more often' },
+    { key: 'hollow',     name: 'Hollow Night',  belt: 'combat',  from: 'Hollow Night (October event)', sig: '+5% Item Find', add: { combatItemFind: 5 }, limited: true }
+  ];
+  var QUIRK = [
+    { key: 'prospectorsEye', name: "Prospector's Eye", belt: 'artisan', text: 'Gathering Upgrade Orbs +50%.' },
+    { key: 'steadyHands',    name: 'Steady Hands',     belt: 'artisan', text: 'Crafting finds rare thread and Aegis Cores 30% more often.' },
+    { key: 'tireless',       name: 'Tireless',         belt: 'both',    text: '+500 full-rate actions or wins a day for Thread or Grit.' },
+    { key: 'luckyStitch',    name: 'Lucky Stitch',     belt: 'both',    text: '+10% on every stitch.' },
+    { key: 'magpie',         name: 'Magpie',           belt: 'both',    text: 'Charms turn up 50% more often.' },
+    { key: 'collector',      name: 'Collector',        belt: 'both',    text: 'Foil and Prismatic finishes are twice as likely on charms you find.' },
+    { key: 'thrifty',        name: 'Thrifty',          belt: 'both',    text: 'Fusing and reweaving cost 25% less.' },
+    { key: 'kinship',        name: 'Kinship',          belt: 'both',    text: 'Counts as one more charm of its family (2 worn act as 3).' },
+    { key: 'chameleon',      name: 'Chameleon',        belt: 'both',    text: 'Counts as every colour for the Buckle.' },
+    { key: 'bloodthirst',    name: 'Bloodthirst',      belt: 'combat',  text: '+25% Grit.' },
+    { key: 'bulwark',        name: 'Bulwark',          belt: 'combat',  text: 'Its ATK, DEF or HP also counts in the Daily Dungeon.', coming: true },
+    { key: 'echo',           name: 'Echo',             belt: 'both',    text: 'Its stat also counts at half power on your other belt.', coming: true }
+  ];
+  /* gather: true / false, or null where the wiki does not say (Harvest
+     Mana). bonus: Bonus Craft counts (Smithing, Alchemy, Construction). */
+  var SKILL = [
+    { key: 'mining',        name: 'Mining',        prof: 'Mining',        gather: true,  bonus: false },
+    { key: 'herbing',       name: 'Herbing',       prof: 'Gathering',     gather: true,  bonus: false },
+    { key: 'woodcutting',   name: 'Woodcutting',   prof: 'Woodcutting',   gather: true,  bonus: false },
+    { key: 'spellcrafting', name: 'Spellcrafting', prof: 'Spellcrafting', gather: null,  bonus: false },
+    { key: 'smithing',      name: 'Smithing',      prof: 'Smithing',      gather: false, bonus: true },
+    { key: 'alchemy',       name: 'Alchemy',       prof: 'Alchemy',       gather: false, bonus: true },
+    { key: 'jewelcrafting', name: 'Jewelcrafting', prof: 'Jewelcrafting', gather: false, bonus: false },
+    { key: 'tailoring',     name: 'Tailoring',     prof: 'Tailoring',     gather: false, bonus: false },
+    { key: 'construction',  name: 'Construction',  prof: 'Construction',  gather: false, bonus: true }
+  ];
+  var FUSE_COST = { common: 50, uncommon: 150, rare: 400, epic: 1000 };
+  var ASCEND = { need: 9, cost: 6000 };
+  /* The wiki prints four reweave prices; Uncommon, Epic and Relic are not
+     published, so they stay absent. */
+  var REWEAVE_COST = { common: 40, rare: 250, legendary: 1500, mythic: 4000 };
+  var PART_FEE = 200, FOCUS_SWITCH = 200, MAX_TIER = 34, BOX_MAX = 150;
+  var DAILY_FULL = 1500, DAILY_REST = 0.1;
+
+  function by(list, key) { for (var i = 0; i < list.length; i++) if (list[i].key === key) return list[i]; return null; }
+  function rank(list, key) { for (var i = 0; i < list.length; i++) if (list[i].key === key) return i; return -1; }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function num(v, d) { var n = Number(v); return Number.isFinite(n) ? n : d; }
+  function clampInt(v, lo, hi, d) { var n = Math.floor(num(v, d)); return Math.max(lo, Math.min(hi, n)); }
+  function currency(kind) { return kind === 'combat' ? 'Grit' : 'Thread'; }
+  function statDef(kind, key) { return by(STATS[kind] || [], key); }
+  function families(kind) { return FAMILY.filter(function (f) { return f.belt === kind || f.belt === 'both'; }); }
+  function quirks(kind) { return QUIRK.filter(function (q) { return q.belt === kind || q.belt === 'both'; }); }
+  function hasQuirk(c, key) { return !!(c && c.quirks && c.quirks.indexOf(key) >= 0); }
+
+  /* One tier every 4 levels to tier 22 (level 85), then one every 2
+     levels to tier 34 (level 109). */
+  function tierForLevel(level) {
+    var l = Math.max(1, Math.floor(num(level, 1)));
+    var t = l <= 85 ? Math.floor((l - 1) / 4) + 1 : 22 + Math.floor((l - 85) / 2);
+    return Math.min(MAX_TIER, t);
+  }
+  function levelForTier(tier) {
+    var t = clampInt(tier, 1, MAX_TIER, 1);
+    return t <= 22 ? (t - 1) * 4 + 1 : 85 + (t - 22) * 2;
+  }
+
+  function stitchMult(n) {
+    n = Math.max(0, Math.floor(num(n, 0)));
+    return n <= 5 ? 1 + 0.1 * n : 1.5 + 0.02 * (n - 5);
+  }
+  /* The attempt that takes a charm from +(n-1) to +n. */
+  function stitchStep(n) {
+    n = Math.max(1, Math.floor(num(n, 1)));
+    if (n <= 5) return { level: n, chance: [90, 75, 60, 45, 30][n - 1], cost: 100 * n, pins: [1, 1, 2, 2, 3][n - 1], power: stitchMult(n), over: false };
+    return { level: n, chance: Math.max(5, 30 - 2 * (n - 6)), cost: Math.round(1000 * Math.pow(1.5, n - 6)), pins: Math.floor(n / 2), power: stitchMult(n), over: true };
+  }
+  /* Expected cost of stitching from +from to +to.
+     pinned  — a fail loses nothing; pays Safety Pins each attempt.
+     careful — to +5 a fail drops one stitch and each attempt costs twice.
+     gamble  — to +5 a fail destroys the charm.
+     Past +5 (Overstitch) an unpinned fail removes one overstitch level at
+     the normal price, whichever of careful / gamble was chosen. */
+  function stitchPlan(from, to, mode, opts) {
+    opts = opts || {};
+    from = Math.max(0, Math.floor(num(from, 0))); to = Math.max(from, Math.floor(num(to, from)));
+    var lucky = opts.lucky ? 10 : 0;
+    var out = { from: from, to: to, mode: mode, currency: 0, pins: 0, attempts: 0, success: 1, charmsLost: 0, steps: [] };
+    var E = [0], A = [0], n, s, p;
+    for (n = 1; n <= to; n++) {
+      s = stitchStep(n); p = Math.min(100, s.chance + lucky) / 100;
+      var cost = s.cost, drop = 0, dropA = 0;
+      if (mode === 'pinned') { E[n] = cost / p; A[n] = 1 / p; }
+      else if (mode === 'careful' || s.over) {
+        if (!s.over) cost = cost * 2;
+        // A fail drops one level: none to lose at +0, nor at +5 for Overstitch.
+        var canDrop = s.over ? (n - 1 >= 6) : (n - 1 >= 1);
+        if (canDrop) { drop = E[n - 1]; dropA = A[n - 1]; }
+        E[n] = (cost + (1 - p) * drop) / p; A[n] = (1 + (1 - p) * dropA) / p;
+      } else { E[n] = cost; A[n] = 1; }               // gamble, to +5: one try each
+      if (n > from) {
+        out.steps.push({ level: n, chance: p * 100, cost: s.cost, pins: s.pins, power: s.power });
+        if (mode === 'gamble' && !s.over) {
+          out.currency += out.success * s.cost; out.attempts += out.success; out.success *= p;
+        } else {
+          out.currency += E[n]; out.attempts += A[n];
+          if (mode === 'pinned') out.pins += s.pins / p;
+        }
+      }
+    }
+    if (mode === 'gamble' && out.success < 1) {
+      // Thread until one charm makes it, feeding identical charms in.
+      var overPart = 0, overA = 0, gPart = 0, gA = 0, surv = 1;
+      for (n = from + 1; n <= to; n++) {
+        s = stitchStep(n); p = Math.min(100, s.chance + lucky) / 100;
+        if (s.over) { overPart += E[n]; overA += A[n]; } else { gPart += surv * s.cost; gA += surv; surv *= p; }
+      }
+      out.perTry = gPart; out.charmsLost = 1 / out.success - 1;
+      out.currency = gPart / out.success + overPart; out.attempts = gA / out.success + overA;
+    }
+    return out;
+  }
+
+  /* How many charms of `from` rarity, and how much Thread or Grit, make
+     one charm of `to` rarity. Legendary to Mythic is Ascension (9, one
+     family). Nothing makes a Relic. */
+  function fuseLadder(from, to, opts) {
+    opts = opts || {};
+    var a = rank(RARITY, from), b = rank(RARITY, to);
+    if (a < 0 || b < 0 || b < a || to === 'relic') return null;
+    var off = opts.thrifty ? 0.75 : 1, need = 1, cost = 0, steps = [];
+    for (var i = b - 1; i >= a; i--) {
+      var r = RARITY[i].key, per = r === 'legendary' ? ASCEND.need : 3, each = r === 'legendary' ? ASCEND.cost : FUSE_COST[r];
+      // Thrifty names fusing and reweaving; Ascension is left at full price.
+      var price = r === 'legendary' ? each : each * off;
+      steps.unshift({ from: r, to: RARITY[i + 1].key, times: need, each: price });
+      cost += need * price; need *= per;
+    }
+    return { charms: need, cost: cost, steps: steps };
+  }
+
+  /* Part quality odds (%) for materials of a tier. Fitted to the wiki's
+     T5 / T15 / T25 columns; Fine is 25% in all three. */
+  function qualityOdds(matTier) {
+    var t = clampInt(matTier, 1, MAX_TIER, 1);
+    return { normal: 69.5 - 0.4 * t, fine: 25, masterwork: 5 + 0.3 * t, legendary: 0.5 + 0.1 * t };
+  }
+  function craftsFor(quality, matTier) {
+    var o = qualityOdds(matTier), i = rank(QUALITY, quality), p = 0;
+    if (i < 0) return null;
+    for (var k = i; k < QUALITY.length; k++) p += o[QUALITY[k].key];
+    return { chance: p, crafts: 100 / p, fee: PART_FEE * 100 / p };
+  }
+
+  /* Thread or Grit a day: 1 each for the first 1,500 actions (Tireless:
+     +500 each), then 0.1. findPct is Thread Find plus any family or quirk
+     percentage, added together. */
+  function currencyPerDay(actions, opts) {
+    opts = opts || {};
+    var a = Math.max(0, num(actions, 0)), full = DAILY_FULL + 500 * Math.max(0, num(opts.tireless, 0));
+    var raw = Math.min(a, full) + Math.max(0, a - full) * DAILY_REST;
+    return raw * (1 + Math.max(0, num(opts.findPct, 0)) / 100);
+  }
+
+  function blankBelt(kind) {
+    return { strap: 'normal', buckle: null, pouches: ['normal', 'normal', null], slots: [null, null, null],
+             focus: null, skill: 'mining', level: 50, box: [], seq: 1 };
+  }
+  function makeCharm(kind, o) {
+    o = o || {};
+    return { id: o.id || null, rarity: by(RARITY, o.rarity) ? o.rarity : 'common',
+             stat: statDef(kind, o.stat) ? o.stat : STATS[kind][0].key,
+             color: by(COLOR, o.color) ? o.color : 'ruby',
+             family: by(families(kind), o.family) ? o.family : null,
+             tier: clampInt(o.tier, 1, MAX_TIER, 1), stitch: clampInt(o.stitch, 0, 99, 0),
+             finish: by(FINISH, o.finish) ? o.finish : 'plain',
+             quirks: (o.quirks || []).filter(function (q) { return !!by(quirks(kind), q); }) };
+  }
+  function addCharm(belt, charm) { charm.id = 'c' + (belt.seq++); belt.box.push(charm); return charm; }
+  function charmById(belt, id) { for (var i = 0; i < belt.box.length; i++) if (belt.box[i].id === id) return belt.box[i]; return null; }
+  function fits(charm, pouchQuality) {
+    var q = by(QUALITY, pouchQuality);
+    return !!(q && charm && rank(RARITY, charm.rarity) <= rank(RARITY, q.cap));
+  }
+
+  /* Does this stat count in what the wearer is doing? true / false, or
+     null when the wiki does not say. */
+  function statCounts(kind, statKey, skillKey) {
+    if (kind === 'combat') return true;
+    var d = statDef(kind, statKey), s = by(SKILL, skillKey);
+    if (!d || !s || d.where === 'all') return true;
+    if (d.where === 'gather') return s.gather;
+    if (d.where === 'bonuscraft') return s.bonus;
+    return true;
+  }
+
+  function compute(kind, belt, ctx) {
+    ctx = ctx || {};
+    var tier = clampInt(ctx.tier != null ? ctx.tier : tierForLevel(belt.level), 1, MAX_TIER, 1);
+    var skill = kind === 'combat' ? 'combat' : (ctx.skill || belt.skill || 'mining');
+    var out = { kind: kind, tier: tier, skill: skill, totals: {}, charmTotals: {}, idle: {}, rows: [], focusRows: [], extraRows: [],
+                warnings: [], set: { count: 0, color: null, pct: 0 }, family: { count: 0, key: null, pct: 0, signature: null },
+                quirks: [], worn: 0, strap: 1 };
+    var strap = by(QUALITY, belt.strap);
+    if (!strap) { out.warnings.push('No Strap yet. The belt gives nothing until it has one.'); return out; }
+    out.strap = strap.strap;
+
+    var worn = [], i, c;
+    for (i = 0; i < 3; i++) {
+      c = belt.slots[i] ? charmById(belt, belt.slots[i]) : null;
+      if (!c) continue;
+      if (!belt.pouches[i]) { out.warnings.push('Pouch ' + (i + 1) + ' is not made, so its charm is not counted.'); continue; }
+      if (!fits(c, belt.pouches[i])) {
+        out.warnings.push('Pouch ' + (i + 1) + ' (' + by(QUALITY, belt.pouches[i]).name + ') holds up to ' + by(RARITY, by(QUALITY, belt.pouches[i]).cap).name +
+          ', so the ' + by(RARITY, c.rarity).name + ' charm in it is not counted.');
+        continue;
+      }
+      worn.push({ slot: i, c: c });
+    }
+    out.worn = worn.length;
+
+    // Colour set: the Buckle rewards 2 or 3 of one colour. Chameleon is every colour.
+    var buckle = by(QUALITY, belt.buckle);
+    COLOR.forEach(function (col) {
+      var n = worn.filter(function (w) { return w.c.color === col.key || hasQuirk(w.c, 'chameleon'); }).length;
+      if (n > out.set.count) { out.set.count = n; out.set.color = col.key; }
+    });
+    if (out.set.count < 2) { out.set.count = worn.length ? Math.max(1, out.set.count) : 0; }
+    if (buckle && out.set.count >= 2) out.set.pct = out.set.count >= 3 ? buckle.three : buckle.two;
+    out.set.buckle = buckle ? buckle.key : null;
+
+    // Family set: 2 worn +5%, 3 worn +10% and the signature. Kinship counts once more.
+    var fam = {};
+    worn.forEach(function (w) { if (w.c.family) fam[w.c.family] = (fam[w.c.family] || 0) + 1 + (hasQuirk(w.c, 'kinship') ? 1 : 0); });
+    Object.keys(fam).forEach(function (k) { var n = Math.min(3, fam[k]); if (n > out.family.count) { out.family.count = n; out.family.key = k; } });
+    if (out.family.count >= 2) out.family.pct = out.family.count >= 3 ? 10 : 5; else out.family.key = null;
+
+    function add(bucket, key, v) { bucket[key] = (bucket[key] || 0) + v; }
+    worn.forEach(function (w) {
+      c = w.c;
+      var d = statDef(kind, c.stat), r = by(RARITY, c.rarity), f = by(FINISH, c.finish) || FINISH[0];
+      if (!d || !r) return;
+      var eff = Math.min(c.tier, tier), base = r.power * eff * d.value;
+      var value = base * stitchMult(c.stitch) * f.mult * strap.strap * (1 + out.set.pct / 100) * (1 + out.family.pct / 100);
+      var counts = statCounts(kind, c.stat, skill);
+      out.rows.push({ slot: w.slot, id: c.id, stat: c.stat, base: base, tier: eff, capped: c.tier > tier, stitch: stitchMult(c.stitch),
+                      finish: f.mult, strap: strap.strap, setPct: out.set.pct, familyPct: out.family.pct, value: value, counts: counts });
+      if (counts === false) add(out.idle, c.stat, value); else { add(out.totals, c.stat, value); add(out.charmTotals, c.stat, value); }
+      (c.quirks || []).forEach(function (q) { if (out.quirks.indexOf(q) < 0) out.quirks.push(q); });
+    });
+
+    // Strap Focus: base stats from the wearer's tier and the Strap's quality.
+    var focus = by(FOCUS[kind], belt.focus);
+    if (focus) Object.keys(focus.stats).forEach(function (k) {
+      var v = focus.stats[k] * tier * strap.strap, counts = statCounts(kind, k, skill);
+      out.focusRows.push({ stat: k, value: v, counts: counts });
+      if (counts === false) add(out.idle, k, v); else add(out.totals, k, v);
+    });
+
+    // Family signature at three.
+    if (out.family.count >= 3) {
+      var F = by(FAMILY, out.family.key);
+      out.family.signature = F ? F.sig : null;
+      if (F && F.add && (!F.addSkill || F.addSkill === skill)) Object.keys(F.add).forEach(function (k) {
+        out.extraRows.push({ stat: k, value: F.add[k], from: F.name + ' signature' });
+        add(out.totals, k, F.add[k]);
+      });
+    }
+    return out;
+  }
+
+  /* The wiki's "finished belt": three Legendaries of one stat at +5, a
+     Legendary Strap, a three-colour set on a Legendary Buckle and a
+     family of three. No Focus. */
+  function finishedBelt(kind, statKey, tier) {
+    var b = blankBelt(kind);
+    b.strap = 'legendary'; b.buckle = 'legendary'; b.pouches = ['legendary', 'legendary', 'legendary'];
+    var fam = families(kind)[0].key;
+    for (var i = 0; i < 3; i++) b.slots[i] = addCharm(b, makeCharm(kind, { rarity: 'legendary', stat: statKey, color: 'ruby', family: fam, tier: tier, stitch: 5 })).id;
+    // A gathering skill, so every artisan stat counts; signatures add nothing here.
+    return compute(kind, b, { tier: tier, skill: kind === 'combat' ? 'combat' : '__any' }).rows
+      .reduce(function (s, r) { return s + r.value; }, 0);
+  }
+
+  /* Best charms from the box for one stat, given the pouches as made. */
+  function best(kind, belt, ctx, goal) {
+    var caps = [];
+    belt.pouches.forEach(function (q, i) { if (q) caps.push({ slot: i, rank: rank(RARITY, by(QUALITY, q).cap) }); });
+    if (!caps.length || !belt.box.length) return null;
+    caps.sort(function (a, b) { return b.rank - a.rank; });
+    var pool = belt.box.filter(function (c) { return rank(RARITY, c.rarity) <= caps[0].rank; });
+    if (pool.length > 48) {
+      var raw = function (c) { var d = statDef(kind, c.stat); return by(RARITY, c.rarity).power * c.tier * stitchMult(c.stitch) * (d ? 1 : 0); };
+      var on = pool.filter(function (c) { return c.stat === goal; }).sort(function (a, b) { return raw(b) - raw(a); }).slice(0, 40);
+      var off = pool.filter(function (c) { return c.stat !== goal; }).sort(function (a, b) { return raw(b) - raw(a); }).slice(0, 8);
+      pool = on.concat(off);
+    }
+    var trial = clone(belt), bestScore = null, bestSlots = null, bestOut = null;
+    function tryCombo(list) {
+      var sorted = list.slice().sort(function (a, b) { return rank(RARITY, b.rarity) - rank(RARITY, a.rarity); });
+      for (var k = 0; k < sorted.length; k++) if (rank(RARITY, sorted[k].rarity) > caps[k].rank) return;
+      trial.slots = [null, null, null];
+      for (k = 0; k < sorted.length; k++) trial.slots[caps[k].slot] = sorted[k].id;
+      var o = compute(kind, trial, ctx), main = o.totals[goal] || 0, side = 0;
+      o.rows.forEach(function (r) { if (r.stat !== goal && r.counts !== false) { var d = statDef(kind, r.stat); side += d ? r.value / d.value : 0; } });
+      var score = main * 1e6 + side;
+      if (bestScore == null || score > bestScore + 1e-9) { bestScore = score; bestSlots = trial.slots.slice(); bestOut = o; }
+    }
+    var size = Math.min(caps.length, pool.length), n = pool.length, a, b2, c2;
+    for (; size >= 1 && bestScore == null; size--) {
+      if (size === 1) for (a = 0; a < n; a++) tryCombo([pool[a]]);
+      else if (size === 2) for (a = 0; a < n; a++) for (b2 = a + 1; b2 < n; b2++) tryCombo([pool[a], pool[b2]]);
+      else for (a = 0; a < n; a++) for (b2 = a + 1; b2 < n; b2++) for (c2 = b2 + 1; c2 < n; c2++) tryCombo([pool[a], pool[b2], pool[c2]]);
+    }
+    return bestSlots ? { slots: bestSlots, total: bestOut.totals[goal] || 0, out: bestOut } : null;
+  }
+
+  /* Single changes ranked by what they add to one stat. Each is tried on a
+     copy of the belt through compute(), so a suggestion can never
+     disagree with the totals. */
+  function suggestions(kind, belt, ctx, goal, opts) {
+    opts = opts || {};
+    var cur = compute(kind, belt, ctx).totals[goal] || 0, list = [], cash = currency(kind);
+    var mat = opts.matTier || compute(kind, belt, ctx).tier;
+    function tryIt(label, cost, mut) {
+      var b = clone(belt); mut(b);
+      var v = compute(kind, b, ctx).totals[goal] || 0;
+      if (v - cur > 1e-6) list.push({ label: label, cost: cost, gain: v - cur, total: v, apply: mut });
+    }
+    function partCost(q) {
+      var c = craftsFor(q, mat);
+      return 'about ' + (c.crafts < 10 ? c.crafts.toFixed(1) : Math.round(c.crafts)) + ' crafts with tier ' + mat + ' materials (' + Math.round(c.fee).toLocaleString('en-US') + ' ' + cash + ' in fees, plus bars and cloth)';
+    }
+    var strapRank = rank(QUALITY, belt.strap), buckleRank = rank(QUALITY, belt.buckle);
+    QUALITY.forEach(function (q, i) {
+      if (i > strapRank) tryIt(q.name + ' Strap', partCost(q.key), function (b) { b.strap = q.key; });
+      if (i > buckleRank) tryIt(q.name + ' Buckle', partCost(q.key), function (b) { b.buckle = q.key; });
+    });
+    FOCUS[kind].forEach(function (f) {
+      if (f.key !== belt.focus) tryIt('Focus: ' + f.name, belt.focus ? FOCUS_SWITCH + ' ' + cash : 'free (first pick)', function (b) { b.focus = f.key; });
+    });
+    var bb = best(kind, belt, ctx, goal);
+    if (bb) tryIt('Wear the best charms from your box', 'free', function (b) { b.slots = bb.slots.slice(); });
+    belt.pouches.forEach(function (q, i) {
+      if (q) return;
+      tryIt('Make Pouch ' + (i + 1) + ' and fill it from your box', PART_FEE + ' ' + cash + ', plus bars and cloth', function (b) {
+        b.pouches[i] = 'normal'; var r = best(kind, b, ctx, goal); if (r) b.slots = r.slots.slice();
+      });
+    });
+    belt.slots.forEach(function (id, i) {
+      var c = id ? charmById(belt, id) : null;
+      if (!c || !belt.pouches[i]) return;
+      var name = 'Pouch ' + (i + 1) + ' charm', s = stitchStep(c.stitch + 1), r = rank(RARITY, c.rarity);
+      tryIt(name + ': stitch to +' + s.level, s.cost.toLocaleString('en-US') + ' ' + cash + ' a try, ' + s.chance + '% chance', function (b) { charmById(b, id).stitch = c.stitch + 1; });
+      if (r < rank(RARITY, 'legendary')) {
+        var up = RARITY[r + 1];
+        if (fits({ rarity: up.key }, belt.pouches[i])) tryIt(name + ': fuse up to ' + up.name, FUSE_COST[c.rarity].toLocaleString('en-US') + ' ' + cash + ' and two more ' + RARITY[r].name + ' charms', function (b) { charmById(b, id).rarity = up.key; });
+        else tryIt(name + ': fuse up to ' + up.name + ' in a better Pouch', FUSE_COST[c.rarity].toLocaleString('en-US') + ' ' + cash + ', two more ' + RARITY[r].name + ' charms and a Pouch that holds ' + up.name, function (b) {
+          charmById(b, id).rarity = up.key;
+          for (var k = 0; k < QUALITY.length; k++) if (rank(RARITY, QUALITY[k].cap) >= r + 1) { b.pouches[i] = QUALITY[k].key; break; }
+        });
+      }
+      if (c.stat !== goal) tryIt(name + ': reweave to ' + statDef(kind, goal).name,
+        (REWEAVE_COST[c.rarity] != null ? REWEAVE_COST[c.rarity].toLocaleString('en-US') + ' ' + cash + ' a try' : 'price not published for ' + RARITY[r].name) + '; the new stat is random', function (b) { charmById(b, id).stat = goal; });
+      COLOR.forEach(function (col) {
+        if (col.key !== c.color && !hasQuirk(c, 'chameleon')) tryIt(name + ': reweave to ' + col.name,
+          (REWEAVE_COST[c.rarity] != null ? REWEAVE_COST[c.rarity].toLocaleString('en-US') + ' ' + cash + ' a try' : 'price not published for ' + RARITY[r].name) + '; the new colour is random', function (b) { charmById(b, id).color = col.key; });
+      });
+    });
+    list.sort(function (a, b) { return b.gain - a.gain; });
+    return list;
+  }
+
+  /* ── The profile's belt (beltShowcase) ──────────────────────────────
+     /api/player-profile carries the belt the player is wearing (seen
+     2026-11-17): parts by label, the worn charms, the active bonuses and
+     the game's own totals. It gives each charm's finished value as text
+     ("+4.2% 2x Gather") but not its tier or family, so:
+       • the tier is solved from the value. Curtis's belt of 2026-11-17 has
+         exactly one answer (T18, T17, T19), and with it the engine gives
+         the game's 13.9% 2x Gather and 5.9 XP per task;
+       • a family set is read from `bonuses`, when one is named there.
+     Spare charms are not in the profile. */
+  var STAT_ALIAS = { 'xp/task': 'xpTask', 'xp/fight': 'combatXpTask', 'fire res': 'fireResist', 'frost res': 'frostResist',
+                     'light. res': 'lightningResist', 'lightning res': 'lightningResist' };
+  function lowText(v) { return String(v == null ? '' : v).replace(/’/g, "'").toLowerCase().trim(); }
+  function matchKey(list, v) {
+    var s = lowText(v); if (!s) return null;
+    for (var i = 0; i < list.length; i++) if (lowText(list[i].key) === s || lowText(list[i].name) === s) return list[i].key;
+    return null;
+  }
+  function statByName(kind, name) {
+    var s = lowText(name), list = STATS[kind] || [];
+    for (var i = 0; i < list.length; i++) if (lowText(list[i].name) === s) return list[i].key;
+    return STAT_ALIAS[s] && statDef(kind, STAT_ALIAS[s]) ? STAT_ALIAS[s] : null;
+  }
+  /* "+13.9% 2x Gather" → { stat: 'doubleGather', value: 13.9 } */
+  function parseStatLine(kind, text) {
+    var m = /^\s*\+?\s*([\d.,]+)\s*%?\s*(.+?)\s*$/.exec(String(text == null ? '' : text));
+    if (!m) return null;
+    var key = statByName(kind, m[2]), v = Number(m[1].replace(/,/g, ''));
+    return key && Number.isFinite(v) ? { stat: key, value: v } : null;
+  }
+  /* The tier at which this charm, on its own, shows `shown`. The highest
+     one that fits, since a charm is held to the wearer's tier. */
+  function solveTier(kind, c, shown, maxTier) {
+    var d = statDef(kind, c.stat), f = by(FINISH, c.finish) || FINISH[0];
+    var unit = by(RARITY, c.rarity).power * d.value * stitchMult(c.stitch) * f.mult, fit = [], loose = [], best = 1, err = Infinity;
+    for (var t = 1; t <= maxTier; t++) {
+      var e = Math.abs(unit * t - shown);
+      if (e <= 0.05 + 1e-9) fit.push(t);
+      if (e <= 0.5 + 1e-9) loose.push(t);
+      if (e < err) { err = e; best = t; }
+    }
+    if (fit.length) return { tier: fit[fit.length - 1], exact: fit.length === 1, ok: true };
+    if (shown >= 10 && loose.length) return { tier: loose[loose.length - 1], exact: false, ok: true };
+    return { tier: best, exact: false, ok: false };
+  }
+  function findShowcase(o) {
+    if (!o || typeof o !== 'object') return null;
+    var c = [o.beltShowcase, o.player && o.player.beltShowcase, o.profile && o.profile.beltShowcase, o];
+    for (var i = 0; i < c.length; i++) {
+      if (c[i] && typeof c[i] === 'object' && Array.isArray(c[i].parts) && Array.isArray(c[i].charms) &&
+          c[i].parts.some(function (p) { return p && p.label != null && p.slot == null; })) return c[i];
+    }
+    return null;
+  }
+  function parseShowcase(sc) {
+    var kind = /combat|warrior/i.test(String(sc.kind || '')) ? 'combat' : 'artisan';
+    var belt = blankBelt(kind), rep = { kind: kind, source: 'showcase', charms: 0, worn: 0, skipped: [], notes: [], gameTotal: null };
+    belt.strap = null; belt.buckle = null; belt.pouches = [null, null, null];
+    sc.parts.forEach(function (p) {
+      if (!p) return;
+      var l = lowText(p.label), q = matchKey(QUALITY, p.quality), m = /^pouch\s*([123])$/.exec(l);
+      if (l === 'strap') belt.strap = q; else if (l === 'buckle') belt.buckle = q; else if (m) belt.pouches[m[1] - 1] = q;
+    });
+    var tier = num(sc.tier, NaN), hasTier = Number.isFinite(tier) && tier >= 1;
+    if (hasTier) { tier = clampInt(tier, 1, MAX_TIER, 1); belt.level = levelForTier(tier); rep.wearerTier = tier; }
+    belt.focus = matchKey(FOCUS[kind], sc.focus && (sc.focus.key || sc.focus.name));
+    var list = [], off = 0, range = 0;
+    sc.charms.forEach(function (g) {
+      if (!g) return;
+      var line = parseStatLine(kind, g.stat), rar = matchKey(RARITY, g.rarity || g.rarityLabel);
+      if (!line || !rar) { rep.skipped.push((g.rarityLabel || g.rarity || '?') + ' ' + (g.stat || '?')); return; }
+      var qs = [];
+      [].concat(g.quirks || [], String(g.quirk || '').split(/\s*[,\/&]\s*/)).forEach(function (q) {
+        var key = matchKey(QUIRK, q && typeof q === 'object' ? (q.key || q.name) : q);
+        if (key && qs.indexOf(key) < 0) qs.push(key);
+      });
+      var c = makeCharm(kind, { rarity: rar, stat: line.stat, color: matchKey(COLOR, g.color), stitch: g.stitch, tier: 1,
+        finish: matchKey(FINISH, g.finish) || 'plain', family: matchKey(FAMILY, g.family || g.familyName), quirks: qs });
+      var s = solveTier(kind, c, line.value, hasTier ? tier : MAX_TIER);
+      c.tier = s.tier; if (!s.ok) off++; else if (!s.exact) range++;
+      list.push(addCharm(belt, c)); rep.charms++;
+    });
+    // Charms go into the made pouches in the order listed, unless one would not fit.
+    var made = []; belt.pouches.forEach(function (q, i) { if (q) made.push(i); });
+    var inOrder = list.every(function (c, i) { return made[i] == null || fits(c, belt.pouches[made[i]]); });
+    if (!inOrder) {
+      list.sort(function (a, b) { return rank(RARITY, b.rarity) - rank(RARITY, a.rarity); });
+      made.sort(function (a, b) { return rank(QUALITY, belt.pouches[b]) - rank(QUALITY, belt.pouches[a]); });
+    }
+    list.forEach(function (c, i) { if (made[i] != null) { belt.slots[made[i]] = c.id; rep.worn++; } });
+    // A family set is only named in `bonuses`; which charms carry it is not said.
+    (sc.bonuses || []).forEach(function (b) {
+      var m = /^\s*(\d+)\s+(.+?)\s+charms?\b/i.exec(String(b));
+      if (!m || matchKey(COLOR, m[2])) return;
+      var fam = matchKey(families(kind), m[2]), given = 0;
+      if (!fam) { rep.notes.push('A bonus was not understood: ' + String(b)); return; }
+      belt.slots.forEach(function (id) { var c = id ? charmById(belt, id) : null; if (c && given < Number(m[1]) && !c.family) { c.family = fam; given++; } });
+      if (given) rep.notes.push('The profile names the ' + by(FAMILY, fam).name + ' set but not which charms carry it, so it was put on the worn charms in order.');
+    });
+    if (off) rep.notes.push(off + ' charm' + (off === 1 ? ' shows' : 's show') + ' a value no tier reproduces, so the nearest tier was used. Check ' + (off === 1 ? 'it' : 'them') + '.');
+    if (range) rep.notes.push(range + ' charm tier' + (range === 1 ? ' is an estimate' : 's are estimates') + ': more than one tier rounds to the value shown.');
+    if (rep.skipped.length) rep.notes.push(rep.skipped.length + ' charm' + (rep.skipped.length === 1 ? ' was' : 's were') + ' skipped (unknown stat or rarity): ' + rep.skipped.slice(0, 4).join(', ') + '.');
+    // The game's own totals, to compare with.
+    var gt = {}, nums = sc.gatherNumbers || sc.combatNumbers || sc.fightNumbers;
+    if (nums && typeof nums === 'object') Object.keys(nums).forEach(function (k) {
+      var key = k === 'xpPerFight' ? 'combatXpTask' : (kind === 'combat' && k === 'itemFind' ? 'combatItemFind' : k);
+      if (statDef(kind, key) && Number.isFinite(Number(nums[k]))) gt[key] = Number(nums[k]);
+    });
+    else {
+      var groups = Array.isArray(sc.totals) ? sc.totals : [];
+      var grp = groups.filter(function (g) { return g && /gather|fight|combat/i.test(String(g.label)); })[0] || groups[0];
+      ((grp && grp.lines) || []).forEach(function (t) { var p = parseStatLine(kind, t); if (p) gt[p.stat] = p.value; });
+    }
+    if (Object.keys(gt).length) rep.gameTotal = gt;
+    return { kind: kind, belt: belt, report: rep };
+  }
+
+  /* Read the game's belt response, or a profile's beltShowcase. Tolerant
+     by design: see the header. */
+  function parseGame(input, kindHint) {
+    var obj = typeof input === 'string' ? JSON.parse(input) : input;
+    var showcase = findShowcase(obj);
+    if (showcase) return parseShowcase(showcase);
+    var st = obj && obj.state && Array.isArray(obj.state.parts) ? obj.state : obj;
+    if (!st || !Array.isArray(st.parts) || !Array.isArray(st.charms)) throw new Error('This is not a belt response: it has no parts and charms lists.');
+    var alias = { xpPerFight: 'combatXpTask' };
+    function statKey(k) { return alias[k] || k; }
+    var kind = null;
+    st.charms.forEach(function (c) {
+      var k = statKey(c && c.stat);
+      if (!kind && statDef('combat', k) && !statDef('artisan', k)) kind = 'combat';
+      if (!kind && statDef('artisan', k) && !statDef('combat', k) && k !== 'itemFind') kind = 'artisan';
+    });
+    if (!kind) kind = st.combatTotal && !st.total ? 'combat' : (kindHint === 'combat' ? 'combat' : 'artisan');
+    var belt = blankBelt(kind), rep = { kind: kind, charms: 0, worn: 0, skipped: [], notes: [], gameTotal: null };
+    belt.strap = null; belt.pouches = [null, null, null];
+    function low(v) { return String(v == null ? '' : v).toLowerCase().trim(); }
+    function match(list, v) {
+      var s = low(v); if (!s) return null;
+      for (var i = 0; i < list.length; i++) if (low(list[i].key) === s || low(list[i].name) === s) return list[i].key;
+      return null;
+    }
+    var slotOf = {};
+    st.parts.forEach(function (p) {
+      if (!p) return;
+      var q = match(QUALITY, p.quality), s = low(p.slot), m = /^pouch([123])$/.exec(s);
+      if (s === 'strap') belt.strap = q;
+      else if (s === 'buckle') belt.buckle = q;
+      else if (m) { belt.pouches[m[1] - 1] = q; if (p.charmId != null) slotOf[String(p.charmId)] = m[1] - 1; }
+    });
+    var wearerTier = num(st.wearerTier, num(st.focus && st.focus.tier, NaN));
+    st.charms.forEach(function (g) {
+      if (!g) return;
+      var k = statKey(g.stat);
+      if (kind === 'combat' && k === 'itemFind') k = 'combatItemFind';
+      var rar = match(RARITY, g.rarity);
+      if (!statDef(kind, k) || !rar) { rep.skipped.push((g.rarityLabel || g.rarity || '?') + ' ' + (g.statLabel || g.stat || '?')); return; }
+      var qs = [];
+      [].concat(g.quirks || [], g.quirkKey || [], String(g.quirkName || '').split(/\s*[,\/&]\s*/)).forEach(function (q) {
+        var key = match(QUIRK, q && typeof q === 'object' ? (q.key || q.name) : q);
+        if (key && qs.indexOf(key) < 0) qs.push(key);
+      });
+      var tier = num(g.tier, NaN);
+      if (!Number.isFinite(tier)) { tier = Number.isFinite(wearerTier) ? wearerTier : 1; rep.tierGuessed = (rep.tierGuessed || 0) + 1; }
+      var c = addCharm(belt, makeCharm(kind, { rarity: rar, stat: k, color: match(COLOR, g.color), tier: tier, stitch: g.stitch,
+        family: match(FAMILY, g.family || g.familyKey || g.familyName), finish: match(FINISH, g.finish) || 'plain', quirks: qs }));
+      rep.charms++;
+      var slot = slotOf[String(g.id)];
+      if (slot != null) { belt.slots[slot] = c.id; rep.worn++; }
+    });
+    var f = st.focus && (st.focus.current || st.focus.chosen);
+    belt.focus = match(FOCUS[kind], typeof f === 'string' ? f : null);
+    if (Number.isFinite(wearerTier)) { belt.level = levelForTier(wearerTier); rep.wearerTier = clampInt(wearerTier, 1, MAX_TIER, 1); }
+    if (rep.tierGuessed) rep.notes.push(rep.tierGuessed + ' charm' + (rep.tierGuessed === 1 ? '' : 's') + ' had no tier in the data, so your own tier was used. Check them.');
+    if (rep.skipped.length) rep.notes.push(rep.skipped.length + ' charm' + (rep.skipped.length === 1 ? ' was' : 's were') + ' skipped (unknown stat or rarity): ' + rep.skipped.slice(0, 4).join(', ') + '.');
+    var gt = kind === 'combat' ? (st.combatTotal || st.total) : st.total;
+    if (gt && typeof gt === 'object') {
+      rep.gameTotal = {};
+      Object.keys(gt).forEach(function (k) {
+        var key = statKey(k); if (kind === 'combat' && key === 'itemFind') key = 'combatItemFind';
+        if (statDef(kind, key) && Number.isFinite(Number(gt[k]))) rep.gameTotal[key] = Number(gt[k]);
+      });
+    }
+    return { kind: kind, belt: belt, report: rep };
+  }
+
+  window.iwBeltPlan = {
+    RARITY: RARITY, QUALITY: QUALITY, FINISH: FINISH, COLOR: COLOR, STATS: STATS, FOCUS: FOCUS, FAMILY: FAMILY, QUIRK: QUIRK, SKILL: SKILL,
+    FUSE_COST: FUSE_COST, ASCEND: ASCEND, REWEAVE_COST: REWEAVE_COST, PART_FEE: PART_FEE, FOCUS_SWITCH: FOCUS_SWITCH, MAX_TIER: MAX_TIER, BOX_MAX: BOX_MAX,
+    by: by, rank: rank, clone: clone, currency: currency, statDef: statDef, families: families, quirks: quirks, hasQuirk: hasQuirk,
+    tierForLevel: tierForLevel, levelForTier: levelForTier, stitchMult: stitchMult, stitchStep: stitchStep, stitchPlan: stitchPlan,
+    fuseLadder: fuseLadder, qualityOdds: qualityOdds, craftsFor: craftsFor, currencyPerDay: currencyPerDay,
+    blankBelt: blankBelt, makeCharm: makeCharm, addCharm: addCharm, charmById: charmById, fits: fits, statCounts: statCounts,
+    compute: compute, finishedBelt: finishedBelt, best: best, suggestions: suggestions, parseGame: parseGame,
+    parseShowcase: parseShowcase, findShowcase: findShowcase, parseStatLine: parseStatLine, solveTier: solveTier
+  };
+})();
+
+/* Belt Planner — the tab. Owns iwBeltPlanV1: one working belt per kind,
+   the saved "my belt" each is compared with, and the small tool inputs.
+   The pane is redrawn whole from that state after every change.
+   Layout (v7.9, simplified): a one-line header, the belt, spare charms and
+   the best upgrades. The maths, costs and import sit in closed sections. */
+(function () {
+  'use strict';
+  var B = window.iwBeltPlan, KEY = 'iwBeltPlanV1';
+  if (!B) return;
+  var state = null, flash = null, lastSuggest = [];
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /* One decimal below 100, as the profile's belt prints its totals (13.9). */
+  function fmt(v) { v = Number(v) || 0; return Math.abs(v) < 100 ? v.toFixed(1) : String(Math.round(v)); }
+  function n0(v) { return Math.round(Number(v) || 0).toLocaleString('en-US'); }
+  function n1(v) { v = Number(v) || 0; return v < 10 ? v.toFixed(1) : n0(v); }
+  function statStr(kind, key, v) { var d = B.statDef(kind, key); return '+' + fmt(v) + (d ? d.unit : '') + ' ' + (d ? d.name : key); }
+  function pane() { return document.getElementById('tab-belt-planner'); }
+  function body() { var p = pane(); return p ? p.querySelector('[data-bp="body"]') : null; }
+
+  function profileLevel(kind, skillKey) {
+    try {
+      if (typeof iwProfileBaseSkillLevel !== 'function' || !window.IWProfile) return null;
+      var s = B.by(B.SKILL, skillKey), names = kind === 'combat' ? ['Combat'] : (s ? [s.prof, s.name] : []);
+      for (var i = 0; i < names.length; i++) { var v = iwProfileBaseSkillLevel(names[i]); if (Number.isFinite(v) && v > 0) return Math.floor(v); }
+    } catch (e) {}
+    return null;
+  }
+  /* The belt a Trial chest starts you with: the belt, two pouches, a first
+     charm and a Rare Trial-Forged one. Marked as an example on screen. */
+  function trialBelt(kind) {
+    var b = B.blankBelt(kind), lv = profileLevel(kind, b.skill);
+    if (lv) b.level = lv;
+    var t = B.tierForLevel(b.level), s = B.STATS[kind];
+    b.slots[0] = B.addCharm(b, B.makeCharm(kind, { rarity: 'uncommon', stat: s[1].key, color: 'emerald', tier: t })).id;
+    b.slots[1] = B.addCharm(b, B.makeCharm(kind, { rarity: 'rare', stat: s[0].key, color: 'sapphire', family: 'trial', tier: t })).id;
+    return b;
+  }
+  function fresh() {
+    return { v: 1, kind: 'artisan', example: { artisan: true, combat: true },
+             belts: { artisan: trialBelt('artisan'), combat: trialBelt('combat') },
+             current: { artisan: null, combat: null },
+             goal: { artisan: 'doubleGather', combat: 'combatXp' },
+             ui: { edit: null, stFrom: 0, stTo: 5, stMode: 'pinned', mat: null, actions: 2500, ebelt: null, fuseTo: 'legendary',
+                   importOpen: false, mathOpen: false, costOpen: false, enchOpen: false } };
+  }
+  function load() {
+    try {
+      var s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (s && s.v === 1 && s.belts && s.belts.artisan && s.belts.combat) {
+        var f = fresh();
+        s.ui = Object.assign(f.ui, s.ui || {}); s.goal = Object.assign(f.goal, s.goal || {});
+        s.current = s.current || { artisan: null, combat: null }; s.example = s.example || {};
+        if (s.kind !== 'combat') s.kind = 'artisan';
+        return s;
+      }
+    } catch (e) {}
+    return fresh();
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function belt() { return state.belts[state.kind]; }
+  function ctx(b) { b = b || belt(); return { tier: B.tierForLevel(b.level), skill: b.skill }; }
+  function touched() { state.example[state.kind] = false; }
+
+  function options(list, value, labeller) {
+    return list.map(function (o) {
+      return '<option value="' + esc(o.key) + '"' + (o.key === value ? ' selected' : '') + '>' + esc(labeller ? labeller(o) : o.name) + '</option>';
+    }).join('');
+  }
+  function gem(c) {
+    var col = B.by(B.COLOR, c.color), r = B.by(B.RARITY, c.rarity);
+    return '<span class="bp-gem' + (c.finish !== 'plain' ? ' bp-gem-' + esc(c.finish) : '') + '" style="--bp-gem:' + (col ? col.hex : '#888') + ';--bp-rar:' + (r ? r.hex : '#888') + '" aria-hidden="true"></span>';
+  }
+  function charmName(kind, c) {
+    return B.by(B.RARITY, c.rarity).name + ' ' + B.by(B.COLOR, c.color).name + ' ' + B.statDef(kind, c.stat).name;
+  }
+  function charmMeta(c) {
+    var bits = ['T' + c.tier];
+    if (c.stitch) bits.push('+' + c.stitch);
+    var F = B.by(B.FAMILY, c.family); if (F) bits.push(F.name);
+    if (c.finish !== 'plain') bits.push(B.by(B.FINISH, c.finish).name);
+    (c.quirks || []).forEach(function (q) { var Q = B.by(B.QUIRK, q); if (Q) bits.push('✦ ' + Q.name); });
+    return bits.join(' · ');
+  }
+  /* One charm on its own at the wearer's tier: no Strap, Buckle or family. */
+  function alone(kind, c, tier) {
+    var d = B.statDef(kind, c.stat), f = B.by(B.FINISH, c.finish) || B.FINISH[0];
+    return B.by(B.RARITY, c.rarity).power * Math.min(c.tier, tier) * d.value * B.stitchMult(c.stitch) * f.mult;
+  }
+  function slotOfCharm(b, id) { return b.slots.indexOf(id); }
+  function fold(key, title, inner) {
+    return '<details class="bp-fold" data-bp-details="' + key + '"' + (state.ui[key] ? ' open' : '') + '><summary>' + title + '</summary><div class="bp-stack">' + inner + '</div></details>';
+  }
+
+  /* ── header ───────────────────────────────────────────────────────── */
+  function topBar(o) {
+    var k = state.kind, b = belt(), pl = profileLevel(k, b.skill);
+    var h = '<div class="bp-top"><div class="bp-kinds" role="group" aria-label="Which belt">' +
+      [['artisan', "🧵 Artisan's"], ['combat', "⚔️ Warrior's"]].map(function (x) {
+        return '<button type="button" class="bp-kind" data-bp-act="kind" data-a="' + x[0] + '" aria-pressed="' + (k === x[0]) + '">' + x[1] + '</button>';
+      }).join('') + '</div>';
+    if (k === 'artisan') h += '<label class="bp-f"><span>Skill</span><select data-bp-f="skill" aria-label="Skill you are doing">' + options(B.SKILL, b.skill) + '</select></label>';
+    h += '<label class="bp-f bp-f-s"><span>' + (k === 'combat' ? 'Combat level' : 'Level') + '</span><input type="number" min="1" max="120" step="1" value="' + esc(b.level) + '" data-bp-f="level" aria-label="Level"></label>' +
+      '<span class="bp-tier" title="A charm never works above your tier. One tier every 4 levels to level 85, then one every 2.">Tier ' + o.tier + '</span>';
+    if (pl && pl !== b.level) h += '<button type="button" class="gut-btn" data-bp-act="use-profile">Use my level (' + pl + ')</button>';
+    h += '</div>';
+    if (flash) h += '<div class="bp-flash" data-state="' + esc(flash.state) + '" role="status">' + flash.html + '</div>';
+    else if (state.example[k]) h += '<p class="bp-muted">This is an example belt. Set yours up below, or import it at the bottom of the page.</p>';
+    return h;
+  }
+
+  /* ── the charm editor (one at a time) ─────────────────────────────── */
+  function editor(c) {
+    var k = state.kind, id = ' data-id="' + c.id + '"';
+    var qn = (c.quirks || []).length;
+    return '<div class="bp-edit"><div class="bp-row">' +
+      '<label class="bp-f"><span>Rarity</span><select data-bp-f="c.rarity"' + id + '>' + options(B.RARITY, c.rarity) + '</select></label>' +
+      '<label class="bp-f"><span>Stat</span><select data-bp-f="c.stat"' + id + '>' + options(B.STATS[k], c.stat) + '</select></label>' +
+      '<label class="bp-f"><span>Colour</span><select data-bp-f="c.color"' + id + '>' + options(B.COLOR, c.color) + '</select></label>' +
+      '<label class="bp-f"><span>Family</span><select data-bp-f="c.family"' + id + '><option value="">None</option>' + options(B.families(k), c.family) + '</select></label>' +
+      '<label class="bp-f bp-f-s"><span>Tier</span><input type="number" min="1" max="' + B.MAX_TIER + '" value="' + c.tier + '" data-bp-f="c.tier"' + id + '></label>' +
+      '<label class="bp-f bp-f-s"><span>Stitches</span><input type="number" min="0" max="99" value="' + c.stitch + '" data-bp-f="c.stitch"' + id + '></label>' +
+      '<label class="bp-f"><span>Finish</span><select data-bp-f="c.finish"' + id + '>' + options(B.FINISH, c.finish) + '</select></label></div>' +
+      '<details class="bp-more"' + (qn ? ' open' : '') + '><summary>Quirks' + (qn ? ' (' + qn + ')' : '') + '</summary><div class="bp-quirks">' + B.quirks(k).map(function (q) {
+        return '<label class="bp-check" title="' + esc(q.text) + '"><input type="checkbox" data-bp-f="c.quirk"' + id + ' data-q="' + q.key + '"' + (B.hasQuirk(c, q.key) ? ' checked' : '') + '> ' + esc(q.name) + '</label>';
+      }).join('') + '</div></details>' +
+      '<div class="bp-row"><button type="button" class="gut-btn bp-mini" data-bp-act="dup" data-a="' + c.id + '">Copy</button>' +
+      '<button type="button" class="gut-btn bp-mini" data-bp-act="del" data-a="' + c.id + '">Delete</button>' +
+      '<button type="button" class="gut-btn bp-mini" data-bp-act="edit" data-a="">Done</button></div></div>';
+  }
+
+  /* ── the belt ─────────────────────────────────────────────────────── */
+  function beltPanel(o, base) {
+    var k = state.kind, b = belt();
+    var strap = B.by(B.QUALITY, b.strap), focus = B.by(B.FOCUS[k], b.focus);
+    var h = '<div class="panel"><div class="panel-head"><span class="dot purple"></span>Your belt</div><div class="panel-body bp-stack">';
+    h += '<div class="bp-belt"><div class="bp-strap">' +
+      '<label class="bp-f"><span>Strap</span><select data-bp-f="strap" aria-label="Strap quality"><option value="">Not made</option>' + options(B.QUALITY, b.strap, function (q) { return q.name + ' · charms x' + q.strap; }) + '</select></label>' +
+      '<label class="bp-f"><span>Focus</span><select data-bp-f="focus" aria-label="Strap Focus"><option value="">None</option>' + options(B.FOCUS[k], b.focus) + '</select></label>' +
+      (focus && strap ? '<span class="bp-gives">' + esc(o.focusRows.map(function (r) { return statStr(k, r.stat, r.value); }).join(', ')) + '</span>' : '') +
+      '</div><div class="bp-slots">';
+    function pouch(i) {
+      var q = B.by(B.QUALITY, b.pouches[i]), c = b.slots[i] ? B.charmById(b, b.slots[i]) : null, row = null;
+      o.rows.forEach(function (r) { if (r.slot === i) row = r; });
+      var s = '<div class="bp-slot' + (q ? '' : ' bp-slot-off') + '" style="--bp-rar:' + (c ? B.by(B.RARITY, c.rarity).hex : 'transparent') + '"><div class="bp-slot-name">Pouch ' + (i + 1) + '</div>' +
+        '<select data-bp-f="pouch" data-i="' + i + '" aria-label="Pouch ' + (i + 1) + ' quality"><option value="">Not made</option>' +
+        options(B.QUALITY, b.pouches[i], function (x) { return x.name + ' · up to ' + B.by(B.RARITY, x.cap).name; }) + '</select>';
+      if (q) {
+        s += '<select data-bp-f="slot" data-i="' + i + '" aria-label="Charm in Pouch ' + (i + 1) + '"><option value="">Empty</option>' +
+          b.box.filter(function (x) { return B.fits(x, b.pouches[i]) || x.id === b.slots[i]; }).map(function (x) {
+            return '<option value="' + x.id + '"' + (x.id === b.slots[i] ? ' selected' : '') + '>' + esc(charmName(k, x) + ' T' + x.tier + (x.stitch ? ' +' + x.stitch : '')) + '</option>';
+          }).join('') + '</select>';
+        if (c) s += '<button type="button" class="bp-slot-charm" data-bp-act="edit" data-a="' + (state.ui.edit === c.id ? '' : c.id) + '" title="Change this charm">' + gem(c) +
+          '<span>' + (row ? esc(statStr(k, c.stat, row.value)) : 'Not counted') + (row && row.counts === false ? '<small>not counted in ' + esc(B.by(B.SKILL, b.skill).name) + '</small>' : '') + '</span></button>';
+      }
+      return s + '</div>';
+    }
+    var bq = B.by(B.QUALITY, b.buckle), colName = o.set.color ? B.by(B.COLOR, o.set.color).name : '';
+    var buckle = '<div class="bp-slot bp-buckle' + (bq ? '' : ' bp-slot-off') + '"><div class="bp-slot-name">Buckle</div>' +
+      '<select data-bp-f="buckle" aria-label="Buckle quality"><option value="">Not made</option>' + options(B.QUALITY, b.buckle, function (x) { return x.name + ' · +' + x.two + '% / +' + x.three + '%'; }) + '</select>' +
+      '<div class="bp-slot-live" title="The Buckle rewards 2 or 3 charms of one colour.">' + (o.set.pct ? o.set.count + ' ' + esc(colName) + ': +' + o.set.pct + '%' : 'No colour match') + '</div></div>';
+    h += pouch(0) + buckle + pouch(1) + pouch(2) + '</div></div>';
+
+    var ed = state.ui.edit ? B.charmById(b, state.ui.edit) : null;
+    if (ed && slotOfCharm(b, ed.id) >= 0) h += editor(ed);
+
+    var keys = B.STATS[k].map(function (d) { return d.key; }).filter(function (key) {
+      return o.totals[key] || o.idle[key] || (base && base.totals[key]);
+    });
+    if (!keys.length) h += '<p class="bp-muted">This belt gives nothing yet. Make a Strap, pick a Focus and put a charm in a Pouch.</p>';
+    else {
+      h += '<div class="bp-tiles">';
+      keys.forEach(function (key) {
+        var d = B.statDef(k, key), v = o.totals[key] || 0, idle = o.idle[key] || 0, delta = base ? v - (base.totals[key] || 0) : 0;
+        h += '<div class="bp-tile' + (!v && idle ? ' bp-tile-idle' : '') + '"><div class="bp-tile-label">' + esc(d.name) + '</div><div class="bp-tile-val">+' + fmt(v) + d.unit + '</div>' +
+          (Math.abs(delta) > 0.0499 ? '<div class="bp-tile-delta" data-dir="' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '▲ +' : '▼ ') + fmt(delta) + d.unit + '</div>' : '') +
+          (idle ? '<div class="bp-tile-sub">+' + fmt(idle) + d.unit + ' not counted in ' + esc(B.by(B.SKILL, b.skill).name) + '</div>' : '') + '</div>';
+      });
+      h += '</div>';
+    }
+    var lines = [];
+    if (o.family.pct) lines.push(o.family.count + ' ' + esc(B.by(B.FAMILY, o.family.key).name) + ': +' + o.family.pct + '%' + (o.family.signature ? ' and ' + esc(o.family.signature) : ''));
+    o.quirks.forEach(function (q) { var Q = B.by(B.QUIRK, q); lines.push('<span title="' + esc(Q.text + (Q.coming ? ' (not live yet)' : '')) + '">✦ ' + esc(Q.name) + '</span>'); });
+    if (lines.length) h += '<p class="bp-muted">' + lines.join(' · ') + '</p>';
+    o.warnings.forEach(function (w) { h += '<div class="bp-warn">' + esc(w) + '</div>'; });
+    h += '<div class="bp-row"><button type="button" class="btn-primary" data-bp-act="save-current" title="Later changes show as a difference from this belt.">Save as my belt</button>' +
+      (state.current[k] ? '<button type="button" class="gut-btn" data-bp-act="revert">Undo changes</button>' : '') + '</div>';
+    return h + '</div></div>';
+  }
+
+  /* ── spare charms ─────────────────────────────────────────────────── */
+  function sparePanel(o) {
+    var k = state.kind, b = belt(), spare = b.box.filter(function (c) { return slotOfCharm(b, c.id) < 0; });
+    var h = '<div class="panel"><div class="panel-head"><span class="dot amber"></span>Spare charms <span class="bp-count">' + spare.length + '</span></div><div class="panel-body bp-stack">';
+    if (spare.length) {
+      h += '<div class="bp-list">';
+      spare.forEach(function (c) {
+        var d = B.statDef(k, c.stat), open = state.ui.edit === c.id;
+        h += '<div class="bp-item">' + gem(c) + '<div class="bp-item-main"><strong>' + esc(charmName(k, c)) + '</strong><span>' + esc(charmMeta(c)) + '</span></div>' +
+          '<span class="bp-item-val">+' + fmt(alone(k, c, o.tier)) + d.unit + '</span>' +
+          '<button type="button" class="gut-btn bp-mini" data-bp-act="wear" data-a="' + c.id + '">Wear</button>' +
+          '<button type="button" class="gut-btn bp-mini" data-bp-act="edit" data-a="' + (open ? '' : c.id) + '" aria-expanded="' + open + '">' + (open ? 'Close' : 'Edit') + '</button></div>' +
+          (open ? editor(c) : '');
+      });
+      h += '</div>';
+    }
+    h += '<div class="bp-row"><button type="button" class="gut-btn" data-bp-act="add">+ Add a charm</button></div>';
+    return h + '</div></div>';
+  }
+
+  /* ── best upgrades ────────────────────────────────────────────────── */
+  function upgradePanel(o) {
+    var k = state.kind, b = belt(), goal = state.goal[k], d = B.statDef(k, goal);
+    var h = '<div class="panel"><div class="panel-head"><span class="dot"></span>Best upgrades</div><div class="panel-body bp-stack">' +
+      '<div class="bp-row"><label class="bp-f"><span>I want more</span><select data-bp-f="goal" aria-label="Stat to improve">' + options(B.STATS[k], goal) + '</select></label></div>';
+    if (B.statCounts(k, goal, b.skill) === false) return h + '<div class="bp-warn">' + esc(d.name) + ' does not count in ' + esc(B.by(B.SKILL, b.skill).name) + '. Pick another skill at the top.</div></div></div>';
+    var fin = B.finishedBelt(k, goal, o.tier), mine = o.charmTotals[goal] || 0, pct = fin > 0 ? Math.min(100, mine / fin * 100) : 0;
+    h += '<div class="bp-meter" title="A finished belt: three Legendaries of this stat at +5, a Legendary Strap, three of a colour on a Legendary Buckle and three of a family. Mythics and Overstitch go past it."><div class="bp-meter-top"><span>Your charms: <strong>+' + fmt(mine) + d.unit + '</strong></span><span>Finished belt at T' + o.tier + ': +' + fmt(fin) + d.unit + '</span></div>' +
+      '<div class="bp-meter-bar"><span style="width:' + pct.toFixed(1) + '%"></span></div></div>';
+    lastSuggest = B.suggestions(k, b, ctx(), goal, { matTier: state.ui.mat || o.tier });
+    if (!lastSuggest.length) h += '<p class="bp-muted">No single change raises ' + esc(d.name) + ' from here.</p>';
+    else {
+      h += '<div class="bp-list">';
+      lastSuggest.slice(0, 6).forEach(function (s, i) {
+        h += '<div class="bp-item"><div class="bp-item-main"><strong>' + esc(s.label) + '</strong><span>' + esc(s.cost) + '</span></div>' +
+          '<span class="bp-item-val bp-up">+' + (s.gain < 0.05 ? s.gain.toFixed(2) : fmt(s.gain)) + d.unit + '</span>' +
+          '<button type="button" class="gut-btn bp-mini" data-bp-act="try" data-a="' + i + '">Try</button></div>';
+      });
+      h += '</div>';
+    }
+    return h + '</div></div>';
+  }
+
+  /* ── closed sections ──────────────────────────────────────────────── */
+  function enchantedBelt(level) {
+    try {
+      var list = (typeof ITEM_DB !== 'undefined' && ITEM_DB) || [], name = 'Enchanted Belt Lv. ' + level;
+      for (var i = 0; i < list.length; i++) if (list[i] && list[i].name === name) return list[i];
+    } catch (e) {}
+    return null;
+  }
+  function profileBeltLevel() {
+    try {
+      var eq = window.IWProfile && window.IWProfile.equipped, n = eq && eq.belt && eq.belt.name, m = /^Enchanted Belt Lv\.\s*(\d+)$/.exec(n || '');
+      return m ? Number(m[1]) : null;
+    } catch (e) { return null; }
+  }
+  function enchFold(o) {
+    var k = state.kind, lv = state.ui.ebelt || profileBeltLevel() || 1, E = enchantedBelt(lv);
+    var h = '<div class="bp-row"><label class="bp-f bp-f-s"><span>Its level</span><input type="number" min="1" max="50" value="' + lv + '" data-bp-f="ebelt"></label></div>';
+    if (!E) return h + '<p class="bp-muted">That level is not in the item data.</p>';
+    h += '<div class="bp-scroll"><table class="bp-table"><thead><tr><th>Stat</th><th>Enchanted Belt</th><th>This belt</th><th>Swapping gives</th></tr></thead><tbody>';
+    [['ATK', E.atk, 'atk'], ['DEF', E.def, 'def'], ['HP', E.hp, 'hp'], ['XP per fight', E.xpPerTask, 'combatXpTask']].forEach(function (p) {
+      var e = Number(p[1]) || 0, w = o.totals[p[2]] || 0, dlt = w - e;
+      h += '<tr><td>' + p[0] + '</td><td>+' + fmt(e) + '</td><td>+' + fmt(w) + '</td><td class="' + (dlt >= 0 ? 'bp-up' : 'bp-down') + '">' + (dlt >= 0 ? '+' : '') + fmt(dlt) + '</td></tr>';
+    });
+    var only = B.STATS.combat.filter(function (d) { return ['atk', 'def', 'hp', 'combatXpTask'].indexOf(d.key) < 0 && o.totals[d.key]; }).map(function (d) { return statStr(k, d.key, o.totals[d.key]); });
+    return h + '</tbody></table></div><p class="bp-muted">They share one belt slot.' + (only.length ? ' Only this belt gives ' + esc(only.join(', ')) + '.' : '') + '</p>';
+  }
+
+  function mathFold(o) {
+    var k = state.kind, b = belt(), h = '';
+    if (!(o.rows.length || o.focusRows.length || o.extraRows.length)) return '<p class="bp-muted">Nothing on the belt yet.</p>';
+    h += '<div class="bp-scroll"><table class="bp-table"><thead><tr><th>From</th><th>Charm</th><th>Stitches</th><th>Finish</th><th>Strap</th><th>Colour</th><th>Family</th><th>Gives</th></tr></thead><tbody>';
+    o.rows.forEach(function (r) {
+      var c = B.charmById(b, r.id), d = B.statDef(k, r.stat);
+      h += '<tr><td>Pouch ' + (r.slot + 1) + '</td><td>' + r.base.toFixed(2) + d.unit + ' at T' + r.tier + (r.capped ? ' (charm is T' + c.tier + ')' : '') + '</td><td>x' + r.stitch.toFixed(2) + '</td><td>x' + r.finish + '</td><td>x' + r.strap + '</td><td>+' + r.setPct + '%</td><td>+' + r.familyPct + '%</td>' +
+        '<td><strong>' + esc(statStr(k, r.stat, r.value)) + '</strong></td></tr>';
+    });
+    o.focusRows.forEach(function (r) {
+      h += '<tr><td>Focus</td><td colspan="3">T' + o.tier + ' x ' + B.by(B.FOCUS[k], b.focus).stats[r.stat] + '</td><td>x' + o.strap + '</td><td colspan="2"></td><td><strong>' + esc(statStr(k, r.stat, r.value)) + '</strong></td></tr>';
+    });
+    o.extraRows.forEach(function (r) { h += '<tr><td colspan="7">' + esc(r.from) + '</td><td><strong>' + esc(statStr(k, r.stat, r.value)) + '</strong></td></tr>'; });
+    return h + '</tbody></table></div><p class="bp-muted">Each stat\'s value is worked back from the wiki\'s tables, and matches all of them.</p>';
+  }
+
+  function costFold(o) {
+    var k = state.kind, b = belt(), cash = B.currency(k), u = state.ui;
+    var lucky = o.quirks.indexOf('luckyStitch') >= 0, thrifty = o.quirks.indexOf('thrifty') >= 0;
+    var worn = b.slots.map(function (id) { return id ? B.charmById(b, id) : null; }).filter(Boolean);
+    var tireless = worn.filter(function (c) { return B.hasQuirk(c, 'tireless'); }).length;
+    var findPct = (k === 'artisan' ? (o.totals.threadFind || 0) : 0);
+    if (o.family.count >= 3) { var F = B.by(B.FAMILY, o.family.key); if (F && F.currencyPct) findPct += F.currencyPct; }
+    if (k === 'combat' && o.quirks.indexOf('bloodthirst') >= 0) findPct += 25;
+    var perDay = B.currencyPerDay(u.actions, { findPct: findPct, tireless: tireless });
+    var days = function (v) { return perDay > 0 ? n1(v / perDay) : ''; };
+
+    var h = '<h3 class="bp-h3">' + cash + ' a day</h3><div class="bp-row"><label class="bp-f"><span>' + (k === 'combat' ? 'Fights won a day' : 'Actions a day') + '</span><input type="number" min="0" step="100" value="' + esc(u.actions) + '" data-bp-f="actions"></label>' +
+      '<span class="bp-tier">' + n0(perDay) + ' ' + cash + '</span></div>' +
+      (findPct ? '<p class="bp-muted">Includes +' + fmt(findPct) + '% from this belt. The wiki does not say how these bonuses stack, so they are added.</p>' : '');
+
+    var plan = B.stitchPlan(u.stFrom, u.stTo, u.stMode, { lucky: lucky });
+    h += '<h3 class="bp-h3">Stitching a charm</h3><div class="bp-row">' +
+      '<label class="bp-f bp-f-s"><span>From +</span><input type="number" min="0" max="60" value="' + esc(u.stFrom) + '" data-bp-f="stFrom"></label>' +
+      '<label class="bp-f bp-f-s"><span>To +</span><input type="number" min="1" max="60" value="' + esc(u.stTo) + '" data-bp-f="stTo"></label>' +
+      '<label class="bp-f"><span>If it fails</span><select data-bp-f="stMode">' + options([{ key: 'pinned', name: 'Nothing is lost (Safety Pins)' }, { key: 'careful', name: 'Drops one stitch (costs double)' }, { key: 'gamble', name: 'Charm is destroyed' }], u.stMode) + '</select></label></div>';
+    if (plan.to > plan.from) {
+      h += '<div class="bp-tiles"><div class="bp-tile"><div class="bp-tile-label">' + cash + '</div><div class="bp-tile-val">' + n0(plan.currency) + '</div><div class="bp-tile-sub">' + (perDay > 0 ? days(plan.currency) + ' days' : '') + '</div></div>';
+      if (u.stMode === 'pinned') h += '<div class="bp-tile"><div class="bp-tile-label">Safety Pins</div><div class="bp-tile-val">' + n1(plan.pins) + '</div></div>';
+      if (u.stMode === 'gamble' && plan.success < 1) h += '<div class="bp-tile"><div class="bp-tile-label">Chance it survives</div><div class="bp-tile-val">' + (plan.success * 100).toFixed(1) + '%</div><div class="bp-tile-sub">about ' + n1(plan.charmsLost) + ' charms lost first</div></div>';
+      h += '<div class="bp-tile"><div class="bp-tile-label">Charm power</div><div class="bp-tile-val">x' + B.stitchMult(plan.to).toFixed(2) + '</div></div></div>';
+    }
+    h += '<p class="bp-muted">Averages. +10% a stitch to +5, then +2% a level with no cap.' + (lucky ? ' Lucky Stitch is counted as +10 points of chance.' : '') + '</p>';
+
+    var to = B.by(B.RARITY, u.fuseTo) && u.fuseTo !== 'relic' && u.fuseTo !== 'common' ? u.fuseTo : 'legendary';
+    h += '<h3 class="bp-h3">Fusing</h3><div class="bp-row"><label class="bp-f"><span>To make one</span><select data-bp-f="fuseTo">' + options(B.RARITY.filter(function (r) { return r.key !== 'common' && r.key !== 'relic'; }), to) + '</select></label></div>' +
+      '<div class="bp-scroll"><table class="bp-table"><thead><tr><th>From</th><th>Charms</th><th>' + cash + '</th><th>Days</th></tr></thead><tbody>';
+    B.RARITY.forEach(function (r, i) {
+      if (i >= B.rank(B.RARITY, to)) return;
+      var L = B.fuseLadder(r.key, to, { thrifty: thrifty });
+      h += '<tr><td>' + r.name + '</td><td>' + n0(L.charms) + '</td><td>' + n0(L.cost) + '</td><td>' + days(L.cost) + '</td></tr>';
+    });
+    h += '</tbody></table></div><p class="bp-muted">Three make one of the next rarity. A Mythic takes nine Legendaries of one family.</p>';
+
+    var mat = u.mat || o.tier, odds = B.qualityOdds(mat);
+    h += '<h3 class="bp-h3">Crafting a Strap, Buckle or Pouch</h3><div class="bp-row"><label class="bp-f bp-f-s"><span>Material tier</span><input type="number" min="1" max="' + B.MAX_TIER + '" value="' + mat + '" data-bp-f="mat"></label></div>' +
+      '<div class="bp-scroll"><table class="bp-table"><thead><tr><th>Quality</th><th>Chance</th><th>Crafts to get it or better</th><th>' + cash + '</th></tr></thead><tbody>' +
+      B.QUALITY.map(function (q) { var c = B.craftsFor(q.key, mat); return '<tr><td>' + q.name + '</td><td>' + odds[q.key].toFixed(1) + '%</td><td>' + n1(c.crafts) + '</td><td>' + n0(c.fee) + '</td></tr>'; }).join('') +
+      '</tbody></table></div><p class="bp-muted">' + B.PART_FEE + ' ' + cash + ' a craft, plus bars and cloth. Odds between the wiki\'s example tiers (5, 15, 25) are estimated.</p>';
+    return h;
+  }
+
+  function importFold() {
+    var k = state.kind, url = 'idleworlds.com/api/artisan-belt/v2' + (k === 'combat' ? '?kind=combat' : '');
+    return (profileShowcase()
+        ? '<p class="bp-muted">The belt you are wearing comes in with your profile import and is read here automatically. Spare charms are not in the profile.</p>' +
+          '<div class="bp-row"><button type="button" class="btn-primary" data-bp-act="import-profile">Reload the belt from my profile</button></div>'
+        : '<p class="bp-muted">Import your profile on the Start tab while wearing the belt, and it is read here automatically.</p>') +
+      '<p class="bp-muted">For the full charm box: log in to the game, open <a href="https://' + url + '" target="_blank" rel="noopener">' + url + '</a>, copy the whole page and paste it here. It stays on this device.</p>' +
+      '<textarea rows="3" spellcheck="false" data-bp="paste" aria-label="Belt data from the game" placeholder="Paste here"></textarea>' +
+      '<div class="bp-row"><button type="button" class="btn-primary" data-bp-act="import-paste">Read my belt</button>' +
+      '<button type="button" class="gut-btn" data-bp-act="import-fetch" title="Only works when this page is on idleworlds.com">Load it for me</button></div>' +
+      '<div class="bp-row"><button type="button" class="gut-btn bp-mini" data-bp-act="preset" data-a="trial">Start over with a new belt</button>' +
+      '<button type="button" class="gut-btn bp-mini" data-bp-act="preset" data-a="finished">Show a finished belt at my tier</button></div>';
+  }
+
+  function render() {
+    var el = body(); if (!el) return;
+    var k = state.kind, b = belt(), c = ctx();
+    var o = B.compute(k, b, c), base = state.current[k] ? B.compute(k, state.current[k], c) : null;
+    el.innerHTML = topBar(o) + beltPanel(o, base) + sparePanel(o) + upgradePanel(o) +
+      (k === 'combat' ? fold('enchOpen', 'Compare with my Enchanted Belt', enchFold(o)) : '') +
+      fold('costOpen', 'Costs and odds', costFold(o)) +
+      fold('mathOpen', 'How the numbers are made', mathFold(o)) +
+      fold('importOpen', 'Import my belt or start over', importFold());
+  }
+  function commit() { save(); render(); }
+
+  /* ── actions ──────────────────────────────────────────────────────── */
+  function wear(id) {
+    var b = belt(), c = B.charmById(b, id), i;
+    if (!c) return;
+    for (i = 0; i < 3; i++) if (b.pouches[i] && !b.slots[i] && B.fits(c, b.pouches[i])) { b.slots[i] = id; return; }
+    var o = B.compute(state.kind, b, ctx()), worst = -1, low = Infinity;
+    for (i = 0; i < 3; i++) {
+      if (!b.pouches[i] || !B.fits(c, b.pouches[i])) continue;
+      var v = 0; o.rows.forEach(function (r) { if (r.slot === i) { var d = B.statDef(state.kind, r.stat); v = r.value / d.value; } });
+      if (v < low) { low = v; worst = i; }
+    }
+    if (worst >= 0) b.slots[worst] = id;
+    else flash = { state: 'warn', html: 'No Pouch holds a ' + esc(B.by(B.RARITY, c.rarity).name) + ' charm. Raise a Pouch\'s quality first.' };
+  }
+  /* The wearer's skill and level for an imported belt: the level the
+     profile gives, in a skill whose tier is the one the game used. */
+  function placeWearer(k, nb, old, tier) {
+    if (k === 'artisan') nb.skill = old.skill;
+    if (tier == null) { nb.level = old.level; return; }
+    // The skill already picked comes first and wins; otherwise the highest.
+    var keys = k === 'combat' ? ['combat'] : [old.skill].concat(B.SKILL.map(function (s) { return s.key; })), pick = null;
+    keys.forEach(function (key) {
+      var lv = profileLevel(k, key);
+      if (!lv || B.tierForLevel(lv) !== tier) return;
+      if (!pick || (pick.key !== old.skill && lv > pick.lv)) pick = { key: key, lv: lv };
+    });
+    if (pick) { nb.level = pick.lv; if (k === 'artisan') nb.skill = pick.key; }
+    else if (B.tierForLevel(old.level) === tier) nb.level = old.level;
+  }
+  function applyImport(text) {
+    var r = B.parseGame(text, state.kind), k = r.kind, old = state.belts[k], fromProfile = r.report.source === 'showcase';
+    placeWearer(k, r.belt, old, r.report.wearerTier == null ? null : r.report.wearerTier);
+    // The profile lists only the worn charms, so spares entered here are kept.
+    if (fromProfile && !state.example[k]) old.box.forEach(function (c) { if (old.slots.indexOf(c.id) < 0 && r.belt.box.length < B.BOX_MAX) B.addCharm(r.belt, B.clone(c)); });
+    state.kind = k; state.belts[k] = r.belt; state.current[k] = B.clone(r.belt); state.example[k] = false; state.ui.edit = null;
+    var msg = (fromProfile ? 'Read from your profile: ' : 'Read your ') + (k === 'combat' ? "Warrior's" : "Artisan's") + ' Belt' + (fromProfile ? ', ' : ': ') +
+      (fromProfile ? r.report.worn + ' charm' + (r.report.worn === 1 ? '' : 's') + ' worn.' : r.report.charms + ' charm' + (r.report.charms === 1 ? '' : 's') + ', ' + r.report.worn + ' worn.');
+    var notes = r.report.notes.slice();
+    if (r.report.gameTotal) {
+      var o = B.compute(k, r.belt, r.report.wearerTier != null ? { tier: r.report.wearerTier, skill: r.belt.skill } : ctx(r.belt)), diff = [];
+      Object.keys(r.report.gameTotal).forEach(function (key) {
+        var mine = (o.totals[key] || 0) + (o.idle[key] || 0), g = r.report.gameTotal[key];
+        if (Math.abs(mine - g) > 0.06) diff.push(B.statDef(k, key).name + ': the game says ' + g.toFixed(1) + ', this planner ' + mine.toFixed(1));
+      });
+      notes.push(diff.length ? 'The totals do not match the game (' + diff.join('; ') + '). Check your level and the charms.' : 'The totals match the game\'s own.');
+    }
+    flash = { state: notes.length && /do not match|skipped|Check|estimate|not understood/.test(notes.join(' ')) ? 'warn' : 'ok', html: esc(msg) + (notes.length ? '<br>' + notes.map(esc).join('<br>') : '') };
+  }
+  /* The belt in the imported profile (window.IWProfile.beltShowcase). It
+     is read once per distinct belt: `seenSig` remembers the last one taken,
+     so changes made here are not overwritten until the profile's belt
+     itself changes, or the player asks for it again. */
+  function profileShowcase() {
+    try { var p = window.IWProfile; return p ? B.findShowcase({ beltShowcase: p.beltShowcase }) : null; } catch (e) { return null; }
+  }
+  function showcaseSig(sc) {
+    var s = JSON.stringify(sc), h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return s.length + ':' + h;
+  }
+  function syncFromProfile(force) {
+    var sc = profileShowcase();
+    if (!sc || !state) return false;
+    var sig = showcaseSig(sc);
+    if (!force && state.seenSig === sig) return false;
+    state.seenSig = sig;
+    try { applyImport({ beltShowcase: sc }); }
+    catch (e) { flash = { state: 'err', html: 'Could not read the belt in your profile: ' + esc(e && e.message) }; }
+    save();
+    return true;
+  }
+
+  function onClick(ev) {
+    var t = ev.target.closest ? ev.target.closest('[data-bp-act]') : null;
+    if (!t || !body() || !body().contains(t)) return;
+    var act = t.getAttribute('data-bp-act'), a = t.getAttribute('data-a'), k = state.kind, b = belt(), c;
+    flash = null;
+    if (act === 'kind') { state.kind = a === 'combat' ? 'combat' : 'artisan'; state.ui.edit = null; }
+    else if (act === 'use-profile') { var pl = profileLevel(k, b.skill); if (pl) { b.level = pl; touched(); } }
+    else if (act === 'add') {
+      if (b.box.length >= B.BOX_MAX) flash = { state: 'warn', html: 'The charm box holds ' + B.BOX_MAX + ' at most.' };
+      else { c = B.addCharm(b, B.makeCharm(k, { rarity: 'rare', stat: state.goal[k], tier: B.tierForLevel(b.level) })); state.ui.edit = c.id; touched(); }
+    }
+    else if (act === 'dup') { c = B.charmById(b, a); if (c && b.box.length < B.BOX_MAX) { var d = B.clone(c); B.addCharm(b, d); state.ui.edit = d.id; touched(); } }
+    else if (act === 'del') { b.box = b.box.filter(function (x) { return x.id !== a; }); b.slots = b.slots.map(function (s) { return s === a ? null : s; }); state.ui.edit = null; touched(); }
+    else if (act === 'edit') { state.ui.edit = a || null; }
+    else if (act === 'wear') { wear(a); touched(); }
+    else if (act === 'save-current') { state.current[k] = B.clone(b); touched(); flash = { state: 'ok', html: 'Saved. Changes now show as a difference from this belt.' }; }
+    else if (act === 'revert') { if (state.current[k]) { state.belts[k] = B.clone(state.current[k]); state.ui.edit = null; } }
+    else if (act === 'try') { var s = lastSuggest[Number(a)]; if (s && typeof s.apply === 'function') { s.apply(b); touched(); } }
+    else if (act === 'preset') {
+      var keep = { skill: b.skill, level: b.level };
+      if (a === 'trial') state.belts[k] = trialBelt(k);
+      else {
+        var nb = B.blankBelt(k), tier = B.tierForLevel(b.level), fam = B.families(k)[0].key;
+        nb.strap = 'legendary'; nb.buckle = 'legendary'; nb.pouches = ['legendary', 'legendary', 'legendary'];
+        for (var i = 0; i < 3; i++) nb.slots[i] = B.addCharm(nb, B.makeCharm(k, { rarity: 'legendary', stat: state.goal[k], color: 'ruby', family: fam, tier: tier, stitch: 5 })).id;
+        state.belts[k] = nb;
+      }
+      state.example[k] = true; state.belts[k].skill = keep.skill; state.belts[k].level = keep.level; state.ui.edit = null;
+    }
+    else if (act === 'import-profile') {
+      if (!syncFromProfile(true)) flash = { state: 'warn', html: 'Your imported profile has no belt in it. Wear the belt in game, then import your profile again.' };
+    }
+    else if (act === 'import-paste') {
+      var ta = body().querySelector('[data-bp="paste"]'), txt = ta ? ta.value.trim() : '';
+      if (!txt) flash = { state: 'warn', html: 'Paste the page from the game first.' };
+      else try { applyImport(txt); } catch (e) { flash = { state: 'err', html: 'Could not read that: ' + esc(e && e.message) }; }
+    }
+    else if (act === 'import-fetch') {
+      flash = { state: 'ok', html: 'Asking the game…' }; render();
+      fetch('/api/artisan-belt/v2' + (k === 'combat' ? '?kind=combat' : ''), { cache: 'no-store', credentials: 'same-origin' })
+        .then(function (r) { if (!r.ok) throw new Error('the game answered ' + r.status); return r.text(); })
+        .then(function (txt) { applyImport(txt); })
+        .catch(function (e) { flash = { state: 'err', html: 'Could not load it here (' + esc(e && e.message) + '). Use the link and paste instead.' }; })
+        .then(commit);
+      return;
+    }
+    else return;
+    commit();
+    if (flash) { var top = body().querySelector('.bp-flash'); if (top && top.scrollIntoView) top.scrollIntoView({ block: 'nearest' }); }
+  }
+
+  function onChange(ev) {
+    var t = ev.target, f = t && t.getAttribute ? t.getAttribute('data-bp-f') : null;
+    if (!f || !body() || !body().contains(t)) return;
+    var k = state.kind, b = belt(), v = t.value, i = Number(t.getAttribute('data-i')), c, u = state.ui;
+    flash = null;
+    if (f === 'skill') { b.skill = B.by(B.SKILL, v) ? v : 'mining'; var pl = profileLevel(k, b.skill); if (pl) b.level = pl; }
+    else if (f === 'level') b.level = Math.max(1, Math.min(120, Math.floor(Number(v) || 1)));
+    else if (f === 'strap') b.strap = B.by(B.QUALITY, v) ? v : null;
+    else if (f === 'buckle') b.buckle = B.by(B.QUALITY, v) ? v : null;
+    else if (f === 'focus') b.focus = B.by(B.FOCUS[k], v) ? v : null;
+    else if (f === 'pouch') b.pouches[i] = B.by(B.QUALITY, v) ? v : null;
+    else if (f === 'slot') { b.slots = b.slots.map(function (s) { return s === v ? null : s; }); b.slots[i] = v && B.charmById(b, v) ? v : null; }
+    else if (f.indexOf('c.') === 0) {
+      c = B.charmById(b, t.getAttribute('data-id')); if (!c) return;
+      var p = f.slice(2);
+      if (p === 'quirk') { var q = t.getAttribute('data-q'); c.quirks = (c.quirks || []).filter(function (x) { return x !== q; }); if (t.checked) c.quirks.push(q); }
+      else if (p === 'tier') c.tier = Math.max(1, Math.min(B.MAX_TIER, Math.floor(Number(v) || 1)));
+      else if (p === 'stitch') c.stitch = Math.max(0, Math.min(99, Math.floor(Number(v) || 0)));
+      else if (p === 'family') c.family = B.by(B.families(k), v) ? v : null;
+      else if (p === 'rarity' && B.by(B.RARITY, v)) c.rarity = v;
+      else if (p === 'stat' && B.statDef(k, v)) c.stat = v;
+      else if (p === 'color' && B.by(B.COLOR, v)) c.color = v;
+      else if (p === 'finish' && B.by(B.FINISH, v)) c.finish = v;
+    }
+    else if (f === 'goal') { if (B.statDef(k, v)) state.goal[k] = v; commit(); return; }
+    else if (f === 'stFrom') { u.stFrom = Math.max(0, Math.min(60, Math.floor(Number(v) || 0))); if (u.stTo <= u.stFrom) u.stTo = u.stFrom + 1; commit(); return; }
+    else if (f === 'stTo') { u.stTo = Math.max(1, Math.min(60, Math.floor(Number(v) || 1))); if (u.stFrom >= u.stTo) u.stFrom = u.stTo - 1; commit(); return; }
+    else if (f === 'stMode') { u.stMode = ['pinned', 'careful', 'gamble'].indexOf(v) >= 0 ? v : 'pinned'; commit(); return; }
+    else if (f === 'fuseTo') { u.fuseTo = v; commit(); return; }
+    else if (f === 'mat') { u.mat = Math.max(1, Math.min(B.MAX_TIER, Math.floor(Number(v) || 1))); commit(); return; }
+    else if (f === 'actions') { u.actions = Math.max(0, Math.floor(Number(v) || 0)); commit(); return; }
+    else if (f === 'ebelt') { u.ebelt = Math.max(1, Math.min(50, Math.floor(Number(v) || 1))); commit(); return; }
+    else return;
+    touched(); commit();
+  }
+
+  var wired = false;
+  window.iwBeltPlannerEnter = function () {
+    var el = body(); if (!el) return;
+    if (!state) state = load();
+    if (!wired) {
+      wired = true;
+      el.addEventListener('click', onClick);
+      el.addEventListener('change', onChange);
+      el.addEventListener('toggle', function (ev) {
+        var d = ev.target, key = d && d.getAttribute ? d.getAttribute('data-bp-details') : null;
+        if (key && state && state.ui[key] !== d.open) { state.ui[key] = d.open; save(); }
+      }, true);
+      // A profile imported while this tab is open.
+      window.addEventListener('iw:profile', function () {
+        setTimeout(function () {
+          var p = pane();
+          if (p && p.classList.contains('active') && syncFromProfile(false)) { try { render(); } catch (e) {} }
+        }, 0);
+      });
+    }
+    try { syncFromProfile(false); render(); } catch (e) { if (typeof console !== 'undefined') console.warn('[Belt Planner]', e); }
+  };
+  /* Suite AD drives the tab through these; nothing else should. render()
+     only draws: it never reads the profile, so the suite sees its own belt. */
+  window.iwBeltPlannerTab = { reset: function () { state = fresh(); }, state: function () { return state; }, set: function (s) { state = s; },
+    render: function () { if (state) render(); }, sync: function (force) { return syncFromProfile(force); } };
+})();
+
+/* ═════════════════════════════════════════════════════════════════════
+   SUITE AD — BELT PLANNER  (v7.9)
+   Pins the engine to every figure the three wiki pages print (read
+   2026-11-16), so a fitted value cannot drift unseen, then checks the
+   rules, the optimiser, the import and the wiring. `checked` guards
+   against a table that compares nothing.
+   ═════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  window.iwBeltPlannerSelfCheck = function () {
+    var fail = [], checked = 0;
+    function ok(label, cond) { checked++; if (!cond) fail.push(label); }
+    function eq(label, got, want) { checked++; if (got !== want) fail.push(label + ': got ' + got + ', want ' + want); }
+    try {
+      var B = window.iwBeltPlan;
+      if (!B) return ['Belt Planner engine missing'];
+      var f = function (v) { return v < 10 ? v.toFixed(1) : String(Math.round(v)); };
+      var w = function (v) { return v >= 10 ? String(v) : v.toFixed(1); };
+      var one = function (kind, stat, tier, rar) { return B.by(B.RARITY, rar || 'legendary').power * tier * B.statDef(kind, stat).value; };
+
+      // 1. The belt pages' "How strong at your level" tables: five one-Legendary
+      //    columns, then two finished-belt columns.
+      var AT = { 1: [.2, .2, .1, .1, .2, 1.7, 1.7], 7: [1.5, 1.5, 1.0, .4, 1.5, 12, 12], 13: [2.7, 2.7, 1.8, .8, 2.7, 22, 22], 17: [3.6, 3.6, 2.4, 1.1, 3.6, 29, 29],
+                 20: [4.2, 4.2, 2.8, 1.3, 4.2, 34, 34], 23: [4.8, 4.8, 3.2, 1.4, 4.8, 39, 39], 29: [6.1, 6.1, 4.1, 1.8, 6.1, 49, 49], 34: [7.1, 7.1, 4.8, 2.1, 7.1, 57, 57] };
+      var CT = { 1: [.2, .3, .1, .1, .0, 1.4, 2.5], 7: [1.2, 2.2, .6, .6, .3, 9.9, 18], 13: [2.3, 4.1, 1.1, 1.1, .5, 18, 33], 17: [3.0, 5.4, 1.4, 1.4, .7, 24, 43],
+                 20: [3.5, 6.3, 1.7, 1.7, .8, 28, 51], 23: [4.1, 7.2, 1.9, 1.9, 1.0, 33, 58], 29: [5.1, 9.1, 2.4, 2.4, 1.2, 41, 73], 34: [6.0, 11, 2.9, 2.9, 1.4, 48, 86] };
+      [['artisan', AT, ['doubleGather', 'xpTask', 'itemFind', 'craftChance', 'orbFind'], ['doubleGather', 'xpTask']],
+       ['combat', CT, ['combatXp', 'combatXpTask', 'atk', 'def', 'fireResist'], ['combatXp', 'combatXpTask']]].forEach(function (set) {
+        Object.keys(set[1]).forEach(function (t) {
+          var row = set[1][t];
+          set[2].forEach(function (s, i) { eq(set[0] + ' one Legendary ' + s + ' T' + t, f(one(set[0], s, +t)), w(row[i])); });
+          set[3].forEach(function (s, i) { eq(set[0] + ' finished ' + s + ' T' + t, f(B.finishedBelt(set[0], s, +t)), w(row[5 + i])); });
+        });
+      });
+
+      // 2. /wiki/charms section 4: Legendary T5, T15, T23, Mythic T23, finished T23.
+      var S4 = {
+        artisan: { doubleGather: [1.1, 3.1, 4.8, 6.9, 39], xpTask: [1.1, 3.1, 4.8, 6.9, 39], itemFind: [.7, 2.1, 3.2, 4.6, 26], craftChance: [.3, .9, 1.4, 2.1, 12], orbFind: [1.1, 3.1, 4.8, 6.9, 39], threadFind: [.8, 2.5, 3.9, 5.5, 31] },
+        combat: { combatXp: [.9, 2.6, 4.1, 5.8, 33], combatXpTask: [1.6, 4.7, 7.2, 10, 58], atk: [.4, 1.3, 1.9, 2.8, 16], def: [.4, 1.3, 1.9, 2.8, 16], hp: [1.3, 3.8, 5.8, 8.3, 47],
+                  fireResist: [.2, .6, 1.0, 1.4, 7.8], frostResist: [.2, .6, 1.0, 1.4, 7.8], lightningResist: [.2, .6, 1.0, 1.4, 7.8], crit: [.1, .3, .5, .7, 3.9], combatItemFind: [.7, 2.1, 3.2, 4.6, 26] }
+      };
+      Object.keys(S4).forEach(function (k) {
+        eq(k + ' stat list covers the wiki table', B.STATS[k].length, Object.keys(S4[k]).length);
+        Object.keys(S4[k]).forEach(function (s) {
+          var r = S4[k][s];
+          eq(k + ' ' + s + ' Legendary T5', f(one(k, s, 5)), w(r[0])); eq(k + ' ' + s + ' Legendary T15', f(one(k, s, 15)), w(r[1]));
+          eq(k + ' ' + s + ' Legendary T23', f(one(k, s, 23)), w(r[2])); eq(k + ' ' + s + ' Mythic T23', f(one(k, s, 23, 'mythic')), w(r[3]));
+          eq(k + ' ' + s + ' finished T23', f(B.finishedBelt(k, s, 23)), w(r[4]));
+        });
+        eq(k + ' stat odds add to 100', B.STATS[k].reduce(function (a, d) { return a + d.odds; }, 0), 100);
+      });
+
+      // 3. Strap Focus tables: Normal strap at tiers 7, 13 and 19.
+      var FT = {
+        artisan: { gatherer: { doubleGather: [3.5, 6.5, 9.5] }, crafter: { craftChance: [1.4, 2.6, 3.8], xpTask: [2.1, 3.9, 5.7] }, scholar: { xpTask: [3.5, 6.5, 9.5], itemFind: [1.4, 2.6, 3.8] },
+                   prospector: { orbFind: [7.0, 13, 19], doubleGather: [1.8, 3.3, 4.8] }, weaver: { threadFind: [7.0, 13, 19], xpTask: [2.1, 3.9, 5.7] }, treasure: { itemFind: [3.1, 5.9, 8.6] } },
+        combat: { brawler: { atk: [4.2, 7.8, 11], hp: [4.2, 7.8, 11] }, guardian: { def: [4.9, 9.1, 13], fireResist: [1.4, 2.6, 3.8], frostResist: [1.4, 2.6, 3.8], lightningResist: [1.4, 2.6, 3.8] },
+                  veteran: { combatXpTask: [3.5, 6.5, 9.5], combatXp: [1.8, 3.3, 4.8] }, duelist: { atk: [3.5, 6.5, 9.5], crit: [.7, 1.3, 1.9] },
+                  warden: { fireResist: [2.8, 5.2, 7.6], frostResist: [2.8, 5.2, 7.6], lightningResist: [2.8, 5.2, 7.6] }, plunderer: { combatItemFind: [2.1, 3.9, 5.7], combatXpTask: [2.1, 3.9, 5.7] } }
+      };
+      Object.keys(FT).forEach(function (k) {
+        eq(k + ' has six Focuses', B.FOCUS[k].length, 6);
+        Object.keys(FT[k]).forEach(function (fo) {
+          eq(k + ' Focus ' + fo + ' stat count', Object.keys(B.by(B.FOCUS[k], fo).stats).length, Object.keys(FT[k][fo]).length);
+          Object.keys(FT[k][fo]).forEach(function (s) {
+            [7, 13, 19].forEach(function (t, i) {
+              var b = B.blankBelt(k); b.focus = fo;
+              var row = B.compute(k, b, { tier: t, skill: '__any' }).focusRows.filter(function (r) { return r.stat === s; })[0];
+              eq(k + ' Focus ' + fo + ' ' + s + ' T' + t, row ? f(row.value) : 'missing', w(FT[k][fo][s][i]));
+            });
+          });
+        });
+      });
+      var fb = B.blankBelt('artisan'); fb.focus = 'gatherer'; fb.strap = 'legendary';
+      ok('a Legendary Strap must multiply the Focus by 1.4', Math.abs(B.compute('artisan', fb, { tier: 10, skill: 'mining' }).totals.doubleGather - 7) < 1e-9);
+
+      // 4. Tiers, stitches, part odds, fusing.
+      [[1, 1], [25, 7], [49, 13], [65, 17], [73, 19], [77, 20], [85, 22], [87, 23], [99, 29], [109, 34]].forEach(function (p) {
+        eq('tier at level ' + p[0], B.tierForLevel(p[0]), p[1]); eq('first level of tier ' + p[1], B.levelForTier(p[1]), p[0]);
+      });
+      eq('tier stops at 34', B.tierForLevel(140), 34);
+      [[1, 90, 100, 1, 1.1], [2, 75, 200, 1, 1.2], [3, 60, 300, 2, 1.3], [4, 45, 400, 2, 1.4], [5, 30, 500, 3, 1.5], [6, 30, 1000, 3, 1.52], [7, 28, 1500, 3, 1.54], [8, 26, 2250, 4, 1.56],
+       [10, 22, 5063, 5, 1.6], [12, 18, 11391, 6, 1.64], [15, 12, 38443, 7, 1.7], [20, 5, 291929, 10, 1.8], [25, 5, 2216838, 12, 1.9]].forEach(function (r) {
+        var s = B.stitchStep(r[0]);
+        eq('stitch +' + r[0], [s.chance, s.cost, s.pins, +s.power.toFixed(2)].join(), r.slice(1).join());
+      });
+      [[5, [67.5, 25, 6.5, 1]], [15, [63.5, 25, 9.5, 2]], [25, [59.5, 25, 12.5, 3]]].forEach(function (r) {
+        var o = B.qualityOdds(r[0]);
+        eq('part odds at T' + r[0], [o.normal, o.fine, o.masterwork, o.legendary].map(function (x) { return +x.toFixed(2); }).join(), r[1].join());
+      });
+      for (var mt = 1; mt <= 34; mt++) { var qo = B.qualityOdds(mt); ok('part odds add to 100 at T' + mt, Math.abs(qo.normal + qo.fine + qo.masterwork + qo.legendary - 100) < 1e-9); }
+      var lad = B.fuseLadder('common', 'legendary');
+      eq('Commons for a Legendary', lad.charms, 81); eq('Thread for a Legendary from Commons', lad.cost, 4900);
+      eq('Legendaries for a Mythic', B.fuseLadder('legendary', 'mythic').charms, 9); eq('Ascension price', B.fuseLadder('legendary', 'mythic').cost, 6000);
+      ok('nothing makes a Relic', B.fuseLadder('mythic', 'relic') === null);
+      ok('Thrifty takes 25% off fusing', Math.abs(B.fuseLadder('rare', 'epic', { thrifty: true }).cost - 300) < 1e-9);
+      ok('unpublished reweave prices stay absent, not zero', B.REWEAVE_COST.uncommon === undefined && B.REWEAVE_COST.epic === undefined && B.REWEAVE_COST.rare === 250);
+      var pin = B.stitchPlan(0, 5, 'pinned'), gam = B.stitchPlan(0, 5, 'gamble'), car = B.stitchPlan(0, 5, 'careful');
+      ok('pinned to +5 averages 3,433 Thread', Math.abs(pin.currency - (100 / .9 + 200 / .75 + 300 / .6 + 400 / .45 + 500 / .3)) < 1e-6);
+      ok('gamble to +5 succeeds 5.5% of the time', Math.abs(gam.success - .9 * .75 * .6 * .45 * .3) < 1e-12);
+      ok('careful costs more Thread than pinned', car.currency > pin.currency);
+      ok('Lucky Stitch must make stitching cheaper', B.stitchPlan(0, 5, 'pinned', { lucky: true }).currency < pin.currency);
+      eq('1,500 actions pay 1,500 Thread', B.currencyPerDay(1500), 1500); eq('2,500 actions pay 1,600', B.currencyPerDay(2500), 1600);
+      eq('Tireless adds 500 full-rate actions', B.currencyPerDay(2500, { tireless: 1 }), 2050);
+
+      // 5. Rules.
+      function beltOf(kind, charms, set) {
+        var b = B.blankBelt(kind); b.strap = 'normal'; b.buckle = null; b.pouches = ['legendary', 'legendary', 'legendary'];
+        charms.forEach(function (c, i) { b.slots[i] = B.addCharm(b, B.makeCharm(kind, c)).id; });
+        if (set) Object.keys(set).forEach(function (k) { b[k] = set[k]; });
+        return b;
+      }
+      var L = { rarity: 'legendary', stat: 'doubleGather', color: 'ruby', tier: 20 };
+      var plain = B.compute('artisan', beltOf('artisan', [L]), { tier: 20, skill: 'mining' }).totals.doubleGather;
+      ok('one plain Legendary T20 2x Gather is 4.2', Math.abs(plain - 4.2) < 1e-9);
+      ok('a charm never works above the wearer tier', Math.abs(B.compute('artisan', beltOf('artisan', [L]), { tier: 7, skill: 'mining' }).totals.doubleGather - 0.7 * 7 * 0.3) < 1e-9);
+      ok('a low charm does not grow to the wearer tier', Math.abs(B.compute('artisan', beltOf('artisan', [L]), { tier: 30, skill: 'mining' }).totals.doubleGather - 4.2) < 1e-9);
+      ok('no Strap gives nothing', !Object.keys(B.compute('artisan', beltOf('artisan', [L], { strap: null, focus: 'gatherer' }), { tier: 20, skill: 'mining' }).totals).length);
+      var capped = beltOf('artisan', [L]); capped.pouches[0] = 'normal';
+      var co = B.compute('artisan', capped, { tier: 20, skill: 'mining' });
+      ok('a Normal pouch must not count a Legendary', !co.totals.doubleGather && co.warnings.length === 1);
+      ok('pouch caps', B.fits({ rarity: 'rare' }, 'normal') && !B.fits({ rarity: 'epic' }, 'normal') && B.fits({ rarity: 'mythic' }, 'legendary') && !B.fits({ rarity: 'relic' }, 'legendary'));
+      ok('2x Gather must not count in Smithing', B.statCounts('artisan', 'doubleGather', 'smithing') === false && B.statCounts('artisan', 'doubleGather', 'mining') === true);
+      ok('Bonus Craft counts only in Smithing, Alchemy and Construction',
+        B.SKILL.filter(function (s) { return B.statCounts('artisan', 'craftChance', s.key) === true; }).map(function (s) { return s.key; }).join() === 'smithing,alchemy,construction');
+      var sm = B.compute('artisan', beltOf('artisan', [L]), { tier: 20, skill: 'smithing' });
+      ok('a stat that does not count is kept apart, not added', !sm.totals.doubleGather && Math.abs(sm.idle.doubleGather - 4.2) < 1e-9);
+      var two = function (set, a, b2, c3) { return B.compute('artisan', beltOf('artisan', [a, b2].concat(c3 ? [c3] : []), set), { tier: 20, skill: 'mining' }); };
+      var sap = Object.assign({}, L, { color: 'sapphire' });
+      eq('two of a colour on a Fine Buckle', two({ buckle: 'fine' }, L, L).set.pct, 4);
+      eq('three of a colour on a Masterwork Buckle', two({ buckle: 'masterwork' }, L, L, L).set.pct, 12);
+      eq('no Buckle, no colour bonus', two({}, L, L).set.pct, 0);
+      eq('mixed colours, no bonus', two({ buckle: 'legendary' }, L, sap).set.pct, 0);
+      eq('Chameleon counts as every colour', two({ buckle: 'legendary' }, L, Object.assign({}, sap, { quirks: ['chameleon'] })).set.pct, 7);
+      var M = Object.assign({}, L, { family: 'miners' }), G = Object.assign({}, L, { family: 'green' });
+      eq('two of a family', two({}, M, M).family.pct, 5); eq('three of a family', two({}, M, M, M).family.pct, 10);
+      eq('two families, no set', two({}, M, G).family.pct, 0);
+      eq('Kinship makes two act as three', two({}, M, Object.assign({}, M, { quirks: ['kinship'] })).family.pct, 10);
+      ok('sets multiply each other', Math.abs(two({ buckle: 'legendary', strap: 'legendary' }, M, M, M).totals.doubleGather - 3 * 4.2 * 1.4 * 1.16 * 1.1) < 1e-9);
+      var Fg = { rarity: 'rare', stat: 'craftChance', color: 'ruby', tier: 20, family: 'forgeborn' };
+      var inSm = B.compute('artisan', beltOf('artisan', [Fg, Fg, Fg]), { tier: 20, skill: 'smithing' }), inAl = B.compute('artisan', beltOf('artisan', [Fg, Fg, Fg]), { tier: 20, skill: 'alchemy' });
+      ok('Forgeborn signature adds 1% Bonus Craft in Smithing only', Math.abs(inSm.totals.craftChance - inAl.totals.craftChance - 1) < 1e-9);
+      var St = { rarity: 'rare', stat: 'atk', color: 'ruby', tier: 20, family: 'stormbound' };
+      eq('Stormbound signature adds 3 to every resist', B.compute('combat', beltOf('combat', [St, St, St]), { tier: 20 }).totals.frostResist, 3);
+      ok('a Foil is 10% stronger', Math.abs(B.compute('artisan', beltOf('artisan', [Object.assign({}, L, { finish: 'foil', stitch: 6 })]), { tier: 20, skill: 'mining' }).totals.doubleGather - 4.2 * 1.1 * 1.52) < 1e-9);
+
+      // 6. The optimiser and the suggestions.
+      var ob = B.blankBelt('artisan'); ob.pouches = ['normal', 'fine', 'masterwork']; ob.buckle = 'fine';
+      [['legendary', 'doubleGather', 'ruby', 'miners'], ['epic', 'doubleGather', 'ruby', 'miners'], ['rare', 'xpTask', 'ruby', 'green'], ['rare', 'doubleGather', 'sapphire', 'miners'], ['common', 'itemFind', 'topaz', null]]
+        .forEach(function (c) { B.addCharm(ob, B.makeCharm('artisan', { rarity: c[0], stat: c[1], color: c[2], family: c[3], tier: 20 })); });
+      var octx = { tier: 20, skill: 'mining' }, bst = B.best('artisan', ob, octx, 'doubleGather');
+      eq('best belt puts each charm in a pouch that holds it', bst && bst.slots.join(), 'c4,c2,c1');
+      var brute = 0;
+      ob.box.forEach(function (a) { ob.box.forEach(function (b2) { ob.box.forEach(function (c3) {
+        if (a.id === b2.id || a.id === c3.id || b2.id === c3.id) return;
+        var t = B.clone(ob); t.slots = [a.id, b2.id, c3.id];
+        var o = B.compute('artisan', t, octx); if (!o.warnings.length) brute = Math.max(brute, o.totals.doubleGather || 0);
+      }); }); });
+      ok('best belt equals a brute-force search', bst && Math.abs(bst.total - brute) < 1e-9);
+      ob.slots = bst.slots.slice();
+      var sug = B.suggestions('artisan', ob, octx, 'doubleGather'), nowTotal = B.compute('artisan', ob, octx).totals.doubleGather;
+      ok('suggestions found', sug.length >= 5);
+      sug.forEach(function (s) {
+        var t = B.clone(ob); s.apply(t);
+        ok('suggestion "' + s.label + '" must give what it says', s.gain > 0 && Math.abs((B.compute('artisan', t, octx).totals.doubleGather || 0) - s.total) < 1e-9 && Math.abs(s.total - nowTotal - s.gain) < 1e-9);
+      });
+      ok('suggestions are sorted, largest first', sug.every(function (s, i) { return !i || sug[i - 1].gain >= s.gain; }));
+      ok('an empty box has no best belt', B.best('artisan', B.blankBelt('artisan'), octx, 'doubleGather') === null);
+
+      // 7. Import.
+      var g = B.parseGame(JSON.stringify({ open: true, started: true, wearerTier: 20,
+        parts: [{ slot: 'strap', quality: 'fine' }, { slot: 'buckle', quality: null }, { slot: 'pouch1', quality: 'normal', charmId: 7 }, { slot: 'pouch2', quality: 'normal', charmId: null }, { slot: 'pouch3', quality: null }],
+        charms: [{ id: 7, rarity: 'rare', color: 'topaz', finish: 'foil', stat: 'doubleGather', stitch: 2, familyName: "Miners' Guild", quirkName: 'Kinship', tier: 18 }, { id: 8, rarity: 'weird', stat: 'x' }, { id: 9, rarity: 'common', color: 'ruby', stat: 'xpTask' }],
+        focus: { current: 'gatherer', tier: 20 }, total: { doubleGather: 12.3 } }), 'combat');
+      eq('import: kind comes from the charms, not the hint', g.kind, 'artisan');
+      eq('import: parts', [g.belt.strap, g.belt.buckle, g.belt.pouches.join('/')].join(), 'fine,,normal/normal/');
+      eq('import: charms kept', g.belt.box.length, 2); eq('import: unknown charm skipped and reported', g.report.skipped.length, 1);
+      var ic = g.belt.box[0];
+      eq('import: charm fields', [ic.rarity, ic.stat, ic.color, ic.family, ic.tier, ic.stitch, ic.finish, ic.quirks.join()].join(), 'rare,doubleGather,topaz,miners,18,2,foil,kinship');
+      eq('import: worn charm sits in its pouch', g.belt.slots.join(), ic.id + ',,');
+      eq('import: Focus', g.belt.focus, 'gatherer'); eq('import: level from the wearer tier', g.belt.level, 77);
+      ok('import: a missing charm tier is reported, not hidden', g.report.tierGuessed === 1 && g.belt.box[1].tier === 20);
+      eq('import: game total kept for comparison', g.report.gameTotal.doubleGather, 12.3);
+      var cg = B.parseGame({ state: { parts: [{ slot: 'strap', quality: 'normal' }], charms: [{ id: 1, rarity: 'epic', color: 'ruby', stat: 'itemFind', tier: 5 }, { id: 2, rarity: 'epic', color: 'ruby', stat: 'xpPerFight', tier: 5 }] } }, 'artisan');
+      eq('import: a combat response is recognised', cg.kind + ':' + cg.belt.box.map(function (c) { return c.stat; }).join(), 'combat:combatItemFind,combatXpTask');
+      var threw = false; try { B.parseGame('{"player":{}}'); } catch (e) { threw = true; }
+      ok('import: something that is not a belt must be refused', threw);
+
+      // 7b. The profile's beltShowcase: Curtis's belt of 2026-11-17 as the game
+      //     sent it. The game's own totals are the check on the whole engine.
+      var SC = { kind: 'artisan', tier: 19, focus: { name: 'Gatherer', stats: ['+9.5% 2x Gather'] },
+        parts: [{ label: 'Strap', quality: 'Normal' }, { label: 'Buckle', quality: 'Masterwork' }, { label: 'Pouch 1', quality: 'Legendary' }, { label: 'Pouch 2', quality: 'Masterwork' }, { label: 'Pouch 3', quality: 'Masterwork' }],
+        charms: [{ color: 'ruby', rarity: 'legendary', rarityLabel: 'Legendary', finish: null, stat: '+4.2% 2x Gather', stitch: 1, quirk: 'Lucky Stitch' },
+                 { color: 'topaz', rarity: 'epic', rarityLabel: 'Epic', finish: 'foil', stat: '+3 XP per task', stitch: 2, quirk: 'Collector' },
+                 { color: 'ruby', rarity: 'epic', rarityLabel: 'Epic', finish: null, stat: '+2.6 XP per task', stitch: 0, quirk: null }],
+        bonuses: ['2 ruby charms: +5% charm power'],
+        totals: [{ label: 'Gathering', lines: ['+13.9% 2x Gather', '+5.9 XP/task'] }, { label: 'Crafting', lines: ['+5.9 XP/task'] }],
+        gatherNumbers: { doubleGather: 13.9, itemFind: 0, xpTask: 5.9, xpPercent: 0 } };
+      var ps = B.parseGame(JSON.stringify({ displayName: 'x', skills: [], beltShowcase: SC }), 'combat');
+      eq('profile belt: kind', ps.kind + '/' + ps.report.source, 'artisan/showcase');
+      eq('profile belt: parts', [ps.belt.strap, ps.belt.buckle, ps.belt.pouches.join('/')].join(), 'normal,masterwork,legendary/masterwork/masterwork');
+      eq('profile belt: Focus and tier', ps.belt.focus + '/' + ps.report.wearerTier + '/' + ps.belt.level, 'gatherer/19/73');
+      eq('profile belt: charm tiers solved from the values shown', ps.belt.box.map(function (c) { return c.tier; }).join(), '18,17,19');
+      eq('profile belt: charm fields', ps.belt.box.map(function (c) { return [c.rarity, c.stat, c.color, c.stitch, c.finish, c.quirks.join('+')].join(':'); }).join(' '),
+        'legendary:doubleGather:ruby:1:plain:luckyStitch epic:xpTask:topaz:2:foil:collector epic:xpTask:ruby:0:plain:');
+      eq('profile belt: charms sit in the pouches in order', ps.belt.slots.join(), ps.belt.box.map(function (c) { return c.id; }).join());
+      eq('profile belt: nothing to report', ps.report.notes.length + '/' + ps.report.skipped.length, '0/0');
+      var po = B.compute('artisan', ps.belt, { tier: 19, skill: 'mining' });
+      eq('profile belt: each charm alone, as the game prints it', po.rows.map(function (r) { return (r.base * r.stitch * r.finish).toFixed(1); }).join(), '4.2,3.0,2.6');
+      eq('profile belt: 2 ruby on a Masterwork Buckle', po.set.count + ' ' + po.set.color + ' ' + po.set.pct, '2 ruby 5');
+      eq('profile belt: Focus as the game prints it', po.focusRows[0].value.toFixed(1), '9.5');
+      eq('profile belt: 2x Gather equals the game total', po.totals.doubleGather.toFixed(1), String(ps.report.gameTotal.doubleGather));
+      eq('profile belt: XP per task equals the game total', po.totals.xpTask.toFixed(1), String(ps.report.gameTotal.xpTask));
+      eq('profile belt: Item Find total of 0 is kept', ps.report.gameTotal.itemFind, 0);
+      var SC2 = B.clone(SC); delete SC2.gatherNumbers;
+      eq('profile belt: totals are read from the lines when the numbers are missing', JSON.stringify(B.parseShowcase(SC2).report.gameTotal), '{"doubleGather":13.9,"xpTask":5.9}');
+      var SC3 = B.clone(SC); SC3.bonuses.push('2 Miners’ Guild charms: +5% charm power');
+      var p3 = B.parseShowcase(SC3), o3 = B.compute('artisan', p3.belt, { tier: 19, skill: 'mining' });
+      ok('profile belt: a family set named in the bonuses is applied and reported', o3.family.pct === 5 && o3.family.key === 'miners' && p3.report.notes.length === 1);
+      var SC4 = B.clone(SC); SC4.charms[0].stat = '+9.9% 2x Gather'; SC4.charms[1].stat = '+3 Gold Find';
+      var p4 = B.parseShowcase(SC4);
+      ok('profile belt: an impossible value and an unknown stat are reported, not hidden', p4.report.skipped.length === 1 && p4.belt.box.length === 2 && p4.report.notes.length === 2);
+      eq('stat line: combat Item Find', JSON.stringify(B.parseStatLine('combat', '+3.2% Item Find')), '{"stat":"combatItemFind","value":3.2}');
+      eq('stat line: XP/fight', JSON.stringify(B.parseStatLine('combat', '+11 XP/fight')), '{"stat":"combatXpTask","value":11}');
+      ok('stat line: an unknown stat is refused', B.parseStatLine('artisan', '+5% Gold Find') === null);
+      ok('the game response is not mistaken for a profile belt', B.findShowcase({ parts: [{ slot: 'strap', label: 'Strap', quality: 'fine' }], charms: [] }) === null);
+
+      // 8. Data shape: keys unique, families and quirks as the wiki lists them.
+      [B.RARITY, B.QUALITY, B.FINISH, B.COLOR, B.FAMILY, B.QUIRK, B.SKILL, B.STATS.artisan, B.STATS.combat].forEach(function (list, i) {
+        var seen = {}; list.forEach(function (o) { ok('duplicate key ' + o.key + ' in list ' + i, !seen[o.key]); seen[o.key] = 1; });
+      });
+      eq('Artisan families', B.families('artisan').length, 11); eq('Warrior families', B.families('combat').length, 7);
+      eq('Artisan quirks', B.quirks('artisan').length, 10); eq('Warrior quirks', B.quirks('combat').length, 10);
+      ok('no Gold Find on charms, ever', !B.STATS.artisan.concat(B.STATS.combat).some(function (d) { return /gold/i.test(d.key + d.name); }));
+
+      // 9. Wiring, and the tab draws both belts without touching saved state.
+      ok('Belt Planner should be in both Skill Tools menus', document.querySelectorAll('.skill-tools-menu [data-tab="belt-planner"]').length === 2);
+      ok('Belt Planner pane missing', !!document.getElementById('tab-belt-planner'));
+      ok('Belt Planner tab hook missing', typeof window.iwBeltPlannerEnter === 'function');
+      var T = window.iwBeltPlannerTab, host = document.querySelector('#tab-belt-planner [data-bp="body"]');
+      if (T && host) {
+        var keep = T.state(), keepHtml = host.innerHTML;
+        try {
+          T.reset(); T.render();
+          ok('tab draws the Artisan belt', host.querySelectorAll('.bp-slot').length === 4 && host.querySelectorAll('.bp-tile').length >= 2);
+          T.state().kind = 'combat'; T.render();
+          ok('tab draws the Warrior belt', /Combat level/.test(host.textContent) && /Enchanted Belt/.test(host.textContent));
+          ok('Belt Planner controls must carry no ids (IWStore would persist them)', !document.querySelector('#tab-belt-planner input[id], #tab-belt-planner select[id], #tab-belt-planner textarea[id]'));
+        } finally { T.set(keep); if (keep) T.render(); else host.innerHTML = keepHtml; }
+      } else ok('Belt Planner tab missing', false);
+
+      ok('Belt Planner suite compared too little (' + checked + ')', checked > 400);
+    } catch (e) {
+      fail.push('Belt Planner suite threw: ' + (e && e.message));
+    }
+    if (fail.length && typeof console !== 'undefined') console.warn('[Belt Planner] self-check FAILED:', fail.join(' | '));
+    return fail;
+  };
+})();
+</script>
+
+<script>
+/* ═════════════════════════════════════════════════════════════════════
    RAID GUIDES  (v7.1, 2026-11-07)  — top-level Raids tab
    ─────────────────────────────────────────────────────────────────────
    Pick a guild raid boss; the tab says what the fight asks for, what each
@@ -47521,7 +49212,8 @@ function syncCombatLevel(val) {
         ['Server 2x Gather boost',window.iwServerGatherBoostSelfCheck],
         ['Smithed 2-socket chests and leggings',window.iwSmithedSocketsSelfCheck],
         ['Profile XP bonuses import (AB)',window.iwProfileXpBonusesSelfCheck],
-        ['Gem drop chance on item cards (AC)',window.iwGemDropChanceSelfCheck]
+        ['Gem drop chance on item cards (AC)',window.iwGemDropChanceSelfCheck],
+        ['Belt Planner (AD)',window.iwBeltPlannerSelfCheck]
       ];
       suites.forEach(function(pair){
         if(typeof pair[1]!=='function')return;

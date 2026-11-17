@@ -65,7 +65,7 @@ contains it — the rest of the page keeps working, so a broken block looks like
 
 ## Self-checks — use them
 
-Thirty-four regression suites ship inside the file and are the safety net for
+Thirty-five regression suites ship inside the file and are the safety net for
 every change. Run them from **Settings → Developer → Run engine self-checks**,
 or from the console:
 
@@ -95,7 +95,44 @@ Suites: `iwAugust2026RegressionSelfCheck` (A) · `iwItemDataBridgeSelfCheck` (B)
 `iwWardedShieldSelfCheck` (T) · `iwLateOctoberItemsSelfCheck` (U) ·
 `iwRaidGuideSelfCheck` (V) · `iwLevelPaidGatheringSelfCheck` (W) ·
 `iwNovember2026ItemsSelfCheck` (X) · `iwGuildHallXpSelfCheck` (Y) · `iwServerGatherBoostSelfCheck` (Z) · `iwSmithedSocketsSelfCheck` (AA) · `iwProfileXpBonusesSelfCheck` (AB) ·
-`iwGemDropChanceSelfCheck` (AC).
+`iwGemDropChanceSelfCheck` (AC) · `iwBeltPlannerSelfCheck` (AD).
+
+Suite AD covers the Belt Planner (Skill Tools; search `BELT PLANNER  (v7.9`),
+for the Artisan's Belt and the Warrior's Belt (game beta of 2026-11-15).
+Everything comes from `/wiki/artisan-belt`, `/wiki/combat-belt` and
+`/wiki/charms` (read 2026-11-16); items.json has only bare rows for the two
+belts and the Safety Pin. Rules it depends on:
+- A charm is rarity power x tier x stat value x stitches x finish, then
+  x Strap, x (1 + Buckle colour set), x (1 + family set). The two sets
+  multiply each other; only that reproduces the wiki's finished-belt columns.
+  A charm works at its own tier or the wearer's, whichever is lower.
+- The per-stat values (2x Gather 0.3, Combat XP 0.252, ...), Focus rates,
+  part odds by material tier and Overstitch costs past +5 are **fitted** to
+  the wiki's tables, not stated by it. The suite pins every published figure
+  (over 400 comparisons, with a floor so an empty table cannot pass).
+- `/wiki/charms` section 12 prints larger numbers (+8.0% for one T23
+  Legendary 2x Gather) than its own section 4 and both belt pages (+4.8%).
+  The planner follows the three tables that agree.
+- Unpublished prices stay absent: `REWEAVE_COST` has no Uncommon, Epic or
+  Relic entry.
+- The worn belt arrives with the profile import as `beltShowcase` (seen
+  2026-11-17; the private player.json had none then). The tab reads it from
+  `window.IWProfile` on entry and on `iw:profile`, **once per distinct belt**
+  (`seenSig` in its state), so edits are not overwritten until the profile's
+  belt changes; spare charms entered by hand are kept. It gives each charm's
+  value as text, not its tier or family: `parseShowcase()` solves the tier
+  from the value (`solveTier`) and reads a family set from `bonuses`.
+  Curtis's belt of 2026-11-17 is pinned in suite AD: tiers 18/17/19, and the
+  engine's totals equal the game's (13.9% 2x Gather, 5.9 XP per task). That
+  is the only check of the fitted values against the game itself, and it
+  shows the Buckle's colour bonus applies to every worn charm.
+- The full charm box can be pasted from `/api/artisan-belt/v2`
+  (`?kind=combat` for the Warrior's Belt). That shape was read off the game
+  client on 2026-11-16 and has **not** been tried on a real payload;
+  `parseGame()` skips and reports what it does not know. Both imports compare
+  the planner's totals with the game's own and say so.
+- Its controls carry no ids, so IWStore never sees them. State:
+  `iwBeltPlanV1`. It does not feed the Calculator or the Gear tab.
 
 Suite AC covers drop chances on item cards and tooltips (search
 `SUITE AC — GEM AND ITEM DROP`). `iwDropSources(item)` lists every source the
@@ -272,6 +309,7 @@ Line numbers drift — grep the anchor instead. Ordered as they appear:
 | Work Order | `WORK ORDER CALCULATOR MODULE` | |
 | Village Add-ons | `VILLAGE ADD-ONS  (v5.4)` | Own IIFE, isolated from the gnModule doll/set-bonus system; feeds `iwSkillLevels()` |
 | Housing Planner | `HOUSING PLANNER  (v6.6` | Engine (`window.iwHousingPlan`), tab IIFE and suite S in one script, just before the regression suites |
+| Belt Planner | `BELT PLANNER  (v7.9` | Engine (`window.iwBeltPlan`), tab IIFE and suite AD in one script, right after the Housing Planner script |
 | Raid Guides | `RAID GUIDES  (v7.1` | Guide data (`window.IW_RAID_GUIDES`), renderer and suite V, right after the Housing Planner script; loot comes from `IW_RAID_DROP_SOURCES` |
 | Regression suites | `AUGUST 2026 REGRESSION` | Stages A–G plus later audit suites, including Stage H (Woodcutting & Construction) |
 
@@ -286,7 +324,7 @@ switchTab` → Work Order module → **Village Add-ons module** (v5.4, its own
 IIFE) → regression suites A–H.
 
 Tabs: Start · Calculator · Planner · Gear · Work Orders · Skill Tools
-(Construction Planner, Jewelry Calculator, Housing Planner) · Raids · Items ·
+(Construction Planner, Jewelry Calculator, Housing Planner, Belt Planner) · Raids · Items ·
 Settings.
 
 ## Non-negotiable rules
@@ -460,7 +498,9 @@ inline on their host elements.
 the header button) · `iwPlayerLoadoutsV1` (v6.4: loadouts imported from
 player.json or saved from the Gear doll, plus the profile seed built from it) ·
 `iwHousingPlanV1` (v6.6: the Housing Planner's goal, prices, options and its
-player.json summary).
+player.json summary) ·
+`iwBeltPlanV1` (v7.9: the Belt Planner's two working belts, the saved belt each
+is compared with, and its tool inputs).
 
 Two rules govern `IWStore`: **capture is generic** (every `<input>`/`<select>`
 carrying an id is snapshotted by id, so new controls persist automatically),
@@ -494,7 +534,9 @@ re-push shows up on the next load.
 
 ## Repo contents
 
-- `index.html` — **the working file**, v7.8, live since 2026-11-11. v7.8 lists every
+- `index.html` — **the working file**, v7.9, live since 2026-11-17. v7.9
+  adds the Belt Planner in Skill Tools, filled from the profile's
+  `beltShowcase` (suite AD). v7.8 lists every
   wiki drop chance on item cards and tooltips, gems by 1 in (100 × tier)
   (suite AC). v7.7 imports the profile's
   `xpBonuses` into multiple Skill Boost chips and the server/ZC/team/flats,

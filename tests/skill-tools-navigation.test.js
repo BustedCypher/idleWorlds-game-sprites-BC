@@ -20,6 +20,7 @@ test('desktop and mobile expose a Skill Tools group', () => {
     assert.match(group,/data-tab="construction-village"/);
     assert.match(group,/data-tab="jewelry"/);
     assert.match(group,/data-tab="housing-planner"/);
+    assert.match(group,/data-tab="belt-planner"/);
     assert.doesNotMatch(group,/data-tab="work-order"/);
   }
 });
@@ -28,8 +29,8 @@ test('Work Order remains a standalone desktop and mobile tool', () => {
   assert.equal((html.match(/class="tab-btn" data-tab="work-order"/g)||[]).length,2);
 });
 
-test('tab switching marks only Construction, Jewelry and Housing Planner as Skill Tools', () => {
-  assert.match(html,/const isSkillTool = name === 'construction-village' \|\| name === 'jewelry' \|\| name === 'housing-planner';/);
+test('tab switching marks only Construction, Jewelry, Housing Planner and Belt Planner as Skill Tools', () => {
+  assert.match(html,/const isSkillTool = name === 'construction-village' \|\| name === 'jewelry' \|\| name === 'housing-planner' \|\| name === 'belt-planner';/);
   assert.match(html,/querySelectorAll\('\.skill-tools-toggle'\)/);
   assert.doesNotMatch(html,/const isCommunityTool/);
 });
